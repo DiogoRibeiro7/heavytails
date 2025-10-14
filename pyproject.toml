@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "heavytails"
+version = "0.1.0"
+description = "Pure-Python heavy-tailed probability distributions for research, teaching, and simulation."
+authors = ["Diogo Ribeiro <your.email@example.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/DiogoRibeiro7/heavytails"
+keywords = ["heavy-tailed", "statistics", "probability", "extreme-values", "distributions"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Statistics"
+]
+packages = [{ include = "heavytails" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

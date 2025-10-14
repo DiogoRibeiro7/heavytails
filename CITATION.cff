@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: heavytails
+message: "If you use this library, please cite as below."
+authors:
+  - family-names: Ribeiro
+    given-names: Diogo
+    orcid: "0000-0000-0000-0000"
+abstract: >
+  heavytails is a pure-Python library implementing heavy-tailed probability
+  distributions, built from first principles without third-party dependencies.
+repository-code: "https://github.com/DiogoRibeiro7/heavytails"
+license: MIT
+version: 0.1.0
+date-released: 2025-10-14
+keywords:
+  - heavy tails
+  - probability distributions
+  - statistics
+  - data science
+  - machine learning
