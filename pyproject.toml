@@ -20,7 +20,7 @@ packages = [{ include = "heavytails" }]
 python = ">=3.10,<3.13"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0"
+pytest = "^8.4.2"
 
 [build-system]
 requires = ["poetry-core"]
