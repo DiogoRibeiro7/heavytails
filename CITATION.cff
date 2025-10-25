@@ -1,20 +1,77 @@
 cff-version: 1.2.0
 title: heavytails
 message: "If you use this library, please cite as below."
+type: software
 authors:
   - family-names: Ribeiro
     given-names: Diogo
-    orcid: "0000-0000-0000-0000"
+    orcid: "https://orcid.org/0009-0001-2022-7072"
+    affiliation: "ESMAD - Escola Superior de Média Arte e Design; Mysense.ai"
+    email: dfr@esmad.ipp.pt
+repository-code: "https://github.com/DiogoRibeiro7/heavytails"
+url: "https://diogoribeiro7.github.io/heavytails"
 abstract: >
   heavytails is a pure-Python library implementing heavy-tailed probability
   distributions, built from first principles without third-party dependencies.
-repository-code: "https://github.com/DiogoRibeiro7/heavytails"
-license: MIT
-version: 0.1.0
-date-released: 2025-10-14
+  The library provides comprehensive support for continuous and discrete
+  heavy-tailed distributions, tail index estimation methods, and diagnostic
+  utilities for extreme value analysis, risk management, and financial modeling.
 keywords:
   - heavy tails
   - probability distributions
   - statistics
   - data science
   - machine learning
+  - extreme value theory
+  - risk management
+  - finance
+  - tail risk
+  - python
+license: MIT
+version: 0.1.0
+date-released: 2025-10-25
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Ribeiro
+      given-names: Diogo
+      orcid: "https://orcid.org/0009-0001-2022-7072"
+  title: "heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions"
+  journal: "Journal of Open Source Software"
+  year: 2025
+  volume: 10
+  issue: 108
+  doi: "10.21105/joss.XXXXX"  # To be updated when published
+  url: "https://doi.org/10.21105/joss.XXXXX"
+references:
+  - type: book
+    title: "Extreme Value Theory: An Introduction"
+    authors:
+      - family-names: de Haan
+        given-names: Laurens
+      - family-names: Ferreira
+        given-names: Ana
+    publisher: "Springer"
+    year: 2006
+    isbn: "978-0-387-23946-0"
+  - type: book
+    title: "Heavy-Tailed Distributions in Finance"
+    authors:
+      - family-names: Rachev
+        given-names: Svetlozar T.
+      - family-names: Mittnik
+        given-names: Stefan
+    publisher: "Academic Press"
+    year: 2000
+    isbn: "978-0-12-574340-4"
+  - type: article
+    title: "A Simple General Approach to Inference About the Tail of a Distribution"
+    authors:
+      - family-names: Hill
+        given-names: Bruce M.
+    journal: "The Annals of Statistics"
+    year: 1975
+    volume: 3
+    issue: 5
+    pages: "1163-1174"
+    doi: "10.1214/aos/1176343247"

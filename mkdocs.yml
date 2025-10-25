@@ -1,0 +1,214 @@
+site_name: HeavyTails Documentation
+site_description: Pure-Python heavy-tailed probability distributions for research, teaching, and simulation
+site_author: Diogo Ribeiro
+site_url: https://diogoribeiro7.github.io/heavytails
+repo_url: https://github.com/diogoribeiro7/heavytails
+repo_name: diogoribeiro7/heavytails
+edit_uri: edit/main/docs/
+
+# Configuration
+theme:
+  name: material
+  custom_dir: docs/overrides
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - toc.follow
+    - toc.integrate
+
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      title: On this page
+  - tables
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: diogoribeiro7
+      repo: heavytails
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Plugins
+plugins:
+  - search:
+      lang: en
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: numpy
+            docstring_options:
+              ignore_init_summary: true
+            merge_init_into_class: true
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            separate_signature: true
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocs-jupyter:
+      include_source: true
+      execute: true
+      allow_errors: false
+      kernel_name: python3
+
+# Additional CSS and JavaScript
+extra_css:
+  - stylesheets/extra.css
+  - https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css
+
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/contrib/auto-render.min.js
+
+# Page tree
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Basic Concepts: getting-started/concepts.md
+  - User Guide:
+    - Distributions Overview: guide/distributions.md
+    - Working with PDFs and CDFs: guide/pdf-cdf.md
+    - Random Sampling: guide/sampling.md
+    - Tail Index Estimation: guide/tail-estimation.md
+    - Parameter Fitting: guide/fitting.md
+    - Diagnostic Tools: guide/diagnostics.md
+  - Examples:
+    - Basic Usage: examples/basic_usage.ipynb
+    - Financial Applications: examples/finance.ipynb
+    - Risk Management: examples/risk.ipynb
+    - Extreme Value Analysis: examples/extreme_values.ipynb
+    - Comparison Studies: examples/comparisons.ipynb
+  - Mathematical Background:
+    - Heavy-Tail Theory: theory/heavy-tails.md
+    - Extreme Value Theory: theory/evt.md
+    - Tail Index Estimation: theory/tail-estimation.md
+    - Special Functions: theory/special-functions.md
+  - API Reference:
+    - Core Distributions: reference/
+    - Extra Distributions: reference/
+    - Discrete Distributions: reference/
+    - Tail Estimators: reference/
+    - Utilities: reference/
+  - Development:
+    - Contributing: development/contributing.md
+    - Testing: development/testing.md
+    - Benchmarks: development/benchmarks.md
+    - Release Notes: development/changelog.md
+  - About:
+    - License: about/license.md
+    - Citation: about/citation.md
+    - Authors: about/authors.md
+
+# Extra configuration
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/diogoribeiro7
+    - icon: fontawesome/brands/orcid
+      link: https://orcid.org/0009-0001-2022-7072
+    - icon: fontawesome/solid/envelope
+      link: mailto:dfr@esmad.ipp.pt
+  
+  version:
+    provider: mike
+    default: stable
+
+  analytics:
+    provider: google
+    property: !ENV [GOOGLE_ANALYTICS_KEY, ""]
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >- 
+            Thanks for your feedback! Help us improve this page by
+            <a href="https://github.com/diogoribeiro7/heavytails/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">telling us what you found unclear</a>.
+
+# Copyright
+copyright: |
+  &copy; 2025 <a href="https://github.com/diogoribeiro7"  target="_blank" rel="noopener">Diogo Ribeiro</a>
