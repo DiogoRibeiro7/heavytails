@@ -82,11 +82,10 @@ rich = "^13.9.4"
 typer = "^0.14.0"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.1"
-mkdocs-material = "^9.5.44"
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.0"
+mkdocstrings = { version = ">=0.30.1,<1.0", extras = ["python"] }
 mkdocs-jupyter = "^0.25.1"
-mkdocstrings = "^0.30.1"
-mkdocstrings-python = "^1.12.1"
 mkdocs-gen-files = "^0.5.0"
 mkdocs-literate-nav = "^0.6.1"
 mkdocs-section-index = "^0.3.9"
