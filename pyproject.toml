@@ -78,7 +78,7 @@ types-requests = "^2.32.0"
 
 # Development utilities
 ipython = "^8.29.0"
-rich = "^13.9.4"
+rich = "^14.2.0"
 typer = "^0.14.0"
 
 [tool.poetry.group.docs.dependencies]
