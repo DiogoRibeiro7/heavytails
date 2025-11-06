@@ -1,11 +1,12 @@
 # heavy_tails.py
 from __future__ import annotations
 
+from dataclasses import dataclass
 import math
 import random
-from dataclasses import dataclass
 
 # ----------------------------- Utilities ------------------------------------ #
+
 
 class ParameterError(ValueError):
     """Raised when distribution parameters are invalid."""
@@ -70,7 +71,7 @@ class RNG:
             v = v * v * v
             u = self.uniform_0_1()
             # Squeeze / acceptance tests
-            if u < 1.0 - 0.0331 * (z ** 4):
+            if u < 1.0 - 0.0331 * (z**4):
                 return d * v
             if math.log(u) < 0.5 * z * z + d * (1.0 - v + math.log(v)):
                 return d * v
@@ -83,6 +84,7 @@ class RNG:
 
 
 # --------------------------- Base mixin -------------------------------------- #
+
 
 class Samplable:
     """Mixin to provide vectorized sampling with a given RNG."""
@@ -103,6 +105,7 @@ class Samplable:
 
 # --------------------------- Distributions ----------------------------------- #
 
+
 @dataclass(frozen=True)
 class Pareto(Samplable):
     """
@@ -111,6 +114,7 @@ class Pareto(Samplable):
     CDF: F(x) = 1 - (x_m / x)^α
     PPF: F^{-1}(u) = x_m * (1 - u)^{-1/α}
     """
+
     alpha: float
     xm: float = 1.0
 
@@ -121,7 +125,7 @@ class Pareto(Samplable):
     def pdf(self, x: float) -> float:
         if x < self.xm:
             return 0.0
-        return self.alpha * (self.xm ** self.alpha) / (x ** (self.alpha + 1.0))
+        return self.alpha * (self.xm**self.alpha) / (x ** (self.alpha + 1.0))
 
     def cdf(self, x: float) -> float:
         if x < self.xm:
@@ -152,6 +156,7 @@ class Cauchy(Samplable):
     CDF: F(x) = 0.5 + (1/π) * arctan((x - x0)/γ)
     PPF: x = x0 + γ * tan(π(u - 0.5))
     """
+
     x0: float = 0.0
     gamma: float = 1.0
 
@@ -185,6 +190,7 @@ class StudentT(Samplable):
     Sampling: X = Z / sqrt(Y/ν) with Z~N(0,1), Y~χ²(ν)
     NOTE: CDF/PPF require special functions not in stdlib; omitted.
     """
+
     nu: float
 
     def __post_init__(self) -> None:
@@ -193,7 +199,9 @@ class StudentT(Samplable):
 
     def pdf(self, x: float) -> float:
         nu = self.nu
-        c = math.gamma((nu + 1.0) / 2.0) / (math.sqrt(nu * math.pi) * math.gamma(nu / 2.0))
+        c = math.gamma((nu + 1.0) / 2.0) / (
+            math.sqrt(nu * math.pi) * math.gamma(nu / 2.0)
+        )
         return c * (1.0 + (x * x) / nu) ** (-(nu + 1.0) / 2.0)
 
     def _rvs_one(self, rng: RNG) -> float:
@@ -209,6 +217,7 @@ class LogNormal(Samplable):
     PDF: f(x) = [1/(x σ sqrt(2π))] * exp( -(ln x - μ)^2 / (2σ^2) ), x>0
     CDF: F(x) = 0.5 * [1 + erf( (ln x - μ) / (σ sqrt(2)) )], x>0
     """
+
     mu: float = 0.0
     sigma: float = 1.0
 
@@ -250,6 +259,7 @@ class Weibull(Samplable):
     PPF: x = λ * (-ln(1-u))^{1/k}
     Heavy-tailed for k in (0,1) (subexponential, slower than exponential decay).
     """
+
     k: float
     lam: float = 1.0
 
@@ -266,7 +276,7 @@ class Weibull(Samplable):
     def cdf(self, x: float) -> float:
         if x < 0.0:
             return 0.0
-        return 1.0 - math.exp(- (x / self.lam) ** self.k)
+        return 1.0 - math.exp(-((x / self.lam) ** self.k))
 
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
@@ -287,6 +297,7 @@ class Frechet(Samplable):
     PDF: f(x) = (α/s) * ((x - m)/s)^(-α-1) * exp( - ((x - m)/s)^(-α) ), x>m
     PPF: x = m + s * [ -ln(u) ]^{-1/α}
     """
+
     alpha: float
     s: float = 1.0
     m: float = 0.0
@@ -328,13 +339,16 @@ class GEV_Frechet(Samplable):
     PDF: f(x) = (1/σ) * [1 + ξ z]^(-1/ξ - 1) * exp( -[1 + ξ z]^(-1/ξ) ), z=(x-μ)/σ
     PPF: x = μ + (σ/ξ) * ( (-ln u)^(-ξ) - 1 )
     """
+
     xi: float
     mu: float = 0.0
     sigma: float = 1.0
 
     def __post_init__(self) -> None:
         if not (self.xi > 0 and self.sigma > 0):
-            raise ParameterError("GEV_Frechet requires xi>0 and sigma>0 (heavy-tailed branch).")
+            raise ParameterError(
+                "GEV_Frechet requires xi>0 and sigma>0 (heavy-tailed branch)."
+            )
 
     def _valid(self, x: float) -> bool:
         return (1.0 + self.xi * ((x - self.mu) / self.sigma)) > 0.0
@@ -344,7 +358,11 @@ class GEV_Frechet(Samplable):
             return 0.0
         z = (x - self.mu) / self.sigma
         t = 1.0 + self.xi * z
-        return (1.0 / self.sigma) * (t ** (-1.0 / self.xi - 1.0)) * math.exp(-(t ** (-1.0 / self.xi)))
+        return (
+            (1.0 / self.sigma)
+            * (t ** (-1.0 / self.xi - 1.0))
+            * math.exp(-(t ** (-1.0 / self.xi)))
+        )
 
     def cdf(self, x: float) -> float:
         if not self._valid(x):
@@ -365,6 +383,7 @@ class GEV_Frechet(Samplable):
 
 # -------------- Normal quantile (Acklam’s Φ^{-1}) for LogNormal PPF ---------- #
 
+
 def _phi_inverse(u: float) -> float:
     """
     Approximate the inverse standard normal CDF (quantile) for u in (0,1).
@@ -377,50 +396,71 @@ def _phi_inverse(u: float) -> float:
         raise ValueError("u must be in (0,1).")
 
     # Coefficients
-    a = [ -3.969683028665376e+01,  2.209460984245205e+02,
-          -2.759285104469687e+02,  1.383577518672690e+02,
-          -3.066479806614716e+01,  2.506628277459239e+00 ]
-    b = [ -5.447609879822406e+01,  1.615858368580409e+02,
-          -1.556989798598866e+02,  6.680131188771972e+01,
-          -1.328068155288572e+01 ]
-    c = [ -7.784894002430293e-03, -3.223964580411365e-01,
-          -2.400758277161838e+00, -2.549732539343734e+00,
-           4.374664141464968e+00,  2.938163982698783e+00 ]
-    d = [ 7.784695709041462e-03,  3.224671290700398e-01,
-          2.445134137142996e+00,  3.754408661907416e+00 ]
+    a = [
+        -3.969683028665376e01,
+        2.209460984245205e02,
+        -2.759285104469687e02,
+        1.383577518672690e02,
+        -3.066479806614716e01,
+        2.506628277459239e00,
+    ]
+    b = [
+        -5.447609879822406e01,
+        1.615858368580409e02,
+        -1.556989798598866e02,
+        6.680131188771972e01,
+        -1.328068155288572e01,
+    ]
+    c = [
+        -7.784894002430293e-03,
+        -3.223964580411365e-01,
+        -2.400758277161838e00,
+        -2.549732539343734e00,
+        4.374664141464968e00,
+        2.938163982698783e00,
+    ]
+    d = [
+        7.784695709041462e-03,
+        3.224671290700398e-01,
+        2.445134137142996e00,
+        3.754408661907416e00,
+    ]
 
     # Break-points
-    plow  = 0.02425
+    plow = 0.02425
     phigh = 1.0 - plow
 
     if u < plow:
         q = math.sqrt(-2.0 * math.log(u))
-        num = (((((c[0]*q + c[1])*q + c[2])*q + c[3])*q + c[4])*q + c[5])
-        den = ((((d[0]*q + d[1])*q + d[2])*q + d[3])*q + 1.0)
+        num = ((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]
+        den = (((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0
         x = num / den
     elif u > phigh:
         q = math.sqrt(-2.0 * math.log(1.0 - u))
-        num = -(((((c[0]*q + c[1])*q + c[2])*q + c[3])*q + c[4])*q + c[5])
-        den = ((((d[0]*q + d[1])*q + d[2])*q + d[3])*q + 1.0)
+        num = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5])
+        den = (((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0
         x = num / den
     else:
         q = u - 0.5
         r = q * q
-        num = (((((a[0]*r + a[1])*r + a[2])*r + a[3])*r + a[4])*r + a[5]) * q
-        den = (((((b[0]*r + b[1])*r + b[2])*r + b[3])*r + b[4])*r + 1.0)
+        num = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q
+        den = ((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1.0
         x = num / den
 
     # One Halley refinement for better accuracy
     # φ(x) = standard normal pdf, Φ(x) = cdf
     def phi(x: float) -> float:
         return math.exp(-0.5 * x * x) / math.sqrt(2.0 * math.pi)
+
     def Phi(x: float) -> float:
         return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
     x = x - (Phi(x) - u) / max(phi(x), 1e-300)
     return x
 
 
 # ----------------------------- Demo / Self-test ------------------------------ #
+
 
 def _demo() -> None:
     """Basic checks and example usage. Run `python heavy_tails.py`."""
@@ -428,11 +468,11 @@ def _demo() -> None:
 
     pareto = Pareto(alpha=1.5, xm=1.0)
     cauchy = Cauchy(x0=0.0, gamma=1.0)
-    studt  = StudentT(nu=3.0)
-    lgn    = LogNormal(mu=0.0, sigma=1.0)
-    weib   = Weibull(k=0.7, lam=2.0)         # heavy-tailed regime k<1
-    frech  = Frechet(alpha=2.5, s=1.0, m=0.0)
-    gev    = GEV_Frechet(xi=0.3, mu=0.0, sigma=1.0)
+    studt = StudentT(nu=3.0)
+    lgn = LogNormal(mu=0.0, sigma=1.0)
+    weib = Weibull(k=0.7, lam=2.0)  # heavy-tailed regime k<1
+    frech = Frechet(alpha=2.5, s=1.0, m=0.0)
+    gev = GEV_Frechet(xi=0.3, mu=0.0, sigma=1.0)
 
     # Example: single values
     x = 2.5

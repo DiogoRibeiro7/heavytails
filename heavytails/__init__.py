@@ -46,14 +46,24 @@ from .tail_index import hill_estimator, moment_estimator, pickands_estimator
 
 __all__ = [
     # Continuous
-    "Pareto", "Cauchy", "StudentT", "LogNormal",
-    "Weibull", "Frechet", "GEV_Frechet",
-    "GeneralizedPareto", "BurrXII", "LogLogistic",
-    "InverseGamma", "BetaPrime",
-
+    "Pareto",
+    "Cauchy",
+    "StudentT",
+    "LogNormal",
+    "Weibull",
+    "Frechet",
+    "GEV_Frechet",
+    "GeneralizedPareto",
+    "BurrXII",
+    "LogLogistic",
+    "InverseGamma",
+    "BetaPrime",
     # Discrete
-    "Zipf", "YuleSimon", "DiscretePareto",
-
+    "Zipf",
+    "YuleSimon",
+    "DiscretePareto",
     # Tail estimators
-    "hill_estimator", "pickands_estimator", "moment_estimator",
+    "hill_estimator",
+    "pickands_estimator",
+    "moment_estimator",
 ]

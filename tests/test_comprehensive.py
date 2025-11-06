@@ -7,9 +7,9 @@ and edge case tests for all distributions in the heavytails library.
 
 import math
 
-import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+import pytest
 
 from heavytails import (
     BurrXII,
@@ -25,9 +25,15 @@ from heavytails import (
 from heavytails.heavy_tails import ParameterError
 
 # Strategy definitions for hypothesis
-positive_float = st.floats(min_value=1e-6, max_value=1e6, allow_nan=False, allow_infinity=False)
-small_positive_float = st.floats(min_value=1e-3, max_value=100, allow_nan=False, allow_infinity=False)
-probability = st.floats(min_value=1e-6, max_value=1-1e-6, allow_nan=False, allow_infinity=False)
+positive_float = st.floats(
+    min_value=1e-6, max_value=1e6, allow_nan=False, allow_infinity=False
+)
+small_positive_float = st.floats(
+    min_value=1e-3, max_value=100, allow_nan=False, allow_infinity=False
+)
+probability = st.floats(
+    min_value=1e-6, max_value=1 - 1e-6, allow_nan=False, allow_infinity=False
+)
 small_int = st.integers(min_value=1, max_value=1000)
 
 
@@ -37,7 +43,7 @@ class TestPropertyBased:
     @given(
         alpha=st.floats(min_value=0.1, max_value=10),
         xm=small_positive_float,
-        u=probability
+        u=probability,
     )
     @settings(max_examples=50, deadline=None)
     def test_pareto_ppf_cdf_inverse(self, alpha: float, xm: float, u: float) -> None:
@@ -52,10 +58,12 @@ class TestPropertyBased:
         xi=st.floats(min_value=0.01, max_value=2.0),
         sigma=small_positive_float,
         mu=st.floats(min_value=-10, max_value=10),
-        u=probability
+        u=probability,
     )
     @settings(max_examples=30, deadline=None)
-    def test_gpd_ppf_cdf_inverse(self, xi: float, sigma: float, mu: float, u: float) -> None:
+    def test_gpd_ppf_cdf_inverse(
+        self, xi: float, sigma: float, mu: float, u: float
+    ) -> None:
         """Test PPF/CDF inverse property for GPD."""
         dist = GeneralizedPareto(xi=xi, sigma=sigma, mu=mu)
         x = dist.ppf(u)
@@ -66,7 +74,7 @@ class TestPropertyBased:
         c=st.floats(min_value=0.1, max_value=5),
         k=st.floats(min_value=0.1, max_value=5),
         s=small_positive_float,
-        u=probability
+        u=probability,
     )
     @settings(max_examples=30, deadline=None)
     def test_burr_ppf_cdf_inverse(self, c: float, k: float, s: float, u: float) -> None:
@@ -80,7 +88,7 @@ class TestPropertyBased:
     @given(
         alpha=st.floats(min_value=0.1, max_value=10),
         xm=small_positive_float,
-        x=st.floats(min_value=0.1, max_value=1000)
+        x=st.floats(min_value=0.1, max_value=1000),
     )
     @settings(max_examples=50, deadline=None)
     def test_pareto_monotonic_cdf(self, alpha: float, xm: float, x: float) -> None:
@@ -100,7 +108,7 @@ class TestPropertyBased:
     @given(
         alpha=st.floats(min_value=0.1, max_value=10),
         xm=small_positive_float,
-        x=st.floats(min_value=0.1, max_value=1000)
+        x=st.floats(min_value=0.1, max_value=1000),
     )
     @settings(max_examples=50, deadline=None)
     def test_pareto_pdf_nonnegative(self, alpha: float, xm: float, x: float) -> None:
@@ -112,7 +120,7 @@ class TestPropertyBased:
     @given(
         x0=st.floats(min_value=-10, max_value=10),
         gamma=small_positive_float,
-        x=st.floats(min_value=-100, max_value=100)
+        x=st.floats(min_value=-100, max_value=100),
     )
     @settings(max_examples=50, deadline=None)
     def test_cauchy_pdf_symmetry(self, x0: float, gamma: float, x: float) -> None:
@@ -122,10 +130,7 @@ class TestPropertyBased:
         pdf_right = dist.pdf(x0 + abs(x - x0))
         assert abs(pdf_left - pdf_right) < 1e-12
 
-    @given(
-        s=st.floats(min_value=1.1, max_value=5),
-        k=small_int
-    )
+    @given(s=st.floats(min_value=1.1, max_value=5), k=small_int)
     @settings(max_examples=30, deadline=None)
     def test_zipf_pmf_sum_approximation(self, s: float, k: int) -> None:
         """Test that Zipf PMF approximately sums to 1."""
@@ -301,7 +306,7 @@ class TestDistributionSpecific:
 
         # Empirical mean and std of log_samples should be close to μ, σ
         emp_mean = sum(log_samples) / len(log_samples)
-        emp_var = sum((x - emp_mean)**2 for x in log_samples) / (len(log_samples) - 1)
+        emp_var = sum((x - emp_mean) ** 2 for x in log_samples) / (len(log_samples) - 1)
         emp_std = math.sqrt(emp_var)
 
         # Allow for sampling variation

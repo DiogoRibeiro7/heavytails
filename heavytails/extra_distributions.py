@@ -1,9 +1,9 @@
 # extra_distributions.py
 from __future__ import annotations
 
-import math
 from collections.abc import Callable
 from dataclasses import dataclass
+import math
 
 # Reuse the small utilities from your base module
 from heavy_tails import RNG, ParameterError, Samplable
@@ -11,6 +11,7 @@ from heavy_tails import RNG, ParameterError, Samplable
 # =============================================================================
 # Numeric special functions (stdlib only)
 # =============================================================================
+
 
 def _log_beta(a: float, b: float) -> float:
     """log B(a,b) via lgamma for stability."""
@@ -142,7 +143,7 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
         # Here we implement the modified Lentz for the continued fraction of Q
         # Coefficients:
         an = n * (a - n)
-        bn = (x + 2.0 * n - a)
+        bn = x + 2.0 * n - a
         # update D
         D = bn + an * D
         if abs(D) < tiny:
@@ -165,12 +166,15 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
     return P
 
 
-def _ppf_monotone(cdf: Callable[[float], float],
-                  lo: float, hi: float,
-                  u: float,
-                  pdf: Callable[[float], float] | None = None,
-                  max_iter: int = 100,
-                  tol: float = 1e-12) -> float:
+def _ppf_monotone(
+    cdf: Callable[[float], float],
+    lo: float,
+    hi: float,
+    u: float,
+    pdf: Callable[[float], float] | None = None,
+    max_iter: int = 100,
+    tol: float = 1e-12,
+) -> float:
     """
     Generic monotone inverse for continuous distributions on (lo,hi).
     Safeguarded Newton: try Newton when pdf is available and well-behaved,
@@ -211,6 +215,7 @@ def _ppf_monotone(cdf: Callable[[float], float],
 # Distributions
 # =============================================================================
 
+
 @dataclass(frozen=True)
 class GeneralizedPareto(Samplable):
     """
@@ -228,6 +233,7 @@ class GeneralizedPareto(Samplable):
         x = μ + (σ/ξ) * ( (1-u)^(-ξ) - 1 )      if ξ != 0
         x = μ - σ * ln(1-u)                     if ξ = 0 (exponential limit)
     """
+
     xi: float
     sigma: float = 1.0
     mu: float = 0.0
@@ -244,7 +250,11 @@ class GeneralizedPareto(Samplable):
             return 0.0
         z = (x - self.mu) / self.sigma
         t = 1.0 + self.xi * z
-        return (1.0 / self.sigma) * (t ** (-1.0 / self.xi - 1.0)) if self.xi != 0.0 else (1.0 / self.sigma) * math.exp(-z)
+        return (
+            (1.0 / self.sigma) * (t ** (-1.0 / self.xi - 1.0))
+            if self.xi != 0.0
+            else (1.0 / self.sigma) * math.exp(-z)
+        )
 
     def cdf(self, x: float) -> float:
         if not self._valid(x):
@@ -279,6 +289,7 @@ class BurrXII(Samplable):
     PDF: f(x) = (ck/s) * (x/s)^(c-1) * (1 + (x/s)^c)^(-k-1)
     PPF: x = s * ( (1 - u)^(-1/k) - 1 )^(1/c)
     """
+
     c: float
     k: float
     s: float = 1.0
@@ -291,7 +302,11 @@ class BurrXII(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.s) ** self.c
-        return (self.c * self.k / self.s) * (x / self.s) ** (self.c - 1.0) * (1.0 + z) ** (-self.k - 1.0)
+        return (
+            (self.c * self.k / self.s)
+            * (x / self.s) ** (self.c - 1.0)
+            * (1.0 + z) ** (-self.k - 1.0)
+        )
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -308,7 +323,7 @@ class BurrXII(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.s * (( (1.0 - u) ** (-1.0 / self.k) ) - 1.0) ** (1.0 / self.c)
+        return self.s * (((1.0 - u) ** (-1.0 / self.k)) - 1.0) ** (1.0 / self.c)
 
     def _rvs_one(self, rng: RNG) -> float:
         return self.ppf(rng.uniform_0_1())
@@ -322,6 +337,7 @@ class LogLogistic(Samplable):
     PDF: f(x) = (κ/λ) (x/λ)^(κ-1) / (1 + (x/λ)^κ)^2
     PPF: x = λ * (u/(1-u))^(1/κ)
     """
+
     kappa: float
     lam: float = 1.0
 
@@ -333,7 +349,11 @@ class LogLogistic(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.lam) ** self.kappa
-        return (self.kappa / self.lam) * (x / self.lam) ** (self.kappa - 1.0) / (1.0 + z) ** 2
+        return (
+            (self.kappa / self.lam)
+            * (x / self.lam) ** (self.kappa - 1.0)
+            / (1.0 + z) ** 2
+        )
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -365,6 +385,7 @@ class InverseGamma(Samplable):
          where Q = 1 - P and P is the regularized lower gamma.
     Sampling: If G ~ Gamma(α, scale=1), then X = β / G has InvGamma(α, β).
     """
+
     alpha: float
     beta: float
 
@@ -376,7 +397,7 @@ class InverseGamma(Samplable):
         if x <= 0.0:
             return 0.0
         a, b = self.alpha, self.beta
-        return (b ** a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x)
+        return (b**a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x)
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -392,9 +413,11 @@ class InverseGamma(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
+
         # Solve F(x) = u on x in (0, +inf). Monotone increasing.
         def cdf_x(t: float) -> float:
             return self.cdf(t)
+
         # Choose a crude bracket using quantile heuristics:
         # start around mode for alpha>1: beta/(alpha+1) and expand
         a = 0.0
@@ -420,6 +443,7 @@ class BetaPrime(Samplable):
     PPF: No closed form in general -> monotone numeric inversion.
     Sampling: If U~Gamma(a,1), V~Gamma(b,1), then X = s * U/V ~ BetaPrime(a,b,s).
     """
+
     a: float
     b: float
     s: float = 1.0
@@ -433,7 +457,11 @@ class BetaPrime(Samplable):
             return 0.0
         a, b, s = self.a, self.b, self.s
         z = x / s
-        return math.exp(-(math.log(s) + _log_beta(a, b))) * (z ** (a - 1.0)) * (1.0 + z) ** (-(a + b))
+        return (
+            math.exp(-(math.log(s) + _log_beta(a, b)))
+            * (z ** (a - 1.0))
+            * (1.0 + z) ** (-(a + b))
+        )
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -447,6 +475,7 @@ class BetaPrime(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
+
         # invert I_{x/(x+s)}(a,b) = u  -> y=u_inv, then x = s * y / (1 - y)
         # We'll solve directly for x using monotone root finding.
         def cdf_x(t: float) -> float:
@@ -471,6 +500,7 @@ class BetaPrime(Samplable):
 # =============================================================================
 # Minimal self-test / examples
 # =============================================================================
+
 
 def _demo() -> None:
     seed = 123

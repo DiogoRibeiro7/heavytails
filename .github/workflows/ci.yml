@@ -121,7 +121,7 @@ jobs:
       run: poetry install --with dev
       
     - name: Run ruff linting
-      run: poetry run ruff check . --output-format=github
+      run: poetry run ruff check .
       
     - name: Run ruff formatting check
       run: poetry run ruff format --check .

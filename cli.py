@@ -11,12 +11,12 @@ Provides utilities for:
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
+import sys
 
-import typer
 from rich.console import Console
 from rich.table import Table
+import typer
 
 from heavytails import (
     BetaPrime,
@@ -64,7 +64,9 @@ def sample(
     n: int = typer.Option(1000, "--samples", "-n", help="Number of samples"),
     output: Path | None = typer.Option(None, "--output", "-o", help="Output file"),
     seed: int | None = typer.Option(None, "--seed", "-s", help="Random seed"),
-    params: str = typer.Option("{}", "--params", "-p", help="Distribution parameters as JSON"),
+    params: str = typer.Option(
+        "{}", "--params", "-p", help="Distribution parameters as JSON"
+    ),
 ) -> None:
     """Generate samples from a heavy-tailed distribution."""
 
@@ -85,7 +87,7 @@ def sample(
         samples = dist.rvs(n, seed=seed)
 
         if output:
-            with open(output, 'w') as f:
+            with open(output, "w") as f:
                 for sample in samples:
                     f.write(f"{sample}\n")
             console.print(f"[green]Success:[/green] Wrote {n} samples to {output}")
@@ -100,10 +102,14 @@ def sample(
 
 @app.command()
 def estimate_tail(
-    data_file: Path = typer.Argument(..., help="File containing data (one value per line)"),
+    data_file: Path = typer.Argument(
+        ..., help="File containing data (one value per line)"
+    ),
     method: str = typer.Option("hill", "--method", "-m", help="Estimation method"),
     k: int | None = typer.Option(None, "--k", help="Number of top order statistics"),
-    output_format: str = typer.Option("table", "--format", "-f", help="Output format (table|json)"),
+    output_format: str = typer.Option(
+        "table", "--format", "-f", help="Output format (table|json)"
+    ),
 ) -> None:
     """Estimate tail index from data."""
 
@@ -120,7 +126,9 @@ def estimate_tail(
         raise typer.Exit(1)
 
     if len(data) < 10:
-        console.print(f"[red]Error:[/red] Need at least 10 data points, got {len(data)}")
+        console.print(
+            f"[red]Error:[/red] Need at least 10 data points, got {len(data)}"
+        )
         raise typer.Exit(1)
 
     # Auto-select k if not provided
@@ -128,7 +136,9 @@ def estimate_tail(
         k = min(len(data) // 10, 200)  # Rule of thumb: ~10% of data, max 200
 
     if k >= len(data):
-        console.print(f"[red]Error:[/red] k ({k}) must be less than data size ({len(data)})")
+        console.print(
+            f"[red]Error:[/red] k ({k}) must be less than data size ({len(data)})"
+        )
         raise typer.Exit(1)
 
     try:
@@ -140,7 +150,7 @@ def estimate_tail(
                 "gamma": result,
                 "alpha": alpha_hat,
                 "k": k,
-                "n": len(data)
+                "n": len(data),
             }
 
         elif method == "pickands":
@@ -151,7 +161,7 @@ def estimate_tail(
                 "gamma": gamma_hat,
                 "alpha": alpha_hat,
                 "k": k,
-                "n": len(data)
+                "n": len(data),
             }
 
         elif method == "moment":
@@ -161,7 +171,7 @@ def estimate_tail(
                 "gamma": gamma_hat,
                 "alpha": alpha_hat,
                 "k": k,
-                "n": len(data)
+                "n": len(data),
             }
 
         else:
@@ -186,12 +196,14 @@ def estimate_tail(
             console.print(table)
 
             # Interpretation
-            gamma = results['gamma']
+            gamma = results["gamma"]
             console.print("\n[bold]Interpretation:[/bold]")
             if gamma > 0.5:
                 console.print("• [red]Very heavy tail[/red] - infinite variance")
             elif gamma > 0:
-                console.print("• [yellow]Heavy tail[/yellow] - finite variance, possible infinite higher moments")
+                console.print(
+                    "• [yellow]Heavy tail[/yellow] - finite variance, possible infinite higher moments"
+                )
             else:
                 console.print("• [green]Light tail or estimation error[/green]")
 
@@ -214,10 +226,14 @@ def fit(
 @app.command()
 def compare(
     data_file: Path = typer.Argument(..., help="File containing data"),
-    distributions: str = typer.Option("pareto,lognormal", "--dists", help="Comma-separated distribution list"),
+    distributions: str = typer.Option(
+        "pareto,lognormal", "--dists", help="Comma-separated distribution list"
+    ),
 ) -> None:
     """Compare multiple distributions against data (placeholder)."""
-    console.print("[yellow]Warning:[/yellow] Distribution comparison not yet implemented")
+    console.print(
+        "[yellow]Warning:[/yellow] Distribution comparison not yet implemented"
+    )
     console.print("Future versions will include AIC/BIC model comparison")
 
 
@@ -242,7 +258,7 @@ def info(
             "support": "x >= xm",
             "heavy_tail": "Always (α > 0)",
             "moments": "E[X^k] finite for k < α",
-            "applications": ["Income distribution", "City sizes", "Firm sizes"]
+            "applications": ["Income distribution", "City sizes", "Firm sizes"],
         },
         "cauchy": {
             "name": "Cauchy",
@@ -250,15 +266,18 @@ def info(
             "support": "All real numbers",
             "heavy_tail": "Always (no finite moments)",
             "moments": "No finite moments",
-            "applications": ["Physics (resonance)", "Ratio of normal RVs"]
+            "applications": ["Physics (resonance)", "Ratio of normal RVs"],
         },
         "lognormal": {
             "name": "Log-Normal",
-            "parameters": ["mu (underlying normal mean)", "sigma (underlying normal std)"],
+            "parameters": [
+                "mu (underlying normal mean)",
+                "sigma (underlying normal std)",
+            ],
             "support": "x > 0",
             "heavy_tail": "Always (subexponential)",
             "moments": "All moments finite",
-            "applications": ["Asset prices", "File sizes", "Environmental data"]
+            "applications": ["Asset prices", "File sizes", "Environmental data"],
         },
         "weibull": {
             "name": "Weibull",
@@ -266,7 +285,7 @@ def info(
             "support": "x >= 0",
             "heavy_tail": "When k < 1",
             "moments": "All moments finite",
-            "applications": ["Reliability", "Wind speeds", "Failure times"]
+            "applications": ["Reliability", "Wind speeds", "Failure times"],
         },
         "student-t": {
             "name": "Student's t",
@@ -274,7 +293,7 @@ def info(
             "support": "All real numbers",
             "heavy_tail": "When ν is small",
             "moments": "E[X^k] finite for k < ν",
-            "applications": ["Finance (returns)", "Robust statistics"]
+            "applications": ["Finance (returns)", "Robust statistics"],
         },
         "frechet": {
             "name": "Fréchet",
@@ -282,7 +301,7 @@ def info(
             "support": "x > m",
             "heavy_tail": "Always",
             "moments": "E[X^k] finite for k < α",
-            "applications": ["Extreme values", "Maximum of samples"]
+            "applications": ["Extreme values", "Maximum of samples"],
         },
         "gev": {
             "name": "Generalized Extreme Value (Fréchet type)",
@@ -290,7 +309,7 @@ def info(
             "support": "x > mu - sigma/xi",
             "heavy_tail": "When ξ > 0",
             "moments": "E[X^k] finite for k < 1/ξ",
-            "applications": ["Extreme weather", "Financial risk", "Insurance"]
+            "applications": ["Extreme weather", "Financial risk", "Insurance"],
         },
         "gpd": {
             "name": "Generalized Pareto",
@@ -298,7 +317,7 @@ def info(
             "support": "x >= mu (if xi >= 0)",
             "heavy_tail": "When ξ > 0",
             "moments": "E[X^k] finite for k < 1/ξ",
-            "applications": ["Peaks over threshold", "Insurance", "Finance"]
+            "applications": ["Peaks over threshold", "Insurance", "Finance"],
         },
         "burr": {
             "name": "Burr Type XII",
@@ -306,7 +325,7 @@ def info(
             "support": "x > 0",
             "heavy_tail": "Always",
             "moments": "E[X^k] finite for k < c",
-            "applications": ["Income modeling", "Reliability", "Hydrology"]
+            "applications": ["Income modeling", "Reliability", "Hydrology"],
         },
         "loglogistic": {
             "name": "Log-Logistic (Fisk)",
@@ -314,7 +333,7 @@ def info(
             "support": "x > 0",
             "heavy_tail": "Always",
             "moments": "E[X^k] finite for k < κ",
-            "applications": ["Survival analysis", "Economics", "Hydrology"]
+            "applications": ["Survival analysis", "Economics", "Hydrology"],
         },
         "invgamma": {
             "name": "Inverse Gamma",
@@ -322,7 +341,7 @@ def info(
             "support": "x > 0",
             "heavy_tail": "Always",
             "moments": "E[X^k] finite for k < α",
-            "applications": ["Bayesian priors", "Reliability", "Variance modeling"]
+            "applications": ["Bayesian priors", "Reliability", "Variance modeling"],
         },
         "betaprime": {
             "name": "Beta Prime",
@@ -330,8 +349,8 @@ def info(
             "support": "x > 0",
             "heavy_tail": "Always",
             "moments": "E[X^k] finite for k < a",
-            "applications": ["Economics", "Reliability", "Income modeling"]
-        }
+            "applications": ["Economics", "Reliability", "Income modeling"],
+        },
     }
 
     info = info_map.get(distribution, {})
@@ -391,7 +410,9 @@ def list_distributions() -> None:
 @app.command()
 def validate(
     distribution: str = typer.Argument(..., help="Distribution name"),
-    params: str = typer.Option("{}", "--params", "-p", help="Distribution parameters as JSON"),
+    params: str = typer.Option(
+        "{}", "--params", "-p", help="Distribution parameters as JSON"
+    ),
     tests: str = typer.Option("basic", "--tests", "-t", help="Test suite to run"),
 ) -> None:
     """Validate distribution implementation."""
@@ -432,7 +453,9 @@ def validate(
                 error = abs(recovered_u - u)
 
                 if error < 1e-6:
-                    console.print(f"  [green]✓[/green] u={u}: x={x:.4f}, error={error:.2e}")
+                    console.print(
+                        f"  [green]✓[/green] u={u}: x={x:.4f}, error={error:.2e}"
+                    )
                 else:
                     console.print(f"  [red]✗[/red] u={u}: x={x:.4f}, error={error:.2e}")
 
@@ -443,7 +466,7 @@ def validate(
         try:
             samples = dist.rvs(100, seed=42)
             console.print(f"  [green]✓[/green] Generated {len(samples)} samples")
-            console.print(f"  Sample mean: {sum(samples)/len(samples):.4f}")
+            console.print(f"  Sample mean: {sum(samples) / len(samples):.4f}")
             console.print(f"  Sample range: [{min(samples):.4f}, {max(samples):.4f}]")
         except Exception as e:
             console.print(f"  [red]✗[/red] Sampling error: {e}")
@@ -456,8 +479,12 @@ def validate(
 @app.command()
 def benchmark(
     distribution: str = typer.Argument(..., help="Distribution name"),
-    params: str = typer.Option("{}", "--params", "-p", help="Distribution parameters as JSON"),
-    n_samples: int = typer.Option(10000, "--samples", "-n", help="Number of samples for benchmark"),
+    params: str = typer.Option(
+        "{}", "--params", "-p", help="Distribution parameters as JSON"
+    ),
+    n_samples: int = typer.Option(
+        10000, "--samples", "-n", help="Number of samples for benchmark"
+    ),
 ) -> None:
     """Benchmark distribution performance."""
 
@@ -480,14 +507,18 @@ def benchmark(
         pdf_values = [dist.pdf(x) for x in x_values]
         pdf_time = time.time() - start_time
 
-        console.print(f"PDF evaluation (1000 points): {pdf_time:.4f}s ({1000/pdf_time:.0f} evals/sec)")
+        console.print(
+            f"PDF evaluation (1000 points): {pdf_time:.4f}s ({1000 / pdf_time:.0f} evals/sec)"
+        )
 
         # CDF evaluation benchmark
         start_time = time.time()
         cdf_values = [dist.cdf(x) for x in x_values]
         cdf_time = time.time() - start_time
 
-        console.print(f"CDF evaluation (1000 points): {cdf_time:.4f}s ({1000/cdf_time:.0f} evals/sec)")
+        console.print(
+            f"CDF evaluation (1000 points): {cdf_time:.4f}s ({1000 / cdf_time:.0f} evals/sec)"
+        )
 
         # PPF evaluation benchmark
         u_values = [i / 1000 for i in range(1, 1000)]
@@ -495,7 +526,9 @@ def benchmark(
         try:
             ppf_values = [dist.ppf(u) for u in u_values]
             ppf_time = time.time() - start_time
-            console.print(f"PPF evaluation (999 points): {ppf_time:.4f}s ({999/ppf_time:.0f} evals/sec)")
+            console.print(
+                f"PPF evaluation (999 points): {ppf_time:.4f}s ({999 / ppf_time:.0f} evals/sec)"
+            )
         except Exception as e:
             console.print(f"PPF benchmark failed: {e}")
 
@@ -504,7 +537,9 @@ def benchmark(
         samples = dist.rvs(n_samples, seed=42)
         sampling_time = time.time() - start_time
 
-        console.print(f"Sampling ({n_samples} samples): {sampling_time:.4f}s ({n_samples/sampling_time:.0f} samples/sec)")
+        console.print(
+            f"Sampling ({n_samples} samples): {sampling_time:.4f}s ({n_samples / sampling_time:.0f} samples/sec)"
+        )
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")

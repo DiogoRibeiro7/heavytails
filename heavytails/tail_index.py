@@ -1,8 +1,8 @@
 # heavytails/tail_index.py
 from __future__ import annotations
 
-import math
 from collections.abc import Sequence
+import math
 
 
 def hill_estimator(data: Sequence[float], k: int) -> float:
@@ -22,6 +22,7 @@ def hill_estimator(data: Sequence[float], k: int) -> float:
     x_k = x[k]
     return 1.0 / (sum(math.log(x[i] / x_k) for i in range(k)) / k)
 
+
 def pickands_estimator(data: Sequence[float], k: int, m: int = 2) -> float:
     """
     Pickands tail index estimator (extreme-value index γ).
@@ -30,10 +31,11 @@ def pickands_estimator(data: Sequence[float], k: int, m: int = 2) -> float:
     """
     x = sorted(data, reverse=True)
     n = len(x)
-    if 4*k*m > n:
+    if 4 * k * m > n:
         raise ValueError("Sample too small for Pickands estimator.")
-    Xk, X2k, Xmk, X2mk = x[k-1], x[2*k-1], x[m*k-1], x[2*m*k-1]
+    Xk, X2k, Xmk, X2mk = x[k - 1], x[2 * k - 1], x[m * k - 1], x[2 * m * k - 1]
     return (1.0 / math.log(m)) * math.log((Xk - X2k) / (Xmk - X2mk))
+
 
 def moment_estimator(data: Sequence[float], k: int) -> tuple[float, float]:
     """
@@ -48,6 +50,6 @@ def moment_estimator(data: Sequence[float], k: int) -> tuple[float, float]:
     x_k = x[k]
     logs = [math.log(x[i] / x_k) for i in range(k)]
     M1 = sum(logs) / k
-    M2 = sum(l ** 2 for l in logs) / k
-    gamma_hat = M1 + 1.0 - 0.5 * (1.0 - (M1 ** 2) / M2) ** -1
+    M2 = sum(l**2 for l in logs) / k
+    gamma_hat = M1 + 1.0 - 0.5 * (1.0 - (M1**2) / M2) ** -1
     return gamma_hat, 1.0 / gamma_hat

@@ -33,7 +33,7 @@ class RiskMetrics:
     def __init__(self, returns: list[float]):
         """
         Initialize with return data.
-        
+
         Parameters
         ----------
         returns : List[float]
@@ -58,12 +58,12 @@ class RiskMetrics:
     def fit_gpd_to_excesses(self, threshold: float) -> GeneralizedPareto:
         """
         Fit GPD to excesses over threshold using method of moments.
-        
+
         Parameters
         ----------
         threshold : float
             Threshold for peaks-over-threshold model
-            
+
         Returns
         -------
         GeneralizedPareto
@@ -81,13 +81,13 @@ class RiskMetrics:
         var_excess = statistics.variance(excesses)
 
         # Method of moments estimates for GPD
-        if var_excess <= mean_excess ** 2:
+        if var_excess <= mean_excess**2:
             # Light tail case
-            xi_hat = 0.5 * (1 - (mean_excess ** 2) / var_excess)
+            xi_hat = 0.5 * (1 - (mean_excess**2) / var_excess)
             sigma_hat = mean_excess * (1 - xi_hat)
         else:
             # Heavy tail case
-            xi_hat = 0.5 * ((mean_excess ** 2) / var_excess - 1)
+            xi_hat = 0.5 * ((mean_excess**2) / var_excess - 1)
             sigma_hat = mean_excess * (1 + xi_hat)
 
         return GeneralizedPareto(xi=xi_hat, sigma=max(sigma_hat, 1e-6), mu=threshold)
@@ -132,7 +132,9 @@ class TailRiskAnalyzer:
         self.data = data
         self.losses = [-x for x in data]  # Convert to losses
 
-    def estimate_tail_index(self, method: str = "hill", k: int = None) -> dict[str, float]:
+    def estimate_tail_index(
+        self, method: str = "hill", k: int = None
+    ) -> dict[str, float]:
         """Estimate tail index using various methods."""
         if k is None:
             k = min(len(self.data) // 10, 250)  # Adaptive k selection
@@ -189,7 +191,7 @@ class TailRiskAnalyzer:
         results["hill_stability"] = {
             "k_values": k_values,
             "estimates": hill_estimates,
-            "stable": self._assess_stability(hill_estimates)
+            "stable": self._assess_stability(hill_estimates),
         }
 
         return results
@@ -204,7 +206,7 @@ class TailRiskAnalyzer:
             return 0
 
         m4 = sum((x - mean) ** 4 for x in self.data) / n
-        return m4 / (var ** 2)
+        return m4 / (var**2)
 
     def _assess_stability(self, estimates: list[float]) -> bool:
         """Assess if Hill estimates are stable."""
@@ -220,10 +222,12 @@ class ExtremeValueModeling:
     """Extreme value modeling for financial applications."""
 
     @staticmethod
-    def block_maxima_analysis(returns: list[float], block_size: int = 252) -> dict[str, Any]:
+    def block_maxima_analysis(
+        returns: list[float], block_size: int = 252
+    ) -> dict[str, Any]:
         """
         Analyze block maxima (e.g., annual maxima from daily data).
-        
+
         Parameters
         ----------
         returns : List[float]
@@ -236,7 +240,7 @@ class ExtremeValueModeling:
         # Extract block maxima
         maxima = []
         for i in range(0, len(losses), block_size):
-            block = losses[i:i + block_size]
+            block = losses[i : i + block_size]
             if len(block) >= block_size // 2:  # At least half the block size
                 maxima.append(max(block))
 
@@ -262,14 +266,16 @@ class ExtremeValueModeling:
             "mean_maxima": mean_max,
             "std_maxima": std_max,
             "gev_params": {"xi": xi_approx, "mu": mu_approx, "sigma": sigma_approx},
-            "gev_distribution": gev
+            "gev_distribution": gev,
         }
 
     @staticmethod
-    def return_level_calculation(gev_params: dict[str, float], return_period: int) -> float:
+    def return_level_calculation(
+        gev_params: dict[str, float], return_period: int
+    ) -> float:
         """
         Calculate return level for given return period.
-        
+
         Parameters
         ----------
         gev_params : Dict[str, float]
@@ -294,7 +300,9 @@ class PortfolioRiskAssessment:
         self.returns = portfolio_returns
         self.risk_metrics = RiskMetrics(portfolio_returns)
 
-    def comprehensive_risk_report(self, confidence_levels: list[float] = None) -> dict[str, Any]:
+    def comprehensive_risk_report(
+        self, confidence_levels: list[float] = None
+    ) -> dict[str, Any]:
         """Generate comprehensive risk assessment report."""
         if confidence_levels is None:
             confidence_levels = [0.95, 0.99, 0.995]
@@ -308,7 +316,7 @@ class PortfolioRiskAssessment:
             "skewness": self._calculate_skewness(),
             "kurtosis": self._calculate_kurtosis(),
             "min": min(self.returns),
-            "max": max(self.returns)
+            "max": max(self.returns),
         }
 
         # Risk metrics for each confidence level
@@ -337,7 +345,9 @@ class PortfolioRiskAssessment:
 
             # GPD tail modeling
             try:
-                threshold = self.risk_metrics.empirical_var(0.9)  # 90% quantile as threshold
+                threshold = self.risk_metrics.empirical_var(
+                    0.9
+                )  # 90% quantile as threshold
                 level_results["gpd_var"] = self.risk_metrics.var_gpd(alpha, threshold)
                 level_results["gpd_es"] = self.risk_metrics.es_gpd(alpha, threshold)
             except Exception as e:
@@ -363,7 +373,7 @@ class PortfolioRiskAssessment:
             return 0
 
         m3 = sum((x - mean) ** 3 for x in self.returns) / n
-        return m3 / (std ** 3)
+        return m3 / (std**3)
 
     def _calculate_kurtosis(self) -> float:
         """Calculate sample kurtosis."""
@@ -375,7 +385,7 @@ class PortfolioRiskAssessment:
             return 0
 
         m4 = sum((x - mean) ** 4 for x in self.returns) / n
-        return m4 / (var ** 2)
+        return m4 / (var**2)
 
     def _estimate_student_t_dof(self) -> float:
         """Rough estimation of Student-t degrees of freedom from kurtosis."""
@@ -383,7 +393,7 @@ class PortfolioRiskAssessment:
         excess_kurt = kurt - 3
 
         if excess_kurt <= 0:
-            return float('inf')  # Normal case
+            return float("inf")  # Normal case
 
         # For Student-t: excess kurtosis = 6/(ν-4) for ν > 4
         if excess_kurt > 0:
@@ -398,6 +408,7 @@ def demo_var_calculation():
     """Demonstrate VaR calculation with different methods."""
     # Simulate some heavy-tailed returns
     import random
+
     random.seed(42)
 
     # Generate Student-t returns
@@ -436,6 +447,7 @@ def demo_portfolio_risk():
     """Demonstrate comprehensive portfolio risk assessment."""
     # Generate mixed distribution returns
     import random
+
     random.seed(42)
 
     # 70% normal returns, 30% heavy-tailed shocks
@@ -453,7 +465,7 @@ def demo_portfolio_risk():
     print("Portfolio Risk Report:")
     print(f"Basic Stats: {report['basic_stats']}")
     print("\nRisk Estimates:")
-    for level, estimates in report['risk_estimates'].items():
+    for level, estimates in report["risk_estimates"].items():
         print(f"  {level}: {estimates}")
 
 

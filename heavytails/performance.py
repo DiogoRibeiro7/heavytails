@@ -5,9 +5,9 @@ This module contains performance-critical functions and optimization
 TODO items that will be tracked as GitHub Issues.
 """
 
-import math
 from collections.abc import Callable
 from dataclasses import dataclass
+import math
 
 
 # TODO: Implement Cython extensions for critical mathematical functions
