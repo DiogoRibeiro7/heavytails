@@ -6,15 +6,15 @@ This module contains placeholder functions and TODO items that will be
 automatically converted to GitHub Issues by the TODO workflow.
 """
 
-from typing import List, Optional, Dict, Any
-import math
+from typing import Any
+
+from heavytails import LogNormal
+from heavytails.extra_distributions import _betainc_reg
+from heavytails.tail_index import hill_estimator
 
 
 # TODO: Implement Maximum Likelihood Estimation (MLE) fitting for all distributions
-# ASSIGNEE: diogoribeiro7
-# LABELS: enhancement, mathematics, high-priority
-# PRIORITY: High
-def fit_mle(data: List[float], distribution: str) -> Dict[str, float]:
+def fit_mle(data: list[float], distribution: str) -> dict[str, float]:
     """
     Fit distribution parameters using Maximum Likelihood Estimation.
 
@@ -25,10 +25,7 @@ def fit_mle(data: List[float], distribution: str) -> Dict[str, float]:
 
 
 # TODO: Add model comparison utilities (AIC, BIC, likelihood ratio tests)
-# ASSIGNEE: diogoribeiro7
-# LABELS: enhancement, statistics
-# PRIORITY: Medium
-def model_comparison(data: List[float], distributions: List[str]) -> Dict[str, float]:
+def model_comparison(data: list[float], distributions: list[str]) -> dict[str, float]:
     """
     Compare different distribution fits using information criteria.
 
@@ -42,14 +39,12 @@ def model_comparison(data: List[float], distributions: List[str]) -> Dict[str, f
 
 
 # TODO: Implement bootstrap confidence intervals for parameter estimates
-# LABELS: enhancement, statistics, confidence-intervals
-# PRIORITY: Medium
 def bootstrap_confidence_intervals(
-    data: List[float],
+    data: list[float],
     distribution: str,
     n_bootstrap: int = 1000,
     confidence_level: float = 0.95,
-) -> Dict[str, tuple]:
+) -> dict[str, tuple]:
     """
     Calculate bootstrap confidence intervals for distribution parameters.
 
@@ -59,9 +54,7 @@ def bootstrap_confidence_intervals(
 
 
 # FIXME: Hill estimator can be unstable for small sample sizes
-# LABELS: bug, mathematics, tail-estimation
-# PRIORITY: High
-def robust_hill_estimator(data: List[float], k: int) -> float:
+def robust_hill_estimator(data: list[float], k: int) -> float:
     """
     Improved Hill estimator with bias correction and stability checks.
 
@@ -72,15 +65,10 @@ def robust_hill_estimator(data: List[float], k: int) -> float:
     - Stability diagnostics
     """
     # Current basic implementation - needs improvement
-    from heavytails.tail_index import hill_estimator
-
     return hill_estimator(data, k)
 
 
 # TODO: Add multivariate heavy-tailed distributions
-# ASSIGNEE: diogoribeiro7
-# LABELS: enhancement, multivariate, advanced
-# PRIORITY: Medium
 class MultivariateStudentT:
     """
     Multivariate Student-t distribution for portfolio risk modeling.
@@ -91,23 +79,21 @@ class MultivariateStudentT:
     - Multivariate extreme value theory
     """
 
-    def __init__(self, nu: float, mu: List[float], sigma: List[List[float]]):
+    def __init__(self, nu: float, mu: list[float], sigma: list[list[float]]):
         # TODO: Implement multivariate t-distribution
         # LABELS: enhancement, multivariate
         raise NotImplementedError("Multivariate distributions not yet implemented")
 
-    def pdf(self, x: List[float]) -> float:
+    def pdf(self, x: list[float]) -> float:
         # TODO: Implement multivariate PDF calculation
         raise NotImplementedError()
 
-    def rvs(self, n: int) -> List[List[float]]:
+    def rvs(self, n: int) -> list[list[float]]:
         # TODO: Implement multivariate sampling
         raise NotImplementedError()
 
 
 # TODO: Add time series modeling with heavy-tailed innovations
-# LABELS: enhancement, time-series, finance
-# PRIORITY: Low
 class HeavyTailGARCH:
     """
     GARCH model with heavy-tailed error distributions.
@@ -125,8 +111,6 @@ class HeavyTailGARCH:
 
 
 # HACK: Using simple approximation for incomplete beta - should use proper implementation
-# LABELS: mathematics, numerical-methods, improvement
-# PRIORITY: Medium
 def improved_incomplete_beta(a: float, b: float, x: float) -> float:
     """
     More accurate incomplete beta function implementation.
@@ -138,15 +122,11 @@ def improved_incomplete_beta(a: float, b: float, x: float) -> float:
     - Error bounds and accuracy guarantees
     """
     # Current workaround - needs proper implementation
-    from heavytails.extra_distributions import _betainc_reg
-
     return _betainc_reg(a, b, x)
 
 
 # TODO: Add GPU acceleration for large-scale simulations
-# LABELS: enhancement, performance, gpu
-# PRIORITY: Low
-def gpu_sampling(distribution: str, n: int, **params) -> List[float]:
+def gpu_sampling(distribution: str, n: int, **params) -> list[float]:
     """
     GPU-accelerated sampling for massive simulations.
 
@@ -164,10 +144,7 @@ def gpu_sampling(distribution: str, n: int, **params) -> List[float]:
 
 
 # TODO: Implement adaptive threshold selection for GPD fitting
-# ASSIGNEE: diogoribeiro7
-# LABELS: enhancement, extreme-value-theory, automation
-# PRIORITY: Medium
-def adaptive_threshold_selection(data: List[float], method: str = "dupuis") -> float:
+def adaptive_threshold_selection(data: list[float], method: str = "dupuis") -> float:
     """
     Automatic threshold selection for Generalized Pareto Distribution fitting.
 
@@ -181,8 +158,6 @@ def adaptive_threshold_selection(data: List[float], method: str = "dupuis") -> f
 
 
 # BUG: LogNormal PPF may overflow for extreme parameter combinations
-# LABELS: bug, numerical-stability, lognormal
-# PRIORITY: Medium
 def safe_lognormal_ppf(mu: float, sigma: float, u: float) -> float:
     """
     Numerically stable LogNormal quantile function.
@@ -195,8 +170,6 @@ def safe_lognormal_ppf(mu: float, sigma: float, u: float) -> float:
     Need to implement overflow protection and scaling.
     """
     # Temporary fix - full solution needed
-    from heavytails import LogNormal
-
     try:
         return LogNormal(mu=mu, sigma=sigma).ppf(u)
     except OverflowError:
@@ -205,8 +178,6 @@ def safe_lognormal_ppf(mu: float, sigma: float, u: float) -> float:
 
 
 # TODO: Add survival analysis extensions
-# LABELS: enhancement, survival-analysis, medicine
-# PRIORITY: Low
 class HeavyTailSurvival:
     """
     Survival analysis with heavy-tailed distributions.
@@ -226,17 +197,15 @@ class HeavyTailSurvival:
         # TODO: Implement hazard function calculation
         raise NotImplementedError()
 
-    def kaplan_meier_estimate(self, times: List[float], events: List[bool]) -> Dict:
+    def kaplan_meier_estimate(self, times: list[float], events: list[bool]) -> dict:
         # TODO: Implement Kaplan-Meier with heavy tails
         raise NotImplementedError()
 
 
 # NOTE: Consider adding Bayesian parameter estimation
-# LABELS: enhancement, bayesian, advanced
-# PRIORITY: Low
 def bayesian_parameter_estimation(
-    data: List[float], distribution: str, prior: Dict[str, Any]
-) -> Dict[str, Any]:
+    data: list[float], distribution: str, prior: dict[str, Any]
+) -> dict[str, Any]:
     """
     Bayesian parameter estimation for heavy-tailed distributions.
 
@@ -255,8 +224,6 @@ def bayesian_parameter_estimation(
 
 
 # TODO: Implement web API for distribution services
-# LABELS: enhancement, api, web-service
-# PRIORITY: Low
 class HeavyTailsAPI:
     """
     RESTful API for heavy-tailed distribution services.
@@ -281,11 +248,9 @@ class HeavyTailsAPI:
 
 
 # FIXME: Memory usage can be high for large sample generation
-# LABELS: bug, performance, memory
-# PRIORITY: Medium
 def memory_efficient_sampling(
     distribution: str, n: int, chunk_size: int = 10000
-) -> List[float]:
+) -> list[float]:
     """
     Memory-efficient sampling for very large sample sizes.
 
@@ -299,10 +264,7 @@ def memory_efficient_sampling(
 
 
 # TODO: Add diagnostic plotting with matplotlib integration
-# ASSIGNEE: diogoribeiro7
-# LABELS: enhancement, visualization, plotting
-# PRIORITY: Medium
-def diagnostic_plots(data: List[float], distribution: str = None):
+def diagnostic_plots(data: list[float], distribution: str | None = None):
     """
     Comprehensive diagnostic plotting for heavy-tailed data.
 

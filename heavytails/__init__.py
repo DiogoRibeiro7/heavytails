@@ -15,44 +15,52 @@ Modules
 - heavytails.extra_distributions
     Additional continuous families (GPD, Burr XII, Log-Logistic, Inverse-Gamma, Beta-Prime)
 - heavytails.discrete
-    Discrete heavy-tailed distributions (Zipf, Yule–Simon, Discrete Pareto)
+    Discrete heavy-tailed distributions (Zipf, Yule-Simon, Discrete Pareto)
 - heavytails.tail_index
     Tail index estimators (Hill, Pickands, Moment)
 - heavytails.plotting
-    Diagnostic utilities (log–log tails, QQ plots)
+    Diagnostic utilities (log-log tails, QQ plots)
 
 Author: Diogo Ribeiro
 License: MIT
 """
 
-from .heavy_tails import (
-    Pareto, Cauchy, StudentT, LogNormal,
-    Weibull, Frechet, GEV_Frechet
-)
-
+from .discrete import DiscretePareto, YuleSimon, Zipf
 from .extra_distributions import (
-    GeneralizedPareto, BurrXII, LogLogistic,
-    InverseGamma, BetaPrime
+    BetaPrime,
+    BurrXII,
+    GeneralizedPareto,
+    InverseGamma,
+    LogLogistic,
 )
-
-from .discrete import (
-    Zipf, YuleSimon, DiscretePareto
+from .heavy_tails import (
+    Cauchy,
+    Frechet,
+    GEV_Frechet,
+    LogNormal,
+    Pareto,
+    StudentT,
+    Weibull,
 )
-
-from .tail_index import (
-    hill_estimator, pickands_estimator, moment_estimator
-)
+from .tail_index import hill_estimator, moment_estimator, pickands_estimator
 
 __all__ = [
-    # Continuous
-    "Pareto", "Cauchy", "StudentT", "LogNormal",
-    "Weibull", "Frechet", "GEV_Frechet",
-    "GeneralizedPareto", "BurrXII", "LogLogistic",
-    "InverseGamma", "BetaPrime",
-
-    # Discrete
-    "Zipf", "YuleSimon", "DiscretePareto",
-
-    # Tail estimators
-    "hill_estimator", "pickands_estimator", "moment_estimator",
+    "BetaPrime",
+    "BurrXII",
+    "Cauchy",
+    "DiscretePareto",
+    "Frechet",
+    "GEV_Frechet",
+    "GeneralizedPareto",
+    "InverseGamma",
+    "LogLogistic",
+    "LogNormal",
+    "Pareto",
+    "StudentT",
+    "Weibull",
+    "YuleSimon",
+    "Zipf",
+    "hill_estimator",
+    "moment_estimator",
+    "pickands_estimator",
 ]

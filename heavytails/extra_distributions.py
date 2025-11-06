@@ -1,17 +1,20 @@
 # extra_distributions.py
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
-from typing import Callable, Optional
+import math
+from typing import TYPE_CHECKING
 
 # Reuse the small utilities from your base module
-from heavy_tails import RNG, Samplable, ParameterError
+from heavytails.heavy_tails import RNG, ParameterError, Samplable
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # =============================================================================
 # Numeric special functions (stdlib only)
 # =============================================================================
+
 
 def _log_beta(a: float, b: float) -> float:
     """log B(a,b) via lgamma for stability."""
@@ -50,7 +53,7 @@ def _betainc_reg(a: float, b: float, x: float) -> float:
     # Lentz's algorithm
     EPS = 1e-14
     MAX_ITER = 200
-    am, bm = 1.0, 1.0  # Not used directly; we implement cf in-place.
+    _am, _bm = 1.0, 1.0  # Not used directly; we implement cf in-place.
     c = 1.0
     d = 1.0 - (a + b) * x / (a + 1.0)
     if abs(d) < EPS:
@@ -104,7 +107,7 @@ def _betainc_reg(a: float, b: float, x: float) -> float:
 
 def _gammainc_lower_reg(a: float, x: float) -> float:
     """
-    Regularized lower incomplete gamma P(a,x) = γ(a,x) / Γ(a).
+    Regularized lower incomplete gamma P(a,x) = gamma(a,x) / Gamma(a).
     Uses series for x < a+1 and continued fraction for x >= a+1.
     """
     if a <= 0 or x < 0:
@@ -127,7 +130,7 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
         return summ * math.exp(-x + a * math.log(x) - math.lgamma(a))
 
     # Continued fraction (A&S 6.5.31) via Lentz's method
-    # P(a,x) = 1 - e^{-x} x^a / Γ(a) * 1/CF
+    # P(a,x) = 1 - e^{-x} x^a / Gamma(a) * 1/CF
     # We compute Q(a,x) first through the CF, then P=1-Q
     MAX_ITER = 10_000
     EPS = 1e-14
@@ -143,7 +146,7 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
         # Here we implement the modified Lentz for the continued fraction of Q
         # Coefficients:
         an = n * (a - n)
-        bn = (x + 2.0 * n - a)
+        bn = x + 2.0 * n - a
         # update D
         D = bn + an * D
         if abs(D) < tiny:
@@ -161,19 +164,20 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
     Q = f * math.exp(-x + a * math.log(x) - math.lgamma(a))
     P = 1.0 - Q
     # Clamp to [0,1]
-    if P < 0.0:
-        P = 0.0
-    if P > 1.0:
-        P = 1.0
+    P = max(P, 0.0)
+    P = min(P, 1.0)
     return P
 
 
-def _ppf_monotone(cdf: Callable[[float], float],
-                  lo: float, hi: float,
-                  u: float,
-                  pdf: Optional[Callable[[float], float]] = None,
-                  max_iter: int = 100,
-                  tol: float = 1e-12) -> float:
+def _ppf_monotone(
+    cdf: Callable[[float], float],
+    lo: float,
+    hi: float,
+    u: float,
+    pdf: Callable[[float], float] | None = None,
+    max_iter: int = 100,
+    tol: float = 1e-12,
+) -> float:
     """
     Generic monotone inverse for continuous distributions on (lo,hi).
     Safeguarded Newton: try Newton when pdf is available and well-behaved,
@@ -214,23 +218,25 @@ def _ppf_monotone(cdf: Callable[[float], float],
 # Distributions
 # =============================================================================
 
+
 @dataclass(frozen=True)
 class GeneralizedPareto(Samplable):
     """
-    Generalized Pareto Distribution (GPD) with shape ξ, scale σ>0, location μ.
+    Generalized Pareto Distribution (GPD) with shape xi, scale sigma>0, location mu.
 
     Support:
-        x >= μ if ξ >= 0  (heavy-tailed when ξ>0)
-        μ <= x <= μ - σ/ξ if ξ < 0 (bounded tail; not heavy)
+        x >= mu if xi >= 0  (heavy-tailed when xi>0)
+        mu <= x <= mu - sigma/xi if xi < 0 (bounded tail; not heavy)
 
     CDF:
-        F(x) = 1 - (1 + ξ (x-μ)/σ)^(-1/ξ), valid where bracket > 0
+        F(x) = 1 - (1 + xi (x-mu)/sigma)^(-1/xi), valid where bracket > 0
     PDF:
-        f(x) = (1/σ) * (1 + ξ z)^(-1/ξ - 1),  z=(x-μ)/σ
+        f(x) = (1/sigma) * (1 + xi z)^(-1/xi - 1),  z=(x-mu)/sigma
     PPF:
-        x = μ + (σ/ξ) * ( (1-u)^(-ξ) - 1 )      if ξ != 0
-        x = μ - σ * ln(1-u)                     if ξ = 0 (exponential limit)
+        x = mu + (sigma/xi) * ( (1-u)^(-xi) - 1 )      if xi != 0
+        x = mu - sigma * ln(1-u)                     if xi = 0 (exponential limit)
     """
+
     xi: float
     sigma: float = 1.0
     mu: float = 0.0
@@ -247,7 +253,11 @@ class GeneralizedPareto(Samplable):
             return 0.0
         z = (x - self.mu) / self.sigma
         t = 1.0 + self.xi * z
-        return (1.0 / self.sigma) * (t ** (-1.0 / self.xi - 1.0)) if self.xi != 0.0 else (1.0 / self.sigma) * math.exp(-z)
+        return (
+            (1.0 / self.sigma) * (t ** (-1.0 / self.xi - 1.0))
+            if self.xi != 0.0
+            else (1.0 / self.sigma) * math.exp(-z)
+        )
 
     def cdf(self, x: float) -> float:
         if not self._valid(x):
@@ -282,6 +292,7 @@ class BurrXII(Samplable):
     PDF: f(x) = (ck/s) * (x/s)^(c-1) * (1 + (x/s)^c)^(-k-1)
     PPF: x = s * ( (1 - u)^(-1/k) - 1 )^(1/c)
     """
+
     c: float
     k: float
     s: float = 1.0
@@ -294,7 +305,11 @@ class BurrXII(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.s) ** self.c
-        return (self.c * self.k / self.s) * (x / self.s) ** (self.c - 1.0) * (1.0 + z) ** (-self.k - 1.0)
+        return (
+            (self.c * self.k / self.s)
+            * (x / self.s) ** (self.c - 1.0)
+            * (1.0 + z) ** (-self.k - 1.0)
+        )
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -311,7 +326,7 @@ class BurrXII(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.s * (( (1.0 - u) ** (-1.0 / self.k) ) - 1.0) ** (1.0 / self.c)
+        return self.s * (((1.0 - u) ** (-1.0 / self.k)) - 1.0) ** (1.0 / self.c)
 
     def _rvs_one(self, rng: RNG) -> float:
         return self.ppf(rng.uniform_0_1())
@@ -320,11 +335,12 @@ class BurrXII(Samplable):
 @dataclass(frozen=True)
 class LogLogistic(Samplable):
     """
-    Log-Logistic (Fisk) with shape κ>0 and scale λ>0 (support x>0).
-    CDF: F(x) = 1 / (1 + (λ/x)^κ) = (x^κ) / (x^κ + λ^κ)
-    PDF: f(x) = (κ/λ) (x/λ)^(κ-1) / (1 + (x/λ)^κ)^2
-    PPF: x = λ * (u/(1-u))^(1/κ)
+    Log-Logistic (Fisk) with shape kappa>0 and scale lambda_>0 (support x>0).
+    CDF: F(x) = 1 / (1 + (lambda_/x)^kappa) = (x^kappa) / (x^kappa + lambda_^kappa)
+    PDF: f(x) = (kappa/lambda_) (x/lambda_)^(kappa-1) / (1 + (x/lambda_)^kappa)^2
+    PPF: x = lambda_ * (u/(1-u))^(1/kappa)
     """
+
     kappa: float
     lam: float = 1.0
 
@@ -336,7 +352,11 @@ class LogLogistic(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.lam) ** self.kappa
-        return (self.kappa / self.lam) * (x / self.lam) ** (self.kappa - 1.0) / (1.0 + z) ** 2
+        return (
+            (self.kappa / self.lam)
+            * (x / self.lam) ** (self.kappa - 1.0)
+            / (1.0 + z) ** 2
+        )
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -362,12 +382,13 @@ class LogLogistic(Samplable):
 @dataclass(frozen=True)
 class InverseGamma(Samplable):
     """
-    Inverse-Gamma with shape α>0 and scale β>0 (support x>0).
-    PDF: f(x) = β^α / Γ(α) * x^{-α-1} * exp(-β/x)
-    CDF: F(x) = Q(α, β/x) = Γ(α, β/x) / Γ(α)  (regularized upper gamma)
+    Inverse-Gamma with shape alpha>0 and scale β>0 (support x>0).
+    PDF: f(x) = β^alpha / Gamma(alpha) * x^{-alpha-1} * exp(-β/x)
+    CDF: F(x) = Q(alpha, β/x) = Gamma(alpha, β/x) / Gamma(alpha)  (regularized upper gamma)
          where Q = 1 - P and P is the regularized lower gamma.
-    Sampling: If G ~ Gamma(α, scale=1), then X = β / G has InvGamma(α, β).
+    Sampling: If G ~ Gamma(alpha, scale=1), then X = β / G has InvGamma(alpha, β).
     """
+
     alpha: float
     beta: float
 
@@ -379,7 +400,7 @@ class InverseGamma(Samplable):
         if x <= 0.0:
             return 0.0
         a, b = self.alpha, self.beta
-        return (b ** a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x)
+        return (b**a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x)
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -395,9 +416,11 @@ class InverseGamma(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
+
         # Solve F(x) = u on x in (0, +inf). Monotone increasing.
         def cdf_x(t: float) -> float:
             return self.cdf(t)
+
         # Choose a crude bracket using quantile heuristics:
         # start around mode for alpha>1: beta/(alpha+1) and expand
         a = 0.0
@@ -423,6 +446,7 @@ class BetaPrime(Samplable):
     PPF: No closed form in general -> monotone numeric inversion.
     Sampling: If U~Gamma(a,1), V~Gamma(b,1), then X = s * U/V ~ BetaPrime(a,b,s).
     """
+
     a: float
     b: float
     s: float = 1.0
@@ -436,7 +460,11 @@ class BetaPrime(Samplable):
             return 0.0
         a, b, s = self.a, self.b, self.s
         z = x / s
-        return math.exp(-(math.log(s) + _log_beta(a, b))) * (z ** (a - 1.0)) * (1.0 + z) ** (-(a + b))
+        return (
+            math.exp(-(math.log(s) + _log_beta(a, b)))
+            * (z ** (a - 1.0))
+            * (1.0 + z) ** (-(a + b))
+        )
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -450,6 +478,7 @@ class BetaPrime(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
+
         # invert I_{x/(x+s)}(a,b) = u  -> y=u_inv, then x = s * y / (1 - y)
         # We'll solve directly for x using monotone root finding.
         def cdf_x(t: float) -> float:
@@ -474,6 +503,7 @@ class BetaPrime(Samplable):
 # =============================================================================
 # Minimal self-test / examples
 # =============================================================================
+
 
 def _demo() -> None:
     seed = 123

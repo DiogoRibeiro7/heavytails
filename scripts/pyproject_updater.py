@@ -32,20 +32,22 @@ pip install tomlkit packaging
 from __future__ import annotations
 
 import argparse
-import json
-import sys
-import urllib.error
-import urllib.request
-from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import unified_diff
+import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import sys
+from typing import TYPE_CHECKING
+import urllib.error
 from urllib.parse import urlparse
+import urllib.request
 
-import tomlkit
 from packaging.requirements import Requirement
 from packaging.version import InvalidVersion, Version
+import tomlkit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @dataclass(frozen=True)
@@ -90,7 +92,9 @@ def _layout(doc) -> str:
         return "poetry"
     if "project" in doc:
         return "pep621"
-    raise ValueError("Unsupported pyproject: neither [tool.poetry] nor [project] found.")
+    raise ValueError(
+        "Unsupported pyproject: neither [tool.poetry] nor [project] found."
+    )
 
 
 # ---------- PyPI version lookup ----------
@@ -113,7 +117,12 @@ def _fetch_pypi_versions(name: str, timeout: float) -> dict[str, bool]:
             raise ValueError(f"Unsupported URL scheme: {parsed.scheme}")
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+    except (
+        urllib.error.HTTPError,
+        urllib.error.URLError,
+        TimeoutError,
+        json.JSONDecodeError,
+    ):
         return {}
 
     versions: dict[str, bool] = {}
@@ -122,12 +131,16 @@ def _fetch_pypi_versions(name: str, timeout: float) -> dict[str, bool]:
         # files is a list of distributions; consider version yanked if all files are yanked
         if not isinstance(files, list) or len(files) == 0:
             continue
-        all_yanked = all(bool(f.get("yanked", False)) for f in files if isinstance(f, dict))
+        all_yanked = all(
+            bool(f.get("yanked", False)) for f in files if isinstance(f, dict)
+        )
         versions[ver_str] = not all_yanked
     return versions
 
 
-def _select_latest_version(versions: dict[str, bool], include_prerelease: bool) -> Version | None:
+def _select_latest_version(
+    versions: dict[str, bool], include_prerelease: bool
+) -> Version | None:
     """Pick the highest non-yanked Version. If include_prerelease=False, prefer finals."""
     valid: list[Version] = []
     for ver_str, not_yanked in versions.items():
@@ -176,7 +189,9 @@ def _pep440_string_for_strategy(v: Version, strategy: str) -> str:
     raise ValueError(f"Unknown strategy: {strategy}")
 
 
-def _respect_major_allowed(current_spec: str | None, latest: Version, allow_major: bool) -> bool:
+def _respect_major_allowed(
+    current_spec: str | None, latest: Version, allow_major: bool
+) -> bool:
     """If allow_major is False and current_spec indicates a major cap, avoid bumping across majors.
     Heuristic: extract existing max major from spec if present; otherwise compare against any pinned/ranged major.
     """
@@ -186,20 +201,24 @@ def _respect_major_allowed(current_spec: str | None, latest: Version, allow_majo
         return latest.major == latest.major  # trivial True
     # Try to parse the requirement to see any existing max
     try:
-        req = (
-            Requirement(f"pkg {current_spec}")
-            if " " in current_spec
-            else Requirement(f"pkg {current_spec}")
-        )
+        req = Requirement(f"pkg {current_spec}")
     except Exception:
         # Fallback: if spec starts with ^ or ~ (Poetry), infer major from latest string of spec if present
         if current_spec.startswith("^") or current_spec.startswith("~"):
             # Keep within the current major implied by the spec's base number
             try:
-                base = Version(current_spec.lstrip("^~=>=<=!~^ "))
-                return latest.major <= base.major
+                s = current_spec.removeprefix("^").removeprefix("~")
+                # If there's a leading comparison operator like >=, ==, etc., remove it once.
+                for op in ("==", ">=", "<=", "!=", "~=", ">", "<", "="):
+                    if s.startswith(op):
+                        s = s[len(op) :]
+                        break
+                s = s.lstrip()
+                base = Version(s)
             except Exception:
                 return True
+            else:
+                return latest.major <= base.major
         return True
 
     # If there is an upper bound like <2.0.0, prevent crossing it.
@@ -254,7 +273,6 @@ def _iter_poetry_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
         deps = poetry.get("dependencies", {})
         yield from emit_from_table(deps, "main")
 
-    # dev-dependencies (legacy)
     if "dev" in wanted:
         dev = poetry.get("dev-dependencies", {})
         yield from emit_from_table(dev, "dev")
@@ -285,7 +303,7 @@ def _iter_pep621_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
             except Exception:
                 continue
             spec = str(req.specifier) if req.specifier else None
-            # Keep original text shape; we’ll overwrite the whole string at index
+            # Keep original text shape; we'll overwrite the whole string at index
             yield DepRef("pep621", group, req.name, spec, (arr, idx, req))
 
     # main deps
@@ -372,7 +390,8 @@ def upgrade(pyproject: Path, opts: Options) -> int:
                     v
                     for v in candidates
                     if (
-                        v.major == target_major and (opts.include_prerelease or not v.is_prerelease)
+                        v.major == target_major
+                        and (opts.include_prerelease or not v.is_prerelease)
                     )
                 ]
                 if within:
@@ -410,7 +429,9 @@ def parse_args(argv: list[str] | None = None) -> Options:
         help="How to express the updated constraint.",
     )
     p.add_argument(
-        "--allow-major", action="store_true", help="Allow bumping to a new MAJOR version."
+        "--allow-major",
+        action="store_true",
+        help="Allow bumping to a new MAJOR version.",
     )
     p.add_argument(
         "--respect-major",
@@ -443,7 +464,9 @@ def parse_args(argv: list[str] | None = None) -> Options:
         default="",
         help="Comma-separated package names to update (normalized). Empty=all.",
     )
-    p.add_argument("--check", action="store_true", help="Dry-run: show unified diff, do not write.")
+    p.add_argument(
+        "--check", action="store_true", help="Dry-run: show unified diff, do not write."
+    )
     p.add_argument("--timeout", type=float, default=8.0, help="HTTP timeout (seconds).")
 
     args = p.parse_args(argv)

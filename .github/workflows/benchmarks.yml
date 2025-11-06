@@ -1,0 +1,234 @@
+name: Performance Monitoring
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly performance checks
+    - cron: '0 2 * * 0'  # Sunday at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 2  # Need previous commit for comparison
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1.4.1
+      with:
+        version: 1.8.3
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-benchmark-${{ hashFiles('**/poetry.lock') }}
+    
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --with dev
+    
+    - name: Install project
+      run: poetry install --no-interaction
+    
+    - name: Create benchmark results directory
+      run: mkdir -p benchmark-results
+    
+    - name: Download baseline benchmark (if exists)
+      continue-on-error: true
+      uses: actions/download-artifact@v4
+      with:
+        name: benchmark-baseline-${{ matrix.python-version }}
+        path: benchmark-results/
+    
+    - name: Run performance benchmarks
+      run: |
+        poetry run python benchmarks/performance_tests.py \
+          --output benchmark-results/current-${{ matrix.python-version }}.json \
+          --baseline benchmark-results/baseline-${{ matrix.python-version }}.json \
+          --iterations 50
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results-${{ matrix.python-version }}-${{ github.sha }}
+        path: benchmark-results/current-${{ matrix.python-version }}.json
+        retention-days: 90
+    
+    - name: Update baseline (on main branch only)
+      if: github.ref == 'refs/heads/main'
+      run: |
+        cp benchmark-results/current-${{ matrix.python-version }}.json \
+           benchmark-results/baseline-${{ matrix.python-version }}.json
+    
+    - name: Upload new baseline
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-baseline-${{ matrix.python-version }}
+        path: benchmark-results/baseline-${{ matrix.python-version }}.json
+        retention-days: 365  # Keep baselines longer
+    
+    - name: Performance regression check
+      if: github.event_name == 'pull_request'
+      run: |
+        # This will exit with non-zero if significant regressions are detected
+        poetry run python -c "
+        import json
+        import sys
+        
+        try:
+            with open('benchmark-results/current-${{ matrix.python-version }}.json') as f:
+                current = json.load(f)
+            with open('benchmark-results/baseline-${{ matrix.python-version }}.json') as f:
+                baseline = json.load(f)
+        except FileNotFoundError:
+            print('Baseline not found, skipping regression check')
+            sys.exit(0)
+        
+        # Check for regressions > 25%
+        regressions = []
+        for curr_item in current:
+            for base_item in baseline:
+                if (curr_item['distribution'] == base_item['distribution'] and 
+                    curr_item['operation'] == base_item['operation']):
+                    change = (curr_item['mean_time'] - base_item['mean_time']) / base_item['mean_time']
+                    if change > 0.25:  # 25% regression threshold
+                        regressions.append((curr_item['distribution'], curr_item['operation'], change))
+        
+        if regressions:
+            print('❌ Performance regressions detected:')
+            for dist, op, change in regressions:
+                print(f'  {dist}.{op}: {change:.1%} slower')
+            sys.exit(1)
+        else:
+            print('✅ No significant performance regressions detected')
+        "
+    
+    - name: Comment PR with performance results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const current = JSON.parse(fs.readFileSync('benchmark-results/current-${{ matrix.python-version }}.json', 'utf8'));
+            
+            let comment = '## 📊 Performance Benchmark Results (Python ${{ matrix.python-version }})\n\n';
+            comment += '| Distribution | Operation | Ops/sec | Time (ms) |\n';
+            comment += '|--------------|-----------|---------|----------|\n';
+            
+            current.slice(0, 10).forEach(result => {
+              comment += `| ${result.distribution} | ${result.operation} | ${result.operations_per_second.toFixed(0)} | ${(result.mean_time * 1000).toFixed(2)} |\n`;
+            });
+            
+            if (current.length > 10) {
+              comment += `\n*Showing top 10 results. Total: ${current.length} benchmarks.*\n`;
+            }
+            
+            comment += '\n🔍 Full benchmark results available in workflow artifacts.';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not post benchmark results:', error);
+          }
+
+  memory-profiling:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'  # Skip for scheduled runs
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.11"
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1.4.1
+      with:
+        version: 1.8.3
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Install dependencies with memory profiling tools
+      run: |
+        poetry install --with dev,benchmarks
+        poetry run pip install memory-profiler psutil
+    
+    - name: Memory usage test
+      run: |
+        poetry run python -c "
+        import psutil
+        import os
+        from heavytails import Pareto
+        
+        # Baseline memory
+        process = psutil.Process(os.getpid())
+        baseline = process.memory_info().rss / 1024 / 1024  # MB
+        print(f'Baseline memory: {baseline:.1f} MB')
+        
+        # Large sampling test
+        dist = Pareto(alpha=2.0, xm=1.0)
+        samples = dist.rvs(100000, seed=42)
+        
+        peak = process.memory_info().rss / 1024 / 1024  # MB
+        print(f'Peak memory: {peak:.1f} MB')
+        print(f'Memory increase: {peak - baseline:.1f} MB')
+        
+        # Memory should not exceed reasonable bounds
+        if peak - baseline > 500:  # 500MB threshold
+            print('❌ Memory usage too high!')
+            exit(1)
+        else:
+            print('✅ Memory usage within acceptable limits')
+        "
+
+  benchmark-summary:
+    needs: [benchmark, memory-profiling]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Benchmark Summary
+      run: |
+        echo "## 🏁 Benchmark Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Performance Tests**: ${{ needs.benchmark.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Memory Profiling**: ${{ needs.memory-profiling.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ needs.benchmark.result }}" == "success" ]]; then
+          echo "✅ All performance benchmarks passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Performance benchmarks failed - check for regressions" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 Benchmark artifacts are available for download from this workflow run." >> $GITHUB_STEP_SUMMARY

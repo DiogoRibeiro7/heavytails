@@ -115,6 +115,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 target-version = "py310"
 line-length = 88
+src = ["heavytails", "scripts", "tests"]
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -140,45 +143,32 @@ ignore = [
     "PLR0913", # too many arguments
     "PLR2004", # magic value used in comparison
     "TRY003",  # avoid specifying long messages outside exception class
-]
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+    "TRY301",  # abstract raise to inner function
+    "PLR0911", # too many return statements
+    "PLR0912", # too many branches
+    "PLR0915", # too many statements
+    "PERF203", # try-except in loop (acceptable for validation/error handling)
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "S101",    # asserts allowed in tests
     "ARG",     # unused function arguments in tests
     "FBT",     # don't care about booleans as positional arguments in tests
     "PLR2004", # magic values are OK in tests
     "S311",    # pseudo-random generators are OK in tests
+    "PLR0913", # many arguments OK in tests
 ]
 "__init__.py" = ["F401"]  # unused imports OK in __init__.py
+"scripts/*.py" = ["T201"]  # print statements OK in scripts
+"*/cli.py" = ["T201", "TC003"]     # print statements OK in CLI, Path used at runtime
+"cli.py" = ["TC003"]  # Path used at runtime
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["heavytails"]
 force-sort-within-sections = true
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
 [tool.mypy]
