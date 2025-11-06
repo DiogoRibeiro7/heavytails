@@ -160,6 +160,7 @@ def robust_log_gamma(x: float) -> float:
 
 
 # TODO: Implement Just-In-Time (JIT) compilation with Numba
+# ASSIGNEE: diogoribeiro7
 # LABELS: performance, jit, numba
 # PRIORITY: Low
 def jit_accelerated_functions():
@@ -177,7 +178,7 @@ def jit_accelerated_functions():
     - Automatic optimization
     - No compilation complexity for users
     """
-    # TODO: Add @numba.jit decorators to critical functions
+    # TODO: Add numba JIT decorators to critical functions
     # LABELS: performance, jit
     raise NotImplementedError("JIT compilation not available")
 
