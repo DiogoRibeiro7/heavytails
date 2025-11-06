@@ -1,8 +1,8 @@
 # heavytails/discrete.py
 from __future__ import annotations
 
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 
 from heavytails.heavy_tails import RNG, ParameterError, Samplable
 

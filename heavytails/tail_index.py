@@ -1,8 +1,8 @@
 # heavytails/tail_index.py
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
+from collections.abc import Sequence
 
 
 def hill_estimator(data: Sequence[float], k: int) -> float:

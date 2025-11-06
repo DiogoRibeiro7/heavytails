@@ -1,8 +1,8 @@
 # heavytails/plotting.py
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
+from collections.abc import Sequence
 
 
 def tail_loglog_plot(data: Sequence[float]) -> list[tuple[float,float]]:

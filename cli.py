@@ -11,12 +11,12 @@ Provides utilities for:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
+import typer
 from rich.console import Console
 from rich.table import Table
-import typer
 
 from heavytails import (
     BetaPrime,

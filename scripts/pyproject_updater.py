@@ -32,19 +32,19 @@ pip install tomlkit packaging
 from __future__ import annotations
 
 import argparse
+import json
+import sys
+import urllib.error
+import urllib.request
 from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import unified_diff
-import json
 from pathlib import Path
-import sys
-import urllib.error
 from urllib.parse import urlparse
-import urllib.request
 
+import tomlkit
 from packaging.requirements import Requirement
 from packaging.version import InvalidVersion, Version
-import tomlkit
 
 
 @dataclass(frozen=True)
