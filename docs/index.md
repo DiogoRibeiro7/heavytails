@@ -1,6 +1,10 @@
-# HeavyTails Documentation
+# HeavyTails
 
-Welcome to the **HeavyTails** documentation! HeavyTails is a pure-Python library for heavy-tailed probability distributions, built from first principles for research, education, and practical applications.
+**A pure-Python library for heavy-tailed probability distributions**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/) [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://diogoribeiro7.github.io/heavytails)
+
+HeavyTails is a comprehensive, dependency-free Python library for working with heavy-tailed probability distributions. Built using only the Python standard library, it provides transparent, mathematically rigorous implementations suitable for academic research, quantitative finance, risk management, and education.
 
 ## 🎯 Quick Start
 
