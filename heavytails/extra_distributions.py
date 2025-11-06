@@ -6,7 +6,7 @@ import math
 from typing import TYPE_CHECKING
 
 # Reuse the small utilities from your base module
-from heavy_tails import RNG, ParameterError, Samplable
+from heavytails.heavy_tails import RNG, ParameterError, Samplable
 
 if TYPE_CHECKING:
     from collections.abc import Callable
