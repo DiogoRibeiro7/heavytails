@@ -1,8 +1,11 @@
 # heavytails/tail_index.py
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def hill_estimator(data: Sequence[float], k: int) -> float:
@@ -25,9 +28,9 @@ def hill_estimator(data: Sequence[float], k: int) -> float:
 
 def pickands_estimator(data: Sequence[float], k: int, m: int = 2) -> float:
     """
-    Pickands tail index estimator (extreme-value index γ).
+    Pickands tail index estimator (extreme-value index gamma).
 
-    γ̂ = (1 / log(m)) * log( (X_k - X_{2k}) / (X_{mk} - X_{2mk}) )
+    gammâ = (1 / log(m)) * log( (X_k - X_{2k}) / (X_{mk} - X_{2mk}) )
     """
     x = sorted(data, reverse=True)
     n = len(x)
@@ -39,7 +42,7 @@ def pickands_estimator(data: Sequence[float], k: int, m: int = 2) -> float:
 
 def moment_estimator(data: Sequence[float], k: int) -> tuple[float, float]:
     """
-    Dekkers–Einmahl–de Haan moment estimator for tail index.
+    Dekkers-Einmahl-de Haan moment estimator for tail index.
 
     Returns (gamma_hat, alpha_hat) where alpha = 1/gamma.
     """
@@ -50,6 +53,6 @@ def moment_estimator(data: Sequence[float], k: int) -> tuple[float, float]:
     x_k = x[k]
     logs = [math.log(x[i] / x_k) for i in range(k)]
     M1 = sum(logs) / k
-    M2 = sum(l**2 for l in logs) / k
+    M2 = sum(log_val**2 for log_val in logs) / k
     gamma_hat = M1 + 1.0 - 0.5 * (1.0 - (M1**2) / M2) ** -1
     return gamma_hat, 1.0 / gamma_hat

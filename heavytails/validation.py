@@ -9,9 +9,6 @@ from typing import Any
 
 
 # TODO: Implement comprehensive numerical accuracy tests against reference implementations
-# ASSIGNEE: diogoribeiro7
-# LABELS: testing, numerical-accuracy, validation
-# PRIORITY: High
 class NumericalValidation:
     """
     Comprehensive numerical validation against known results.
@@ -40,8 +37,6 @@ class NumericalValidation:
 
 
 # FIXME: Some parameter combinations may lead to numerical instability
-# LABELS: bug, numerical-stability, edge-cases
-# PRIORITY: High
 def parameter_stability_check(distribution: str, **params) -> dict[str, Any]:
     """
     Check parameter combinations for numerical stability.
@@ -70,8 +65,6 @@ def parameter_stability_check(distribution: str, **params) -> dict[str, Any]:
 
 
 # TODO: Add property-based testing with Hypothesis for mathematical properties
-# LABELS: testing, property-based, hypothesis
-# PRIORITY: Medium
 class PropertyBasedTests:
     """
     Property-based testing for mathematical correctness.
@@ -105,8 +98,6 @@ class PropertyBasedTests:
 
 
 # TODO: Implement convergence tests for infinite series and iterative algorithms
-# LABELS: numerical-methods, convergence, validation
-# PRIORITY: Medium
 def convergence_validation():
     """
     Validate convergence of numerical algorithms.
@@ -125,8 +116,6 @@ def convergence_validation():
 
 
 # TODO: Add cross-validation framework for parameter estimation methods
-# LABELS: validation, parameter-estimation, cross-validation
-# PRIORITY: Medium
 class ParameterEstimationValidation:
     """
     Cross-validation for parameter estimation accuracy.
@@ -154,8 +143,6 @@ class ParameterEstimationValidation:
 
 
 # FIXME: Edge cases in PPF calculation need better handling
-# LABELS: bug, edge-cases, quantile-function
-# PRIORITY: Medium
 def ppf_edge_case_handler(distribution: str, u: float, **params) -> float:
     """
     Handle edge cases in quantile function calculation.
@@ -168,6 +155,7 @@ def ppf_edge_case_handler(distribution: str, u: float, **params) -> float:
 
     Should provide graceful degradation and informative errors.
     """
+    _ = (distribution, params)  # Reserved for future implementation
     if not (0 < u < 1):
         if u == 0:
             # TODO: Return theoretical minimum (support lower bound)
@@ -179,13 +167,10 @@ def ppf_edge_case_handler(distribution: str, u: float, **params) -> float:
             raise ValueError(f"u must be in (0,1), got {u}")
 
     # TODO: Implement robust edge case handling for all distributions
-    # LABELS: edge-cases, quantile-function
     raise NotImplementedError("PPF edge case handling not fully implemented")
 
 
 # TODO: Implement statistical goodness-of-fit tests
-# LABELS: testing, goodness-of-fit, statistics
-# PRIORITY: Medium
 class GoodnessOfFitTests:
     """
     Statistical tests for distribution goodness-of-fit.
@@ -217,9 +202,6 @@ class GoodnessOfFitTests:
 
 
 # TODO: Add automated regression testing for mathematical accuracy
-# ASSIGNEE: diogoribeiro7
-# LABELS: testing, regression, automation
-# PRIORITY: Medium
 class RegressionTesting:
     """
     Automated regression testing for mathematical accuracy.
@@ -250,8 +232,6 @@ class RegressionTesting:
 
 
 # NOTE: Consider implementing fuzzing tests for robustness
-# LABELS: testing, fuzzing, robustness
-# PRIORITY: Low
 def fuzz_testing():
     """
     Fuzzing tests for robustness against malformed inputs.
@@ -271,8 +251,6 @@ def fuzz_testing():
 
 
 # TODO: Implement mathematical property verification
-# LABELS: mathematics, verification, properties
-# PRIORITY: Medium
 class MathematicalPropertyVerification:
     """
     Verify theoretical mathematical properties of distributions.
@@ -304,8 +282,6 @@ class MathematicalPropertyVerification:
 
 
 # HACK: Some special function implementations use approximations - need accuracy bounds
-# LABELS: numerical-methods, accuracy, special-functions
-# PRIORITY: Medium
 def special_function_accuracy_analysis():
     """
     Analyze and improve accuracy of special function implementations.
@@ -327,8 +303,6 @@ def special_function_accuracy_analysis():
 
 
 # TODO: Add continuous integration tests with different Python versions
-# LABELS: ci-cd, testing, compatibility
-# PRIORITY: Medium
 def python_version_compatibility():
     """
     Test compatibility across different Python versions.

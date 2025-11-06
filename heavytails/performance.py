@@ -11,9 +11,6 @@ import math
 
 
 # TODO: Implement Cython extensions for critical mathematical functions
-# ASSIGNEE: diogoribeiro7
-# LABELS: performance, cython, mathematics
-# PRIORITY: Medium
 def cython_special_functions():
     """
     Cython implementations of special functions for speed.
@@ -30,8 +27,6 @@ def cython_special_functions():
 
 
 # TODO: Add vectorized operations support with NumPy compatibility
-# LABELS: performance, vectorization, numpy
-# PRIORITY: Medium
 def vectorized_pdf_evaluation(
     distribution: str, x_array: list[float], **params
 ) -> list[float]:
@@ -52,8 +47,6 @@ def vectorized_pdf_evaluation(
 
 
 # FIXME: PPF computation can be slow for distributions requiring root-finding
-# LABELS: bug, performance, numerical-methods
-# PRIORITY: High
 @dataclass
 class PPFOptimizer:
     """
@@ -82,8 +75,6 @@ class PPFOptimizer:
 
 
 # TODO: Implement parallel sampling for multi-core systems
-# LABELS: enhancement, performance, parallel
-# PRIORITY: Low
 def parallel_sampling(
     distribution: str, n: int, n_cores: int | None = None, **params
 ) -> list[float]:
@@ -107,8 +98,6 @@ def parallel_sampling(
 
 
 # TODO: Add memory profiling and optimization tools
-# LABELS: performance, memory, profiling
-# PRIORITY: Low
 class MemoryProfiler:
     """
     Memory usage profiling for distribution operations.
@@ -134,8 +123,6 @@ class MemoryProfiler:
 
 
 # HACK: Using Python's math.gamma which can overflow - need robust implementation
-# LABELS: numerical-stability, mathematics, improvement
-# PRIORITY: Medium
 def robust_log_gamma(x: float) -> float:
     """
     Numerically stable log-gamma function.
@@ -152,16 +139,12 @@ def robust_log_gamma(x: float) -> float:
     """
     try:
         return math.lgamma(x)
-    except (OverflowError, ValueError):
+    except (OverflowError, ValueError) as e:
         # TODO: Implement robust log-gamma calculation
-        # LABELS: numerical-methods, mathematics
-        raise NotImplementedError("Robust log-gamma not implemented")
+        raise NotImplementedError("Robust log-gamma not implemented") from e
 
 
 # TODO: Implement Just-In-Time (JIT) compilation with Numba
-# ASSIGNEE: diogoribeiro7
-# LABELS: performance, jit, numba
-# PRIORITY: Low
 def jit_accelerated_functions():
     """
     Numba JIT compilation for critical functions.
@@ -183,8 +166,6 @@ def jit_accelerated_functions():
 
 
 # TODO: Implement smart caching for expensive computations
-# LABELS: performance, caching, optimization
-# PRIORITY: Medium
 class DistributionCache:
     """
     Intelligent caching system for distribution computations.
@@ -217,9 +198,6 @@ class DistributionCache:
 
 
 # TODO: Add benchmark suite for performance regression testing
-# ASSIGNEE: diogoribeiro7
-# LABELS: testing, performance, benchmarks
-# PRIORITY: Medium
 class PerformanceBenchmarks:
     """
     Comprehensive performance benchmarking suite.
@@ -252,8 +230,6 @@ class PerformanceBenchmarks:
 
 
 # FIXME: Random number generation can be slow for distributions requiring rejection sampling
-# LABELS: bug, performance, random-sampling
-# PRIORITY: Medium
 def optimized_rejection_sampling():
     """
     Optimized rejection sampling algorithms.
@@ -275,8 +251,6 @@ def optimized_rejection_sampling():
 
 
 # TODO: Implement streaming algorithms for online parameter estimation
-# LABELS: enhancement, streaming, online-algorithms
-# PRIORITY: Low
 class OnlineEstimation:
     """
     Online/streaming parameter estimation algorithms.
@@ -309,8 +283,6 @@ class OnlineEstimation:
 
 
 # NOTE: Consider implementing distribution-specific optimizations
-# LABELS: performance, optimization, distribution-specific
-# PRIORITY: Low
 def distribution_specific_optimizations():
     """
     Specialized optimizations for individual distributions.

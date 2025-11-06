@@ -15,6 +15,7 @@ Examples include:
 from __future__ import annotations
 
 import math
+import random
 import statistics
 from typing import Any
 
@@ -133,7 +134,7 @@ class TailRiskAnalyzer:
         self.losses = [-x for x in data]  # Convert to losses
 
     def estimate_tail_index(
-        self, method: str = "hill", k: int = None
+        self, method: str = "hill", k: int | None = None
     ) -> dict[str, float]:
         """Estimate tail index using various methods."""
         if k is None:
@@ -141,7 +142,7 @@ class TailRiskAnalyzer:
 
         results = {}
 
-        if method == "hill" or method == "all":
+        if method in {"hill", "all"}:
             try:
                 gamma_hill = hill_estimator(self.losses, k)
                 results["hill_gamma"] = gamma_hill
@@ -149,7 +150,7 @@ class TailRiskAnalyzer:
             except Exception as e:
                 results["hill_error"] = str(e)
 
-        if method == "moment" or method == "all":
+        if method in {"moment", "all"}:
             try:
                 gamma_mom, alpha_mom = moment_estimator(self.losses, k)
                 results["moment_gamma"] = gamma_mom
@@ -185,7 +186,7 @@ class TailRiskAnalyzer:
                 try:
                     gamma = hill_estimator(self.losses, k)
                     hill_estimates.append(gamma)
-                except:
+                except Exception:
                     hill_estimates.append(None)
 
         results["hill_stability"] = {
@@ -301,7 +302,7 @@ class PortfolioRiskAssessment:
         self.risk_metrics = RiskMetrics(portfolio_returns)
 
     def comprehensive_risk_report(
-        self, confidence_levels: list[float] = None
+        self, confidence_levels: list[float] | None = None
     ) -> dict[str, Any]:
         """Generate comprehensive risk assessment report."""
         if confidence_levels is None:
@@ -395,10 +396,10 @@ class PortfolioRiskAssessment:
         if excess_kurt <= 0:
             return float("inf")  # Normal case
 
-        # For Student-t: excess kurtosis = 6/(ν-4) for ν > 4
+        # For Student-t: excess kurtosis = 6/(nu-4) for nu > 4
         if excess_kurt > 0:
             nu_est = 4 + 6 / excess_kurt
-            return max(nu_est, 2.1)  # Ensure ν > 2
+            return max(nu_est, 2.1)  # Ensure nu > 2
 
         return 5.0  # Default moderate value
 
@@ -407,8 +408,6 @@ class PortfolioRiskAssessment:
 def demo_var_calculation():
     """Demonstrate VaR calculation with different methods."""
     # Simulate some heavy-tailed returns
-    import random
-
     random.seed(42)
 
     # Generate Student-t returns
@@ -446,8 +445,6 @@ def demo_tail_analysis():
 def demo_portfolio_risk():
     """Demonstrate comprehensive portfolio risk assessment."""
     # Generate mixed distribution returns
-    import random
-
     random.seed(42)
 
     # 70% normal returns, 30% heavy-tailed shocks

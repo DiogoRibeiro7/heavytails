@@ -11,9 +11,6 @@ from typing import Any
 
 
 # TODO: Implement data import/export utilities for common formats
-# ASSIGNEE: diogoribeiro7
-# LABELS: enhancement, data-io, utilities
-# PRIORITY: Medium
 class DataIO:
     """
     Data import/export utilities for various file formats.
@@ -27,14 +24,14 @@ class DataIO:
     """
 
     @staticmethod
-    def read_csv(filepath: Path, column: str = None) -> list[float]:
+    def read_csv(filepath: Path, column: str | None = None) -> list[float]:
         # TODO: Implement robust CSV reading with error handling
         # LABELS: data-io, csv
         """Read numerical data from CSV file."""
         raise NotImplementedError("CSV reading not implemented")
 
     @staticmethod
-    def write_csv(data: list[float], filepath: Path, metadata: dict = None):
+    def write_csv(data: list[float], filepath: Path, metadata: dict | None = None):
         # TODO: Write data to CSV with optional metadata
         # LABELS: data-io, csv
         """Write numerical data to CSV file."""
@@ -49,8 +46,6 @@ class DataIO:
 
 
 # TODO: Add automatic parameter estimation from data
-# LABELS: enhancement, parameter-estimation, automation
-# PRIORITY: High
 class AutoFit:
     """
     Automatic parameter estimation for heavy-tailed distributions.
@@ -95,8 +90,6 @@ class AutoFit:
 
 
 # FIXME: Need better error messages for parameter validation
-# LABELS: bug, error-handling, user-experience
-# PRIORITY: Medium
 class ParameterValidator:
     """
     Enhanced parameter validation with informative error messages.
@@ -112,18 +105,22 @@ class ParameterValidator:
     @staticmethod
     def validate_pareto(alpha: float, xm: float) -> None:
         # TODO: Provide detailed validation with helpful error messages
-        # LABELS: parameter-validation, error-messages
         """Validate Pareto parameters with detailed feedback."""
         if alpha <= 0:
             raise ValueError(
                 f"Pareto alpha must be positive, got {alpha}. "
                 f"Try alpha > 0, typical range: 0.5 to 5.0"
             )
+        if xm <= 0:
+            raise ValueError(
+                f"Pareto xm (minimum value) must be positive, got {xm}. "
+                f"Try xm > 0, typical range: 1.0 to 100.0"
+            )
         # TODO: Add more specific validation for all distributions
 
     @staticmethod
     def suggest_parameters(
-        distribution: str, data: list[float] = None
+        distribution: str, data: list[float] | None = None
     ) -> dict[str, tuple[float, float]]:
         # TODO: Suggest reasonable parameter ranges based on data or defaults
         # LABELS: parameter-estimation, user-help
@@ -132,8 +129,6 @@ class ParameterValidator:
 
 
 # TODO: Implement statistical summary and descriptive statistics
-# LABELS: enhancement, statistics, summary
-# PRIORITY: Medium
 class StatisticalSummary:
     """
     Comprehensive statistical summary for heavy-tailed data.
@@ -169,8 +164,6 @@ class StatisticalSummary:
 
 
 # TODO: Add configuration management system
-# LABELS: enhancement, configuration, settings
-# PRIORITY: Low
 class ConfigurationManager:
     """
     Configuration management for HeavyTails library settings.
@@ -183,7 +176,7 @@ class ConfigurationManager:
     - Caching behavior
     """
 
-    def __init__(self, config_file: Path = None):
+    def __init__(self, config_file: Path | None = None):
         # TODO: Implement configuration loading and management
         self.config = {}
         self.config_file = config_file or Path.home() / ".heavytails" / "config.json"
@@ -202,8 +195,6 @@ class ConfigurationManager:
 
 
 # TODO: Implement data quality assessment tools
-# LABELS: enhancement, data-quality, validation
-# PRIORITY: Medium
 class DataQualityAssessment:
     """
     Data quality assessment for statistical analysis.
@@ -239,8 +230,6 @@ class DataQualityAssessment:
 
 
 # HACK: Using simple string-based distribution names - need better type system
-# LABELS: improvement, type-system, architecture
-# PRIORITY: Low
 @dataclass
 class DistributionMetadata:
     """
@@ -272,8 +261,6 @@ class DistributionMetadata:
 
 
 # TODO: Add web scraping utilities for financial data
-# LABELS: enhancement, web-scraping, finance
-# PRIORITY: Low
 class FinancialDataScraper:
     """
     Web scraping utilities for financial and economic data.
@@ -307,8 +294,6 @@ class FinancialDataScraper:
 
 
 # TODO: Implement citation and bibliography utilities
-# LABELS: enhancement, citations, bibliography
-# PRIORITY: Low
 class CitationManager:
     """
     Citation and bibliography management for research use.
@@ -338,8 +323,6 @@ class CitationManager:
 
 
 # NOTE: Consider adding interactive tutorials and examples
-# LABELS: enhancement, education, tutorials
-# PRIORITY: Low
 class InteractiveTutorials:
     """
     Interactive tutorials for learning heavy-tailed distributions.
@@ -370,8 +353,6 @@ class InteractiveTutorials:
 
 
 # TODO: Implement plugin system for extensions
-# LABELS: enhancement, plugins, extensibility
-# PRIORITY: Low
 class PluginManager:
     """
     Plugin system for extending HeavyTails functionality.
@@ -401,8 +382,6 @@ class PluginManager:
 
 
 # TODO: Add unit conversion utilities for different scales
-# LABELS: enhancement, units, conversion
-# PRIORITY: Low
 class UnitConverter:
     """
     Unit conversion utilities for different measurement scales.

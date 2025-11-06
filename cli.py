@@ -13,6 +13,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import sys
+import time
+from typing import Annotated
 
 from rich.console import Console
 from rich.table import Table
@@ -60,26 +62,29 @@ DISTRIBUTIONS = {
 
 @app.command()
 def sample(
-    distribution: str = typer.Argument(..., help="Distribution name"),
-    n: int = typer.Option(1000, "--samples", "-n", help="Number of samples"),
-    output: Path | None = typer.Option(None, "--output", "-o", help="Output file"),
-    seed: int | None = typer.Option(None, "--seed", "-s", help="Random seed"),
-    params: str = typer.Option(
-        "{}", "--params", "-p", help="Distribution parameters as JSON"
-    ),
+    distribution: Annotated[str, typer.Argument(help="Distribution name")],
+    n: Annotated[int, typer.Option("--samples", "-n", help="Number of samples")] = 1000,
+    output: Annotated[
+        Path | None, typer.Option("--output", "-o", help="Output file")
+    ] = None,
+    seed: Annotated[
+        int | None, typer.Option("--seed", "-s", help="Random seed")
+    ] = None,
+    params: Annotated[
+        str, typer.Option("--params", "-p", help="Distribution parameters as JSON")
+    ] = "{}",
 ) -> None:
     """Generate samples from a heavy-tailed distribution."""
-
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
         console.print(f"Available: {', '.join(DISTRIBUTIONS.keys())}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     try:
         param_dict = json.loads(params)
     except json.JSONDecodeError as e:
         console.print(f"[red]Error:[/red] Invalid JSON parameters: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
     try:
         dist_class = DISTRIBUTIONS[distribution]
@@ -87,43 +92,46 @@ def sample(
         samples = dist.rvs(n, seed=seed)
 
         if output:
-            with open(output, "w") as f:
-                for sample in samples:
-                    f.write(f"{sample}\n")
+            with output.open("w") as f:
+                for sample_val in samples:
+                    f.write(f"{sample_val}\n")
             console.print(f"[green]Success:[/green] Wrote {n} samples to {output}")
         else:
-            for sample in samples:
-                console.print(f"{sample}")
+            for sample_val in samples:
+                console.print(f"{sample_val}")
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
 def estimate_tail(
-    data_file: Path = typer.Argument(
-        ..., help="File containing data (one value per line)"
-    ),
-    method: str = typer.Option("hill", "--method", "-m", help="Estimation method"),
-    k: int | None = typer.Option(None, "--k", help="Number of top order statistics"),
-    output_format: str = typer.Option(
-        "table", "--format", "-f", help="Output format (table|json)"
-    ),
+    data_file: Annotated[
+        Path, typer.Argument(help="File containing data (one value per line)")
+    ],
+    method: Annotated[
+        str, typer.Option("--method", "-m", help="Estimation method")
+    ] = "hill",
+    k: Annotated[
+        int | None, typer.Option("--k", help="Number of top order statistics")
+    ] = None,
+    output_format: Annotated[
+        str, typer.Option("--format", "-f", help="Output format (table|json)")
+    ] = "table",
 ) -> None:
     """Estimate tail index from data."""
-
     if not data_file.exists():
         console.print(f"[red]Error:[/red] File {data_file} not found")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     # Read data
     try:
-        with open(data_file) as f:
+        with data_file.open() as f:
             data = [float(line.strip()) for line in f if line.strip()]
     except (OSError, ValueError) as e:
         console.print(f"[red]Error:[/red] Could not read data: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
     if len(data) < 10:
         console.print(
@@ -177,7 +185,7 @@ def estimate_tail(
         else:
             console.print(f"[red]Error:[/red] Unknown method '{method}'")
             console.print("Available methods: hill, pickands, moment")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
 
         # Output results
         if output_format == "json":
@@ -190,8 +198,8 @@ def estimate_tail(
             table.add_row("Method", results["method"])
             table.add_row("Sample size (n)", str(results["n"]))
             table.add_row("Order statistics (k)", str(results["k"]))
-            table.add_row("Tail index (γ)", f"{results['gamma']:.4f}")
-            table.add_row("Shape parameter (α)", f"{results['alpha']:.4f}")
+            table.add_row("Tail index (gamma)", f"{results['gamma']:.4f}")
+            table.add_row("Shape parameter (alpha)", f"{results['alpha']:.4f}")
 
             console.print(table)
 
@@ -209,28 +217,39 @@ def estimate_tail(
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
 def fit(
-    data_file: Path = typer.Argument(..., help="File containing data"),
-    distribution: str = typer.Argument(..., help="Distribution to fit"),
-    method: str = typer.Option("mle", "--method", "-m", help="Fitting method"),
+    data_file: Annotated[Path, typer.Argument(help="File containing data")],
+    distribution: Annotated[str, typer.Argument(help="Distribution to fit")],
+    method: Annotated[
+        str, typer.Option("--method", "-m", help="Fitting method")
+    ] = "mle",
 ) -> None:
     """Fit a distribution to data (placeholder for future MLE implementation)."""
+    _ = (
+        data_file,
+        distribution,
+        method,
+    )  # Placeholder - will be used in future implementation
     console.print("[yellow]Warning:[/yellow] Parameter fitting not yet implemented")
     console.print("Future versions will include MLE and method-of-moments fitting")
 
 
 @app.command()
 def compare(
-    data_file: Path = typer.Argument(..., help="File containing data"),
-    distributions: str = typer.Option(
-        "pareto,lognormal", "--dists", help="Comma-separated distribution list"
-    ),
+    data_file: Annotated[Path, typer.Argument(help="File containing data")],
+    distributions: Annotated[
+        str, typer.Option("--dists", help="Comma-separated distribution list")
+    ] = "pareto,lognormal",
 ) -> None:
     """Compare multiple distributions against data (placeholder)."""
+    _ = (
+        data_file,
+        distributions,
+    )  # Placeholder - will be used in future implementation
     console.print(
         "[yellow]Warning:[/yellow] Distribution comparison not yet implemented"
     )
@@ -239,7 +258,7 @@ def compare(
 
 @app.command()
 def info(
-    distribution: str = typer.Argument(..., help="Distribution name"),
+    distribution: Annotated[str, typer.Argument(help="Distribution name")],
 ) -> None:
     """Show information about a distribution."""
 
@@ -248,7 +267,7 @@ def info(
         console.print(f"Available: {', '.join(DISTRIBUTIONS.keys())}")
         raise typer.Exit(1)
 
-    dist_class = DISTRIBUTIONS[distribution]
+    DISTRIBUTIONS[distribution]
 
     # Get distribution info
     info_map = {
@@ -256,8 +275,8 @@ def info(
             "name": "Pareto Type I",
             "parameters": ["alpha (shape)", "xm (scale/minimum)"],
             "support": "x >= xm",
-            "heavy_tail": "Always (α > 0)",
-            "moments": "E[X^k] finite for k < α",
+            "heavy_tail": "Always (alpha > 0)",
+            "moments": "E[X^k] finite for k < alpha",
             "applications": ["Income distribution", "City sizes", "Firm sizes"],
         },
         "cauchy": {
@@ -291,8 +310,8 @@ def info(
             "name": "Student's t",
             "parameters": ["nu (degrees of freedom)"],
             "support": "All real numbers",
-            "heavy_tail": "When ν is small",
-            "moments": "E[X^k] finite for k < ν",
+            "heavy_tail": "When nu is small",
+            "moments": "E[X^k] finite for k < nu",
             "applications": ["Finance (returns)", "Robust statistics"],
         },
         "frechet": {
@@ -300,7 +319,7 @@ def info(
             "parameters": ["alpha (shape)", "s (scale)", "m (location)"],
             "support": "x > m",
             "heavy_tail": "Always",
-            "moments": "E[X^k] finite for k < α",
+            "moments": "E[X^k] finite for k < alpha",
             "applications": ["Extreme values", "Maximum of samples"],
         },
         "gev": {
@@ -340,7 +359,7 @@ def info(
             "parameters": ["alpha (shape)", "beta (scale)"],
             "support": "x > 0",
             "heavy_tail": "Always",
-            "moments": "E[X^k] finite for k < α",
+            "moments": "E[X^k] finite for k < alpha",
             "applications": ["Bayesian priors", "Reliability", "Variance modeling"],
         },
         "betaprime": {
@@ -388,7 +407,7 @@ def list_distributions() -> None:
     dist_info = [
         ("pareto", "Power law", "Always"),
         ("cauchy", "Symmetric", "Always"),
-        ("student-t", "Symmetric", "Small ν"),
+        ("student-t", "Symmetric", "Small nu"),
         ("lognormal", "Positive", "Always"),
         ("weibull", "Positive", "k < 1"),
         ("frechet", "Extreme value", "Always"),
@@ -409,14 +428,16 @@ def list_distributions() -> None:
 
 @app.command()
 def validate(
-    distribution: str = typer.Argument(..., help="Distribution name"),
-    params: str = typer.Option(
-        "{}", "--params", "-p", help="Distribution parameters as JSON"
-    ),
-    tests: str = typer.Option("basic", "--tests", "-t", help="Test suite to run"),
+    distribution: Annotated[str, typer.Argument(help="Distribution name")],
+    params: Annotated[
+        str, typer.Option("--params", "-p", help="Distribution parameters as JSON")
+    ] = "{}",
+    tests: Annotated[
+        str, typer.Option("--tests", "-t", help="Test suite to run")
+    ] = "basic",
 ) -> None:
     """Validate distribution implementation."""
-
+    _ = tests  # Reserved for future test suite selection
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
         raise typer.Exit(1)
@@ -473,26 +494,23 @@ def validate(
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
 def benchmark(
-    distribution: str = typer.Argument(..., help="Distribution name"),
-    params: str = typer.Option(
-        "{}", "--params", "-p", help="Distribution parameters as JSON"
-    ),
-    n_samples: int = typer.Option(
-        10000, "--samples", "-n", help="Number of samples for benchmark"
-    ),
+    distribution: Annotated[str, typer.Argument(help="Distribution name")],
+    params: Annotated[
+        str, typer.Option("--params", "-p", help="Distribution parameters as JSON")
+    ] = "{}",
+    n_samples: Annotated[
+        int, typer.Option("--samples", "-n", help="Number of samples for benchmark")
+    ] = 10000,
 ) -> None:
     """Benchmark distribution performance."""
-
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
-        raise typer.Exit(1)
-
-    import time
+        raise typer.Exit(1) from None
 
     try:
         param_dict = json.loads(params)
@@ -504,7 +522,7 @@ def benchmark(
         # PDF evaluation benchmark
         x_values = [1.0 + i * 0.01 for i in range(1000)]
         start_time = time.time()
-        pdf_values = [dist.pdf(x) for x in x_values]
+        [dist.pdf(x) for x in x_values]
         pdf_time = time.time() - start_time
 
         console.print(
@@ -513,7 +531,7 @@ def benchmark(
 
         # CDF evaluation benchmark
         start_time = time.time()
-        cdf_values = [dist.cdf(x) for x in x_values]
+        [dist.cdf(x) for x in x_values]
         cdf_time = time.time() - start_time
 
         console.print(
@@ -524,7 +542,7 @@ def benchmark(
         u_values = [i / 1000 for i in range(1, 1000)]
         start_time = time.time()
         try:
-            ppf_values = [dist.ppf(u) for u in u_values]
+            [dist.ppf(u) for u in u_values]
             ppf_time = time.time() - start_time
             console.print(
                 f"PPF evaluation (999 points): {ppf_time:.4f}s ({999 / ppf_time:.0f} evals/sec)"
@@ -534,7 +552,7 @@ def benchmark(
 
         # Sampling benchmark
         start_time = time.time()
-        samples = dist.rvs(n_samples, seed=42)
+        dist.rvs(n_samples, seed=42)
         sampling_time = time.time() - start_time
 
         console.print(
@@ -543,7 +561,7 @@ def benchmark(
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 def main() -> None:

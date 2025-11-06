@@ -11,9 +11,6 @@ from typing import Any
 
 
 # TODO: Implement copula models with heavy-tailed marginals
-# ASSIGNEE: diogoribeiro7
-# LABELS: enhancement, copulas, multivariate
-# PRIORITY: Medium
 class HeavyTailCopula(ABC):
     """
     Abstract base class for copulas with heavy-tailed marginal distributions.
@@ -48,8 +45,6 @@ class HeavyTailCopula(ABC):
 
 
 # TODO: Add t-Copula with heavy-tailed marginals
-# LABELS: enhancement, t-copula, multivariate
-# PRIORITY: Medium
 class StudentTCopula(HeavyTailCopula):
     """
     Student-t copula for modeling tail dependence.
@@ -75,8 +70,6 @@ class StudentTCopula(HeavyTailCopula):
 
 
 # TODO: Implement extreme value copulas (Gumbel, Clayton, Frank)
-# LABELS: enhancement, extreme-value-copulas, dependence
-# PRIORITY: Low
 class ExtremeValueCopula(HeavyTailCopula):
     """
     Extreme value copulas for modeling extremal dependence.
@@ -101,8 +94,6 @@ class ExtremeValueCopula(HeavyTailCopula):
 
 
 # TODO: Add regime-switching heavy-tailed models
-# LABELS: enhancement, regime-switching, time-series
-# PRIORITY: Low
 class RegimeSwitchingModel:
     """
     Regime-switching models with heavy-tailed distributions.
@@ -135,8 +126,6 @@ class RegimeSwitchingModel:
 
 
 # TODO: Implement vine copulas for high-dimensional dependence
-# LABELS: enhancement, vine-copulas, high-dimensional
-# PRIORITY: Low
 class VineCopula:
     """
     Vine copula models for high-dimensional heavy-tailed dependence.
@@ -162,8 +151,6 @@ class VineCopula:
 
 
 # TODO: Add spatial statistics extensions for heavy-tailed processes
-# LABELS: enhancement, spatial-statistics, geostatistics
-# PRIORITY: Low
 class SpatialHeavyTailProcess:
     """
     Spatial processes with heavy-tailed marginal distributions.
@@ -201,8 +188,6 @@ class SpatialHeavyTailProcess:
 
 
 # FIXME: Need better integration with existing scientific computing ecosystem
-# LABELS: integration, scientific-computing, ecosystem
-# PRIORITY: Medium
 class ScientificComputingIntegration:
     """
     Integration with major scientific computing libraries.
@@ -232,8 +217,6 @@ class ScientificComputingIntegration:
 
 
 # TODO: Implement Bayesian heavy-tailed regression models
-# LABELS: enhancement, bayesian, regression
-# PRIORITY: Low
 class BayesianHeavyTailRegression:
     """
     Bayesian regression with heavy-tailed error distributions.
@@ -266,8 +249,6 @@ class BayesianHeavyTailRegression:
 
 
 # TODO: Add machine learning integration for distribution classification
-# LABELS: enhancement, machine-learning, classification
-# PRIORITY: Low
 class DistributionClassifier:
     """
     Machine learning models for automatic distribution identification.
@@ -301,8 +282,6 @@ class DistributionClassifier:
 
 
 # NOTE: Consider implementing domain-specific extensions
-# LABELS: enhancement, domain-specific, applications
-# PRIORITY: Low
 class DomainSpecificExtensions:
     """
     Domain-specific extensions for particular application areas.
@@ -344,8 +323,6 @@ class DomainSpecificExtensions:
 
 
 # TODO: Implement computational geometry extensions for tail analysis
-# LABELS: enhancement, computational-geometry, tail-analysis
-# PRIORITY: Low
 class TailGeometryAnalysis:
     """
     Computational geometry approaches to tail analysis.

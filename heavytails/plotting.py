@@ -1,13 +1,16 @@
 # heavytails/plotting.py
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def tail_loglog_plot(data: Sequence[float]) -> list[tuple[float, float]]:
     """
-    Return (log x, log survival) pairs for tail visualization on log–log scale.
+    Return (log x, log survival) pairs for tail visualization on log-log scale.
     (No plotting dependencies; returns data ready for plotting.)
     """
     x = sorted(data)

@@ -32,12 +32,12 @@ pip install tomlkit packaging
 from __future__ import annotations
 
 import argparse
-from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import unified_diff
 import json
 from pathlib import Path
 import sys
+from typing import TYPE_CHECKING
 import urllib.error
 from urllib.parse import urlparse
 import urllib.request
@@ -45,6 +45,9 @@ import urllib.request
 from packaging.requirements import Requirement
 from packaging.version import InvalidVersion, Version
 import tomlkit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @dataclass(frozen=True)
@@ -198,20 +201,24 @@ def _respect_major_allowed(
         return latest.major == latest.major  # trivial True
     # Try to parse the requirement to see any existing max
     try:
-        req = (
-            Requirement(f"pkg {current_spec}")
-            if " " in current_spec
-            else Requirement(f"pkg {current_spec}")
-        )
+        req = Requirement(f"pkg {current_spec}")
     except Exception:
         # Fallback: if spec starts with ^ or ~ (Poetry), infer major from latest string of spec if present
         if current_spec.startswith("^") or current_spec.startswith("~"):
             # Keep within the current major implied by the spec's base number
             try:
-                base = Version(current_spec.lstrip("^~=>=<=!~^ "))
-                return latest.major <= base.major
+                s = current_spec.removeprefix("^").removeprefix("~")
+                # If there's a leading comparison operator like >=, ==, etc., remove it once.
+                for op in ("==", ">=", "<=", "!=", "~=", ">", "<", "="):
+                    if s.startswith(op):
+                        s = s[len(op) :]
+                        break
+                s = s.lstrip()
+                base = Version(s)
             except Exception:
                 return True
+            else:
+                return latest.major <= base.major
         return True
 
     # If there is an upper bound like <2.0.0, prevent crossing it.
@@ -266,7 +273,6 @@ def _iter_poetry_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
         deps = poetry.get("dependencies", {})
         yield from emit_from_table(deps, "main")
 
-    # dev-dependencies (legacy)
     if "dev" in wanted:
         dev = poetry.get("dev-dependencies", {})
         yield from emit_from_table(dev, "dev")
@@ -297,7 +303,7 @@ def _iter_pep621_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
             except Exception:
                 continue
             spec = str(req.specifier) if req.specifier else None
-            # Keep original text shape; we’ll overwrite the whole string at index
+            # Keep original text shape; we'll overwrite the whole string at index
             yield DepRef("pep621", group, req.name, spec, (arr, idx, req))
 
     # main deps

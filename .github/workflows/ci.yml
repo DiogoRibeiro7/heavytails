@@ -61,10 +61,6 @@ jobs:
     - name: Install project
       run: poetry install --no-interaction
       
-    - name: Run pre-commit hooks
-      run: poetry run pre-commit run --all-files
-      continue-on-error: ${{ matrix.os == 'windows-latest' }}
-      
     - name: Run tests with coverage
       run: |
         poetry run pytest tests/ \

@@ -1,12 +1,15 @@
 # extra_distributions.py
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
 import math
+from typing import TYPE_CHECKING
 
 # Reuse the small utilities from your base module
 from heavy_tails import RNG, ParameterError, Samplable
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # =============================================================================
 # Numeric special functions (stdlib only)
@@ -50,7 +53,7 @@ def _betainc_reg(a: float, b: float, x: float) -> float:
     # Lentz's algorithm
     EPS = 1e-14
     MAX_ITER = 200
-    am, bm = 1.0, 1.0  # Not used directly; we implement cf in-place.
+    _am, _bm = 1.0, 1.0  # Not used directly; we implement cf in-place.
     c = 1.0
     d = 1.0 - (a + b) * x / (a + 1.0)
     if abs(d) < EPS:
@@ -104,7 +107,7 @@ def _betainc_reg(a: float, b: float, x: float) -> float:
 
 def _gammainc_lower_reg(a: float, x: float) -> float:
     """
-    Regularized lower incomplete gamma P(a,x) = γ(a,x) / Γ(a).
+    Regularized lower incomplete gamma P(a,x) = gamma(a,x) / Gamma(a).
     Uses series for x < a+1 and continued fraction for x >= a+1.
     """
     if a <= 0 or x < 0:
@@ -127,7 +130,7 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
         return summ * math.exp(-x + a * math.log(x) - math.lgamma(a))
 
     # Continued fraction (A&S 6.5.31) via Lentz's method
-    # P(a,x) = 1 - e^{-x} x^a / Γ(a) * 1/CF
+    # P(a,x) = 1 - e^{-x} x^a / Gamma(a) * 1/CF
     # We compute Q(a,x) first through the CF, then P=1-Q
     MAX_ITER = 10_000
     EPS = 1e-14
@@ -219,19 +222,19 @@ def _ppf_monotone(
 @dataclass(frozen=True)
 class GeneralizedPareto(Samplable):
     """
-    Generalized Pareto Distribution (GPD) with shape ξ, scale σ>0, location μ.
+    Generalized Pareto Distribution (GPD) with shape xi, scale sigma>0, location mu.
 
     Support:
-        x >= μ if ξ >= 0  (heavy-tailed when ξ>0)
-        μ <= x <= μ - σ/ξ if ξ < 0 (bounded tail; not heavy)
+        x >= mu if xi >= 0  (heavy-tailed when xi>0)
+        mu <= x <= mu - sigma/xi if xi < 0 (bounded tail; not heavy)
 
     CDF:
-        F(x) = 1 - (1 + ξ (x-μ)/σ)^(-1/ξ), valid where bracket > 0
+        F(x) = 1 - (1 + xi (x-mu)/sigma)^(-1/xi), valid where bracket > 0
     PDF:
-        f(x) = (1/σ) * (1 + ξ z)^(-1/ξ - 1),  z=(x-μ)/σ
+        f(x) = (1/sigma) * (1 + xi z)^(-1/xi - 1),  z=(x-mu)/sigma
     PPF:
-        x = μ + (σ/ξ) * ( (1-u)^(-ξ) - 1 )      if ξ != 0
-        x = μ - σ * ln(1-u)                     if ξ = 0 (exponential limit)
+        x = mu + (sigma/xi) * ( (1-u)^(-xi) - 1 )      if xi != 0
+        x = mu - sigma * ln(1-u)                     if xi = 0 (exponential limit)
     """
 
     xi: float
@@ -332,10 +335,10 @@ class BurrXII(Samplable):
 @dataclass(frozen=True)
 class LogLogistic(Samplable):
     """
-    Log-Logistic (Fisk) with shape κ>0 and scale λ>0 (support x>0).
-    CDF: F(x) = 1 / (1 + (λ/x)^κ) = (x^κ) / (x^κ + λ^κ)
-    PDF: f(x) = (κ/λ) (x/λ)^(κ-1) / (1 + (x/λ)^κ)^2
-    PPF: x = λ * (u/(1-u))^(1/κ)
+    Log-Logistic (Fisk) with shape kappa>0 and scale lambda_>0 (support x>0).
+    CDF: F(x) = 1 / (1 + (lambda_/x)^kappa) = (x^kappa) / (x^kappa + lambda_^kappa)
+    PDF: f(x) = (kappa/lambda_) (x/lambda_)^(kappa-1) / (1 + (x/lambda_)^kappa)^2
+    PPF: x = lambda_ * (u/(1-u))^(1/kappa)
     """
 
     kappa: float
@@ -379,11 +382,11 @@ class LogLogistic(Samplable):
 @dataclass(frozen=True)
 class InverseGamma(Samplable):
     """
-    Inverse-Gamma with shape α>0 and scale β>0 (support x>0).
-    PDF: f(x) = β^α / Γ(α) * x^{-α-1} * exp(-β/x)
-    CDF: F(x) = Q(α, β/x) = Γ(α, β/x) / Γ(α)  (regularized upper gamma)
+    Inverse-Gamma with shape alpha>0 and scale β>0 (support x>0).
+    PDF: f(x) = β^alpha / Gamma(alpha) * x^{-alpha-1} * exp(-β/x)
+    CDF: F(x) = Q(alpha, β/x) = Gamma(alpha, β/x) / Gamma(alpha)  (regularized upper gamma)
          where Q = 1 - P and P is the regularized lower gamma.
-    Sampling: If G ~ Gamma(α, scale=1), then X = β / G has InvGamma(α, β).
+    Sampling: If G ~ Gamma(alpha, scale=1), then X = β / G has InvGamma(alpha, β).
     """
 
     alpha: float

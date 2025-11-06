@@ -33,19 +33,19 @@ class RNG:
         return min(max(u, eps), 1.0 - eps)
 
     def standard_normal(self) -> float:
-        """Z ~ N(0,1). Uses Python stdlib Box–Muller via random.gauss (Ziggurat internally)."""
+        """Z ~ N(0,1). Uses Python stdlib Box-Muller via random.gauss (Ziggurat internally)."""
         return self.rng.gauss(0.0, 1.0)
 
     # ---------------------- Gamma / Chi-square samplers ---------------------- #
     def gamma(self, shape_k: float, scale_theta: float = 1.0) -> float:
         """
-        X ~ Gamma(k, θ) with k>0, θ>0 using Marsaglia–Tsang (2000).
+        X ~ Gamma(k, θ) with k>0, θ>0 using Marsaglia-Tsang (2000).
         Works for all k>0 (uses boost for k<1).
 
         References
         ----------
         G. Marsaglia and W. W. Tsang (2000). A Simple Method for Generating Gamma Variables.
-        ACM Transactions on Mathematical Software 26(3):363–372.
+        ACM Transactions on Mathematical Software 26(3):363-372.
         """
         if not (shape_k > 0 and scale_theta > 0):
             raise ParameterError("Gamma requires shape k>0 and scale θ>0.")
@@ -60,7 +60,7 @@ class RNG:
             return scale_theta * self._gamma_mt(k)
 
     def _gamma_mt(self, k: float) -> float:
-        """Marsaglia–Tsang core for k >= 1, unit scale."""
+        """Marsaglia-Tsang core for k >= 1, unit scale."""
         d = k - 1.0 / 3.0
         c = 1.0 / math.sqrt(9.0 * d)
         while True:
@@ -110,9 +110,9 @@ class Samplable:
 class Pareto(Samplable):
     """
     Pareto Type I with scale xm>0 and shape alpha>0.
-    PDF: f(x) = α x_m^α / x^{α+1},  x >= x_m
-    CDF: F(x) = 1 - (x_m / x)^α
-    PPF: F^{-1}(u) = x_m * (1 - u)^{-1/α}
+    PDF: f(x) = alpha x_m^alpha / x^{alpha+1},  x >= x_m
+    CDF: F(x) = 1 - (x_m / x)^alpha
+    PPF: F^{-1}(u) = x_m * (1 - u)^{-1/alpha}
     """
 
     alpha: float
@@ -152,9 +152,9 @@ class Pareto(Samplable):
 class Cauchy(Samplable):
     """
     Cauchy(location x0, scale gamma>0).
-    PDF: f(x) = [1/πγ] * [1 / (1 + ((x-x0)/γ)^2)]
-    CDF: F(x) = 0.5 + (1/π) * arctan((x - x0)/γ)
-    PPF: x = x0 + γ * tan(π(u - 0.5))
+    PDF: f(x) = [1/πgamma] * [1 / (1 + ((x-x0)/gamma)^2)]
+    CDF: F(x) = 0.5 + (1/π) * arctan((x - x0)/gamma)
+    PPF: x = x0 + gamma * tan(π(u - 0.5))
     """
 
     x0: float = 0.0
@@ -186,8 +186,8 @@ class Cauchy(Samplable):
 class StudentT(Samplable):
     """
     Student's t with degrees of freedom nu>0.
-    PDF: f(x) = Γ((ν+1)/2) / [ sqrt(νπ) Γ(ν/2) ] * (1 + x^2/ν)^(-(ν+1)/2)
-    Sampling: X = Z / sqrt(Y/ν) with Z~N(0,1), Y~χ²(ν)
+    PDF: f(x) = Gamma((nu+1)/2) / [ sqrt(nuπ) Gamma(nu/2) ] * (1 + x^2/nu)^(-(nu+1)/2)
+    Sampling: X = Z / sqrt(Y/nu) with Z~N(0,1), Y~χ²(nu)
     NOTE: CDF/PPF require special functions not in stdlib; omitted.
     """
 
@@ -213,9 +213,9 @@ class StudentT(Samplable):
 @dataclass(frozen=True)
 class LogNormal(Samplable):
     """
-    LogNormal with underlying Normal(μ, σ^2), σ>0.
-    PDF: f(x) = [1/(x σ sqrt(2π))] * exp( -(ln x - μ)^2 / (2σ^2) ), x>0
-    CDF: F(x) = 0.5 * [1 + erf( (ln x - μ) / (σ sqrt(2)) )], x>0
+    LogNormal with underlying Normal(mu, sigma^2), sigma>0.
+    PDF: f(x) = [1/(x sigma sqrt(2π))] * exp( -(ln x - mu)^2 / (2sigma^2) ), x>0
+    CDF: F(x) = 0.5 * [1 + erf( (ln x - mu) / (sigma sqrt(2)) )], x>0
     """
 
     mu: float = 0.0
@@ -241,7 +241,7 @@ class LogNormal(Samplable):
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
         # Inverse via normal quantile needs erfinv; not in stdlib.
-        # Use rational approximation to Φ^{-1}(u) (Acklam’s method).
+        # Use rational approximation to Φ^{-1}(u) (Acklam's method).
         z = _phi_inverse(u)
         return math.exp(self.mu + self.sigma * z)
 
@@ -253,10 +253,10 @@ class LogNormal(Samplable):
 @dataclass(frozen=True)
 class Weibull(Samplable):
     """
-    Weibull(k, λ) with shape k>0 and scale λ>0.
-    PDF: f(x) = (k/λ) (x/λ)^{k-1} exp(-(x/λ)^k), x>=0
-    CDF: F(x) = 1 - exp(-(x/λ)^k), x>=0
-    PPF: x = λ * (-ln(1-u))^{1/k}
+    Weibull(k, lambda_) with shape k>0 and scale lambda_>0.
+    PDF: f(x) = (k/lambda_) (x/lambda_)^{k-1} exp(-(x/lambda_)^k), x>=0
+    CDF: F(x) = 1 - exp(-(x/lambda_)^k), x>=0
+    PPF: x = lambda_ * (-ln(1-u))^{1/k}
     Heavy-tailed for k in (0,1) (subexponential, slower than exponential decay).
     """
 
@@ -265,7 +265,7 @@ class Weibull(Samplable):
 
     def __post_init__(self) -> None:
         if not (self.k > 0 and self.lam > 0):
-            raise ParameterError("Weibull requires k>0 and λ>0.")
+            raise ParameterError("Weibull requires k>0 and lambda_>0.")
 
     def pdf(self, x: float) -> float:
         if x < 0.0:
@@ -291,11 +291,11 @@ class Weibull(Samplable):
 @dataclass(frozen=True)
 class Frechet(Samplable):
     """
-    Fréchet(α, s, m): heavy-tailed extreme-value distribution.
-    Support x > m. α>0 (shape), s>0 (scale), m (location).
-    CDF: F(x) = exp( - ((x - m)/s)^(-α) ), x>m
-    PDF: f(x) = (α/s) * ((x - m)/s)^(-α-1) * exp( - ((x - m)/s)^(-α) ), x>m
-    PPF: x = m + s * [ -ln(u) ]^{-1/α}
+    Fréchet(alpha, s, m): heavy-tailed extreme-value distribution.
+    Support x > m. alpha>0 (shape), s>0 (scale), m (location).
+    CDF: F(x) = exp( - ((x - m)/s)^(-alpha) ), x>m
+    PDF: f(x) = (alpha/s) * ((x - m)/s)^(-alpha-1) * exp( - ((x - m)/s)^(-alpha) ), x>m
+    PPF: x = m + s * [ -ln(u) ]^{-1/alpha}
     """
 
     alpha: float
@@ -332,12 +332,12 @@ class Frechet(Samplable):
 @dataclass(frozen=True)
 class GEV_Frechet(Samplable):
     """
-    Generalized Extreme Value (Fréchet-type) with ξ>0, μ (loc), σ>0 (scale).
-    Heavy-tailed when ξ>0.
+    Generalized Extreme Value (Fréchet-type) with xi>0, mu (loc), sigma>0 (scale).
+    Heavy-tailed when xi>0.
 
-    CDF: F(x) = exp( -[1 + ξ ( (x-μ)/σ )]^(-1/ξ) ), for 1 + ξ (x-μ)/σ > 0
-    PDF: f(x) = (1/σ) * [1 + ξ z]^(-1/ξ - 1) * exp( -[1 + ξ z]^(-1/ξ) ), z=(x-μ)/σ
-    PPF: x = μ + (σ/ξ) * ( (-ln u)^(-ξ) - 1 )
+    CDF: F(x) = exp( -[1 + xi ( (x-mu)/sigma )]^(-1/xi) ), for 1 + xi (x-mu)/sigma > 0
+    PDF: f(x) = (1/sigma) * [1 + xi z]^(-1/xi - 1) * exp( -[1 + xi z]^(-1/xi) ), z=(x-mu)/sigma
+    PPF: x = mu + (sigma/xi) * ( (-ln u)^(-xi) - 1 )
     """
 
     xi: float
@@ -381,13 +381,13 @@ class GEV_Frechet(Samplable):
         return self.ppf(u)
 
 
-# -------------- Normal quantile (Acklam’s Φ^{-1}) for LogNormal PPF ---------- #
+# -------------- Normal quantile (Acklam's Φ^{-1}) for LogNormal PPF ---------- #
 
 
 def _phi_inverse(u: float) -> float:
     """
     Approximate the inverse standard normal CDF (quantile) for u in (0,1).
-    Accuracy ~1e-9 in double precision. Based on Peter John Acklam’s method.
+    Accuracy ~1e-9 in double precision. Based on Peter John Acklam's method.
 
     Reference:
     https://web.archive.org/web/20150910002153/http://home.online.no/~pjacklam/notes/invnorm/

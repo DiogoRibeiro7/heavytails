@@ -143,8 +143,11 @@ ignore = [
     "PLR0913", # too many arguments
     "PLR2004", # magic value used in comparison
     "TRY003",  # avoid specifying long messages outside exception class
+    "TRY301",  # abstract raise to inner function
+    "PLR0911", # too many return statements
     "PLR0912", # too many branches
     "PLR0915", # too many statements
+    "PERF203", # try-except in loop (acceptable for validation/error handling)
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -158,7 +161,8 @@ ignore = [
 ]
 "__init__.py" = ["F401"]  # unused imports OK in __init__.py
 "scripts/*.py" = ["T201"]  # print statements OK in scripts
-"*/cli.py" = ["T201"]     # print statements OK in CLI
+"*/cli.py" = ["T201", "TC003"]     # print statements OK in CLI, Path used at runtime
+"cli.py" = ["TC003"]  # Path used at runtime
 
 [tool.ruff.lint.isort]
 known-first-party = ["heavytails"]

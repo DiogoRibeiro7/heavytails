@@ -36,7 +36,7 @@ class Zipf(Samplable):
     def ppf(self, u: float) -> int:
         if not (0.0 < u < 1.0):
             raise ValueError("u in (0,1)")
-        c, total = 0.0, 0
+        c, _total = 0.0, 0
         for n in range(1, self.kmax + 1):
             c += n ** (-self.s)
             if c / self._Z >= u:
@@ -50,8 +50,8 @@ class Zipf(Samplable):
 @dataclass(frozen=True)
 class YuleSimon(Samplable):
     """
-    Yule–Simon with shape ρ>0 (discrete heavy tail).
-    P(X=k) = ρ * B(k, ρ+1) = ρ * Γ(k)Γ(ρ+1) / Γ(k+ρ+1)
+    Yule-Simon with shape rho>0 (discrete heavy tail).
+    P(X=k) = rho * B(k, rho+1) = rho * Gamma(k)Gamma(rho+1) / Gamma(k+rho+1)
     """
 
     rho: float
@@ -86,8 +86,8 @@ class YuleSimon(Samplable):
 @dataclass(frozen=True)
 class DiscretePareto(Samplable):
     """
-    Discrete Pareto (Zeta-type) with shape α>0, min k_min>=1.
-    P(X=k) = (k/k_min)^(-α) / H_α(k_min,kmax)
+    Discrete Pareto (Zeta-type) with shape alpha>0, min k_min>=1.
+    P(X=k) = (k/k_min)^(-alpha) / H_alpha(k_min,kmax)
     """
 
     alpha: float
