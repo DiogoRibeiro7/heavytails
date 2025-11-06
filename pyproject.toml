@@ -58,7 +58,7 @@ python = ">=3.10,<3.13"
 pytest = "^8.4.2"
 pytest-xdist = "^3.8.0"
 pytest-cov = "^7.0.0"
-pytest-benchmark = "^4.0.0"
+pytest-benchmark = "^5.2.1"
 pytest-mock = "^3.15.1"
 hypothesis = "^6.144.0"
 
