@@ -21,7 +21,6 @@ from heavytails.performance import (
     vectorized_pdf_evaluation,
 )
 
-
 # ========================================
 # Vectorized Operations Tests
 # ========================================
@@ -40,7 +39,7 @@ class TestVectorizedOperations:
         dist = Pareto(alpha=2.5, xm=1.0)
         expected = [dist.pdf(x) for x in x_values]
 
-        for i, (actual, exp) in enumerate(zip(pdf_values, expected)):
+        for i, (actual, exp) in enumerate(zip(pdf_values, expected, strict=False)):
             assert abs(actual - exp) < 1e-10, f"Mismatch at index {i}"
 
     def test_vectorized_cdf_pareto(self):
@@ -53,7 +52,7 @@ class TestVectorizedOperations:
         dist = Pareto(alpha=2.5, xm=1.0)
         expected = [dist.cdf(x) for x in x_values]
 
-        for i, (actual, exp) in enumerate(zip(cdf_values, expected)):
+        for i, (actual, exp) in enumerate(zip(cdf_values, expected, strict=False)):
             assert abs(actual - exp) < 1e-10, f"Mismatch at index {i}"
 
     def test_vectorized_pdf_student_t(self):
@@ -66,7 +65,7 @@ class TestVectorizedOperations:
         dist = StudentT(nu=5.0)
         expected = [dist.pdf(x) for x in x_values]
 
-        for i, (actual, exp) in enumerate(zip(pdf_values, expected)):
+        for i, (actual, exp) in enumerate(zip(pdf_values, expected, strict=False)):
             assert abs(actual - exp) < 1e-10, f"Mismatch at index {i}"
 
     def test_vectorized_invalid_distribution(self):
@@ -404,10 +403,9 @@ class TestPerformanceIntegration:
 
         x_values = [1.0, 2.0, 3.0, 2.0, 1.0]  # Repeated values
 
-        # Use cache for PDF evaluation
-        results = []
+        # Use cache for PDF evaluation (populate cache via side effects)
         for x in x_values:
-            results.append(cache.cached_pdf("Pareto", x, alpha=2.5, xm=1.0))
+            cache.cached_pdf("Pareto", x, alpha=2.5, xm=1.0)
 
         # Check cache was effective
         info = cache.get_cache_info()

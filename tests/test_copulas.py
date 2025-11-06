@@ -7,7 +7,6 @@ This module contains tests for:
 - Tail dependence coefficient calculations
 """
 
-import math
 
 import pytest
 
@@ -27,7 +26,6 @@ from heavytails.extensions import (
     HeavyTailCopula,
     StudentTCopula,
 )
-
 
 # ========================================
 # StudentTCopula Tests
@@ -94,7 +92,7 @@ class TestStudentTCopula:
         corr = [[0.9, 0.5], [0.5, 1.0]]  # Diagonal not 1
         marginals = ["t", "t"]
 
-        with pytest.raises(ValueError, match="Diagonal elements.*must be 1"):
+        with pytest.raises(ValueError, match=r"Diagonal elements.*must be 1"):
             StudentTCopula(nu=nu, correlation_matrix=corr, marginals=marginals)
 
     def test_initialization_not_positive_definite(self):
@@ -166,10 +164,10 @@ class TestStudentTCopula:
 
         copula = StudentTCopula(nu=nu, correlation_matrix=corr, marginals=marginals)
 
-        with pytest.raises(ValueError, match="Expected.*dimensions"):
+        with pytest.raises(ValueError, match=r"Expected.*dimensions"):
             copula.pdf([0.5])  # Only 1 dimension
 
-        with pytest.raises(ValueError, match="Expected.*dimensions"):
+        with pytest.raises(ValueError, match=r"Expected.*dimensions"):
             copula.pdf([0.5, 0.5, 0.5])  # 3 dimensions
 
     def test_cdf_boundary_conditions(self):
@@ -255,21 +253,21 @@ class TestExtremeValueCopula:
 
     def test_initialization_gumbel_invalid_theta(self):
         """Test that Gumbel with theta < 1 raises ValueError."""
-        with pytest.raises(ValueError, match="Gumbel.*theta >= 1"):
+        with pytest.raises(ValueError, match=r"Gumbel.*theta >= 1"):
             ExtremeValueCopula(
                 copula_type="gumbel", theta=0.5, marginals=["pareto", "pareto"]
             )
 
     def test_initialization_clayton_invalid_theta(self):
         """Test that Clayton with theta <= 0 raises ValueError."""
-        with pytest.raises(ValueError, match="Clayton.*theta > 0"):
+        with pytest.raises(ValueError, match=r"Clayton.*theta > 0"):
             ExtremeValueCopula(
                 copula_type="clayton", theta=-1.0, marginals=["pareto", "pareto"]
             )
 
     def test_initialization_frank_invalid_theta(self):
         """Test that Frank with theta = 0 raises ValueError."""
-        with pytest.raises(ValueError, match="Frank.*theta != 0"):
+        with pytest.raises(ValueError, match=r"Frank.*theta != 0"):
             ExtremeValueCopula(
                 copula_type="frank", theta=0.0, marginals=["pareto", "pareto"]
             )

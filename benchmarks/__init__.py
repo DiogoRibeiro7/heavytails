@@ -10,6 +10,6 @@ Modules:
 - regression_tests: Performance regression detection (future)
 """
 
-from .performance_tests import DistributionBenchmark, BenchmarkResult
+from .performance_tests import BenchmarkResult, DistributionBenchmark
 
-__all__ = ['DistributionBenchmark', 'BenchmarkResult']
+__all__ = ['BenchmarkResult', 'DistributionBenchmark']
