@@ -5,10 +5,7 @@ This module contains validation functions and TODO items for improving
 the mathematical accuracy and reliability of the library.
 """
 
-import math
-import warnings
-from typing import List, Dict, Tuple, Optional, Callable, Any
-from dataclasses import dataclass
+from typing import Any
 
 
 # TODO: Implement comprehensive numerical accuracy tests against reference implementations
@@ -29,14 +26,14 @@ class NumericalValidation:
 
     def __init__(self):
         self.tolerance = 1e-12
-        self.test_results: Dict[str, Dict] = {}
+        self.test_results: dict[str, dict] = {}
 
-    def validate_against_r(self, distribution: str) -> Dict[str, float]:
+    def validate_against_r(self, distribution: str) -> dict[str, float]:
         # TODO: Compare against R implementation using rpy2 or precomputed values
         # LABELS: validation, r-compatibility
         raise NotImplementedError("R validation not implemented")
 
-    def validate_against_scipy(self, distribution: str) -> Dict[str, float]:
+    def validate_against_scipy(self, distribution: str) -> dict[str, float]:
         # TODO: Compare against SciPy implementations
         # LABELS: validation, scipy-compatibility
         raise NotImplementedError("SciPy validation not implemented")
@@ -45,7 +42,7 @@ class NumericalValidation:
 # FIXME: Some parameter combinations may lead to numerical instability
 # LABELS: bug, numerical-stability, edge-cases
 # PRIORITY: High
-def parameter_stability_check(distribution: str, **params) -> Dict[str, Any]:
+def parameter_stability_check(distribution: str, **params) -> dict[str, Any]:
     """
     Check parameter combinations for numerical stability.
 
@@ -143,9 +140,9 @@ class ParameterEstimationValidation:
     """
 
     def __init__(self):
-        self.validation_results: Dict[str, Dict] = {}
+        self.validation_results: dict[str, dict] = {}
 
-    def validate_mle(self, distribution: str, true_params: Dict, n_trials: int = 100):
+    def validate_mle(self, distribution: str, true_params: dict, n_trials: int = 100):
         # TODO: Validate MLE estimation accuracy
         # LABELS: validation, mle, parameter-estimation
         raise NotImplementedError("MLE validation not implemented")
@@ -205,15 +202,15 @@ class GoodnessOfFitTests:
         pass
 
     def kolmogorov_smirnov_test(
-        self, data: List[float], distribution: str, **params
-    ) -> Dict:
+        self, data: list[float], distribution: str, **params
+    ) -> dict:
         # TODO: Implement KS test for distribution fitting
         # LABELS: goodness-of-fit, ks-test
         raise NotImplementedError("KS test not implemented")
 
     def anderson_darling_test(
-        self, data: List[float], distribution: str, **params
-    ) -> Dict:
+        self, data: list[float], distribution: str, **params
+    ) -> dict:
         # TODO: Implement Anderson-Darling test
         # LABELS: goodness-of-fit, ad-test
         raise NotImplementedError("AD test not implemented")
@@ -239,7 +236,7 @@ class RegressionTesting:
     def __init__(self, reference_db_path: str = "tests/reference_values.json"):
         # TODO: Load reference values database
         self.reference_db_path = reference_db_path
-        self.reference_values: Dict = {}
+        self.reference_values: dict = {}
 
     def add_reference_value(self, test_id: str, value: float, tolerance: float = 1e-15):
         # TODO: Add new reference value to database
@@ -288,12 +285,12 @@ class MathematicalPropertyVerification:
     - Convolution properties where applicable
     """
 
-    def verify_tail_behavior(self, distribution: str, **params) -> Dict[str, bool]:
+    def verify_tail_behavior(self, distribution: str, **params) -> dict[str, bool]:
         # TODO: Verify asymptotic tail behavior matches theory
         # LABELS: mathematics, tail-behavior
         raise NotImplementedError("Tail behavior verification not implemented")
 
-    def verify_moments(self, distribution: str, **params) -> Dict[str, bool]:
+    def verify_moments(self, distribution: str, **params) -> dict[str, bool]:
         # TODO: Verify moment calculations against theory
         # LABELS: mathematics, moments
         raise NotImplementedError("Moment verification not implemented")

@@ -1,9 +1,10 @@
 # heavytails/discrete.py
 from __future__ import annotations
-import math, random
+
 from dataclasses import dataclass
-from typing import Optional, List
-from heavytails.heavy_tails import Samplable, RNG, ParameterError
+import math
+
+from heavytails.heavy_tails import RNG, ParameterError, Samplable
 
 
 @dataclass(frozen=True)

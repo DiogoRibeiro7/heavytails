@@ -1,13 +1,12 @@
 # extra_distributions.py
 from __future__ import annotations
 
-import math
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
+import math
 
 # Reuse the small utilities from your base module
-from heavy_tails import RNG, Samplable, ParameterError
-
+from heavy_tails import RNG, ParameterError, Samplable
 
 # =============================================================================
 # Numeric special functions (stdlib only)
@@ -161,17 +160,15 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
     Q = f * math.exp(-x + a * math.log(x) - math.lgamma(a))
     P = 1.0 - Q
     # Clamp to [0,1]
-    if P < 0.0:
-        P = 0.0
-    if P > 1.0:
-        P = 1.0
+    P = max(P, 0.0)
+    P = min(P, 1.0)
     return P
 
 
 def _ppf_monotone(cdf: Callable[[float], float],
                   lo: float, hi: float,
                   u: float,
-                  pdf: Optional[Callable[[float], float]] = None,
+                  pdf: Callable[[float], float] | None = None,
                   max_iter: int = 100,
                   tol: float = 1e-12) -> float:
     """

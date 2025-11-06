@@ -11,33 +11,28 @@ Provides utilities for:
 from __future__ import annotations
 
 import json
-import math
-import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+import sys
 
-import typer
 from rich.console import Console
 from rich.table import Table
-from rich.text import Text
+import typer
 
 from heavytails import (
-    Pareto,
-    Cauchy,
-    StudentT,
-    LogNormal,
-    Weibull,
-    Frechet,
-    GEV_Frechet,
-    GeneralizedPareto,
-    BurrXII,
-    LogLogistic,
-    InverseGamma,
     BetaPrime,
+    BurrXII,
+    Cauchy,
+    Frechet,
+    GeneralizedPareto,
+    GEV_Frechet,
+    InverseGamma,
+    LogLogistic,
+    LogNormal,
+    Pareto,
+    StudentT,
+    Weibull,
 )
-from heavytails.tail_index import hill_estimator, pickands_estimator, moment_estimator
-from heavytails.plotting import tail_loglog_plot, qq_pareto
-
+from heavytails.tail_index import hill_estimator, moment_estimator, pickands_estimator
 
 app = typer.Typer(
     name="heavytails",
@@ -67,28 +62,28 @@ DISTRIBUTIONS = {
 def sample(
     distribution: str = typer.Argument(..., help="Distribution name"),
     n: int = typer.Option(1000, "--samples", "-n", help="Number of samples"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output file"),
-    seed: Optional[int] = typer.Option(None, "--seed", "-s", help="Random seed"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Output file"),
+    seed: int | None = typer.Option(None, "--seed", "-s", help="Random seed"),
     params: str = typer.Option("{}", "--params", "-p", help="Distribution parameters as JSON"),
 ) -> None:
     """Generate samples from a heavy-tailed distribution."""
-    
+
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
         console.print(f"Available: {', '.join(DISTRIBUTIONS.keys())}")
         raise typer.Exit(1)
-    
+
     try:
         param_dict = json.loads(params)
     except json.JSONDecodeError as e:
         console.print(f"[red]Error:[/red] Invalid JSON parameters: {e}")
         raise typer.Exit(1)
-    
+
     try:
         dist_class = DISTRIBUTIONS[distribution]
         dist = dist_class(**param_dict)
         samples = dist.rvs(n, seed=seed)
-        
+
         if output:
             with open(output, 'w') as f:
                 for sample in samples:
@@ -97,7 +92,7 @@ def sample(
         else:
             for sample in samples:
                 console.print(f"{sample}")
-                
+
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)
@@ -107,35 +102,35 @@ def sample(
 def estimate_tail(
     data_file: Path = typer.Argument(..., help="File containing data (one value per line)"),
     method: str = typer.Option("hill", "--method", "-m", help="Estimation method"),
-    k: Optional[int] = typer.Option(None, "--k", help="Number of top order statistics"),
+    k: int | None = typer.Option(None, "--k", help="Number of top order statistics"),
     output_format: str = typer.Option("table", "--format", "-f", help="Output format (table|json)"),
 ) -> None:
     """Estimate tail index from data."""
-    
+
     if not data_file.exists():
         console.print(f"[red]Error:[/red] File {data_file} not found")
         raise typer.Exit(1)
-    
+
     # Read data
     try:
         with open(data_file) as f:
             data = [float(line.strip()) for line in f if line.strip()]
-    except (ValueError, IOError) as e:
+    except (OSError, ValueError) as e:
         console.print(f"[red]Error:[/red] Could not read data: {e}")
         raise typer.Exit(1)
-    
+
     if len(data) < 10:
         console.print(f"[red]Error:[/red] Need at least 10 data points, got {len(data)}")
         raise typer.Exit(1)
-    
+
     # Auto-select k if not provided
     if k is None:
         k = min(len(data) // 10, 200)  # Rule of thumb: ~10% of data, max 200
-    
+
     if k >= len(data):
         console.print(f"[red]Error:[/red] k ({k}) must be less than data size ({len(data)})")
         raise typer.Exit(1)
-    
+
     try:
         if method == "hill":
             result = hill_estimator(data, k)
@@ -147,7 +142,7 @@ def estimate_tail(
                 "k": k,
                 "n": len(data)
             }
-            
+
         elif method == "pickands":
             gamma_hat = pickands_estimator(data, k)
             alpha_hat = 1.0 / gamma_hat
@@ -158,7 +153,7 @@ def estimate_tail(
                 "k": k,
                 "n": len(data)
             }
-            
+
         elif method == "moment":
             gamma_hat, alpha_hat = moment_estimator(data, k)
             results = {
@@ -168,28 +163,28 @@ def estimate_tail(
                 "k": k,
                 "n": len(data)
             }
-            
+
         else:
             console.print(f"[red]Error:[/red] Unknown method '{method}'")
             console.print("Available methods: hill, pickands, moment")
             raise typer.Exit(1)
-        
+
         # Output results
         if output_format == "json":
             console.print(json.dumps(results, indent=2))
         else:
-            table = Table(title=f"Tail Index Estimation Results")
+            table = Table(title="Tail Index Estimation Results")
             table.add_column("Parameter", style="cyan")
             table.add_column("Value", style="white")
-            
+
             table.add_row("Method", results["method"])
             table.add_row("Sample size (n)", str(results["n"]))
             table.add_row("Order statistics (k)", str(results["k"]))
             table.add_row("Tail index (γ)", f"{results['gamma']:.4f}")
             table.add_row("Shape parameter (α)", f"{results['alpha']:.4f}")
-            
+
             console.print(table)
-            
+
             # Interpretation
             gamma = results['gamma']
             console.print("\n[bold]Interpretation:[/bold]")
@@ -199,7 +194,7 @@ def estimate_tail(
                 console.print("• [yellow]Heavy tail[/yellow] - finite variance, possible infinite higher moments")
             else:
                 console.print("• [green]Light tail or estimation error[/green]")
-    
+
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)
@@ -231,14 +226,14 @@ def info(
     distribution: str = typer.Argument(..., help="Distribution name"),
 ) -> None:
     """Show information about a distribution."""
-    
+
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
         console.print(f"Available: {', '.join(DISTRIBUTIONS.keys())}")
         raise typer.Exit(1)
-    
+
     dist_class = DISTRIBUTIONS[distribution]
-    
+
     # Get distribution info
     info_map = {
         "pareto": {
@@ -338,17 +333,17 @@ def info(
             "applications": ["Economics", "Reliability", "Income modeling"]
         }
     }
-    
+
     info = info_map.get(distribution, {})
-    
+
     table = Table(title=f"{info.get('name', distribution.title())} Distribution")
     table.add_column("Property", style="cyan")
     table.add_column("Description", style="white")
-    
+
     for key, value in info.items():
         if key == "name":
             continue
-        
+
         if key == "parameters":
             table.add_row("Parameters", ", ".join(value))
         elif key == "applications":
@@ -358,19 +353,19 @@ def info(
             table.add_row("Heavy tail", f"[{color}]{value}[/{color}]")
         else:
             table.add_row(key.replace("_", " ").title(), str(value))
-    
+
     console.print(table)
 
 
 @app.command()
 def list_distributions() -> None:
     """List all available distributions."""
-    
+
     table = Table(title="Available Heavy-Tailed Distributions")
     table.add_column("Name", style="cyan")
     table.add_column("Type", style="white")
     table.add_column("Heavy Tail", style="white")
-    
+
     dist_info = [
         ("pareto", "Power law", "Always"),
         ("cauchy", "Symmetric", "Always"),
@@ -385,11 +380,11 @@ def list_distributions() -> None:
         ("invgamma", "Positive", "Always"),
         ("betaprime", "Positive", "Always"),
     ]
-    
+
     for name, dist_type, heavy_tail in dist_info:
         color = "red" if heavy_tail == "Always" else "yellow"
         table.add_row(name, dist_type, f"[{color}]{heavy_tail}[/{color}]")
-    
+
     console.print(table)
 
 
@@ -400,50 +395,50 @@ def validate(
     tests: str = typer.Option("basic", "--tests", "-t", help="Test suite to run"),
 ) -> None:
     """Validate distribution implementation."""
-    
+
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
         raise typer.Exit(1)
-    
+
     try:
         param_dict = json.loads(params)
         dist_class = DISTRIBUTIONS[distribution]
         dist = dist_class(**param_dict)
-        
-        console.print(f"[green]✓[/green] Distribution created successfully")
-        
+
+        console.print("[green]✓[/green] Distribution created successfully")
+
         # Basic validation tests
         test_points = [0.1, 0.5, 0.9, 0.99]
-        
+
         console.print("\n[bold]PDF/CDF Validation:[/bold]")
         for x in [1.0, 2.0, 5.0]:
             try:
                 pdf = dist.pdf(x)
                 cdf = dist.cdf(x)
                 console.print(f"  x={x}: PDF={pdf:.6f}, CDF={cdf:.6f}")
-                
+
                 if pdf < 0:
                     console.print(f"  [red]✗[/red] Negative PDF at x={x}")
                 if not (0 <= cdf <= 1):
                     console.print(f"  [red]✗[/red] CDF out of [0,1] at x={x}")
             except Exception as e:
                 console.print(f"  [red]✗[/red] Error at x={x}: {e}")
-        
+
         console.print("\n[bold]PPF/CDF Inverse Test:[/bold]")
         for u in test_points:
             try:
                 x = dist.ppf(u)
                 recovered_u = dist.cdf(x)
                 error = abs(recovered_u - u)
-                
+
                 if error < 1e-6:
                     console.print(f"  [green]✓[/green] u={u}: x={x:.4f}, error={error:.2e}")
                 else:
                     console.print(f"  [red]✗[/red] u={u}: x={x:.4f}, error={error:.2e}")
-                    
+
             except Exception as e:
                 console.print(f"  [red]✗[/red] Error at u={u}: {e}")
-        
+
         console.print("\n[bold]Sampling Test:[/bold]")
         try:
             samples = dist.rvs(100, seed=42)
@@ -452,7 +447,7 @@ def validate(
             console.print(f"  Sample range: [{min(samples):.4f}, {max(samples):.4f}]")
         except Exception as e:
             console.print(f"  [red]✗[/red] Sampling error: {e}")
-        
+
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)
@@ -465,35 +460,35 @@ def benchmark(
     n_samples: int = typer.Option(10000, "--samples", "-n", help="Number of samples for benchmark"),
 ) -> None:
     """Benchmark distribution performance."""
-    
+
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
         raise typer.Exit(1)
-    
+
     import time
-    
+
     try:
         param_dict = json.loads(params)
         dist_class = DISTRIBUTIONS[distribution]
         dist = dist_class(**param_dict)
-        
+
         console.print(f"[bold]Benchmarking {distribution} distribution[/bold]\n")
-        
+
         # PDF evaluation benchmark
         x_values = [1.0 + i * 0.01 for i in range(1000)]
         start_time = time.time()
         pdf_values = [dist.pdf(x) for x in x_values]
         pdf_time = time.time() - start_time
-        
+
         console.print(f"PDF evaluation (1000 points): {pdf_time:.4f}s ({1000/pdf_time:.0f} evals/sec)")
-        
+
         # CDF evaluation benchmark
         start_time = time.time()
         cdf_values = [dist.cdf(x) for x in x_values]
         cdf_time = time.time() - start_time
-        
+
         console.print(f"CDF evaluation (1000 points): {cdf_time:.4f}s ({1000/cdf_time:.0f} evals/sec)")
-        
+
         # PPF evaluation benchmark
         u_values = [i / 1000 for i in range(1, 1000)]
         start_time = time.time()
@@ -503,14 +498,14 @@ def benchmark(
             console.print(f"PPF evaluation (999 points): {ppf_time:.4f}s ({999/ppf_time:.0f} evals/sec)")
         except Exception as e:
             console.print(f"PPF benchmark failed: {e}")
-        
+
         # Sampling benchmark
         start_time = time.time()
         samples = dist.rvs(n_samples, seed=42)
         sampling_time = time.time() - start_time
-        
+
         console.print(f"Sampling ({n_samples} samples): {sampling_time:.4f}s ({n_samples/sampling_time:.0f} samples/sec)")
-        
+
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)

@@ -1,5 +1,8 @@
-from heavytails.tail_index import hill_estimator, pickands_estimator, moment_estimator
-import random, math
+import math
+import random
+
+from heavytails.tail_index import hill_estimator, moment_estimator
+
 
 def test_hill_pareto():
     data = [((1-random.random()) ** (-1/1.5)) for _ in range(5000)]

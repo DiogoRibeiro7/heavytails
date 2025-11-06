@@ -5,10 +5,9 @@ This module contains performance-critical functions and optimization
 TODO items that will be tracked as GitHub Issues.
 """
 
-import time
-import math
-from typing import List, Dict, Callable, Optional, Tuple
+from collections.abc import Callable
 from dataclasses import dataclass
+import math
 
 
 # TODO: Implement Cython extensions for critical mathematical functions
@@ -34,8 +33,8 @@ def cython_special_functions():
 # LABELS: performance, vectorization, numpy
 # PRIORITY: Medium
 def vectorized_pdf_evaluation(
-    distribution: str, x_array: List[float], **params
-) -> List[float]:
+    distribution: str, x_array: list[float], **params
+) -> list[float]:
     """
     Vectorized PDF evaluation for array inputs.
 
@@ -86,8 +85,8 @@ class PPFOptimizer:
 # LABELS: enhancement, performance, parallel
 # PRIORITY: Low
 def parallel_sampling(
-    distribution: str, n: int, n_cores: Optional[int] = None, **params
-) -> List[float]:
+    distribution: str, n: int, n_cores: int | None = None, **params
+) -> list[float]:
     """
     Parallel random number generation for large samples.
 
@@ -123,13 +122,13 @@ class MemoryProfiler:
 
     def __init__(self):
         # TODO: Implement memory profiling utilities
-        self.profiles: Dict[str, Dict] = {}
+        self.profiles: dict[str, dict] = {}
 
-    def profile_sampling(self, distribution: str, n: int) -> Dict:
+    def profile_sampling(self, distribution: str, n: int) -> dict:
         # TODO: Profile memory usage during sampling
         raise NotImplementedError("Memory profiling not implemented")
 
-    def optimize_memory_usage(self) -> Dict[str, str]:
+    def optimize_memory_usage(self) -> dict[str, str]:
         # TODO: Provide memory optimization recommendations
         raise NotImplementedError("Memory optimization not implemented")
 
@@ -205,7 +204,7 @@ class DistributionCache:
 
     def __init__(self, max_size: int = 1000):
         # TODO: Implement LRU cache with parameter hashing
-        self.cache: Dict = {}
+        self.cache: dict = {}
         self.max_size = max_size
 
     def cached_pdf(self, distribution: str, x: float, **params) -> float:
@@ -236,18 +235,18 @@ class PerformanceBenchmarks:
     """
 
     def __init__(self):
-        self.benchmarks: Dict[str, Dict] = {}
+        self.benchmarks: dict[str, dict] = {}
 
-    def benchmark_sampling(self, distribution: str, sizes: List[int]) -> Dict:
+    def benchmark_sampling(self, distribution: str, sizes: list[int]) -> dict:
         # TODO: Benchmark sampling performance across different sizes
         # LABELS: performance, testing
         raise NotImplementedError("Sampling benchmarks not implemented")
 
-    def benchmark_pdf_evaluation(self, distribution: str, n_points: int) -> Dict:
+    def benchmark_pdf_evaluation(self, distribution: str, n_points: int) -> dict:
         # TODO: Benchmark PDF evaluation performance
         raise NotImplementedError("PDF benchmarks not implemented")
 
-    def run_all_benchmarks(self) -> Dict[str, Dict]:
+    def run_all_benchmarks(self) -> dict[str, dict]:
         # TODO: Execute comprehensive benchmark suite
         raise NotImplementedError("Full benchmark suite not implemented")
 
@@ -298,13 +297,13 @@ class OnlineEstimation:
         # TODO: Implement online parameter estimation
         self.distribution = distribution
         self.n_samples = 0
-        self.estimates: Dict[str, float] = {}
+        self.estimates: dict[str, float] = {}
 
     def update(self, new_data: float):
         # TODO: Update parameter estimates with new data point
         raise NotImplementedError("Online updating not implemented")
 
-    def get_current_estimates(self) -> Dict[str, float]:
+    def get_current_estimates(self) -> dict[str, float]:
         # TODO: Return current parameter estimates
         raise NotImplementedError("Online estimation not implemented")
 

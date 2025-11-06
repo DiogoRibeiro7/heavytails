@@ -1,7 +1,9 @@
 # heavytails/tail_index.py
 from __future__ import annotations
+
+from collections.abc import Sequence
 import math
-from typing import Sequence, Tuple
+
 
 def hill_estimator(data: Sequence[float], k: int) -> float:
     """
@@ -33,7 +35,7 @@ def pickands_estimator(data: Sequence[float], k: int, m: int = 2) -> float:
     Xk, X2k, Xmk, X2mk = x[k-1], x[2*k-1], x[m*k-1], x[2*m*k-1]
     return (1.0 / math.log(m)) * math.log((Xk - X2k) / (Xmk - X2mk))
 
-def moment_estimator(data: Sequence[float], k: int) -> Tuple[float, float]:
+def moment_estimator(data: Sequence[float], k: int) -> tuple[float, float]:
     """
     Dekkers–Einmahl–de Haan moment estimator for tail index.
 

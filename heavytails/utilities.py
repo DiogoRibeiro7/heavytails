@@ -5,14 +5,9 @@ This module contains various utility functions and TODO items for
 improving the overall functionality and usability of the library.
 """
 
-import math
-import json
-import csv
-from typing import List, Dict, Optional, Union, Any, Tuple, Callable
+from dataclasses import dataclass
 from pathlib import Path
-from dataclasses import dataclass, asdict
-import urllib.request
-import urllib.error
+from typing import Any
 
 
 # TODO: Implement data import/export utilities for common formats
@@ -32,21 +27,21 @@ class DataIO:
     """
 
     @staticmethod
-    def read_csv(filepath: Path, column: str = None) -> List[float]:
+    def read_csv(filepath: Path, column: str = None) -> list[float]:
         # TODO: Implement robust CSV reading with error handling
         # LABELS: data-io, csv
         """Read numerical data from CSV file."""
         raise NotImplementedError("CSV reading not implemented")
 
     @staticmethod
-    def write_csv(data: List[float], filepath: Path, metadata: Dict = None):
+    def write_csv(data: list[float], filepath: Path, metadata: dict = None):
         # TODO: Write data to CSV with optional metadata
         # LABELS: data-io, csv
         """Write numerical data to CSV file."""
         raise NotImplementedError("CSV writing not implemented")
 
     @staticmethod
-    def read_json(filepath: Path) -> Dict[str, Any]:
+    def read_json(filepath: Path) -> dict[str, Any]:
         # TODO: Read JSON data with distribution metadata
         # LABELS: data-io, json
         """Read data and metadata from JSON file."""
@@ -85,14 +80,14 @@ class AutoFit:
         ]
 
     def fit_distribution(
-        self, data: List[float], distribution: str = "auto"
-    ) -> Dict[str, Any]:
+        self, data: list[float], distribution: str = "auto"
+    ) -> dict[str, Any]:
         # TODO: Implement automatic parameter fitting
         # LABELS: parameter-estimation, fitting
         """Fit distribution parameters to data."""
         raise NotImplementedError("Automatic fitting not implemented")
 
-    def compare_distributions(self, data: List[float]) -> Dict[str, Dict]:
+    def compare_distributions(self, data: list[float]) -> dict[str, dict]:
         # TODO: Compare multiple distributions and rank by fit quality
         # LABELS: model-selection, comparison
         """Compare multiple distribution fits."""
@@ -128,8 +123,8 @@ class ParameterValidator:
 
     @staticmethod
     def suggest_parameters(
-        distribution: str, data: List[float] = None
-    ) -> Dict[str, Tuple[float, float]]:
+        distribution: str, data: list[float] = None
+    ) -> dict[str, tuple[float, float]]:
         # TODO: Suggest reasonable parameter ranges based on data or defaults
         # LABELS: parameter-estimation, user-help
         """Suggest reasonable parameter ranges."""
@@ -150,23 +145,23 @@ class StatisticalSummary:
     - Visualization recommendations
     """
 
-    def __init__(self, data: List[float]):
+    def __init__(self, data: list[float]):
         self.data = sorted(data)
         self.n = len(data)
 
-    def basic_stats(self) -> Dict[str, float]:
+    def basic_stats(self) -> dict[str, float]:
         # TODO: Calculate comprehensive basic statistics
         # LABELS: statistics, descriptive
         """Calculate basic descriptive statistics."""
         raise NotImplementedError("Basic statistics calculation not implemented")
 
-    def tail_statistics(self) -> Dict[str, float]:
+    def tail_statistics(self) -> dict[str, float]:
         # TODO: Calculate tail-specific statistics
         # LABELS: statistics, tail-analysis
         """Calculate heavy-tail specific statistics."""
         raise NotImplementedError("Tail statistics not implemented")
 
-    def diagnostic_summary(self) -> Dict[str, Any]:
+    def diagnostic_summary(self) -> dict[str, Any]:
         # TODO: Provide diagnostic summary for heavy-tail hypothesis
         # LABELS: diagnostics, heavy-tails
         """Provide heavy-tail diagnostics."""
@@ -193,13 +188,13 @@ class ConfigurationManager:
         self.config = {}
         self.config_file = config_file or Path.home() / ".heavytails" / "config.json"
 
-    def load_config(self) -> Dict[str, Any]:
+    def load_config(self) -> dict[str, Any]:
         # TODO: Load configuration from file
         # LABELS: configuration, file-io
         """Load configuration from file."""
         raise NotImplementedError("Configuration loading not implemented")
 
-    def save_config(self, config: Dict[str, Any]):
+    def save_config(self, config: dict[str, Any]):
         # TODO: Save configuration to file
         # LABELS: configuration, file-io
         """Save configuration to file."""
@@ -221,22 +216,22 @@ class DataQualityAssessment:
     - Stationarity (for time series)
     """
 
-    def __init__(self, data: List[float]):
+    def __init__(self, data: list[float]):
         self.data = data
 
-    def assess_quality(self) -> Dict[str, Any]:
+    def assess_quality(self) -> dict[str, Any]:
         # TODO: Comprehensive data quality assessment
         # LABELS: data-quality, assessment
         """Assess data quality for statistical analysis."""
         raise NotImplementedError("Data quality assessment not implemented")
 
-    def detect_outliers(self, method: str = "iqr") -> List[int]:
+    def detect_outliers(self, method: str = "iqr") -> list[int]:
         # TODO: Detect outliers using various methods
         # LABELS: outlier-detection, data-cleaning
         """Detect outliers in the data."""
         raise NotImplementedError("Outlier detection not implemented")
 
-    def suggest_preprocessing(self) -> List[str]:
+    def suggest_preprocessing(self) -> list[str]:
         # TODO: Suggest data preprocessing steps
         # LABELS: data-preprocessing, recommendations
         """Suggest preprocessing steps."""
@@ -261,8 +256,8 @@ class DistributionMetadata:
 
     name: str
     family: str
-    parameters: Dict[str, Dict[str, Any]]
-    properties: Dict[str, Any]
+    parameters: dict[str, dict[str, Any]]
+    properties: dict[str, Any]
 
     def __post_init__(self):
         # TODO: Implement proper distribution type system
@@ -298,13 +293,13 @@ class FinancialDataScraper:
 
     def get_stock_returns(
         self, symbol: str, start_date: str, end_date: str
-    ) -> List[float]:
+    ) -> list[float]:
         # TODO: Scrape stock return data
         # LABELS: web-scraping, finance, stock-data
         """Get stock return data from web sources."""
         raise NotImplementedError("Stock data scraping not implemented")
 
-    def get_economic_indicators(self, indicator: str) -> List[float]:
+    def get_economic_indicators(self, indicator: str) -> list[float]:
         # TODO: Scrape economic indicator data
         # LABELS: web-scraping, economics, indicators
         """Get economic indicator data."""
@@ -361,13 +356,13 @@ class InteractiveTutorials:
         # TODO: Implement interactive tutorial system
         self.tutorials = {}
 
-    def start_tutorial(self, topic: str) -> Dict[str, Any]:
+    def start_tutorial(self, topic: str) -> dict[str, Any]:
         # TODO: Start interactive tutorial session
         # LABELS: education, tutorials
         """Start an interactive tutorial."""
         raise NotImplementedError("Interactive tutorials not implemented")
 
-    def generate_exercises(self, difficulty: str = "beginner") -> List[Dict[str, Any]]:
+    def generate_exercises(self, difficulty: str = "beginner") -> list[dict[str, Any]]:
         # TODO: Generate practice exercises
         # LABELS: education, exercises
         """Generate practice exercises."""
@@ -398,7 +393,7 @@ class PluginManager:
         """Load a plugin module."""
         raise NotImplementedError("Plugin loading not implemented")
 
-    def list_plugins(self) -> List[str]:
+    def list_plugins(self) -> list[str]:
         # TODO: List available plugins
         # LABELS: plugins, discovery
         """List available plugins."""
@@ -421,8 +416,8 @@ class UnitConverter:
 
     @staticmethod
     def log_returns_to_prices(
-        log_returns: List[float], initial_price: float = 1.0
-    ) -> List[float]:
+        log_returns: list[float], initial_price: float = 1.0
+    ) -> list[float]:
         # TODO: Convert log returns to price series
         # LABELS: finance, conversion, log-returns
         """Convert log returns to price series."""
@@ -430,8 +425,8 @@ class UnitConverter:
 
     @staticmethod
     def scale_transform(
-        data: List[float], from_scale: str, to_scale: str
-    ) -> List[float]:
+        data: list[float], from_scale: str, to_scale: str
+    ) -> list[float]:
         # TODO: Transform data between different scales
         # LABELS: transformation, scaling
         """Transform data between scales."""

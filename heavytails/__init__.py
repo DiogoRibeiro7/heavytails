@@ -25,23 +25,24 @@ Author: Diogo Ribeiro
 License: MIT
 """
 
-from .heavy_tails import (
-    Pareto, Cauchy, StudentT, LogNormal,
-    Weibull, Frechet, GEV_Frechet
-)
-
+from .discrete import DiscretePareto, YuleSimon, Zipf
 from .extra_distributions import (
-    GeneralizedPareto, BurrXII, LogLogistic,
-    InverseGamma, BetaPrime
+    BetaPrime,
+    BurrXII,
+    GeneralizedPareto,
+    InverseGamma,
+    LogLogistic,
 )
-
-from .discrete import (
-    Zipf, YuleSimon, DiscretePareto
+from .heavy_tails import (
+    Cauchy,
+    Frechet,
+    GEV_Frechet,
+    LogNormal,
+    Pareto,
+    StudentT,
+    Weibull,
 )
-
-from .tail_index import (
-    hill_estimator, pickands_estimator, moment_estimator
-)
+from .tail_index import hill_estimator, moment_estimator, pickands_estimator
 
 __all__ = [
     # Continuous

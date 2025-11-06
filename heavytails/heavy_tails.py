@@ -1,11 +1,9 @@
 # heavy_tails.py
 from __future__ import annotations
 
+from dataclasses import dataclass
 import math
 import random
-from dataclasses import dataclass
-from typing import List, Optional
-
 
 # ----------------------------- Utilities ------------------------------------ #
 
@@ -23,7 +21,7 @@ class RNG:
         Underlying random number generator.
     """
 
-    def __init__(self, seed: Optional[int] = None) -> None:
+    def __init__(self, seed: int | None = None) -> None:
         self.rng = random.Random(seed)
 
     def uniform_0_1(self) -> float:
@@ -89,7 +87,7 @@ class RNG:
 class Samplable:
     """Mixin to provide vectorized sampling with a given RNG."""
 
-    def rvs(self, n: int, seed: Optional[int] = None) -> List[float]:
+    def rvs(self, n: int, seed: int | None = None) -> list[float]:
         """
         Draw n IID variates. Subclasses must implement ._rvs_one(rng).
         """

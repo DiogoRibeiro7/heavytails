@@ -5,10 +5,9 @@ This module contains advanced features and extensions that build upon
 the core library functionality.
 """
 
-import math
-from typing import List, Dict, Optional, Tuple, Callable, Any, Union
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from collections.abc import Callable
+from typing import Any
 
 
 # TODO: Implement copula models with heavy-tailed marginals
@@ -26,23 +25,23 @@ class HeavyTailCopula(ABC):
     - Credit risk assessment
     """
 
-    def __init__(self, marginals: List[str]):
+    def __init__(self, marginals: list[str]):
         self.marginals = marginals
         # TODO: Implement copula framework
 
     @abstractmethod
-    def pdf(self, u: List[float]) -> float:
+    def pdf(self, u: list[float]) -> float:
         # TODO: Implement copula PDF
         # LABELS: copulas, mathematics
         pass
 
     @abstractmethod
-    def cdf(self, u: List[float]) -> float:
+    def cdf(self, u: list[float]) -> float:
         # TODO: Implement copula CDF
         # LABELS: copulas, mathematics
         pass
 
-    def sample(self, n: int) -> List[List[float]]:
+    def sample(self, n: int) -> list[list[float]]:
         # TODO: Implement copula sampling
         # LABELS: copulas, sampling
         raise NotImplementedError("Copula sampling not implemented")
@@ -62,14 +61,14 @@ class StudentTCopula(HeavyTailCopula):
     """
 
     def __init__(
-        self, nu: float, correlation_matrix: List[List[float]], marginals: List[str]
+        self, nu: float, correlation_matrix: list[list[float]], marginals: list[str]
     ):
         super().__init__(marginals)
         self.nu = nu
         self.correlation = correlation_matrix
         # TODO: Implement t-copula functionality
 
-    def pdf(self, u: List[float]) -> float:
+    def pdf(self, u: list[float]) -> float:
         # TODO: Implement t-copula PDF calculation
         # LABELS: t-copula, pdf
         raise NotImplementedError("t-Copula PDF not implemented")
@@ -89,13 +88,13 @@ class ExtremeValueCopula(HeavyTailCopula):
     - Joe copula
     """
 
-    def __init__(self, copula_type: str, theta: float, marginals: List[str]):
+    def __init__(self, copula_type: str, theta: float, marginals: list[str]):
         super().__init__(marginals)
         self.copula_type = copula_type
         self.theta = theta
         # TODO: Implement extreme value copula types
 
-    def tail_dependence_coefficient(self) -> Tuple[float, float]:
+    def tail_dependence_coefficient(self) -> tuple[float, float]:
         # TODO: Calculate upper and lower tail dependence coefficients
         # LABELS: extreme-value-copulas, tail-dependence
         raise NotImplementedError("Tail dependence calculation not implemented")
@@ -119,17 +118,17 @@ class RegimeSwitchingModel:
     - Time-varying parameters
     """
 
-    def __init__(self, n_regimes: int, distributions: List[str]):
+    def __init__(self, n_regimes: int, distributions: list[str]):
         self.n_regimes = n_regimes
         self.distributions = distributions
         # TODO: Implement regime switching framework
 
-    def fit(self, data: List[float], method: str = "em") -> Dict[str, Any]:
+    def fit(self, data: list[float], method: str = "em") -> dict[str, Any]:
         # TODO: Implement EM algorithm for regime switching models
         # LABELS: regime-switching, em-algorithm
         raise NotImplementedError("Regime switching fitting not implemented")
 
-    def predict_regime(self, current_data: List[float]) -> int:
+    def predict_regime(self, current_data: list[float]) -> int:
         # TODO: Predict current regime based on recent data
         # LABELS: regime-switching, prediction
         raise NotImplementedError("Regime prediction not implemented")
@@ -151,12 +150,12 @@ class VineCopula:
     in high-dimensional portfolios or risk factors.
     """
 
-    def __init__(self, vine_type: str, marginals: List[str]):
+    def __init__(self, vine_type: str, marginals: list[str]):
         self.vine_type = vine_type
         self.marginals = marginals
         # TODO: Implement vine copula construction
 
-    def fit_vine_structure(self, data: List[List[float]]) -> Dict[str, Any]:
+    def fit_vine_structure(self, data: list[list[float]]) -> dict[str, Any]:
         # TODO: Automatically select optimal vine structure
         # LABELS: vine-copulas, structure-selection
         raise NotImplementedError("Vine structure fitting not implemented")
@@ -187,15 +186,15 @@ class SpatialHeavyTailProcess:
         # TODO: Implement spatial process framework
 
     def fit_spatial_correlation(
-        self, locations: List[Tuple[float, float]], data: List[float]
+        self, locations: list[tuple[float, float]], data: list[float]
     ):
         # TODO: Estimate spatial correlation parameters
         # LABELS: spatial-statistics, correlation
         raise NotImplementedError("Spatial correlation fitting not implemented")
 
     def spatial_prediction(
-        self, prediction_locations: List[Tuple[float, float]]
-    ) -> List[float]:
+        self, prediction_locations: list[tuple[float, float]]
+    ) -> list[float]:
         # TODO: Predict values at new locations using spatial kriging
         # LABELS: spatial-statistics, kriging
         raise NotImplementedError("Spatial prediction not implemented")
@@ -255,12 +254,12 @@ class BayesianHeavyTailRegression:
         self.error_dist = error_distribution
         # TODO: Implement Bayesian regression framework
 
-    def fit_mcmc(self, X: List[List[float]], y: List[float], n_samples: int = 5000):
+    def fit_mcmc(self, X: list[list[float]], y: list[float], n_samples: int = 5000):
         # TODO: Implement MCMC sampling for Bayesian inference
         # LABELS: bayesian, mcmc, regression
         raise NotImplementedError("Bayesian MCMC fitting not implemented")
 
-    def posterior_predictive(self, X_new: List[List[float]]) -> Dict[str, List[float]]:
+    def posterior_predictive(self, X_new: list[list[float]]) -> dict[str, list[float]]:
         # TODO: Generate posterior predictive samples
         # LABELS: bayesian, prediction, posterior
         raise NotImplementedError("Posterior predictive sampling not implemented")
@@ -290,12 +289,12 @@ class DistributionClassifier:
         # TODO: Implement feature extraction and classification
         self.model = None
 
-    def extract_features(self, data: List[float]) -> List[float]:
+    def extract_features(self, data: list[float]) -> list[float]:
         # TODO: Extract statistical features for classification
         # LABELS: machine-learning, feature-extraction
         raise NotImplementedError("Feature extraction not implemented")
 
-    def classify_distribution(self, data: List[float]) -> Tuple[str, float]:
+    def classify_distribution(self, data: list[float]) -> tuple[str, float]:
         # TODO: Classify the most likely distribution family
         # LABELS: machine-learning, classification
         raise NotImplementedError("Distribution classification not implemented")
@@ -333,12 +332,12 @@ class DomainSpecificExtensions:
         self.domain = domain
         # TODO: Implement domain-specific functionality
 
-    def finance_extensions(self) -> Dict[str, Callable]:
+    def finance_extensions(self) -> dict[str, Callable]:
         # TODO: Implement finance-specific functions
         # LABELS: finance, options-pricing, risk
         raise NotImplementedError("Finance extensions not implemented")
 
-    def insurance_extensions(self) -> Dict[str, Callable]:
+    def insurance_extensions(self) -> dict[str, Callable]:
         # TODO: Implement insurance-specific functions
         # LABELS: insurance, catastrophe, aggregate-loss
         raise NotImplementedError("Insurance extensions not implemented")
@@ -368,12 +367,12 @@ class TailGeometryAnalysis:
         # TODO: Implement geometric tail analysis methods
         pass
 
-    def convex_hull_tail_analysis(self, data: List[List[float]]) -> Dict[str, Any]:
+    def convex_hull_tail_analysis(self, data: list[list[float]]) -> dict[str, Any]:
         # TODO: Analyze tail structure using convex hull
         # LABELS: computational-geometry, convex-hull
         raise NotImplementedError("Convex hull tail analysis not implemented")
 
-    def voronoi_extreme_analysis(self, data: List[List[float]]) -> Dict[str, Any]:
+    def voronoi_extreme_analysis(self, data: list[list[float]]) -> dict[str, Any]:
         # TODO: Use Voronoi diagrams to analyze extreme observations
         # LABELS: computational-geometry, voronoi
         raise NotImplementedError("Voronoi extreme analysis not implemented")
