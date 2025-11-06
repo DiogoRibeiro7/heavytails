@@ -33,11 +33,13 @@ class HeavyTailCopula(ABC):
     @abstractmethod
     def pdf(self, u: List[float]) -> float:
         # TODO: Implement copula PDF
+        # LABELS: copulas, mathematics
         pass
 
     @abstractmethod
     def cdf(self, u: List[float]) -> float:
         # TODO: Implement copula CDF
+        # LABELS: copulas, mathematics
         pass
 
     def sample(self, n: int) -> List[List[float]]:
