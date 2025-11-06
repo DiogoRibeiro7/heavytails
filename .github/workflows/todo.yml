@@ -1,0 +1,136 @@
+name: Create issues from TODOs (Python)
+
+on:
+  workflow_dispatch:
+    inputs:
+      importAll:
+        description: Import ALL TODOs from the checked-out ref (use with care)
+        type: boolean
+        required: false
+        default: false
+      runAs:
+        description: Who should create issues? (bot|user)
+        type: choice
+        options: [bot, user]
+        required: false
+        default: user
+  push:
+    # Use your real default branch here (master/main)
+    branches: [ main ]
+    # Optional: run only when source files change, not docs/CI files.
+    paths:
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.py'
+      - '**/*.rs'
+      - '**/*.go'
+      - '**/*.java'
+      - '**/*.cs'
+      - '**/*.rb'
+      - '**/*.php'
+      - '**/*.sh'
+      - '!**/*.md'
+      - '!.github/**'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: todo-issue-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  todos:
+    name: Convert TODOs to issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ !github.event.repository.fork }}  # don't run on forks
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          # If you plan to run "import all" against history, set fetch-depth: 0
+          fetch-depth: 1
+
+      # Pick token according to runAs input
+      - name: Select token (bot or user)
+        id: pick-token
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.runAs || 'bot' }}" = "user" ]; then
+            if [ -n "${{ secrets.ISSUE_CREATOR_TOKEN }}" ]; then
+              echo "ISSUE_TOKEN=${{ secrets.ISSUE_CREATOR_TOKEN }}" >> "$GITHUB_ENV"
+              echo "mode=user" >> "$GITHUB_OUTPUT"
+            else
+              echo "ISSUE_TOKEN=${{ github.token }}" >> "$GITHUB_ENV"
+              echo "mode=bot (fallback-no-secret)" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "ISSUE_TOKEN=${{ github.token }}" >> "$GITHUB_ENV"
+            echo "mode=bot" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Selected mode: $(cat $GITHUB_OUTPUT || true)"
+      
+      # Inspect token (App identity & scopes)
+      - name: Inspect token (App identity & scopes)
+        run: |
+          set -euo pipefail
+          echo "GITHUB_ACTOR=$GITHUB_ACTOR"
+          echo "X-OAuth-Scopes:"
+          curl -sI -H "authorization: Bearer $ISSUE_TOKEN" https://api.github.com/rate_limit \
+            | tr -d '\r' | grep -i '^x-oauth-scopes:' || true
+          echo "App info (/app):"
+          curl -s -H "authorization: Bearer $ISSUE_TOKEN" https://api.github.com/app \
+            | jq -r '.slug, .name' || true
+
+      # Who created the last issue (quick check)
+      - name: Who created the last issue?
+        run: |
+          set -euo pipefail
+          repo="${{ github.repository }}"
+          author=$(curl -s -H "authorization: Bearer $ISSUE_TOKEN" \
+            "https://api.github.com/repos/${repo}/issues?state=all&per_page=1" \
+            | jq -r '.[0].user.login')
+          echo "Last issue author: ${author:-<none>}"
+
+      # Run Issue Bot
+      - name: Run Issue Bot
+        uses: juulsn/todo-issue@v1.1.5
+        env:
+          GITHUB_TOKEN: ${{ env.ISSUE_TOKEN }}
+        with:
+          excludePattern: >-
+            ^(
+              (\.git/|\.github/)|            # VCS/CI
+              (\.venv/|venv/|env/)|          # venvs
+              (__pycache__/)|                # Python caches
+              (\.pytest_cache/)|             # pytest cache
+              (\.mypy_cache/)|               # mypy cache
+              (\.ruff_cache/)|               # ruff cache
+              (\.nox/|\.tox/)|               # nox/tox
+              (build/|dist/|site/|htmlcov/|coverage/)|  # builds & reports
+              (\.eggs/|\.idea/|\.vscode/)|   # tooling
+              (node_modules/|.next/|out/|target/|vendor/)| # JS/TS/Rust/Vendor
+              (docs/_build/)                 # sphinx build
+            )
+          keywords: "TODO,FIXME,BUG,HACK,NOTE"
+          bodyKeywords: "ASSIGNEE:|LABELS:|PRIORITY:"
+          label: "todo"
+          autoAssign: false
+          caseSensitive: false
+          titleSimilarity: 0.7
+          reopenClosed: false
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### TODO issue creation" >> $GITHUB_STEP_SUMMARY
+          echo "- Mode: ${{ steps.pick-token.outputs.mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Actor (workflow): $GITHUB_ACTOR" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Issues tab for newly created/updated items." >> $GITHUB_STEP_SUMMARY
