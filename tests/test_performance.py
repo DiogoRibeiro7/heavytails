@@ -182,7 +182,9 @@ class TestParallelSampling:
 
     def test_parallel_sampling_basic(self):
         """Test basic parallel sampling functionality."""
-        samples = parallel_sampling("Pareto", n=1000, n_cores=2, seed=42, alpha=2.5, xm=1.0)
+        samples = parallel_sampling(
+            "Pareto", n=1000, n_cores=2, seed=42, alpha=2.5, xm=1.0
+        )
 
         # Check length
         assert len(samples) == 1000
@@ -192,8 +194,12 @@ class TestParallelSampling:
 
     def test_parallel_sampling_deterministic(self):
         """Test that parallel sampling is deterministic with seed."""
-        samples1 = parallel_sampling("Pareto", n=1000, n_cores=2, seed=42, alpha=2.5, xm=1.0)
-        samples2 = parallel_sampling("Pareto", n=1000, n_cores=2, seed=42, alpha=2.5, xm=1.0)
+        samples1 = parallel_sampling(
+            "Pareto", n=1000, n_cores=2, seed=42, alpha=2.5, xm=1.0
+        )
+        samples2 = parallel_sampling(
+            "Pareto", n=1000, n_cores=2, seed=42, alpha=2.5, xm=1.0
+        )
 
         # With same seed, should get same results
         assert len(samples1) == len(samples2)
@@ -202,14 +208,18 @@ class TestParallelSampling:
 
     def test_parallel_sampling_small_n(self):
         """Test that small n falls back to serial sampling."""
-        samples = parallel_sampling("Pareto", n=100, n_cores=4, seed=42, alpha=2.5, xm=1.0)
+        samples = parallel_sampling(
+            "Pareto", n=100, n_cores=4, seed=42, alpha=2.5, xm=1.0
+        )
 
         assert len(samples) == 100
         assert all(x >= 1.0 for x in samples)
 
     def test_parallel_sampling_large_n(self):
         """Test parallel sampling with large n."""
-        samples = parallel_sampling("Pareto", n=10000, n_cores=2, seed=42, alpha=2.5, xm=1.0)
+        samples = parallel_sampling(
+            "Pareto", n=10000, n_cores=2, seed=42, alpha=2.5, xm=1.0
+        )
 
         assert len(samples) == 10000
         assert all(x >= 1.0 for x in samples)
@@ -322,7 +332,9 @@ class TestPerformanceBenchmarks:
         """Test basic sampling benchmark."""
         benchmarks = PerformanceBenchmarks()
 
-        results = benchmarks.benchmark_sampling("Pareto", [100, 1000], alpha=2.5, xm=1.0)
+        results = benchmarks.benchmark_sampling(
+            "Pareto", [100, 1000], alpha=2.5, xm=1.0
+        )
 
         # Check structure
         assert 100 in results

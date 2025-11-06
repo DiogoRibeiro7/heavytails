@@ -156,7 +156,9 @@ class PPFOptimizer:
     cache_size: int = 128
 
     def optimize_ppf(
-        self, cdf_func: Callable[[float], float], pdf_func: Callable[[float], float] | None = None
+        self,
+        cdf_func: Callable[[float], float],
+        pdf_func: Callable[[float], float] | None = None,
     ) -> Callable[[float], float]:
         """
         Create optimized PPF using hybrid root-finding methods.
@@ -200,7 +202,10 @@ class PPFOptimizer:
         return cached_ppf
 
     def _newton_raphson_ppf(
-        self, u: float, cdf_func: Callable[[float], float], pdf_func: Callable[[float], float]
+        self,
+        u: float,
+        cdf_func: Callable[[float], float],
+        pdf_func: Callable[[float], float],
     ) -> float | None:
         """
         Newton-Raphson method for PPF computation.
@@ -277,11 +282,13 @@ class PPFOptimizer:
             tmp2 = (3 * a + b) / 4
             if not (
                 (s > tmp2 and s < b)
-                or ((s < tmp2 and s > b)
-                and (
-                    (mflag and abs(s - b) < abs(b - c) / 2)
-                    or (not mflag and abs(s - b) < abs(c - c) / 2)
-                ))
+                or (
+                    (s < tmp2 and s > b)
+                    and (
+                        (mflag and abs(s - b) < abs(b - c) / 2)
+                        or (not mflag and abs(s - b) < abs(c - c) / 2)
+                    )
+                )
             ):
                 s = (a + b) / 2
                 mflag = True
@@ -348,7 +355,11 @@ class PPFOptimizer:
 
 
 def parallel_sampling(
-    distribution: str, n: int, n_cores: int | None = None, seed: int | None = None, **params
+    distribution: str,
+    n: int,
+    n_cores: int | None = None,
+    seed: int | None = None,
+    **params,
 ) -> list[float]:
     """
     Parallel random number generation for large samples using multiprocessing.

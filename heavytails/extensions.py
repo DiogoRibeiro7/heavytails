@@ -82,12 +82,17 @@ class StudentTCopula(HeavyTailCopula):
         self.correlation = np.array(correlation_matrix)
 
         # Validate correlation matrix is square
-        if self.correlation.ndim != 2 or self.correlation.shape[0] != self.correlation.shape[1]:
+        if (
+            self.correlation.ndim != 2
+            or self.correlation.shape[0] != self.correlation.shape[1]
+        ):
             raise ValueError("Correlation matrix must be square")
 
         # Validate dimensions match marginals
         if len(marginals) != self.correlation.shape[0]:
-            raise ValueError("Number of marginals must match correlation matrix dimensions")
+            raise ValueError(
+                "Number of marginals must match correlation matrix dimensions"
+            )
 
         # Validate correlation matrix is symmetric
         if not np.allclose(self.correlation, self.correlation.T):
@@ -126,7 +131,9 @@ class StudentTCopula(HeavyTailCopula):
 
         # Validate input
         if d != self.correlation.shape[0]:
-            raise ValueError(f"Expected {self.correlation.shape[0]} dimensions, got {d}")
+            raise ValueError(
+                f"Expected {self.correlation.shape[0]} dimensions, got {d}"
+            )
 
         if np.any((u_array <= 0) | (u_array >= 1)):
             raise ValueError("All elements of u must be in the open interval (0, 1)")
@@ -180,7 +187,9 @@ class StudentTCopula(HeavyTailCopula):
 
         # Validate input
         if d != self.correlation.shape[0]:
-            raise ValueError(f"Expected {self.correlation.shape[0]} dimensions, got {d}")
+            raise ValueError(
+                f"Expected {self.correlation.shape[0]} dimensions, got {d}"
+            )
 
         if np.any((u_array < 0) | (u_array > 1)):
             raise ValueError("All elements of u must be in [0, 1]")
@@ -282,9 +291,9 @@ class ExtremeValueCopula(HeavyTailCopula):
 
         if self.copula_type == "gumbel":
             # C(u,v) = exp(-[(-ln u)^θ + (-ln v)^θ]^(1/θ))
-            term = ((-math.log(u_val)) ** self.theta + (-math.log(v_val)) ** self.theta) ** (
-                1.0 / self.theta
-            )
+            term = (
+                (-math.log(u_val)) ** self.theta + (-math.log(v_val)) ** self.theta
+            ) ** (1.0 / self.theta)
             return math.exp(-term)
 
         elif self.copula_type == "clayton":
@@ -368,11 +377,17 @@ class ExtremeValueCopula(HeavyTailCopula):
             exp_theta_v = math.exp(-theta * v_val)
             exp_theta = math.exp(-theta)
 
-            numerator = -theta * (exp_theta - 1) * (1 - exp_theta_u - exp_theta_v + exp_theta * exp_theta_u * exp_theta_v)
-            denominator_base = (
-                (exp_theta - 1)
-                + (exp_theta_u - 1) * (exp_theta_v - 1)
+            numerator = (
+                -theta
+                * (exp_theta - 1)
+                * (
+                    1
+                    - exp_theta_u
+                    - exp_theta_v
+                    + exp_theta * exp_theta_u * exp_theta_v
+                )
             )
+            denominator_base = (exp_theta - 1) + (exp_theta_u - 1) * (exp_theta_v - 1)
             denominator = denominator_base**2
 
             if denominator == 0:

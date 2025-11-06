@@ -106,37 +106,37 @@ def generate_validation_data(seed: int = 42) -> dict:
     pareto_data = pareto_true.rvs(5000, seed=seed)
     pareto_hill = hill_estimator(pareto_data, k=200)
 
-    validation_sets['pareto_alpha_2'] = {
-        'data': pareto_data[:100],  # Store subset for file size
-        'true_parameters': {'alpha': 2.0, 'xm': 1.0},
-        'estimated_gamma': pareto_hill,
-        'estimated_alpha': 1.0 / pareto_hill,
-        'sample_size': len(pareto_data),
-        'distribution': 'Pareto'
+    validation_sets["pareto_alpha_2"] = {
+        "data": pareto_data[:100],  # Store subset for file size
+        "true_parameters": {"alpha": 2.0, "xm": 1.0},
+        "estimated_gamma": pareto_hill,
+        "estimated_alpha": 1.0 / pareto_hill,
+        "sample_size": len(pareto_data),
+        "distribution": "Pareto",
     }
 
     # GPD with known parameters
     gpd_true = GeneralizedPareto(xi=0.3, sigma=1.0, mu=0.0)
     gpd_data = gpd_true.rvs(3000, seed=seed + 1)
 
-    validation_sets['gpd_xi_03'] = {
-        'data': gpd_data[:100],
-        'true_parameters': {'xi': 0.3, 'sigma': 1.0, 'mu': 0.0},
-        'sample_size': len(gpd_data),
-        'distribution': 'GeneralizedPareto'
+    validation_sets["gpd_xi_03"] = {
+        "data": gpd_data[:100],
+        "true_parameters": {"xi": 0.3, "sigma": 1.0, "mu": 0.0},
+        "sample_size": len(gpd_data),
+        "distribution": "GeneralizedPareto",
     }
 
     return validation_sets
 
 
-def save_csv_data(data: list[float], filename: str, header: str = 'value'):
+def save_csv_data(data: list[float], filename: str, header: str = "value"):
     """Save data to CSV file."""
-    filepath = Path('data') / filename
+    filepath = Path("data") / filename
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
-    with filepath.open('w', newline='') as f:
+    with filepath.open("w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow([header, 'index'])
+        writer.writerow([header, "index"])
         for i, value in enumerate(data):
             writer.writerow([value, i])
 
@@ -145,10 +145,10 @@ def save_csv_data(data: list[float], filename: str, header: str = 'value'):
 
 def save_json_data(data: dict, filename: str):
     """Save data to JSON file."""
-    filepath = Path('data') / filename
+    filepath = Path("data") / filename
     filepath.parent.mkdir(parents=True, exist_ok=True)
 
-    with filepath.open('w') as f:
+    with filepath.open("w") as f:
         json.dump(data, f, indent=2)
 
     print(f"Generated {filename}")
@@ -160,25 +160,25 @@ def main():
 
     # Financial datasets
     financial_returns = generate_financial_returns(2500)
-    save_csv_data(financial_returns, 'financial_returns.csv', 'log_return')
+    save_csv_data(financial_returns, "financial_returns.csv", "log_return")
 
     insurance_claims = generate_insurance_claims(1000)
-    save_csv_data(insurance_claims, 'insurance_claims.csv', 'claim_amount')
+    save_csv_data(insurance_claims, "insurance_claims.csv", "claim_amount")
 
     # Environmental datasets
     extreme_weather = generate_extreme_weather(365)
-    save_csv_data(extreme_weather, 'extreme_weather.csv', 'wind_speed_ms')
+    save_csv_data(extreme_weather, "extreme_weather.csv", "wind_speed_ms")
 
     # Engineering datasets
     failure_times = generate_failure_times(500)
-    save_csv_data(failure_times, 'failure_times.csv', 'hours_to_failure')
+    save_csv_data(failure_times, "failure_times.csv", "hours_to_failure")
 
     network_traffic = generate_network_traffic(1440)
-    save_csv_data(network_traffic, 'network_traffic.csv', 'packets_per_minute')
+    save_csv_data(network_traffic, "network_traffic.csv", "packets_per_minute")
 
     # Validation datasets
     validation_data = generate_validation_data()
-    save_json_data(validation_data, 'validation/known_parameters.json')
+    save_json_data(validation_data, "validation/known_parameters.json")
 
     print(f"\n✅ Generated {6} datasets in the data/ directory")
     print("These datasets can be used for:")

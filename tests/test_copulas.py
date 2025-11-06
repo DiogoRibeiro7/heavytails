@@ -7,7 +7,6 @@ This module contains tests for:
 - Tail dependence coefficient calculations
 """
 
-
 import pytest
 
 # Check if scipy is available for copula tests
@@ -276,7 +275,9 @@ class TestExtremeValueCopula:
         """Test that non-bivariate raises NotImplementedError."""
         with pytest.raises(NotImplementedError, match="only support 2 dimensions"):
             ExtremeValueCopula(
-                copula_type="gumbel", theta=2.0, marginals=["pareto", "pareto", "pareto"]
+                copula_type="gumbel",
+                theta=2.0,
+                marginals=["pareto", "pareto", "pareto"],
             )
 
     # ========================================

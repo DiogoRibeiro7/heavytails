@@ -12,4 +12,4 @@ Modules:
 
 from .performance_tests import BenchmarkResult, DistributionBenchmark
 
-__all__ = ['BenchmarkResult', 'DistributionBenchmark']
+__all__ = ["BenchmarkResult", "DistributionBenchmark"]
