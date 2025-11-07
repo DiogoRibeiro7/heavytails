@@ -157,11 +157,10 @@ class TestPropertyBased:
         pdf_right = dist.pdf(x0 + abs(x - x0))
         assert abs(pdf_left - pdf_right) < 1e-12
 
-    @given(s=st.floats(min_value=1.1, max_value=5), k=small_int)
+    @given(s=st.floats(min_value=1.1, max_value=5), k=st.integers(min_value=10, max_value=100))
     @settings(max_examples=30, deadline=None)
     def test_zipf_pmf_sum_approximation(self, s: float, k: int) -> None:
         """Test that Zipf PMF approximately sums to 1."""
-        assume(k >= 10 and k <= 100)  # reasonable range for testing
         dist = Zipf(s=s, kmax=k)
         total_prob = sum(dist.pmf(i) for i in range(1, k + 1))
         assert abs(total_prob - 1.0) < 1e-10
