@@ -266,7 +266,7 @@ class GeneralizedPareto(Samplable):
         if self.xi == 0.0:
             return 1.0 - math.exp(-z)
         t = 1.0 + self.xi * z
-        return 1.0 - t ** (-1.0 / self.xi)
+        return float(1.0 - t ** (-1.0 / self.xi))
 
     def sf(self, x: float) -> float:
         return 1.0 - self.cdf(x)
@@ -276,7 +276,7 @@ class GeneralizedPareto(Samplable):
             raise ValueError("u must be in (0,1).")
         if self.xi == 0.0:
             return self.mu - self.sigma * math.log(1.0 - u)
-        return self.mu + (self.sigma / self.xi) * ((1.0 - u) ** (-self.xi) - 1.0)
+        return float(self.mu + (self.sigma / self.xi) * ((1.0 - u) ** (-self.xi) - 1.0))
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -305,7 +305,7 @@ class BurrXII(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.s) ** self.c
-        return (
+        return float(
             (self.c * self.k / self.s)
             * (x / self.s) ** (self.c - 1.0)
             * (1.0 + z) ** (-self.k - 1.0)
@@ -315,18 +315,18 @@ class BurrXII(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.s) ** self.c
-        return 1.0 - (1.0 + z) ** (-self.k)
+        return float(1.0 - (1.0 + z) ** (-self.k))
 
     def sf(self, x: float) -> float:
         if x <= 0.0:
             return 1.0
         z = (x / self.s) ** self.c
-        return (1.0 + z) ** (-self.k)
+        return float((1.0 + z) ** (-self.k))
 
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.s * (((1.0 - u) ** (-1.0 / self.k)) - 1.0) ** (1.0 / self.c)
+        return float(self.s * (((1.0 - u) ** (-1.0 / self.k)) - 1.0) ** (1.0 / self.c))
 
     def _rvs_one(self, rng: RNG) -> float:
         return self.ppf(rng.uniform_0_1())
@@ -352,7 +352,7 @@ class LogLogistic(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.lam) ** self.kappa
-        return (
+        return float(
             (self.kappa / self.lam)
             * (x / self.lam) ** (self.kappa - 1.0)
             / (1.0 + z) ** 2
@@ -362,18 +362,18 @@ class LogLogistic(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.lam) ** self.kappa
-        return z / (1.0 + z)
+        return float(z / (1.0 + z))
 
     def sf(self, x: float) -> float:
         if x <= 0.0:
             return 1.0
         z = (x / self.lam) ** self.kappa
-        return 1.0 / (1.0 + z)
+        return float(1.0 / (1.0 + z))
 
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.lam * (u / (1.0 - u)) ** (1.0 / self.kappa)
+        return float(self.lam * (u / (1.0 - u)) ** (1.0 / self.kappa))
 
     def _rvs_one(self, rng: RNG) -> float:
         return self.ppf(rng.uniform_0_1())
@@ -400,7 +400,7 @@ class InverseGamma(Samplable):
         if x <= 0.0:
             return 0.0
         a, b = self.alpha, self.beta
-        return (b**a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x)
+        return float((b**a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x))
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:
@@ -460,7 +460,7 @@ class BetaPrime(Samplable):
             return 0.0
         a, b, s = self.a, self.b, self.s
         z = x / s
-        return (
+        return float(
             math.exp(-(math.log(s) + _log_beta(a, b)))
             * (z ** (a - 1.0))
             * (1.0 + z) ** (-(a + b))

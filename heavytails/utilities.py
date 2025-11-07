@@ -31,7 +31,7 @@ class DataIO:
         raise NotImplementedError("CSV reading not implemented")
 
     @staticmethod
-    def write_csv(data: list[float], filepath: Path, metadata: dict | None = None):
+    def write_csv(data: list[float], filepath: Path, metadata: dict[str, Any] | None = None) -> None:
         # TODO: Write data to CSV with optional metadata
         # LABELS: data-io, csv
         """Write numerical data to CSV file."""
@@ -58,7 +58,7 @@ class AutoFit:
     - Model selection criteria
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.available_distributions = [
             "pareto",
             "cauchy",
@@ -82,7 +82,7 @@ class AutoFit:
         """Fit distribution parameters to data."""
         raise NotImplementedError("Automatic fitting not implemented")
 
-    def compare_distributions(self, data: list[float]) -> dict[str, dict]:
+    def compare_distributions(self, data: list[float]) -> dict[str, dict[str, Any]]:
         # TODO: Compare multiple distributions and rank by fit quality
         # LABELS: model-selection, comparison
         """Compare multiple distribution fits."""
@@ -176,9 +176,9 @@ class ConfigurationManager:
     - Caching behavior
     """
 
-    def __init__(self, config_file: Path | None = None):
+    def __init__(self, config_file: Path | None = None) -> None:
         # TODO: Implement configuration loading and management
-        self.config = {}
+        self.config: dict[str, Any] = {}
         self.config_file = config_file or Path.home() / ".heavytails" / "config.json"
 
     def load_config(self) -> dict[str, Any]:
@@ -187,7 +187,7 @@ class ConfigurationManager:
         """Load configuration from file."""
         raise NotImplementedError("Configuration loading not implemented")
 
-    def save_config(self, config: dict[str, Any]):
+    def save_config(self, config: dict[str, Any]) -> None:
         # TODO: Save configuration to file
         # LABELS: configuration, file-io
         """Save configuration to file."""
@@ -248,12 +248,12 @@ class DistributionMetadata:
     parameters: dict[str, dict[str, Any]]
     properties: dict[str, Any]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # TODO: Implement proper distribution type system
         # LABELS: type-system, metadata
         pass
 
-    def validate_parameters(self, **params) -> bool:
+    def validate_parameters(self, **params: Any) -> bool:
         # TODO: Validate parameters against constraints
         # LABELS: parameter-validation, metadata
         """Validate parameters against distribution constraints."""
@@ -274,7 +274,7 @@ class FinancialDataScraper:
     Should be used for testing and examples, not production.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: Implement web scraping capabilities
         self.session = None
 
@@ -305,9 +305,9 @@ class CitationManager:
     - Reference database management
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: Implement citation management
-        self.references = {}
+        self.references: dict[str, Any] = {}
 
     def generate_citation(self, distribution: str, format: str = "bibtex") -> str:
         # TODO: Generate citation for distribution implementation
@@ -335,9 +335,9 @@ class InteractiveTutorials:
     - Progress tracking
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: Implement interactive tutorial system
-        self.tutorials = {}
+        self.tutorials: dict[str, Any] = {}
 
     def start_tutorial(self, topic: str) -> dict[str, Any]:
         # TODO: Start interactive tutorial session
@@ -364,9 +364,9 @@ class PluginManager:
     - Domain-specific extensions
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: Implement plugin discovery and loading
-        self.plugins = {}
+        self.plugins: dict[str, Any] = {}
 
     def load_plugin(self, plugin_name: str) -> Any:
         # TODO: Load and register plugin

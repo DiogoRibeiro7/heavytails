@@ -55,9 +55,9 @@ class RNG:
             # Boost: sample from Gamma(k+1, 1) then * U^(1/k)
             x = self._gamma_mt(k + 1.0)
             u = self.uniform_0_1()
-            return scale_theta * (x * (u ** (1.0 / k)))
+            return float(scale_theta * (x * (u ** (1.0 / k))))
         else:
-            return scale_theta * self._gamma_mt(k)
+            return float(scale_theta * self._gamma_mt(k))
 
     def _gamma_mt(self, k: float) -> float:
         """Marsaglia-Tsang core for k >= 1, unit scale."""
@@ -125,23 +125,23 @@ class Pareto(Samplable):
     def pdf(self, x: float) -> float:
         if x < self.xm:
             return 0.0
-        return self.alpha * (self.xm**self.alpha) / (x ** (self.alpha + 1.0))
+        return float(self.alpha * (self.xm**self.alpha) / (x ** (self.alpha + 1.0)))
 
     def cdf(self, x: float) -> float:
         if x < self.xm:
             return 0.0
-        return 1.0 - (self.xm / x) ** self.alpha
+        return float(1.0 - (self.xm / x) ** self.alpha)
 
     def sf(self, x: float) -> float:
         """Survival function 1 - CDF."""
         if x < self.xm:
             return 1.0
-        return (self.xm / x) ** self.alpha
+        return float((self.xm / x) ** self.alpha)
 
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.xm * (1.0 - u) ** (-1.0 / self.alpha)
+        return float(self.xm * (1.0 - u) ** (-1.0 / self.alpha))
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -202,7 +202,7 @@ class StudentT(Samplable):
         c = math.gamma((nu + 1.0) / 2.0) / (
             math.sqrt(nu * math.pi) * math.gamma(nu / 2.0)
         )
-        return c * (1.0 + (x * x) / nu) ** (-(nu + 1.0) / 2.0)
+        return float(c * (1.0 + (x * x) / nu) ** (-(nu + 1.0) / 2.0))
 
     def _rvs_one(self, rng: RNG) -> float:
         z = rng.standard_normal()
@@ -236,6 +236,10 @@ class LogNormal(Samplable):
             return 0.0
         z = (math.log(x) - self.mu) / (self.sigma * math.sqrt(2.0))
         return 0.5 * (1.0 + math.erf(z))
+
+    def sf(self, x: float) -> float:
+        """Survival function: 1 - CDF(x)."""
+        return 1.0 - self.cdf(x)
 
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
@@ -271,17 +275,23 @@ class Weibull(Samplable):
         if x < 0.0:
             return 0.0
         z = (x / self.lam) ** self.k
-        return (self.k / self.lam) * (x / self.lam) ** (self.k - 1.0) * math.exp(-z)
+        return float((self.k / self.lam) * (x / self.lam) ** (self.k - 1.0) * math.exp(-z))
 
     def cdf(self, x: float) -> float:
         if x < 0.0:
             return 0.0
         return 1.0 - math.exp(-((x / self.lam) ** self.k))
 
+    def sf(self, x: float) -> float:
+        """Survival function: 1 - CDF(x)."""
+        if x < 0.0:
+            return 1.0
+        return math.exp(-((x / self.lam) ** self.k))
+
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.lam * (-math.log(1.0 - u)) ** (1.0 / self.k)
+        return float(self.lam * (-math.log(1.0 - u)) ** (1.0 / self.k))
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -311,7 +321,7 @@ class Frechet(Samplable):
             return 0.0
         z = (x - self.m) / self.s
         t = z ** (-self.alpha)
-        return (self.alpha / self.s) * z ** (-(self.alpha + 1.0)) * math.exp(-t)
+        return float((self.alpha / self.s) * z ** (-(self.alpha + 1.0)) * math.exp(-t))
 
     def cdf(self, x: float) -> float:
         if x <= self.m:
@@ -322,7 +332,7 @@ class Frechet(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.m + self.s * (-math.log(u)) ** (-1.0 / self.alpha)
+        return float(self.m + self.s * (-math.log(u)) ** (-1.0 / self.alpha))
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -358,7 +368,7 @@ class GEV_Frechet(Samplable):
             return 0.0
         z = (x - self.mu) / self.sigma
         t = 1.0 + self.xi * z
-        return (
+        return float(
             (1.0 / self.sigma)
             * (t ** (-1.0 / self.xi - 1.0))
             * math.exp(-(t ** (-1.0 / self.xi)))
@@ -374,7 +384,7 @@ class GEV_Frechet(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.mu + (self.sigma / self.xi) * ((-math.log(u)) ** (-self.xi) - 1.0)
+        return float(self.mu + (self.sigma / self.xi) * ((-math.log(u)) ** (-self.xi) - 1.0))
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
