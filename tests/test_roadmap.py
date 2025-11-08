@@ -1,0 +1,422 @@
+"""Tests for roadmap.py statistical features."""
+
+import math
+
+import pytest
+
+from heavytails import Pareto
+from heavytails.roadmap import (
+    bootstrap_confidence_intervals,
+    fit_mle,
+    model_comparison,
+    robust_hill_estimator,
+)
+
+
+class TestMLEFitting:
+    """Test Maximum Likelihood Estimation implementations."""
+
+    def test_pareto_mle_basic(self):
+        """Test Pareto MLE with known parameters."""
+        # Generate sample from known distribution
+        true_alpha = 2.5
+        true_xm = 1.0
+        dist = Pareto(alpha=true_alpha, xm=true_xm)
+        data = dist.rvs(1000, seed=42)
+
+        # Fit using MLE
+        params = fit_mle(data, "pareto")
+
+        # Check parameters are close to true values
+        assert "alpha" in params
+        assert "xm" in params
+        assert abs(params["alpha"] - true_alpha) < 0.3  # Within reasonable tolerance
+        assert abs(params["xm"] - true_xm) < 0.1
+
+    def test_lognormal_mle(self):
+        """Test LogNormal MLE fitting."""
+        from heavytails import LogNormal
+
+        true_mu = 0.5
+        true_sigma = 1.0
+        dist = LogNormal(mu=true_mu, sigma=true_sigma)
+        data = dist.rvs(1000, seed=42)
+
+        params = fit_mle(data, "lognormal")
+
+        assert "mu" in params
+        assert "sigma" in params
+        assert abs(params["mu"] - true_mu) < 0.1
+        assert abs(params["sigma"] - true_sigma) < 0.1
+
+    def test_exponential_mle(self):
+        """Test Exponential MLE fitting."""
+        # Generate exponential data manually (no Exponential class in library)
+        import random
+
+        random.seed(42)
+        true_lambda = 2.0
+        # Exponential data: -ln(U)/lambda where U ~ Uniform(0,1)
+        data = [-math.log(random.random()) / true_lambda for _ in range(1000)]
+
+        params = fit_mle(data, "exponential")
+
+        assert "lambda" in params
+        assert abs(params["lambda"] - true_lambda) < 0.2
+
+    def test_cauchy_mle(self):
+        """Test Cauchy MLE fitting."""
+        from heavytails import Cauchy
+
+        true_x0 = 0.0
+        true_gamma = 1.0
+        dist = Cauchy(x0=true_x0, gamma=true_gamma)
+        data = dist.rvs(1000, seed=42)
+
+        params = fit_mle(data, "cauchy")
+
+        assert "x0" in params
+        assert "gamma" in params
+        # Cauchy has heavy tails, so fitting can be less precise
+        assert abs(params["x0"] - true_x0) < 0.5
+        assert abs(params["gamma"] - true_gamma) < 0.5
+
+    def test_invalid_distribution(self):
+        """Test that invalid distribution name raises error."""
+        data = [1.0, 2.0, 3.0]
+        with pytest.raises(ValueError, match="MLE not implemented"):
+            fit_mle(data, "invalid_distribution")
+
+    def test_empty_data(self):
+        """Test that empty data raises error."""
+        with pytest.raises(ValueError, match="Data cannot be empty"):
+            fit_mle([], "pareto")
+
+    def test_non_finite_data(self):
+        """Test that non-finite data raises error."""
+        data = [1.0, 2.0, float("nan"), 3.0]
+        with pytest.raises(ValueError, match="non-finite values"):
+            fit_mle(data, "pareto")
+
+    def test_lognormal_negative_data(self):
+        """Test that LogNormal rejects negative data."""
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="LogNormal requires all data > 0"):
+            fit_mle(data, "lognormal")
+
+
+class TestModelComparison:
+    """Test model comparison utilities."""
+
+    def test_model_comparison_pareto_data(self):
+        """Test model comparison on Pareto-generated data."""
+        # Generate Pareto data
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(1000, seed=42)
+
+        # Compare Pareto vs LogNormal (Exponential class not implemented)
+        results = model_comparison(data, ["pareto", "lognormal"])
+
+        # All distributions should have results
+        assert "pareto" in results
+        assert "lognormal" in results
+
+        # Check structure of results for valid distributions
+        for dist_name in results:
+            assert "params" in results[dist_name]
+            assert "log_likelihood" in results[dist_name]
+            assert "AIC" in results[dist_name]
+            assert "BIC" in results[dist_name]
+            # Only check for rank if log_likelihood is not -inf
+            if results[dist_name]["log_likelihood"] != float("-inf"):
+                assert "rank_AIC" in results[dist_name]
+                assert "rank_BIC" in results[dist_name]
+
+        # Pareto should rank best (rank 1) for Pareto data
+        assert results["pareto"]["rank_AIC"] == 1
+        assert results["pareto"]["rank_BIC"] == 1
+
+    def test_model_comparison_aic_bic_ordering(self):
+        """Test that AIC and BIC rankings are consistent."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(500, seed=42)
+
+        results = model_comparison(data, ["pareto", "lognormal"])
+
+        # Rankings should be 1 and 2
+        ranks_aic = sorted([results[d]["rank_AIC"] for d in results])
+        ranks_bic = sorted([results[d]["rank_BIC"] for d in results])
+
+        assert ranks_aic == [1, 2]
+        assert ranks_bic == [1, 2]
+
+    def test_model_comparison_aic_formula(self):
+        """Test that AIC calculation follows correct formula: AIC = 2k - 2*log(L)."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(500, seed=42)
+
+        results = model_comparison(data, ["pareto"])
+
+        # Verify AIC calculation
+        k = results["pareto"]["n_params"]
+        log_lik = results["pareto"]["log_likelihood"]
+        aic_expected = 2 * k - 2 * log_lik
+        aic_actual = results["pareto"]["AIC"]
+
+        assert abs(aic_actual - aic_expected) < 1e-6
+
+    def test_model_comparison_bic_formula(self):
+        """Test that BIC calculation follows correct formula: BIC = k*ln(n) - 2*log(L)."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(500, seed=42)
+
+        results = model_comparison(data, ["pareto"])
+
+        # Verify BIC calculation
+        k = results["pareto"]["n_params"]
+        n = len(data)
+        log_lik = results["pareto"]["log_likelihood"]
+        bic_expected = k * math.log(n) - 2 * log_lik
+        bic_actual = results["pareto"]["BIC"]
+
+        assert abs(bic_actual - bic_expected) < 1e-6
+
+    def test_model_comparison_empty_data(self):
+        """Test that empty data raises error."""
+        with pytest.raises(ValueError, match="Data cannot be empty"):
+            model_comparison([], ["pareto"])
+
+
+class TestBootstrapConfidenceIntervals:
+    """Test bootstrap confidence interval estimation."""
+
+    def test_bootstrap_ci_pareto(self):
+        """Test bootstrap CIs for Pareto distribution."""
+        true_alpha = 2.5
+        true_xm = 1.0
+        dist = Pareto(alpha=true_alpha, xm=true_xm)
+        data = dist.rvs(500, seed=42)
+
+        # Calculate 95% CI
+        ci = bootstrap_confidence_intervals(
+            data, "pareto", n_bootstrap=200, confidence_level=0.95, seed=42
+        )
+
+        # Check structure
+        assert "alpha" in ci
+        assert "xm" in ci
+
+        # Each CI should be a tuple (lower, upper)
+        assert len(ci["alpha"]) == 2
+        assert len(ci["xm"]) == 2
+
+        # Lower bound should be less than upper bound
+        assert ci["alpha"][0] < ci["alpha"][1]
+        assert ci["xm"][0] < ci["xm"][1]
+
+        # True value should be within CI (most of the time)
+        # This is a statistical test, so it could fail occasionally
+        assert ci["alpha"][0] <= true_alpha <= ci["alpha"][1]
+        # For xm, allow small tolerance since it's a boundary parameter
+        assert ci["xm"][0] - 0.01 <= true_xm <= ci["xm"][1] + 0.01
+
+    def test_bootstrap_ci_different_confidence_levels(self):
+        """Test that wider confidence levels give wider intervals."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(500, seed=42)
+
+        ci_95 = bootstrap_confidence_intervals(
+            data, "pareto", n_bootstrap=200, confidence_level=0.95, seed=42
+        )
+        ci_90 = bootstrap_confidence_intervals(
+            data, "pareto", n_bootstrap=200, confidence_level=0.90, seed=42
+        )
+
+        # 95% CI should be wider than 90% CI
+        width_95 = ci_95["alpha"][1] - ci_95["alpha"][0]
+        width_90 = ci_90["alpha"][1] - ci_90["alpha"][0]
+
+        assert width_95 >= width_90
+
+    def test_bootstrap_ci_invalid_confidence_level(self):
+        """Test that invalid confidence level raises error."""
+        data = [1.0, 2.0, 3.0, 4.0, 5.0]
+
+        with pytest.raises(ValueError, match="Confidence level must be between 0 and 1"):
+            bootstrap_confidence_intervals(data, "pareto", confidence_level=1.5)
+
+        with pytest.raises(ValueError, match="Confidence level must be between 0 and 1"):
+            bootstrap_confidence_intervals(data, "pareto", confidence_level=0.0)
+
+    def test_bootstrap_ci_reproducibility(self):
+        """Test that same seed gives reproducible results."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(500, seed=42)
+
+        ci1 = bootstrap_confidence_intervals(
+            data, "pareto", n_bootstrap=100, seed=42
+        )
+        ci2 = bootstrap_confidence_intervals(
+            data, "pareto", n_bootstrap=100, seed=42
+        )
+
+        # Should get identical results with same seed
+        assert ci1["alpha"] == ci2["alpha"]
+        assert ci1["xm"] == ci2["xm"]
+
+
+class TestRobustHillEstimator:
+    """Test robust Hill estimator implementation."""
+
+    def test_robust_hill_pareto_data(self):
+        """Test Hill estimator on Pareto-generated data."""
+        true_alpha = 2.5
+        dist = Pareto(alpha=true_alpha, xm=1.0)
+        data = dist.rvs(1000, seed=42)
+
+        result = robust_hill_estimator(data)
+
+        # Check result structure
+        assert "gamma" in result
+        assert "alpha" in result
+        assert "k_used" in result
+        assert "bias_corrected" in result
+        assert "n" in result
+        assert "reliability" in result
+
+        # Gamma should be 1/alpha
+        expected_gamma = 1.0 / true_alpha
+        assert abs(result["gamma"] - expected_gamma) < 0.1
+
+        # Alpha should be close to true value
+        assert abs(result["alpha"] - true_alpha) < 0.5
+
+        # Should use bias correction by default
+        assert result["bias_corrected"] is True
+
+        # Sample size should match
+        assert result["n"] == 1000
+
+        # Reliability should be valid
+        assert result["reliability"] in ["good", "fair", "poor"]
+
+    def test_robust_hill_without_bias_correction(self):
+        """Test Hill estimator without bias correction."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(1000, seed=42)
+
+        result = robust_hill_estimator(data, bias_correction=False)
+
+        assert result["bias_corrected"] is False
+
+    def test_robust_hill_manual_k(self):
+        """Test Hill estimator with manually specified k."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(1000, seed=42)
+
+        k_manual = 100
+        result = robust_hill_estimator(data, k=k_manual)
+
+        # Should use the specified k
+        assert result["k_used"] == k_manual
+
+    def test_robust_hill_automatic_k(self):
+        """Test automatic k selection."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(1000, seed=42)
+
+        result = robust_hill_estimator(data, k=None)
+
+        # k should be selected automatically
+        assert result["k_used"] > 0
+        assert result["k_used"] < len(data) // 2
+
+    def test_robust_hill_small_sample_warning(self):
+        """Test that small sample sizes trigger warning."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(100, seed=42)
+
+        with pytest.warns(UserWarning, match="Hill estimator may be unreliable"):
+            robust_hill_estimator(data)
+
+    def test_robust_hill_too_small_sample_error(self):
+        """Test that very small samples raise error."""
+        data = [1.0, 2.0, 3.0, 4.0, 5.0]
+
+        with pytest.raises(ValueError, match="Sample size too small"):
+            robust_hill_estimator(data)
+
+    def test_robust_hill_reliability_assessment(self):
+        """Test reliability assessment for different sample sizes."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+
+        # Large sample should be 'good'
+        data_large = dist.rvs(1000, seed=42)
+        result_large = robust_hill_estimator(data_large)
+        assert result_large["reliability"] in ["good", "fair"]
+
+        # Small sample should be 'poor'
+        data_small = dist.rvs(100, seed=42)
+        result_small = robust_hill_estimator(data_small)
+        assert result_small["reliability"] == "poor"
+
+    def test_robust_hill_gamma_alpha_relationship(self):
+        """Test that gamma and alpha are inverse of each other."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(1000, seed=42)
+
+        result = robust_hill_estimator(data)
+
+        # gamma * alpha should equal 1.0
+        product = result["gamma"] * result["alpha"]
+        assert abs(product - 1.0) < 1e-6
+
+
+class TestIntegration:
+    """Integration tests for combined functionality."""
+
+    def test_full_workflow_pareto(self):
+        """Test complete workflow: generate data, fit, compare, bootstrap, Hill."""
+        # 1. Generate data
+        true_alpha = 2.5
+        true_xm = 1.0
+        dist = Pareto(alpha=true_alpha, xm=true_xm)
+        data = dist.rvs(1000, seed=42)
+
+        # 2. Fit MLE
+        params = fit_mle(data, "pareto")
+        assert abs(params["alpha"] - true_alpha) < 0.5
+
+        # 3. Model comparison
+        comparison = model_comparison(data, ["pareto", "lognormal"])
+        assert comparison["pareto"]["rank_AIC"] == 1
+
+        # 4. Bootstrap CI
+        ci = bootstrap_confidence_intervals(
+            data, "pareto", n_bootstrap=100, seed=42
+        )
+        assert ci["alpha"][0] < true_alpha < ci["alpha"][1]
+
+        # 5. Hill estimator
+        hill_result = robust_hill_estimator(data)
+        assert abs(hill_result["alpha"] - true_alpha) < 0.5
+
+    def test_compare_mle_and_hill_estimates(self):
+        """Test that MLE and Hill estimates are consistent."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(1000, seed=42)
+
+        # MLE estimate
+        mle_params = fit_mle(data, "pareto")
+        mle_alpha = mle_params["alpha"]
+
+        # Hill estimate
+        hill_result = robust_hill_estimator(data)
+        hill_alpha = hill_result["alpha"]
+
+        # They should be reasonably close (both estimate the same parameter)
+        assert abs(mle_alpha - hill_alpha) < 1.0
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
