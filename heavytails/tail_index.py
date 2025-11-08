@@ -10,20 +10,26 @@ if TYPE_CHECKING:
 
 def hill_estimator(data: Sequence[float], k: int) -> float:
     """
-    Hill estimator for Pareto-type tails.
+    Hill estimator for the tail index gamma (where gamma = 1/alpha for Pareto).
 
     Parameters
     ----------
     data : sequence of floats
     k : int
         number of top order statistics (1 < k < n)
+
+    Returns
+    -------
+    gamma : float
+        The tail index estimate (gamma = 1/alpha for Pareto distributions)
     """
     x = sorted(data, reverse=True)
     n = len(x)
     if not (1 < k < n):
         raise ValueError("k must be between 1 and n-1")
     x_k = x[k]
-    return 1.0 / (sum(math.log(x[i] / x_k) for i in range(k)) / k)
+    # Hill estimator returns gamma (not alpha)
+    return sum(math.log(x[i] / x_k) for i in range(k)) / k
 
 
 def pickands_estimator(data: Sequence[float], k: int, m: int = 2) -> float:

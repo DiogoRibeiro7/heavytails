@@ -1,7 +1,7 @@
 # heavytails/discrete.py
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
 
 from heavytails.heavy_tails import RNG, ParameterError, Samplable
@@ -14,24 +14,35 @@ class Zipf(Samplable):
 
     P(X=k) = k^{-s} / ζ(s)
     where ζ(s) ≈ ∑_{n=1}^∞ n^{-s}
+
+    Attributes
+    ----------
+    s : float
+        Exponent parameter (must be > 1)
+    kmax : int
+        Maximum value for truncated distribution (default: 10,000)
+    _Z : float
+        Normalization constant ζ(s) computed in __post_init__
     """
 
     s: float
-    kmax: int = 10_000  # truncation for normalization
+    kmax: int = 10_000
+    _Z: float = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
+        """Validate parameters and compute normalization constant."""
         if self.s <= 1:
             raise ParameterError("Zipf requires s>1.")
-        object.__setattr__(
-            self, "_Z", sum(n ** (-self.s) for n in range(1, self.kmax + 1))
-        )
+        # Compute the Riemann zeta function approximation (truncated at kmax)
+        zeta_s = sum(n ** (-self.s) for n in range(1, self.kmax + 1))
+        object.__setattr__(self, "_Z", zeta_s)
 
     def pmf(self, k: int) -> float:
-        return (k ** (-self.s)) / self._Z if 1 <= k <= self.kmax else 0.0
+        return float((k ** (-self.s)) / self._Z) if 1 <= k <= self.kmax else 0.0
 
     def cdf(self, k: int) -> float:
         k = min(max(1, k), self.kmax)
-        return sum(n ** (-self.s) for n in range(1, k + 1)) / self._Z
+        return float(sum(n ** (-self.s) for n in range(1, k + 1)) / self._Z)
 
     def ppf(self, u: float) -> int:
         if not (0.0 < u < 1.0):
@@ -87,29 +98,44 @@ class YuleSimon(Samplable):
 class DiscretePareto(Samplable):
     """
     Discrete Pareto (Zeta-type) with shape alpha>0, min k_min>=1.
+
     P(X=k) = (k/k_min)^(-alpha) / H_alpha(k_min,kmax)
+
+    Attributes
+    ----------
+    alpha : float
+        Shape parameter (must be > 0)
+    k_min : int
+        Minimum value of support (default: 1)
+    k_max : int
+        Maximum value for truncated distribution (default: 10,000)
+    _H : float
+        Normalization constant H_alpha computed in __post_init__
     """
 
     alpha: float
     k_min: int = 1
     k_max: int = 10_000
+    _H: float = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
+        """Validate parameters and compute normalization constant."""
         if self.alpha <= 0 or self.k_min < 1:
             raise ParameterError("alpha>0, k_min>=1 required.")
-        H = sum(
+        # Compute the generalized harmonic number H_alpha
+        H_alpha = sum(
             (k / self.k_min) ** (-self.alpha) for k in range(self.k_min, self.k_max + 1)
         )
-        object.__setattr__(self, "_H", H)
+        object.__setattr__(self, "_H", H_alpha)
 
     def pmf(self, k: int) -> float:
         if k < self.k_min or k > self.k_max:
             return 0.0
-        return ((k / self.k_min) ** (-self.alpha)) / self._H
+        return float(((k / self.k_min) ** (-self.alpha)) / self._H)
 
     def cdf(self, k: int) -> float:
         k = min(max(self.k_min, k), self.k_max)
-        return (
+        return float(
             sum(((n / self.k_min) ** (-self.alpha)) for n in range(self.k_min, k + 1))
             / self._H
         )

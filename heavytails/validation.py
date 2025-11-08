@@ -21,9 +21,9 @@ class NumericalValidation:
     - Analytical solutions where available
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.tolerance = 1e-12
-        self.test_results: dict[str, dict] = {}
+        self.test_results: dict[str, dict[str, Any]] = {}
 
     def validate_against_r(self, distribution: str) -> dict[str, float]:
         # TODO: Compare against R implementation using rpy2 or precomputed values
@@ -37,7 +37,7 @@ class NumericalValidation:
 
 
 # FIXME: Some parameter combinations may lead to numerical instability
-def parameter_stability_check(distribution: str, **params) -> dict[str, Any]:
+def parameter_stability_check(distribution: str, **params: Any) -> dict[str, Any]:
     """
     Check parameter combinations for numerical stability.
 
@@ -78,7 +78,7 @@ class PropertyBasedTests:
     - Tail behavior matches theoretical expectations
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def test_pdf_nonnegativity(self, distribution: str) -> bool:
@@ -98,7 +98,7 @@ class PropertyBasedTests:
 
 
 # TODO: Implement convergence tests for infinite series and iterative algorithms
-def convergence_validation():
+def convergence_validation() -> None:
     """
     Validate convergence of numerical algorithms.
 
@@ -128,22 +128,22 @@ class ParameterEstimationValidation:
     - Evaluate bias and variance of estimators
     """
 
-    def __init__(self):
-        self.validation_results: dict[str, dict] = {}
+    def __init__(self) -> None:
+        self.validation_results: dict[str, dict[str, Any]] = {}
 
-    def validate_mle(self, distribution: str, true_params: dict, n_trials: int = 100):
+    def validate_mle(self, distribution: str, true_params: dict[str, Any], n_trials: int = 100) -> None:
         # TODO: Validate MLE estimation accuracy
         # LABELS: validation, mle, parameter-estimation
         raise NotImplementedError("MLE validation not implemented")
 
-    def validate_hill_estimator(self, alpha_true: float, n_trials: int = 100):
+    def validate_hill_estimator(self, alpha_true: float, n_trials: int = 100) -> None:
         # TODO: Validate Hill estimator accuracy across different scenarios
         # LABELS: validation, hill-estimator, tail-index
         raise NotImplementedError("Hill estimator validation not implemented")
 
 
 # FIXME: Edge cases in PPF calculation need better handling
-def ppf_edge_case_handler(distribution: str, u: float, **params) -> float:
+def ppf_edge_case_handler(distribution: str, u: float, **params: Any) -> float:
     """
     Handle edge cases in quantile function calculation.
 
@@ -183,19 +183,19 @@ class GoodnessOfFitTests:
     - Specialized tests for heavy-tailed distributions
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def kolmogorov_smirnov_test(
-        self, data: list[float], distribution: str, **params
-    ) -> dict:
+        self, data: list[float], distribution: str, **params: Any
+    ) -> dict[str, Any]:
         # TODO: Implement KS test for distribution fitting
         # LABELS: goodness-of-fit, ks-test
         raise NotImplementedError("KS test not implemented")
 
     def anderson_darling_test(
-        self, data: list[float], distribution: str, **params
-    ) -> dict:
+        self, data: list[float], distribution: str, **params: Any
+    ) -> dict[str, Any]:
         # TODO: Implement Anderson-Darling test
         # LABELS: goodness-of-fit, ad-test
         raise NotImplementedError("AD test not implemented")
@@ -215,12 +215,12 @@ class RegressionTesting:
     Any changes that affect accuracy should be flagged.
     """
 
-    def __init__(self, reference_db_path: str = "tests/reference_values.json"):
+    def __init__(self, reference_db_path: str = "tests/reference_values.json") -> None:
         # TODO: Load reference values database
         self.reference_db_path = reference_db_path
-        self.reference_values: dict = {}
+        self.reference_values: dict[str, Any] = {}
 
-    def add_reference_value(self, test_id: str, value: float, tolerance: float = 1e-15):
+    def add_reference_value(self, test_id: str, value: float, tolerance: float = 1e-15) -> None:
         # TODO: Add new reference value to database
         # LABELS: regression-testing, reference-values
         raise NotImplementedError("Reference value management not implemented")
@@ -232,7 +232,7 @@ class RegressionTesting:
 
 
 # NOTE: Consider implementing fuzzing tests for robustness
-def fuzz_testing():
+def fuzz_testing() -> None:
     """
     Fuzzing tests for robustness against malformed inputs.
 
@@ -263,12 +263,12 @@ class MathematicalPropertyVerification:
     - Convolution properties where applicable
     """
 
-    def verify_tail_behavior(self, distribution: str, **params) -> dict[str, bool]:
+    def verify_tail_behavior(self, distribution: str, **params: Any) -> dict[str, bool]:
         # TODO: Verify asymptotic tail behavior matches theory
         # LABELS: mathematics, tail-behavior
         raise NotImplementedError("Tail behavior verification not implemented")
 
-    def verify_moments(self, distribution: str, **params) -> dict[str, bool]:
+    def verify_moments(self, distribution: str, **params: Any) -> dict[str, bool]:
         # TODO: Verify moment calculations against theory
         # LABELS: mathematics, moments
         raise NotImplementedError("Moment verification not implemented")
@@ -282,7 +282,7 @@ class MathematicalPropertyVerification:
 
 
 # HACK: Some special function implementations use approximations - need accuracy bounds
-def special_function_accuracy_analysis():
+def special_function_accuracy_analysis() -> None:
     """
     Analyze and improve accuracy of special function implementations.
 
@@ -303,7 +303,7 @@ def special_function_accuracy_analysis():
 
 
 # TODO: Add continuous integration tests with different Python versions
-def python_version_compatibility():
+def python_version_compatibility() -> None:
     """
     Test compatibility across different Python versions.
 
