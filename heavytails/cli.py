@@ -11,6 +11,7 @@ Provides utilities for:
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 import sys
 import time
@@ -34,6 +35,7 @@ from heavytails import (
     StudentT,
     Weibull,
 )
+from heavytails.roadmap import fit_mle, model_comparison
 from heavytails.tail_index import hill_estimator, moment_estimator, pickands_estimator
 
 app = typer.Typer(
@@ -58,6 +60,18 @@ DISTRIBUTIONS = {
     "invgamma": InverseGamma,
     "betaprime": BetaPrime,
 }
+
+
+# Map CLI distribution names to roadmap.py names
+def _map_distribution_name(cli_name: str) -> str:
+    """Convert CLI distribution name to roadmap.py format."""
+    name_map = {
+        "student-t": "studentt",
+        "burr": "burrxii",
+        "gpd": "generalizedpareto",
+        "invgamma": "inversegamma",
+    }
+    return name_map.get(cli_name.lower(), cli_name.lower())
 
 
 @app.command()
@@ -228,14 +242,80 @@ def fit(
         str, typer.Option("--method", "-m", help="Fitting method")
     ] = "mle",
 ) -> None:
-    """Fit a distribution to data (placeholder for future MLE implementation)."""
-    _ = (
-        data_file,
-        distribution,
-        method,
-    )  # Placeholder - will be used in future implementation
-    console.print("[yellow]Warning:[/yellow] Parameter fitting not yet implemented")
-    console.print("Future versions will include MLE and method-of-moments fitting")
+    """Fit a distribution to data using MLE or method of moments."""
+    if distribution not in DISTRIBUTIONS:
+        console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
+        console.print(f"Available: {', '.join(DISTRIBUTIONS.keys())}")
+        raise typer.Exit(1)
+
+    if not data_file.exists():
+        console.print(f"[red]Error:[/red] File {data_file} not found")
+        raise typer.Exit(1)
+
+    # Read data from file
+    try:
+        with data_file.open() as f:
+            data = [float(line.strip()) for line in f if line.strip()]
+    except (ValueError, OSError) as e:
+        console.print(f"[red]Error:[/red] Could not read data: {e}")
+        raise typer.Exit(1) from e
+
+    if len(data) < 2:
+        console.print(
+            f"[red]Error:[/red] Need at least 2 data points, got {len(data)}"
+        )
+        raise typer.Exit(1)
+
+    # Implement MLE fitting
+    if method == "mle":
+        try:
+            # Map CLI distribution name to roadmap name
+            roadmap_dist_name = _map_distribution_name(distribution)
+
+            # Fit parameters using MLE
+            params = fit_mle(data, roadmap_dist_name)
+
+            # Display results in a rich table
+            table = Table(title=f"MLE Parameter Estimates - {distribution.title()}")
+            table.add_column("Parameter", style="cyan")
+            table.add_column("Estimate", style="white")
+
+            for param, value in params.items():
+                table.add_row(param, f"{value:.6f}")
+
+            console.print(table)
+
+            # Calculate and display log-likelihood
+            try:
+                dist_class = DISTRIBUTIONS[distribution]
+                dist = dist_class(**params)
+                log_likelihood = sum(
+                    math.log(dist.pdf(x)) for x in data if dist.pdf(x) > 0
+                )
+                console.print(f"\n[bold]Log-likelihood:[/bold] {log_likelihood:.4f}")
+                console.print(f"[bold]Sample size:[/bold] {len(data)}")
+            except (ValueError, OverflowError) as e:
+                console.print(f"\n[yellow]Warning:[/yellow] Could not calculate log-likelihood: {e}")
+
+        except ImportError as e:
+            console.print(
+                f"[red]Error:[/red] MLE fitting requires scipy: {e}"
+            )
+            console.print("Install scipy with: pip install scipy")
+            raise typer.Exit(1) from e
+        except Exception as e:
+            console.print(f"[red]Error:[/red] MLE fitting failed: {e}")
+            raise typer.Exit(1) from e
+
+    elif method == "moments":
+        console.print(
+            "[yellow]Warning:[/yellow] Method of moments not yet implemented"
+        )
+        console.print("Please use --method mle for maximum likelihood estimation")
+    else:
+        console.print(f"[red]Error:[/red] Unknown method '{method}'")
+        console.print("Available methods: mle")
+        raise typer.Exit(1)
 
 
 @app.command()
@@ -245,15 +325,109 @@ def compare(
         str, typer.Option("--dists", help="Comma-separated distribution list")
     ] = "pareto,lognormal",
 ) -> None:
-    """Compare multiple distributions against data (placeholder)."""
-    _ = (
-        data_file,
-        distributions,
-    )  # Placeholder - will be used in future implementation
-    console.print(
-        "[yellow]Warning:[/yellow] Distribution comparison not yet implemented"
-    )
-    console.print("Future versions will include AIC/BIC model comparison")
+    """Compare multiple distributions using AIC/BIC model selection."""
+    if not data_file.exists():
+        console.print(f"[red]Error:[/red] File {data_file} not found")
+        raise typer.Exit(1)
+
+    # Parse distribution list
+    dist_list = [d.strip() for d in distributions.split(",")]
+
+    # Validate distributions
+    for dist in dist_list:
+        if dist not in DISTRIBUTIONS:
+            console.print(f"[red]Error:[/red] Unknown distribution '{dist}'")
+            console.print(f"Available: {', '.join(DISTRIBUTIONS.keys())}")
+            raise typer.Exit(1)
+
+    # Read data
+    try:
+        with data_file.open() as f:
+            data = [float(line.strip()) for line in f if line.strip()]
+    except (ValueError, OSError) as e:
+        console.print(f"[red]Error:[/red] Could not read data: {e}")
+        raise typer.Exit(1) from e
+
+    if len(data) < 2:
+        console.print(
+            f"[red]Error:[/red] Need at least 2 data points, got {len(data)}"
+        )
+        raise typer.Exit(1)
+
+    console.print(f"\n[bold]Comparing {len(dist_list)} distributions...[/bold]\n")
+
+    try:
+        # Map CLI distribution names to roadmap names
+        roadmap_dist_list = [_map_distribution_name(d) for d in dist_list]
+
+        # Perform model comparison
+        results = model_comparison(data, roadmap_dist_list)
+
+        # Create comparison table
+        table = Table(title="Distribution Comparison Results")
+        table.add_column("Distribution", style="cyan")
+        table.add_column("Log-Likelihood", style="white", justify="right")
+        table.add_column("AIC", style="yellow", justify="right")
+        table.add_column("BIC", style="green", justify="right")
+        table.add_column("Rank (AIC)", style="red", justify="center")
+        table.add_column("Rank (BIC)", style="magenta", justify="center")
+
+        # Sort by AIC for display
+        sorted_items = sorted(
+            [(dist_list[i], roadmap_dist_list[i]) for i in range(len(dist_list))],
+            key=lambda x: results[x[1]].get("AIC", float("inf")),
+        )
+
+        for cli_name, roadmap_name in sorted_items:
+            result = results[roadmap_name]
+
+            if "error" in result:
+                table.add_row(
+                    cli_name, "[red]Failed[/red]", "-", "-", "-", "-"
+                )
+            else:
+                table.add_row(
+                    cli_name,
+                    f"{result['log_likelihood']:.2f}",
+                    f"{result['AIC']:.2f}",
+                    f"{result['BIC']:.2f}",
+                    str(result.get("rank_AIC", "-")),
+                    str(result.get("rank_BIC", "-")),
+                )
+
+        console.print(table)
+
+        # Show best model parameters
+        valid_results = [
+            (cli, roadmap)
+            for cli, roadmap in zip(dist_list, roadmap_dist_list, strict=True)
+            if "error" not in results[roadmap]
+        ]
+
+        if valid_results:
+            best_cli, best_roadmap = min(
+                valid_results, key=lambda x: results[x[1]]["AIC"]
+            )
+            best_result = results[best_roadmap]
+
+            console.print(f"\n[green]Best model (by AIC):[/green] {best_cli}")
+            console.print("[bold]Parameters:[/bold]")
+            for param, value in best_result["params"].items():
+                console.print(f"  • {param}: {value:.6f}")
+            console.print(f"[bold]AIC:[/bold] {best_result['AIC']:.2f}")
+            console.print(f"[bold]BIC:[/bold] {best_result['BIC']:.2f}")
+        else:
+            console.print("\n[red]No valid model fits found[/red]")
+
+    except ImportError as e:
+        console.print(
+            f"[red]Error:[/red] Model comparison requires scipy: {e}"
+        )
+        console.print("Install scipy with: pip install scipy")
+        raise typer.Exit(1) from e
+    except Exception as e:
+        console.print(f"[red]Error:[/red] Model comparison failed: {e}")
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -506,8 +680,11 @@ def benchmark(
     n_samples: Annotated[
         int, typer.Option("--samples", "-n", help="Number of samples for benchmark")
     ] = 10000,
+    include_memory: Annotated[
+        bool, typer.Option("--memory", help="Include memory profiling")
+    ] = False,
 ) -> None:
-    """Benchmark distribution performance."""
+    """Benchmark distribution performance with optional memory profiling."""
     if distribution not in DISTRIBUTIONS:
         console.print(f"[red]Error:[/red] Unknown distribution '{distribution}'")
         raise typer.Exit(1) from None
@@ -518,6 +695,12 @@ def benchmark(
         dist = dist_class(**param_dict)
 
         console.print(f"[bold]Benchmarking {distribution} distribution[/bold]\n")
+
+        # Start memory tracking if requested
+        if include_memory:
+            import tracemalloc  # noqa: PLC0415
+
+            tracemalloc.start()
 
         # PDF evaluation benchmark
         x_values = [1.0 + i * 0.01 for i in range(1000)]
@@ -558,6 +741,26 @@ def benchmark(
         console.print(
             f"Sampling ({n_samples} samples): {sampling_time:.4f}s ({n_samples / sampling_time:.0f} samples/sec)"
         )
+
+        # Add memory profiling results
+        if include_memory:
+            import tracemalloc  # noqa: PLC0415
+
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+
+            console.print("\n[bold]Memory Usage:[/bold]")
+            console.print(
+                f"  Current: {current / 1024 / 1024:.2f} MB"
+            )
+            console.print(f"  Peak: {peak / 1024 / 1024:.2f} MB")
+
+            # Estimate memory per sample
+            if n_samples > 0:
+                bytes_per_sample = peak / n_samples
+                console.print(
+                    f"  Estimated per sample: {bytes_per_sample:.1f} bytes"
+                )
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")

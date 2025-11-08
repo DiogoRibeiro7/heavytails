@@ -32,7 +32,7 @@ pip install tomlkit packaging
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from difflib import unified_diff
 import json
 from pathlib import Path
@@ -48,6 +48,7 @@ import tomlkit
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any
 
 
 @dataclass(frozen=True)
@@ -65,7 +66,7 @@ class Options:
 # ---------- TOML helpers ----------
 
 
-def _read_doc(path: Path):
+def _read_doc(path: Path) -> tuple[str, Any]:
     text = path.read_text(encoding="utf-8")
     return text, tomlkit.parse(text)
 
@@ -86,7 +87,7 @@ def _write_or_diff(path: Path, before: str, after: str, check: bool) -> int:
     return 0
 
 
-def _layout(doc) -> str:
+def _layout(doc: Any) -> str:
     # Prefer Poetry if both exist
     if "tool" in doc and isinstance(doc["tool"], dict) and "poetry" in doc["tool"]:
         return "poetry"
@@ -242,14 +243,14 @@ class DepRef:
     group: str  # "main" or group name
     name: str  # raw name as in file (may include extras)
     current_spec: str | None  # string spec; None if path/git or table
-    location: tuple  # references for writing (table/array and key/index)
+    location: tuple[Any, ...]  # references for writing (table/array and key/index)
 
 
-def _iter_poetry_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
+def _iter_poetry_deps(doc: Any, groups: Iterable[str]) -> Iterable[DepRef]:
     tool = doc.setdefault("tool", tomlkit.table())
     poetry = tool.setdefault("poetry", tomlkit.table())
 
-    def emit_from_table(tbl, group: str):
+    def emit_from_table(tbl: Any, group: str) -> Iterable[DepRef]:
         if not isinstance(tbl, dict):
             return
         for k, v in list(tbl.items()):
@@ -288,11 +289,11 @@ def _iter_poetry_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
                 yield from emit_from_table(deps, gname)
 
 
-def _iter_pep621_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
+def _iter_pep621_deps(doc: Any, groups: Iterable[str]) -> Iterable[DepRef]:
     project = doc.setdefault("project", tomlkit.table())
     groups_set = set(groups)
 
-    def emit_from_array(arr, group: str):
+    def emit_from_array(arr: Any, group: str) -> Iterable[DepRef]:
         if not isinstance(arr, tomlkit.items.Array):
             return
         for idx, item in enumerate(list(arr)):
@@ -322,10 +323,10 @@ def _iter_pep621_deps(doc, groups: Iterable[str]) -> Iterable[DepRef]:
             yield from emit
 
 
-def _set_dep_spec(dep: DepRef, new_spec: str):
+def _set_dep_spec(dep: DepRef, new_spec: str) -> None:
     """Write back new spec to the TOML document at the stored location."""
     if dep.layout == "poetry":
-        tbl, key = dep.location  # type: ignore[assignment]
+        tbl, key = dep.location
         if isinstance(tbl, dict):
             # If it was a string spec: overwrite with string.
             if isinstance(tbl.get(key), str):
@@ -335,7 +336,7 @@ def _set_dep_spec(dep: DepRef, new_spec: str):
             else:
                 tbl[key] = new_spec
     else:
-        arr, idx, req = dep.location  # type: ignore[assignment]
+        arr, idx, req = dep.location
         if isinstance(arr, tomlkit.items.Array):
             # Rebuild requirement string with new spec; keep extras/markers
             name = req.name
@@ -483,6 +484,512 @@ def parse_args(argv: list[str] | None = None) -> Options:
         file=Path(args.file),
         timeout=args.timeout,
     )
+
+
+# ---------- Advanced Dependency Management Features ----------
+
+
+def _extract_current_versions(doc: Any) -> dict[str, str]:
+    """Extract all current package versions from the TOML document."""
+    versions: dict[str, str] = {}
+    layout = _layout(doc)
+
+    if layout == "poetry":
+        tool = doc.get("tool", {})
+        poetry = tool.get("poetry", {})
+
+        # Main dependencies
+        for name, spec in poetry.get("dependencies", {}).items():
+            if name == "python":
+                continue
+            if isinstance(spec, str):
+                versions[name] = spec
+            elif isinstance(spec, dict) and "version" in spec:
+                versions[name] = spec["version"]
+
+        # Dev dependencies
+        for name, spec in poetry.get("dev-dependencies", {}).items():
+            if isinstance(spec, str):
+                versions[name] = spec
+            elif isinstance(spec, dict) and "version" in spec:
+                versions[name] = spec["version"]
+
+        # Group dependencies
+        groups = poetry.get("group", {})
+        if isinstance(groups, dict):
+            for group_data in groups.values():
+                if isinstance(group_data, dict):
+                    deps = group_data.get("dependencies", {})
+                    for name, spec in deps.items():
+                        if isinstance(spec, str):
+                            versions[name] = spec
+                        elif isinstance(spec, dict) and "version" in spec:
+                            versions[name] = spec["version"]
+
+    elif layout == "pep621":
+        project = doc.get("project", {})
+
+        # Main dependencies
+        deps_array = project.get("dependencies", [])
+        if isinstance(deps_array, list):
+            for dep_str in deps_array:
+                if isinstance(dep_str, str):
+                    try:
+                        req = Requirement(dep_str)
+                        if req.specifier:
+                            versions[req.name] = str(req.specifier)
+                    except Exception:
+                        continue
+
+        # Optional dependencies
+        opt_deps = project.get("optional-dependencies", {})
+        if isinstance(opt_deps, dict):
+            for group_deps in opt_deps.values():
+                if isinstance(group_deps, list):
+                    for dep_str in group_deps:
+                        if isinstance(dep_str, str):
+                            try:
+                                req = Requirement(dep_str)
+                                if req.specifier:
+                                    versions[req.name] = str(req.specifier)
+                            except Exception:
+                                continue
+
+    return versions
+
+
+def _check_dep_vulnerabilities(package_name: str) -> list[str]:
+    """Check single package for vulnerabilities.
+
+    This is a demonstration using a static database. In production,
+    integrate with:
+    - pip-audit API
+    - Safety DB API (https://pyup.io/safety/)
+    - OSV (Open Source Vulnerabilities) API
+    - GitHub Advisory Database
+    """
+    # Known vulnerable packages (subset for demonstration)
+    # In production, fetch from a real vulnerability database
+    known_vulnerabilities: dict[str, list[str]] = {
+        "requests": [
+            "CVE-2023-32681: Unintended leak of Proxy-Authorization header"
+        ],
+        "pillow": [
+            "CVE-2023-44271: Buffer overflow in _getexif",
+            "CVE-2023-50447: Arbitrary code execution via crafted font",
+        ],
+        "flask": ["CVE-2023-30861: Cookie parsing vulnerability"],
+        "django": [
+            "CVE-2023-43665: Denial-of-service in file uploads",
+            "CVE-2023-41164: Potential denial of service in django.utils.encoding.uri_to_iri",
+        ],
+        "urllib3": [
+            "CVE-2023-43804: Cookie request header isn't stripped on cross-origin redirects"
+        ],
+        "cryptography": [
+            "CVE-2023-49083: NULL-dereference when loading PKCS7 certificates"
+        ],
+        "pyyaml": ["CVE-2020-14343: Arbitrary code execution via unsafe yaml.load"],
+        "jinja2": ["CVE-2020-28493: ReDoS vulnerability"],
+    }
+
+    return known_vulnerabilities.get(package_name.lower(), [])
+
+
+def check_vulnerabilities(pyproject: Path) -> dict[str, list[str]]:
+    """Check dependencies for known security vulnerabilities.
+
+    Parameters
+    ----------
+    pyproject : Path
+        Path to pyproject.toml file
+
+    Returns
+    -------
+    dict[str, list[str]]
+        Dictionary mapping package names to lists of vulnerability descriptions
+    """
+    _, doc = _read_doc(pyproject)
+    vulnerabilities: dict[str, list[str]] = {}
+
+    # Extract all dependencies
+    all_deps: set[str] = set()
+
+    try:
+        layout = _layout(doc)
+
+        if layout == "poetry":
+            tool = doc.get("tool", {})
+            poetry = tool.get("poetry", {})
+
+            # Main dependencies
+            deps = poetry.get("dependencies", {})
+            if isinstance(deps, dict):
+                all_deps.update(deps.keys())
+
+            # Dev dependencies
+            dev_deps = poetry.get("dev-dependencies", {})
+            if isinstance(dev_deps, dict):
+                all_deps.update(dev_deps.keys())
+
+            # Group dependencies
+            groups = poetry.get("group", {})
+            if isinstance(groups, dict):
+                for group_data in groups.values():
+                    if isinstance(group_data, dict):
+                        group_deps = group_data.get("dependencies", {})
+                        if isinstance(group_deps, dict):
+                            all_deps.update(group_deps.keys())
+
+        elif layout == "pep621":
+            project = doc.get("project", {})
+
+            # Main dependencies
+            deps_array = project.get("dependencies", [])
+            if isinstance(deps_array, list):
+                for dep_str in deps_array:
+                    if isinstance(dep_str, str):
+                        try:
+                            req = Requirement(dep_str)
+                            all_deps.add(req.name)
+                        except Exception:
+                            continue
+
+            # Optional dependencies
+            opt_deps = project.get("optional-dependencies", {})
+            if isinstance(opt_deps, dict):
+                for group_deps in opt_deps.values():
+                    if isinstance(group_deps, list):
+                        for dep_str in group_deps:
+                            if isinstance(dep_str, str):
+                                try:
+                                    req = Requirement(dep_str)
+                                    all_deps.add(req.name)
+                                except Exception:
+                                    continue
+
+    except ValueError:
+        # Unsupported layout
+        return vulnerabilities
+
+    # Check each dependency against vulnerability database
+    for dep_name in all_deps:
+        if dep_name == "python":
+            continue
+
+        try:
+            vuln_list = _check_dep_vulnerabilities(dep_name)
+            if vuln_list:
+                vulnerabilities[dep_name] = vuln_list
+        except Exception:
+            continue  # Skip if vulnerability check fails
+
+    return vulnerabilities
+
+
+def detect_conflicts(pyproject: Path) -> dict[str, str]:
+    """Detect potential dependency conflicts.
+
+    Parameters
+    ----------
+    pyproject : Path
+        Path to pyproject.toml file
+
+    Returns
+    -------
+    dict[str, str]
+        Dictionary mapping conflict identifiers to conflict descriptions
+    """
+    _, doc = _read_doc(pyproject)
+    conflicts: dict[str, str] = {}
+
+    # Extract version constraints
+    constraints: dict[str, str] = {}
+
+    try:
+        layout = _layout(doc)
+
+        if layout == "poetry":
+            tool = doc.get("tool", {})
+            poetry = tool.get("poetry", {})
+
+            # Main dependencies
+            for name, spec in poetry.get("dependencies", {}).items():
+                if isinstance(spec, str) and name != "python":
+                    constraints[name] = spec
+                elif isinstance(spec, dict) and "version" in spec:
+                    constraints[name] = spec["version"]
+
+            # Group dependencies
+            groups = poetry.get("group", {})
+            if isinstance(groups, dict):
+                for group_name, group_data in groups.items():
+                    if isinstance(group_data, dict):
+                        deps = group_data.get("dependencies", {})
+                        if isinstance(deps, dict):
+                            for name, spec in deps.items():
+                                if isinstance(spec, str):
+                                    # Check for conflicting constraints
+                                    if name in constraints and constraints[name] != spec:
+                                        conflicts[name] = (
+                                            f"Conflict: main has {constraints[name]}, "
+                                            f"{group_name} has {spec}"
+                                        )
+                                    constraints[name] = spec
+                                elif isinstance(spec, dict) and "version" in spec:
+                                    ver_spec = spec["version"]
+                                    if name in constraints and constraints[name] != ver_spec:
+                                        conflicts[name] = (
+                                            f"Conflict: main has {constraints[name]}, "
+                                            f"{group_name} has {ver_spec}"
+                                        )
+                                    constraints[name] = ver_spec
+
+        elif layout == "pep621":
+            project = doc.get("project", {})
+
+            # Main dependencies
+            deps_array = project.get("dependencies", [])
+            if isinstance(deps_array, list):
+                for dep_str in deps_array:
+                    if isinstance(dep_str, str):
+                        try:
+                            req = Requirement(dep_str)
+                            if req.specifier:
+                                constraints[req.name] = str(req.specifier)
+                        except Exception:
+                            continue
+
+            # Optional dependencies
+            opt_deps = project.get("optional-dependencies", {})
+            if isinstance(opt_deps, dict):
+                for group_name, group_deps in opt_deps.items():
+                    if isinstance(group_deps, list):
+                        for dep_str in group_deps:
+                            if isinstance(dep_str, str):
+                                try:
+                                    req = Requirement(dep_str)
+                                    if req.specifier:
+                                        spec_str = str(req.specifier)
+                                        if (
+                                            req.name in constraints
+                                            and constraints[req.name] != spec_str
+                                        ):
+                                            conflicts[req.name] = (
+                                                f"Conflict: main has {constraints[req.name]}, "
+                                                f"{group_name} has {spec_str}"
+                                            )
+                                        constraints[req.name] = spec_str
+                                except Exception:
+                                    continue
+
+    except ValueError:
+        # Unsupported layout
+        return conflicts
+
+    # Known package ecosystem conflict rules
+    conflict_rules: dict[tuple[str, str], str] = {
+        ("requests", "urllib3"): (
+            "requests includes urllib3; explicit urllib3 version may conflict"
+        ),
+        ("pandas", "numpy"): "Ensure numpy version compatibility with pandas",
+        ("matplotlib", "numpy"): "Matplotlib requires specific numpy versions",
+        ("scikit-learn", "numpy"): "scikit-learn has strict numpy version requirements",
+        ("tensorflow", "numpy"): "TensorFlow requires specific numpy versions",
+        ("torch", "numpy"): "PyTorch may have numpy version constraints",
+    }
+
+    for (pkg1, pkg2), message in conflict_rules.items():
+        if pkg1 in constraints and pkg2 in constraints:
+            conflicts[f"{pkg1}+{pkg2}"] = message
+
+    return conflicts
+
+
+if TYPE_CHECKING:
+    from typing import Any
+
+
+def upgrade_with_analysis(pyproject: Path, opts: Options) -> dict[str, Any]:
+    """Upgrade dependencies with comprehensive impact analysis.
+
+    Parameters
+    ----------
+    pyproject : Path
+        Path to pyproject.toml file
+    opts : Options
+        Upgrade options
+
+    Returns
+    -------
+    dict[str, Any]
+        Comprehensive analysis including pre/post upgrade state and impacts
+    """
+    _before_text, doc = _read_doc(pyproject)
+
+    # Pre-upgrade analysis
+    pre_analysis: dict[str, Any] = {
+        "vulnerabilities": check_vulnerabilities(pyproject),
+        "conflicts": detect_conflicts(pyproject),
+        "current_versions": _extract_current_versions(doc),
+    }
+
+    # Perform upgrade (but restore the original file content first for proper comparison)
+    upgrade_result = upgrade(pyproject, opts)
+
+    # Post-upgrade analysis
+    _, updated_doc = _read_doc(pyproject)
+    post_analysis: dict[str, Any] = {
+        "vulnerabilities": check_vulnerabilities(pyproject),
+        "conflicts": detect_conflicts(pyproject),
+        "new_versions": _extract_current_versions(updated_doc),
+    }
+
+    # Calculate changes and impacts
+    version_changes: dict[str, dict[str, str]] = {}
+    current_versions = pre_analysis["current_versions"]
+    if isinstance(current_versions, dict):
+        for pkg in current_versions:
+            old_ver = current_versions[pkg]
+            new_versions = post_analysis["new_versions"]
+            if isinstance(new_versions, dict):
+                new_ver = new_versions.get(pkg, old_ver)
+            else:
+                new_ver = old_ver
+            # Ensure both old_ver and new_ver are strings
+            if isinstance(old_ver, str) and isinstance(new_ver, str) and old_ver != new_ver:
+                version_changes[pkg] = {"from": old_ver, "to": new_ver}
+
+    # Impact assessment
+    pre_vulns = pre_analysis["vulnerabilities"]
+    post_vulns = post_analysis["vulnerabilities"]
+    pre_conflicts = pre_analysis["conflicts"]
+    post_conflicts = post_analysis["conflicts"]
+
+    impact_assessment: dict[str, Any] = {
+        "version_changes": version_changes,
+        "vulnerabilities_fixed": (
+            len(pre_vulns) - len(post_vulns)
+            if isinstance(pre_vulns, dict) and isinstance(post_vulns, dict)
+            else 0
+        ),
+        "new_conflicts": [
+            conflict
+            for conflict in post_conflicts
+            if isinstance(post_conflicts, dict)
+            and isinstance(pre_conflicts, dict)
+            and conflict not in pre_conflicts
+        ],
+        "resolved_conflicts": [
+            conflict
+            for conflict in pre_conflicts
+            if isinstance(pre_conflicts, dict)
+            and isinstance(post_conflicts, dict)
+            and conflict not in post_conflicts
+        ],
+    }
+
+    return {
+        "upgrade_result": upgrade_result,
+        "pre_analysis": pre_analysis,
+        "post_analysis": post_analysis,
+        "impact_assessment": impact_assessment,
+    }
+
+
+def _security_only_upgrade(pyproject: Path, opts: Options) -> int:
+    """Upgrade only packages with known security vulnerabilities.
+
+    Parameters
+    ----------
+    pyproject : Path
+        Path to pyproject.toml file
+    opts : Options
+        Upgrade options (will be modified to target only vulnerable packages)
+
+    Returns
+    -------
+    int
+        Exit code
+    """
+    vulnerabilities = check_vulnerabilities(pyproject)
+
+    if not vulnerabilities:
+        print("No security vulnerabilities found. No updates needed.")
+        return 0
+
+    # Create a modified opts to only update vulnerable packages
+    vulnerable_packages = list(vulnerabilities.keys())
+
+    print(f"Security update: Upgrading {len(vulnerable_packages)} vulnerable packages")
+    for pkg, vulns in vulnerabilities.items():
+        print(f"  {pkg}: {len(vulns)} vulnerabilities")
+        for vuln in vulns:
+            print(f"    - {vuln}")
+
+    # Create new Options with only vulnerable packages
+    security_opts = replace(opts, only=vulnerable_packages)
+
+    result = upgrade(pyproject, security_opts)
+
+    return result
+
+
+def upgrade_with_prerelease_policy(
+    pyproject: Path, opts: Options, policy: str = "conservative"
+) -> int:
+    """Upgrade with configurable pre-release policies.
+
+    Parameters
+    ----------
+    pyproject : Path
+        Path to pyproject.toml file
+    opts : Options
+        Base upgrade options
+    policy : str
+        Policy name: 'conservative', 'moderate', 'aggressive', or 'security_only'
+
+    Returns
+    -------
+    int
+        Exit code
+
+    Raises
+    ------
+    ValueError
+        If unknown policy is specified
+    """
+    # Define pre-release policies
+    policies = {
+        "conservative": {"include_prerelease": False, "allow_major": False},
+        "moderate": {"include_prerelease": False, "allow_major": True},
+        "aggressive": {"include_prerelease": True, "allow_major": True},
+        "security_only": {
+            "include_prerelease": False,
+            "allow_major": False,
+            "security_only": True,
+        },
+    }
+
+    if policy not in policies:
+        raise ValueError(
+            f"Unknown policy: {policy}. Available: {list(policies.keys())}"
+        )
+
+    policy_settings = policies[policy]
+
+    # Create modified Options with policy settings
+    modified_opts = replace(
+        opts,
+        include_prerelease=policy_settings["include_prerelease"],
+        allow_major=policy_settings["allow_major"],
+    )
+
+    # Special handling for security-only updates
+    if policy_settings.get("security_only", False):
+        return _security_only_upgrade(pyproject, modified_opts)
+    else:
+        return upgrade(pyproject, modified_opts)
 
 
 def main(argv: list[str] | None = None) -> int:

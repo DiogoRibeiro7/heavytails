@@ -22,7 +22,6 @@ except ImportError:
     stats = None
 
 
-# TODO: Implement copula models with heavy-tailed marginals
 class HeavyTailCopula(ABC):
     """
     Abstract base class for copulas with heavy-tailed marginal distributions.
@@ -36,27 +35,22 @@ class HeavyTailCopula(ABC):
 
     def __init__(self, marginals: list[str]):
         self.marginals = marginals
-        # TODO: Implement copula framework
 
     @abstractmethod
     def pdf(self, u: list[float]) -> float:
-        # TODO: Implement copula PDF
-        # LABELS: copulas, mathematics
+        """Compute the copula probability density function."""
         pass
 
     @abstractmethod
     def cdf(self, u: list[float]) -> float:
-        # TODO: Implement copula CDF
-        # LABELS: copulas, mathematics
+        """Compute the copula cumulative distribution function."""
         pass
 
     def sample(self, n: int) -> list[list[float]]:
-        # TODO: Implement copula sampling
-        # LABELS: copulas, sampling
+        """Generate random samples from the copula (not yet implemented)."""
         raise NotImplementedError("Copula sampling not implemented")
 
 
-# TODO: Add t-Copula with heavy-tailed marginals
 class StudentTCopula(HeavyTailCopula):
     """
     Student-t copula for modeling tail dependence.
@@ -220,16 +214,14 @@ class StudentTCopula(HeavyTailCopula):
             ) from None
 
 
-# TODO: Implement extreme value copulas (Gumbel, Clayton, Frank)
 class ExtremeValueCopula(HeavyTailCopula):
     """
     Extreme value copulas for modeling extremal dependence.
 
-    Types to implement:
+    Supported types:
     - Gumbel copula (upper tail dependence)
     - Clayton copula (lower tail dependence)
     - Frank copula (symmetric dependence)
-    - Joe copula
     """
 
     def __init__(self, copula_type: str, theta: float, marginals: list[str]):
