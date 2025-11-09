@@ -227,6 +227,7 @@ omit = [
     "*/tests/*",
     "*/test_*.py",
     "heavytails/__main__.py",
+    "heavytails/cli.py",
 ]
 
 [tool.coverage.report]

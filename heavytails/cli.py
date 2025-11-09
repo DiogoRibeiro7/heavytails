@@ -261,9 +261,7 @@ def fit(
         raise typer.Exit(1) from e
 
     if len(data) < 2:
-        console.print(
-            f"[red]Error:[/red] Need at least 2 data points, got {len(data)}"
-        )
+        console.print(f"[red]Error:[/red] Need at least 2 data points, got {len(data)}")
         raise typer.Exit(1)
 
     # Implement MLE fitting
@@ -295,12 +293,12 @@ def fit(
                 console.print(f"\n[bold]Log-likelihood:[/bold] {log_likelihood:.4f}")
                 console.print(f"[bold]Sample size:[/bold] {len(data)}")
             except (ValueError, OverflowError) as e:
-                console.print(f"\n[yellow]Warning:[/yellow] Could not calculate log-likelihood: {e}")
+                console.print(
+                    f"\n[yellow]Warning:[/yellow] Could not calculate log-likelihood: {e}"
+                )
 
         except ImportError as e:
-            console.print(
-                f"[red]Error:[/red] MLE fitting requires scipy: {e}"
-            )
+            console.print(f"[red]Error:[/red] MLE fitting requires scipy: {e}")
             console.print("Install scipy with: pip install scipy")
             raise typer.Exit(1) from e
         except Exception as e:
@@ -308,9 +306,7 @@ def fit(
             raise typer.Exit(1) from e
 
     elif method == "moments":
-        console.print(
-            "[yellow]Warning:[/yellow] Method of moments not yet implemented"
-        )
+        console.print("[yellow]Warning:[/yellow] Method of moments not yet implemented")
         console.print("Please use --method mle for maximum likelihood estimation")
     else:
         console.print(f"[red]Error:[/red] Unknown method '{method}'")
@@ -349,9 +345,7 @@ def compare(
         raise typer.Exit(1) from e
 
     if len(data) < 2:
-        console.print(
-            f"[red]Error:[/red] Need at least 2 data points, got {len(data)}"
-        )
+        console.print(f"[red]Error:[/red] Need at least 2 data points, got {len(data)}")
         raise typer.Exit(1)
 
     console.print(f"\n[bold]Comparing {len(dist_list)} distributions...[/bold]\n")
@@ -382,9 +376,7 @@ def compare(
             result = results[roadmap_name]
 
             if "error" in result:
-                table.add_row(
-                    cli_name, "[red]Failed[/red]", "-", "-", "-", "-"
-                )
+                table.add_row(cli_name, "[red]Failed[/red]", "-", "-", "-", "-")
             else:
                 table.add_row(
                     cli_name,
@@ -420,9 +412,7 @@ def compare(
             console.print("\n[red]No valid model fits found[/red]")
 
     except ImportError as e:
-        console.print(
-            f"[red]Error:[/red] Model comparison requires scipy: {e}"
-        )
+        console.print(f"[red]Error:[/red] Model comparison requires scipy: {e}")
         console.print("Install scipy with: pip install scipy")
         raise typer.Exit(1) from e
     except Exception as e:
@@ -750,17 +740,13 @@ def benchmark(
             tracemalloc.stop()
 
             console.print("\n[bold]Memory Usage:[/bold]")
-            console.print(
-                f"  Current: {current / 1024 / 1024:.2f} MB"
-            )
+            console.print(f"  Current: {current / 1024 / 1024:.2f} MB")
             console.print(f"  Peak: {peak / 1024 / 1024:.2f} MB")
 
             # Estimate memory per sample
             if n_samples > 0:
                 bytes_per_sample = peak / n_samples
-                console.print(
-                    f"  Estimated per sample: {bytes_per_sample:.1f} bytes"
-                )
+                console.print(f"  Estimated per sample: {bytes_per_sample:.1f} bytes")
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")

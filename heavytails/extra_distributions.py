@@ -400,7 +400,9 @@ class InverseGamma(Samplable):
         if x <= 0.0:
             return 0.0
         a, b = self.alpha, self.beta
-        return float((b**a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x))
+        return float(
+            (b**a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x)
+        )
 
     def cdf(self, x: float) -> float:
         if x <= 0.0:

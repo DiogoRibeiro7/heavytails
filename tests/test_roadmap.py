@@ -1,10 +1,11 @@
 """Tests for roadmap.py statistical features."""
 
 import math
+import random
 
 import pytest
 
-from heavytails import Pareto
+from heavytails import Cauchy, LogNormal, Pareto
 from heavytails.roadmap import (
     bootstrap_confidence_intervals,
     fit_mle,
@@ -35,8 +36,6 @@ class TestMLEFitting:
 
     def test_lognormal_mle(self):
         """Test LogNormal MLE fitting."""
-        from heavytails import LogNormal
-
         true_mu = 0.5
         true_sigma = 1.0
         dist = LogNormal(mu=true_mu, sigma=true_sigma)
@@ -52,8 +51,6 @@ class TestMLEFitting:
     def test_exponential_mle(self):
         """Test Exponential MLE fitting."""
         # Generate exponential data manually (no Exponential class in library)
-        import random
-
         random.seed(42)
         true_lambda = 2.0
         # Exponential data: -ln(U)/lambda where U ~ Uniform(0,1)
@@ -66,8 +63,6 @@ class TestMLEFitting:
 
     def test_cauchy_mle(self):
         """Test Cauchy MLE fitting."""
-        from heavytails import Cauchy
-
         true_x0 = 0.0
         true_gamma = 1.0
         dist = Cauchy(x0=true_x0, gamma=true_gamma)
@@ -242,10 +237,14 @@ class TestBootstrapConfidenceIntervals:
         """Test that invalid confidence level raises error."""
         data = [1.0, 2.0, 3.0, 4.0, 5.0]
 
-        with pytest.raises(ValueError, match="Confidence level must be between 0 and 1"):
+        with pytest.raises(
+            ValueError, match="Confidence level must be between 0 and 1"
+        ):
             bootstrap_confidence_intervals(data, "pareto", confidence_level=1.5)
 
-        with pytest.raises(ValueError, match="Confidence level must be between 0 and 1"):
+        with pytest.raises(
+            ValueError, match="Confidence level must be between 0 and 1"
+        ):
             bootstrap_confidence_intervals(data, "pareto", confidence_level=0.0)
 
     def test_bootstrap_ci_reproducibility(self):
@@ -253,12 +252,8 @@ class TestBootstrapConfidenceIntervals:
         dist = Pareto(alpha=2.5, xm=1.0)
         data = dist.rvs(500, seed=42)
 
-        ci1 = bootstrap_confidence_intervals(
-            data, "pareto", n_bootstrap=100, seed=42
-        )
-        ci2 = bootstrap_confidence_intervals(
-            data, "pareto", n_bootstrap=100, seed=42
-        )
+        ci1 = bootstrap_confidence_intervals(data, "pareto", n_bootstrap=100, seed=42)
+        ci2 = bootstrap_confidence_intervals(data, "pareto", n_bootstrap=100, seed=42)
 
         # Should get identical results with same seed
         assert ci1["alpha"] == ci2["alpha"]
@@ -392,9 +387,7 @@ class TestIntegration:
         assert comparison["pareto"]["rank_AIC"] == 1
 
         # 4. Bootstrap CI
-        ci = bootstrap_confidence_intervals(
-            data, "pareto", n_bootstrap=100, seed=42
-        )
+        ci = bootstrap_confidence_intervals(data, "pareto", n_bootstrap=100, seed=42)
         assert ci["alpha"][0] < true_alpha < ci["alpha"][1]
 
         # 5. Hill estimator

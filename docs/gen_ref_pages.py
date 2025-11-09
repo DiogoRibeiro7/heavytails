@@ -30,4 +30,6 @@ for module_path, title in modules:
         f.write("      heading_level: 2\n")
 
     # Update navigation
-    mkdocs_gen_files.set_edit_path(doc_path, Path("..") / "heavytails" / f"{filename}.py")
+    mkdocs_gen_files.set_edit_path(
+        doc_path, Path("..") / "heavytails" / f"{filename}.py"
+    )

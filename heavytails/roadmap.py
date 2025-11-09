@@ -7,8 +7,8 @@ automatically converted to GitHub Issues by the TODO workflow.
 """
 
 import math
-import warnings
 from typing import Any
+import warnings
 
 from heavytails import LogNormal
 from heavytails.extra_distributions import _betainc_reg
@@ -251,12 +251,12 @@ def _fit_studentt_mle(data: list[float]) -> dict[str, float]:
     # Scipy-based MLE using scipy.stats
     try:
         # Use scipy's t distribution fit
-        nu_hat, loc_hat, scale_hat = stats.t.fit(data)
+        nu_hat, _loc_hat, _scale_hat = stats.t.fit(data)
 
         # heavytails StudentT assumes loc=0, scale=1, so we only return nu
         # If you want to include location/scale, adjust accordingly
         return {"nu": float(abs(nu_hat))}
-    except Exception:  # noqa: BLE001
+    except Exception:
         warnings.warn("Student-t MLE optimization failed", stacklevel=2)
         return {"nu": 5.0}
 
@@ -316,7 +316,7 @@ def _fit_gpd_mle(data: list[float]) -> dict[str, float]:
 
         # heavytails GeneralizedPareto: xi (shape), sigma (scale), mu (location)
         return {"xi": float(xi_hat), "sigma": float(sigma_hat), "mu": float(loc_hat)}
-    except Exception:  # noqa: BLE001
+    except Exception:
         warnings.warn("GPD MLE optimization failed", stacklevel=2)
         return {"xi": 0.1, "sigma": 1.0, "mu": 0.0}
 
@@ -345,7 +345,10 @@ def _fit_burrxii_mle(data: list[float]) -> dict[str, float]:
     c0, k0 = 2.0, 2.0
 
     result = optimize.minimize(
-        neg_log_likelihood, [c0, k0], method="Nelder-Mead", bounds=[(0.1, 10), (0.1, 10)]
+        neg_log_likelihood,
+        [c0, k0],
+        method="Nelder-Mead",
+        bounds=[(0.1, 10), (0.1, 10)],
     )
 
     if result.success:
@@ -510,11 +513,8 @@ def model_comparison(data: list[float], distributions: list[str]) -> dict[str, d
             # Number of parameters
             k = len(params)
 
-            # Information criteria
-            # AIC = 2k - 2*log(L)
+            # Calculate information criteria
             aic = 2 * k - 2 * log_likelihood
-
-            # BIC = k*ln(n) - 2*log(L)
             bic = k * math.log(n) - 2 * log_likelihood
 
             results[dist_name] = {
@@ -591,11 +591,11 @@ def _calculate_log_likelihood(
         # Calculate log-likelihood
         log_lik = sum(math.log(dist.pdf(x)) for x in data if dist.pdf(x) > 0)
 
-        return log_lik
-
     except (AttributeError, ValueError, TypeError) as e:
         warnings.warn(f"Failed to calculate log-likelihood: {e}", stacklevel=2)
         return float("-inf")
+    else:
+        return log_lik
 
 
 def bootstrap_confidence_intervals(
@@ -650,7 +650,7 @@ def bootstrap_confidence_intervals(
     n = len(data)
 
     # Store bootstrap estimates
-    bootstrap_estimates = {param: [] for param in fit_mle(data, distribution).keys()}
+    bootstrap_estimates = {param: [] for param in fit_mle(data, distribution)}
 
     # Perform bootstrap resampling
     for _ in range(n_bootstrap):
@@ -802,9 +802,7 @@ def robust_hill_estimator(
             gamma_final = gamma_corrected
     else:
         # Cannot apply bias correction
-        warnings.warn(
-            "Insufficient moment variation for bias correction", stacklevel=2
-        )
+        warnings.warn("Insufficient moment variation for bias correction", stacklevel=2)
         gamma_final = gamma_basic
 
     alpha = 1.0 / gamma_final if gamma_final > 0 else float("inf")

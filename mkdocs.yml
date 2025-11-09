@@ -9,7 +9,6 @@ edit_uri: edit/main/docs/
 # Configuration
 theme:
   name: material
-  custom_dir: docs/overrides
   palette:
     # Palette toggle for light mode
     - scheme: default
@@ -149,18 +148,8 @@ nav:
     - Random Sampling: guide/sampling.md
     - Tail Index Estimation: guide/tail-estimation.md
     - Parameter Fitting: guide/fitting.md
-    - Diagnostic Tools: guide/diagnostics.md
-  - Examples:
-    - Basic Usage: examples/basic_usage.ipynb
-    - Financial Applications: examples/finance.ipynb
-    - Risk Management: examples/risk.ipynb
-    - Extreme Value Analysis: examples/extreme_values.ipynb
-    - Comparison Studies: examples/comparisons.ipynb
   - Mathematical Background:
     - Heavy-Tail Theory: theory/heavy-tails.md
-    - Extreme Value Theory: theory/evt.md
-    - Tail Index Estimation: theory/tail-estimation.md
-    - Special Functions: theory/special-functions.md
   - API Reference:
     - Core Distributions: reference/
     - Extra Distributions: reference/
@@ -170,8 +159,6 @@ nav:
   - Development:
     - Contributing: development/contributing.md
     - Testing: development/testing.md
-    - Benchmarks: development/benchmarks.md
-    - Release Notes: development/changelog.md
   - About:
     - License: about/license.md
     - Citation: about/citation.md

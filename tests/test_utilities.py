@@ -1,13 +1,13 @@
 """Tests for utilities.py module."""
 
 import json
-import math
-import tempfile
 from pathlib import Path
+import random
+import tempfile
 
 import pytest
 
-from heavytails import Pareto
+from heavytails import LogNormal, Pareto
 from heavytails.utilities import AutoFit, DataIO, ParameterValidator, StatisticalSummary
 
 
@@ -28,7 +28,7 @@ class TestDataIO:
             # Read
             read_data = DataIO.read_csv(filepath)
             assert len(read_data) == len(data)
-            assert all(abs(a - b) < 1e-10 for a, b in zip(read_data, data))
+            assert all(abs(a - b) < 1e-10 for a, b in zip(read_data, data, strict=False))
 
     def test_csv_write_with_metadata(self):
         """Test CSV writing with metadata."""
@@ -40,7 +40,7 @@ class TestDataIO:
             DataIO.write_csv(data, filepath, metadata=metadata)
 
             # Check file exists and contains metadata
-            with open(filepath, "r", encoding="utf-8") as f:
+            with filepath.open(encoding="utf-8") as f:
                 content = f.read()
                 assert "# Metadata:" in content
                 assert "distribution" in content
@@ -51,7 +51,7 @@ class TestDataIO:
             filepath = Path(tmpdir) / "test_cols.csv"
 
             # Write CSV with multiple columns manually
-            with open(filepath, "w", encoding="utf-8") as f:
+            with filepath.open("w", encoding="utf-8") as f:
                 f.write("name,value,other\n")
                 f.write("a,1.5,x\n")
                 f.write("b,2.3,y\n")
@@ -70,7 +70,7 @@ class TestDataIO:
             filepath = Path(tmpdir) / "test_auto.csv"
 
             # Write CSV with header
-            with open(filepath, "w", encoding="utf-8") as f:
+            with filepath.open("w", encoding="utf-8") as f:
                 f.write("values\n")
                 f.write("1.5\n2.3\n3.7\n")
 
@@ -115,7 +115,7 @@ class TestDataIO:
             filepath = Path(tmpdir) / "invalid.json"
 
             # Write invalid JSON (no "data" key)
-            with open(filepath, "w", encoding="utf-8") as f:
+            with filepath.open("w", encoding="utf-8") as f:
                 json.dump({"other": [1, 2, 3]}, f)
 
             with pytest.raises(ValueError, match="must contain a 'data' key"):
@@ -152,8 +152,6 @@ class TestAutoFit:
 
     def test_fit_lognormal_distribution(self):
         """Test fitting LogNormal distribution."""
-        from heavytails import LogNormal
-
         dist = LogNormal(mu=0.5, sigma=1.0)
         data = dist.rvs(500, seed=42)
 
@@ -247,10 +245,10 @@ class TestParameterValidator:
 
     def test_validate_pareto_invalid_xm(self):
         """Test invalid Pareto xm."""
-        with pytest.raises(ValueError, match="xm .* must be positive"):
+        with pytest.raises(ValueError, match=r"xm .* must be positive"):
             ParameterValidator.validate_pareto(2.5, -1.0)
 
-        with pytest.raises(ValueError, match="xm .* must be positive"):
+        with pytest.raises(ValueError, match=r"xm .* must be positive"):
             ParameterValidator.validate_pareto(2.5, 0.0)
 
     def test_validate_pareto_extreme_values_warning(self):
@@ -281,7 +279,7 @@ class TestParameterValidator:
 
     def test_validate_cauchy_invalid_gamma(self):
         """Test invalid Cauchy gamma."""
-        with pytest.raises(ValueError, match="gamma .* must be positive"):
+        with pytest.raises(ValueError, match=r"gamma .* must be positive"):
             ParameterValidator.validate_cauchy(0.0, -1.0)
 
     def test_suggest_parameters_pareto(self):
@@ -366,8 +364,6 @@ class TestStatisticalSummary:
     def test_tail_statistics_normal_like_data(self):
         """Test tail statistics on normal-like data."""
         # Create data with light tails
-        import random
-
         random.seed(42)
         data = [random.gauss(0, 1) for _ in range(500)]
 

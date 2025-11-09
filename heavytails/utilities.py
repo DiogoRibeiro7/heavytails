@@ -6,13 +6,13 @@ and statistical analysis.
 """
 
 import csv
-import json
-import math
-import warnings
 from dataclasses import dataclass
 from io import StringIO
+import json
+import math
 from pathlib import Path
 from typing import Any
+import warnings
 
 
 class DataIO:
@@ -57,7 +57,7 @@ class DataIO:
             raise FileNotFoundError(f"CSV file not found: {filepath}")
 
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with filepath.open(encoding="utf-8") as f:
                 # Filter out comment lines
                 non_comment_lines = [
                     line for line in f if not line.strip().startswith("#")
@@ -152,10 +152,10 @@ class DataIO:
                 if not data:
                     raise ValueError("No numerical data found in CSV file")
 
-                return data
-
             except csv.Error as e:
                 raise ValueError(f"Error parsing CSV file: {e}") from e
+            else:
+                return data
 
         except Exception as e:
             # Re-raise ValueError as is, wrap others
@@ -200,7 +200,7 @@ class DataIO:
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            with open(filepath, "w", newline="", encoding="utf-8") as f:
+            with filepath.open("w", newline="", encoding="utf-8") as f:
                 # Write metadata as comments if provided
                 if metadata:
                     f.write("# Metadata:\n")
@@ -259,11 +259,11 @@ class DataIO:
             raise FileNotFoundError(f"JSON file not found: {filepath}")
 
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with filepath.open(encoding="utf-8") as f:
                 content = json.load(f)
 
             if not isinstance(content, dict):
-                raise ValueError("JSON file must contain a dictionary")
+                raise TypeError("JSON file must contain a dictionary")
 
             if "data" not in content:
                 raise ValueError("JSON file must contain a 'data' key")
@@ -271,7 +271,7 @@ class DataIO:
             # Validate data is list of numbers
             data = content["data"]
             if not isinstance(data, list):
-                raise ValueError("'data' must be a list")
+                raise TypeError("'data' must be a list")
 
             # Convert to floats
             try:
@@ -280,10 +280,11 @@ class DataIO:
                 raise ValueError(f"'data' must contain numeric values: {e}") from e
 
             content["data"] = data
-            return content
 
         except json.JSONDecodeError as e:
             raise ValueError(f"Error parsing JSON file: {e}") from e
+        else:
+            return content
 
     @staticmethod
     def write_json(
@@ -322,7 +323,7 @@ class DataIO:
             content["metadata"] = metadata
 
         try:
-            with open(filepath, "w", encoding="utf-8") as f:
+            with filepath.open("w", encoding="utf-8") as f:
                 json.dump(content, f, indent=2)
         except OSError as e:
             raise ValueError(f"Error writing JSON file: {e}") from e
@@ -376,7 +377,7 @@ class AutoFit:
             >>> abs(result["parameters"]["alpha"] - 2.5) < 0.5
             True
         """
-        from heavytails.roadmap import fit_mle, model_comparison  # noqa: PLC0415
+        from heavytails.roadmap import fit_mle  # noqa: PLC0415
 
         if distribution == "auto":
             # Automatic distribution selection
@@ -547,12 +548,10 @@ class ParameterValidator:
                 "Very large sigma (>10) may cause numerical overflow", stacklevel=2
             )
         if abs(mu) > 100:
-            warnings.warn(
-                "Large |mu| (>100) may cause numerical issues", stacklevel=2
-            )
+            warnings.warn("Large |mu| (>100) may cause numerical issues", stacklevel=2)
 
     @staticmethod
-    def validate_cauchy(x0: float, gamma: float) -> None:
+    def validate_cauchy(_x0: float, gamma: float) -> None:
         """Validate Cauchy parameters."""
         if gamma <= 0:
             raise ValueError(
@@ -593,7 +592,6 @@ class ParameterValidator:
         if data is not None:
             # Data-driven suggestions
             data_min = min(data)
-            data_max = max(data)
             data_mean = sum(data) / len(data)
             data_std = math.sqrt(
                 sum((x - data_mean) ** 2 for x in data) / (len(data) - 1)
@@ -752,7 +750,6 @@ class StatisticalSummary:
         # Tail ratios (indicators of tail heaviness)
         q99 = self._quantile(0.99)
         q95 = self._quantile(0.95)
-        q90 = self._quantile(0.90)
         q50 = self._quantile(0.50)
 
         tail_ratio_99_50 = q99 / q50 if q50 > 0 else float("inf")

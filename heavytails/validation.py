@@ -6,7 +6,6 @@ and property-based testing for all distributions.
 """
 
 import math
-import warnings
 from typing import Any
 
 # Try to import scipy for validation (optional dependency)
@@ -20,7 +19,8 @@ except ImportError:
 
 # Try to import hypothesis for property-based testing (optional dependency)
 try:
-    from hypothesis import given, settings, strategies as st
+    from hypothesis import given, settings
+    from hypothesis import strategies as st
 
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
@@ -77,7 +77,6 @@ class NumericalValidation:
                 "max_error": float("inf"),
             }
 
-        import heavytails  # noqa: PLC0415
 
         dist_lower = distribution.lower()
 
@@ -209,7 +208,9 @@ class NumericalValidation:
                 return scipy_stats.pareto(b=alpha, scale=xm)
 
             elif distribution == "lognormal":
-                return scipy_stats.lognorm(s=params["sigma"], scale=math.exp(params["mu"]))
+                return scipy_stats.lognorm(
+                    s=params["sigma"], scale=math.exp(params["mu"])
+                )
 
             elif distribution == "cauchy":
                 return scipy_stats.cauchy(loc=params["x0"], scale=params["gamma"])
@@ -300,7 +301,9 @@ def parameter_stability_check(distribution: str, **params: Any) -> dict[str, Any
             severity = "medium"
 
         if sigma < 1e-6:
-            warnings_list.append("Very small sigma (< 1e-6) approaches degenerate distribution")
+            warnings_list.append(
+                "Very small sigma (< 1e-6) approaches degenerate distribution"
+            )
             fixes.append("Use sigma >= 1e-6")
 
     elif dist_lower == "cauchy":
@@ -626,7 +629,9 @@ class PropertyBasedTests:
                     "alpha": random.uniform(0.5, 5.0),
                     "xm": random.uniform(0.1, 10.0),
                 }
-                x_values = [random.uniform(params["xm"], params["xm"] + 20) for _ in range(10)]
+                x_values = [
+                    random.uniform(params["xm"], params["xm"] + 20) for _ in range(10)
+                ]
 
             elif distribution == "lognormal":
                 params = {
@@ -662,7 +667,7 @@ class PropertyBasedTests:
 
 
 def convergence_validation(
-    distribution: str, method: str = "ppf", max_iter: int = 1000
+    distribution: str, method: str = "ppf", _max_iter: int = 1000
 ) -> dict[str, Any]:
     """
     Validate convergence of numerical algorithms.
@@ -737,9 +742,15 @@ def convergence_validation(
                         }
                     )
 
-            all_converged = all(info.get("converged", False) for info in convergence_info)
+            all_converged = all(
+                info.get("converged", False) for info in convergence_info
+            )
             max_error = max(
-                (info["error"] for info in convergence_info if isinstance(info["error"], (int, float))),
+                (
+                    info["error"]
+                    for info in convergence_info
+                    if isinstance(info["error"], (int, float))
+                ),
                 default=float("inf"),
             )
 
@@ -781,7 +792,9 @@ class ParameterEstimationValidation:
     def __init__(self) -> None:
         self.validation_results: dict[str, dict[str, Any]] = {}
 
-    def validate_mle(self, distribution: str, true_params: dict[str, Any], n_trials: int = 100) -> None:
+    def validate_mle(
+        self, distribution: str, true_params: dict[str, Any], n_trials: int = 100
+    ) -> None:
         # TODO: Validate MLE estimation accuracy
         # LABELS: validation, mle, parameter-estimation
         raise NotImplementedError("MLE validation not implemented")
@@ -870,7 +883,9 @@ class RegressionTesting:
         self.reference_db_path = reference_db_path
         self.reference_values: dict[str, Any] = {}
 
-    def add_reference_value(self, test_id: str, value: float, tolerance: float = 1e-15) -> None:
+    def add_reference_value(
+        self, test_id: str, value: float, tolerance: float = 1e-15
+    ) -> None:
         # TODO: Add new reference value to database
         # LABELS: regression-testing, reference-values
         raise NotImplementedError("Reference value management not implemented")
