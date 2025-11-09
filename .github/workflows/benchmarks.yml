@@ -55,7 +55,7 @@ jobs:
     
     - name: Download baseline benchmark (if exists)
       continue-on-error: true
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v6
       with:
         name: benchmark-baseline-${{ matrix.python-version }}
         path: benchmark-results/
@@ -68,7 +68,7 @@ jobs:
           --iterations 50
     
     - name: Upload benchmark results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: benchmark-results-${{ matrix.python-version }}-${{ github.sha }}
         path: benchmark-results/current-${{ matrix.python-version }}.json
@@ -82,7 +82,7 @@ jobs:
     
     - name: Upload new baseline
       if: github.ref == 'refs/heads/main'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: benchmark-baseline-${{ matrix.python-version }}
         path: benchmark-results/baseline-${{ matrix.python-version }}.json
@@ -126,7 +126,7 @@ jobs:
     
     - name: Comment PR with performance results
       if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const fs = require('fs');
