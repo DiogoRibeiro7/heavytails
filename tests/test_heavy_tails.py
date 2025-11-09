@@ -1,16 +1,15 @@
 """Comprehensive tests for heavy_tails.py module."""
 
-import math
 
 import pytest
 
 from heavytails.heavy_tails import (
+    RNG,
     Cauchy,
     Frechet,
     LogNormal,
-    Pareto,
     ParameterError,
-    RNG,
+    Pareto,
     StudentT,
     Weibull,
 )
