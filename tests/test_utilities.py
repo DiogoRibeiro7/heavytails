@@ -28,7 +28,9 @@ class TestDataIO:
             # Read
             read_data = DataIO.read_csv(filepath)
             assert len(read_data) == len(data)
-            assert all(abs(a - b) < 1e-10 for a, b in zip(read_data, data, strict=False))
+            assert all(
+                abs(a - b) < 1e-10 for a, b in zip(read_data, data, strict=False)
+            )
 
     def test_csv_write_with_metadata(self):
         """Test CSV writing with metadata."""

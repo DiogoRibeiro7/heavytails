@@ -144,7 +144,9 @@ class DistributionBenchmark:
         for _ in range(self.iterations):
             start = time.perf_counter()
             for x in test_points:
-                with contextlib.suppress(ValueError, ZeroDivisionError, OverflowError, AttributeError):
+                with contextlib.suppress(
+                    ValueError, ZeroDivisionError, OverflowError, AttributeError
+                ):
                     dist.cdf(x)
             elapsed = time.perf_counter() - start
             times.append(elapsed)
@@ -176,7 +178,9 @@ class DistributionBenchmark:
         for _ in range(self.iterations):
             start = time.perf_counter()
             for u in test_points:
-                with contextlib.suppress(ValueError, ZeroDivisionError, OverflowError, NotImplementedError):
+                with contextlib.suppress(
+                    ValueError, ZeroDivisionError, OverflowError, NotImplementedError
+                ):
                     dist.ppf(u)
             elapsed = time.perf_counter() - start
             times.append(elapsed)
