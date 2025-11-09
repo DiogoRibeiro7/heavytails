@@ -466,7 +466,7 @@ def _fit_betaprime_mle(data: list[float]) -> dict[str, float]:
         return {"a": a0, "b": b0}
 
 
-def model_comparison(data: list[float], distributions: list[str]) -> dict[str, dict]:
+def model_comparison(data: list[float], distributions: list[str]) -> dict[str, dict[str, Any]]:
     """
     Compare distribution fits using information criteria.
 
@@ -543,8 +543,8 @@ def model_comparison(data: list[float], distributions: list[str]) -> dict[str, d
     }
 
     if valid_results:
-        aic_sorted = sorted(valid_results.items(), key=lambda x: x[1]["AIC"])
-        bic_sorted = sorted(valid_results.items(), key=lambda x: x[1]["BIC"])
+        aic_sorted = sorted(valid_results.items(), key=lambda x: float(x[1]["AIC"]))  # type: ignore[arg-type]
+        bic_sorted = sorted(valid_results.items(), key=lambda x: float(x[1]["BIC"]))  # type: ignore[arg-type]
 
         for rank, (dist_name, _) in enumerate(aic_sorted, 1):
             results[dist_name]["rank_AIC"] = rank
@@ -602,7 +602,7 @@ def bootstrap_confidence_intervals(
     n_bootstrap: int = 1000,
     confidence_level: float = 0.95,
     seed: int | None = None,
-) -> dict[str, tuple]:
+) -> dict[str, tuple[float, float]]:
     """
     Calculate bootstrap confidence intervals for distribution parameters.
 
@@ -648,7 +648,7 @@ def bootstrap_confidence_intervals(
     n = len(data)
 
     # Store bootstrap estimates
-    bootstrap_estimates = {param: [] for param in fit_mle(data, distribution)}
+    bootstrap_estimates: dict[str, list[float]] = {param: [] for param in fit_mle(data, distribution)}
 
     # Perform bootstrap resampling
     for _ in range(n_bootstrap):
@@ -700,7 +700,7 @@ def bootstrap_confidence_intervals(
 
 def robust_hill_estimator(
     data: list[float], k: int | None = None, bias_correction: bool = True
-) -> dict[str, float]:
+) -> dict[str, float | int | bool | str]:
     """
     Improved Hill estimator with bias correction and stability checks.
 
@@ -1009,7 +1009,7 @@ class HeavyTailSurvival:
         # TODO: Implement hazard function calculation
         raise NotImplementedError()
 
-    def kaplan_meier_estimate(self, times: list[float], events: list[bool]) -> dict:
+    def kaplan_meier_estimate(self, times: list[float], events: list[bool]) -> dict[str, Any]:
         # TODO: Implement Kaplan-Meier with heavy tails
         raise NotImplementedError()
 

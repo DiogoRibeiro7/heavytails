@@ -1,0 +1,65 @@
+name: Enforce Simple Branch Flow
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  enforce-branch-flow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check allowed branch flow
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+        shell: bash
+        run: |
+          echo "Base branch (target): $BASE_REF"
+          echo "Head branch (source): $HEAD_REF"
+
+          # Enforce only when PR targets main or develop
+          case "$BASE_REF" in
+            main|develop)
+              echo "Base branch '$BASE_REF' is under flow enforcement."
+              ;;
+            *)
+              echo "Base branch '$BASE_REF' is not enforced. Skipping."
+              exit 0
+              ;;
+          esac
+
+          allowed="false"
+
+          #
+          # Rules:
+          #
+          # 1. Only allow develop ➜ main
+          #    - base = main
+          #    - head = develop
+          #
+          # 2. Allow "any non-main, non-develop" ➜ develop
+          #    - base = develop
+          #    - head != main
+          #    - head != develop
+          #
+
+          if [[ "$BASE_REF" == "main" ]]; then
+            if [[ "$HEAD_REF" == "develop" ]]; then
+              allowed="true"
+            fi
+          elif [[ "$BASE_REF" == "develop" ]]; then
+            if [[ "$HEAD_REF" != "main" && "$HEAD_REF" != "develop" ]]; then
+              allowed="true"
+            fi
+          fi
+
+          if [[ "$allowed" != "true" ]]; then
+            echo "::error::Invalid branch flow: head='$HEAD_REF' ➜ base='$BASE_REF'"
+            echo "Allowed flows are strictly:"
+            echo "  - develop ➜ main        (base=main,    head=develop)"
+            echo "  - <any other branch> ➜ develop (base=develop, head not 'main' or 'develop')"
+            exit 1
+          fi
+
+          echo "✅ Branch flow allowed: head='$HEAD_REF' ➜ base='$BASE_REF'"
