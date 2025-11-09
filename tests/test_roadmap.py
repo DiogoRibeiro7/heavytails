@@ -2,8 +2,6 @@
 
 import math
 import random
-import sys
-from unittest.mock import patch
 
 import pytest
 

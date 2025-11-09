@@ -370,5 +370,378 @@ class TestIntegration:
         assert len(stability["suggested_fixes"]) > 0
 
 
+class TestParameterStabilityEdgeCases:
+    """Test edge cases in parameter stability checking."""
+
+    def test_lognormal_small_sigma(self):
+        """Test LogNormal with very small sigma."""
+        result = parameter_stability_check("lognormal", mu=0.0, sigma=1e-8)
+        assert result["stable"] is False
+        assert any("small sigma" in w.lower() for w in result["warnings"])
+        assert any("1e-6" in f for f in result["suggested_fixes"])
+
+    def test_cauchy_small_gamma(self):
+        """Test Cauchy with very small gamma."""
+        result = parameter_stability_check("cauchy", x0=0.0, gamma=1e-8)
+        assert result["stable"] is False
+        assert any("small gamma" in w.lower() for w in result["warnings"])
+
+    def test_cauchy_large_gamma(self):
+        """Test Cauchy with very large gamma."""
+        result = parameter_stability_check("cauchy", x0=0.0, gamma=1e7)
+        assert result["stable"] is False
+        assert any("large gamma" in w.lower() for w in result["warnings"])
+
+    def test_frechet_small_parameters(self):
+        """Test Frechet with very small parameters."""
+        result = parameter_stability_check("frechet", alpha=1e-8, s=1e-8, m=0.0)
+        assert result["stable"] is False
+        assert any("small parameters" in w.lower() for w in result["warnings"])
+
+    def test_frechet_stable_parameters(self):
+        """Test Frechet with stable parameters."""
+        result = parameter_stability_check("frechet", alpha=2.0, s=1.0, m=0.0)
+        assert result["stable"] is True
+        assert len(result["warnings"]) == 0
+
+
+class TestPropertyBasedTestsExtended:
+    """Extended tests for property-based testing."""
+
+    def test_pdf_nonnegativity_weibull(self):
+        """Test PDF non-negativity for Weibull."""
+        tester = PropertyBasedTests()
+        result = tester.test_pdf_nonnegativity("weibull")
+        assert result["property"] == "pdf_nonnegativity"
+        assert "pass" in result
+
+    def test_cdf_monotonicity_weibull(self):
+        """Test CDF monotonicity for Weibull."""
+        tester = PropertyBasedTests()
+        result = tester.test_cdf_monotonicity("weibull")
+        assert result["property"] == "cdf_monotonicity"
+        assert "pass" in result
+
+    def test_ppf_cdf_inverse_weibull(self):
+        """Test PPF/CDF inverse relationship for Weibull."""
+        tester = PropertyBasedTests()
+        result = tester.test_ppf_cdf_inverse("weibull")
+        assert result["property"] == "ppf_cdf_inverse"
+        assert "pass" in result
+
+    def test_ppf_cdf_inverse_cauchy(self):
+        """Test PPF/CDF inverse relationship for Cauchy."""
+        tester = PropertyBasedTests()
+        result = tester.test_ppf_cdf_inverse("cauchy")
+        assert result["property"] == "ppf_cdf_inverse"
+        assert "pass" in result
+
+    def test_cdf_monotonicity_lognormal(self):
+        """Test CDF monotonicity for LogNormal."""
+        tester = PropertyBasedTests()
+        result = tester.test_cdf_monotonicity("lognormal")
+        assert result["property"] == "cdf_monotonicity"
+        assert "pass" in result
+
+    def test_cdf_monotonicity_studentt(self):
+        """Test CDF monotonicity for Student-t."""
+        tester = PropertyBasedTests()
+        result = tester.test_cdf_monotonicity("studentt")
+        assert result["property"] == "cdf_monotonicity"
+        assert "pass" in result
+
+    def test_pdf_nonnegativity_cauchy(self):
+        """Test PDF non-negativity for Cauchy."""
+        tester = PropertyBasedTests()
+        result = tester.test_pdf_nonnegativity("cauchy")
+        assert result["property"] == "pdf_nonnegativity"
+        assert "pass" in result
+
+    def test_pdf_nonnegativity_studentt(self):
+        """Test PDF non-negativity for Student-t."""
+        tester = PropertyBasedTests()
+        result = tester.test_pdf_nonnegativity("studentt")
+        assert result["property"] == "pdf_nonnegativity"
+        assert "pass" in result
+
+    def test_pdf_nonnegativity_unknown_distribution(self):
+        """Test PDF non-negativity for unknown distribution."""
+        tester = PropertyBasedTests()
+        result = tester.test_pdf_nonnegativity("unknown_dist")
+        # Should handle gracefully
+        assert "property" in result
+
+    def test_cdf_monotonicity_unknown_distribution(self):
+        """Test CDF monotonicity for unknown distribution."""
+        tester = PropertyBasedTests()
+        result = tester.test_cdf_monotonicity("unknown_dist")
+        # Should handle gracefully
+        assert "property" in result
+
+    def test_ppf_cdf_inverse_unknown_distribution(self):
+        """Test PPF/CDF inverse for unknown distribution."""
+        tester = PropertyBasedTests()
+        result = tester.test_ppf_cdf_inverse("unknown_dist")
+        # Should handle gracefully
+        assert "property" in result
+
+
+class TestPPFEdgeCaseHandler:
+    """Test PPF edge case handling."""
+
+    def test_ppf_edge_case_u_zero(self):
+        """Test PPF edge case with u=0."""
+        from heavytails.validation import ppf_edge_case_handler
+
+        with pytest.raises((ValueError, NotImplementedError)):
+            ppf_edge_case_handler("pareto", 0.0, alpha=2.5, xm=1.0)
+
+    def test_ppf_edge_case_u_one(self):
+        """Test PPF edge case with u=1."""
+        from heavytails.validation import ppf_edge_case_handler
+
+        with pytest.raises((ValueError, NotImplementedError)):
+            ppf_edge_case_handler("pareto", 1.0, alpha=2.5, xm=1.0)
+
+    def test_ppf_edge_case_u_negative(self):
+        """Test PPF edge case with negative u."""
+        from heavytails.validation import ppf_edge_case_handler
+
+        with pytest.raises((ValueError, NotImplementedError)):
+            ppf_edge_case_handler("pareto", -0.1, alpha=2.5, xm=1.0)
+
+    def test_ppf_edge_case_u_greater_than_one(self):
+        """Test PPF edge case with u > 1."""
+        from heavytails.validation import ppf_edge_case_handler
+
+        with pytest.raises((ValueError, NotImplementedError)):
+            ppf_edge_case_handler("pareto", 1.5, alpha=2.5, xm=1.0)
+
+    def test_ppf_edge_case_valid_u(self):
+        """Test PPF edge case with valid u."""
+        from heavytails.validation import ppf_edge_case_handler
+
+        # Valid u should raise NotImplementedError since function is not fully implemented
+        with pytest.raises(NotImplementedError):
+            ppf_edge_case_handler("pareto", 0.5, alpha=2.5, xm=1.0)
+
+
+@pytest.mark.skipif(not SCIPY_AVAILABLE, reason="scipy not installed")
+class TestNumericalValidationEdgeCases:
+    """Test edge cases in numerical validation."""
+
+    def test_validate_weibull(self):
+        """Test Weibull validation."""
+        validator = NumericalValidation(tolerance=0.01)
+        result = validator.validate_against_scipy("weibull")
+        assert "pass" in result
+
+    def test_validate_frechet(self):
+        """Test Frechet validation."""
+        validator = NumericalValidation(tolerance=0.01)
+        result = validator.validate_against_scipy("frechet")
+        assert "pass" in result
+
+    def test_create_scipy_distribution_error_handling(self):
+        """Test error handling in scipy distribution creation."""
+        validator = NumericalValidation()
+        # Test with invalid distribution
+        result = validator.validate_against_scipy("invalid_dist")
+        assert result["pass"] is False
+        assert "error" in result
+
+
+class TestConvergenceValidationEdgeCases:
+    """Test edge cases in convergence validation."""
+
+    def test_convergence_exception_handling(self):
+        """Test exception handling in convergence validation."""
+        # This tests the exception handling path
+        result = convergence_validation("invalid_distribution", method="ppf")
+        assert "converged" in result
+        assert "error" in result or result["converged"] is False
+
+
+class TestUnimplementedFeatures:
+    """Test that unimplemented features raise appropriate errors."""
+
+    def test_goodness_of_fit_ks_test(self):
+        """Test that KS test raises NotImplementedError."""
+        from heavytails.validation import GoodnessOfFitTests
+
+        gof = GoodnessOfFitTests()
+        with pytest.raises(NotImplementedError):
+            gof.kolmogorov_smirnov_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
+
+    def test_goodness_of_fit_ad_test(self):
+        """Test that AD test raises NotImplementedError."""
+        from heavytails.validation import GoodnessOfFitTests
+
+        gof = GoodnessOfFitTests()
+        with pytest.raises(NotImplementedError):
+            gof.anderson_darling_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
+
+    def test_regression_testing_add_reference_value(self):
+        """Test that regression testing raises NotImplementedError."""
+        from heavytails.validation import RegressionTesting
+
+        rt = RegressionTesting()
+        with pytest.raises(NotImplementedError):
+            rt.add_reference_value("test1", 1.5)
+
+    def test_regression_testing_check_regression(self):
+        """Test that regression check raises NotImplementedError."""
+        from heavytails.validation import RegressionTesting
+
+        rt = RegressionTesting()
+        with pytest.raises(NotImplementedError):
+            rt.check_regression("test1", 1.5)
+
+    def test_parameter_estimation_validation_mle(self):
+        """Test that MLE validation raises NotImplementedError."""
+        from heavytails.validation import ParameterEstimationValidation
+
+        pev = ParameterEstimationValidation()
+        with pytest.raises(NotImplementedError):
+            pev.validate_mle("pareto", {"alpha": 2.5, "xm": 1.0})
+
+    def test_parameter_estimation_validation_hill(self):
+        """Test that Hill estimator validation raises NotImplementedError."""
+        from heavytails.validation import ParameterEstimationValidation
+
+        pev = ParameterEstimationValidation()
+        with pytest.raises(NotImplementedError):
+            pev.validate_hill_estimator(2.5)
+
+    def test_fuzz_testing(self):
+        """Test that fuzz testing raises NotImplementedError."""
+        from heavytails.validation import fuzz_testing
+
+        with pytest.raises(NotImplementedError):
+            fuzz_testing()
+
+    def test_special_function_accuracy_analysis(self):
+        """Test that special function analysis raises NotImplementedError."""
+        from heavytails.validation import special_function_accuracy_analysis
+
+        with pytest.raises(NotImplementedError):
+            special_function_accuracy_analysis()
+
+    def test_python_version_compatibility(self):
+        """Test that version compatibility raises NotImplementedError."""
+        from heavytails.validation import python_version_compatibility
+
+        with pytest.raises(NotImplementedError):
+            python_version_compatibility()
+
+    def test_mathematical_property_verification_tail_behavior(self):
+        """Test that tail behavior verification raises NotImplementedError."""
+        from heavytails.validation import MathematicalPropertyVerification
+
+        mpv = MathematicalPropertyVerification()
+        with pytest.raises(NotImplementedError):
+            mpv.verify_tail_behavior("pareto", alpha=2.5, xm=1.0)
+
+    def test_mathematical_property_verification_moments(self):
+        """Test that moments verification raises NotImplementedError."""
+        from heavytails.validation import MathematicalPropertyVerification
+
+        mpv = MathematicalPropertyVerification()
+        with pytest.raises(NotImplementedError):
+            mpv.verify_moments("pareto", alpha=2.5, xm=1.0)
+
+    def test_mathematical_property_verification_relationships(self):
+        """Test that relationships verification raises NotImplementedError."""
+        from heavytails.validation import MathematicalPropertyVerification
+
+        mpv = MathematicalPropertyVerification()
+        with pytest.raises(NotImplementedError):
+            mpv.verify_relationships("pareto", "lognormal")
+
+
+class TestNumericalValidationWithoutScipy:
+    """Test validation behavior when scipy is not available."""
+
+    def test_validation_without_scipy_mock(self, monkeypatch):
+        """Test validation when scipy is mocked as unavailable."""
+        # Temporarily set SCIPY_AVAILABLE to False
+        import heavytails.validation as validation_module
+
+        original_scipy_available = validation_module.SCIPY_AVAILABLE
+        try:
+            monkeypatch.setattr(validation_module, "SCIPY_AVAILABLE", False)
+            validator = NumericalValidation()
+            result = validator.validate_against_scipy("pareto")
+            assert result["pass"] is False
+            assert "scipy not available" in result["error"]
+        finally:
+            monkeypatch.setattr(
+                validation_module, "SCIPY_AVAILABLE", original_scipy_available
+            )
+
+
+class TestPropertyBasedTestsWithoutHypothesis:
+    """Test property-based tests when hypothesis is not available."""
+
+    def test_pdf_nonnegativity_without_hypothesis(self, monkeypatch):
+        """Test PDF nonnegativity when hypothesis is mocked as unavailable."""
+        import heavytails.validation as validation_module
+
+        original_hypothesis_available = validation_module.HYPOTHESIS_AVAILABLE
+        try:
+            monkeypatch.setattr(validation_module, "HYPOTHESIS_AVAILABLE", False)
+            tester = PropertyBasedTests()
+            result = tester.test_pdf_nonnegativity("pareto")
+            assert result["pass"] is False
+            assert "Hypothesis not available" in result["error"]
+        finally:
+            monkeypatch.setattr(
+                validation_module,
+                "HYPOTHESIS_AVAILABLE",
+                original_hypothesis_available,
+            )
+
+    def test_cdf_monotonicity_without_hypothesis(self, monkeypatch):
+        """Test CDF monotonicity when hypothesis is mocked as unavailable."""
+        import heavytails.validation as validation_module
+
+        original_hypothesis_available = validation_module.HYPOTHESIS_AVAILABLE
+        try:
+            monkeypatch.setattr(validation_module, "HYPOTHESIS_AVAILABLE", False)
+            tester = PropertyBasedTests()
+            result = tester.test_cdf_monotonicity("pareto")
+            assert result["pass"] is False
+            assert "Hypothesis not available" in result["error"]
+        finally:
+            monkeypatch.setattr(
+                validation_module,
+                "HYPOTHESIS_AVAILABLE",
+                original_hypothesis_available,
+            )
+
+
+class TestParameterStabilityAdditional:
+    """Additional parameter stability tests."""
+
+    def test_weibull_large_parameters(self):
+        """Test Weibull with very large parameters."""
+        result = parameter_stability_check("weibull", k=150, lam=1e7)
+        assert result["stable"] is False
+        assert len(result["warnings"]) > 0
+
+    def test_frechet_different_combinations(self):
+        """Test Frechet with different parameter combinations."""
+        result = parameter_stability_check("frechet", alpha=1.5, s=0.5, m=1.0)
+        assert "warnings" in result
+        assert "severity" in result
+
+    def test_unknown_distribution_stability(self):
+        """Test stability check with unknown distribution."""
+        result = parameter_stability_check("unknown_distribution", param1=1.0)
+        # Should return result without crashing
+        assert "stable" in result
+        assert "warnings" in result
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
