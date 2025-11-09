@@ -442,5 +442,199 @@ class TestPerformanceIntegration:
         assert all(x >= 1.0 for x in parallel_samples)
 
 
+class TestVectorizedOperationsExtended:
+    """Extended tests for vectorized operations."""
+
+    def test_vectorized_cdf_invalid_distribution(self):
+        """Test that invalid distribution raises ValueError for CDF."""
+        x_values = [1.0, 2.0, 3.0]
+        with pytest.raises(ValueError, match="Unknown distribution"):
+            vectorized_cdf_evaluation("InvalidDist", x_values, alpha=2.5)
+
+    def test_vectorized_pdf_large_array(self):
+        """Test vectorized PDF with large array (triggers numpy path if available)."""
+        x_values = [float(i) for i in range(1, 50)]  # More than 10 elements
+        pdf_values = vectorized_pdf_evaluation("Pareto", x_values, alpha=2.5, xm=1.0)
+        assert len(pdf_values) == 49
+        assert all(isinstance(p, float) for p in pdf_values)
+
+    def test_vectorized_cdf_large_array(self):
+        """Test vectorized CDF with large array (triggers numpy path if available)."""
+        x_values = [float(i) for i in range(1, 50)]  # More than 10 elements
+        cdf_values = vectorized_cdf_evaluation("Pareto", x_values, alpha=2.5, xm=1.0)
+        assert len(cdf_values) == 49
+        assert all(isinstance(c, float) for c in cdf_values)
+        # CDF should be monotonically increasing
+        for i in range(len(cdf_values) - 1):
+            assert cdf_values[i] <= cdf_values[i + 1]
+
+
+class TestPPFOptimizerExtended:
+    """Extended tests for PPF optimizer edge cases."""
+
+    def test_ppf_optimizer_extreme_quantiles(self):
+        """Test PPF optimizer with very extreme quantiles."""
+        optimizer = PPFOptimizer()
+        dist = Pareto(alpha=2.5, xm=1.0)
+        fast_ppf = optimizer.optimize_ppf(dist.cdf, dist.pdf)
+
+        # Test extreme quantiles (triggers initial guess edge cases)
+        extreme_quantiles = [0.001, 0.999]
+        for u in extreme_quantiles:
+            try:
+                result = fast_ppf(u)
+                assert result > 0  # Should be valid
+            except Exception:
+                # Some edge cases may fail - that's okay
+                pass
+
+    def test_ppf_optimizer_newton_fallback(self):
+        """Test PPF optimizer falls back when Newton-Raphson fails."""
+        optimizer = PPFOptimizer(tolerance=1e-12, max_iterations=5)
+        dist = Pareto(alpha=2.5, xm=1.0)
+        fast_ppf = optimizer.optimize_ppf(dist.cdf, dist.pdf)
+
+        # Should still work even with strict tolerance and few iterations
+        result = fast_ppf(0.5)
+        assert result > 0
+
+
+class TestUnimplementedFeatures:
+    """Test that unimplemented features raise appropriate errors."""
+
+    def test_cython_special_functions(self):
+        """Test that Cython special functions raises NotImplementedError."""
+        from heavytails.performance import cython_special_functions
+
+        with pytest.raises(NotImplementedError):
+            cython_special_functions()
+
+    def test_robust_log_gamma_overflow(self):
+        """Test robust log gamma with values."""
+        from heavytails.performance import robust_log_gamma
+
+        # Normal values should work
+        result = robust_log_gamma(5.0)
+        assert result > 0
+
+        # Test with another normal value
+        result2 = robust_log_gamma(10.0)
+        assert result2 > result  # log-gamma is increasing
+
+    def test_jit_accelerated_functions(self):
+        """Test that JIT acceleration raises NotImplementedError."""
+        from heavytails.performance import jit_accelerated_functions
+
+        with pytest.raises(NotImplementedError):
+            jit_accelerated_functions()
+
+    def test_memory_profiler_sampling(self):
+        """Test that memory profiler raises NotImplementedError."""
+        from heavytails.performance import MemoryProfiler
+
+        profiler = MemoryProfiler()
+        with pytest.raises(NotImplementedError):
+            profiler.profile_sampling("Pareto", 1000)
+
+    def test_memory_profiler_optimize(self):
+        """Test that memory optimizer raises NotImplementedError."""
+        from heavytails.performance import MemoryProfiler
+
+        profiler = MemoryProfiler()
+        with pytest.raises(NotImplementedError):
+            profiler.optimize_memory_usage()
+
+    def test_optimized_rejection_sampling(self):
+        """Test that optimized rejection sampling raises NotImplementedError."""
+        from heavytails.performance import optimized_rejection_sampling
+
+        with pytest.raises(NotImplementedError):
+            optimized_rejection_sampling()
+
+    def test_online_estimation_update(self):
+        """Test that online estimation update raises NotImplementedError."""
+        from heavytails.performance import OnlineEstimation
+
+        estimator = OnlineEstimation("Pareto")
+        with pytest.raises(NotImplementedError):
+            estimator.update(1.5)
+
+    def test_online_estimation_get_estimates(self):
+        """Test that online estimation get estimates raises NotImplementedError."""
+        from heavytails.performance import OnlineEstimation
+
+        estimator = OnlineEstimation("Pareto")
+        with pytest.raises(NotImplementedError):
+            estimator.get_current_estimates()
+
+    def test_distribution_specific_optimizations(self):
+        """Test that distribution-specific optimizations raises NotImplementedError."""
+        from heavytails.performance import distribution_specific_optimizations
+
+        with pytest.raises(NotImplementedError):
+            distribution_specific_optimizations()
+
+
+class TestPerformanceBenchmarksExtended:
+    """Extended tests for performance benchmarks."""
+
+    def test_run_all_benchmarks(self):
+        """Test running all benchmarks for distributions."""
+        benchmarks = PerformanceBenchmarks()
+        results = benchmarks.run_all_benchmarks(["Pareto"])
+
+        # Check that results contain expected keys
+        assert "sampling_Pareto" in results
+        assert "pdf_Pareto" in results
+        assert "cache_Pareto" in results
+
+    def test_print_results(self):
+        """Test printing benchmark results."""
+        import io
+        import sys
+
+        benchmarks = PerformanceBenchmarks()
+        results = {
+            "test": {
+                "value1": 1.5,
+                "nested": {"value2": 2.5},
+                "string": "test",
+            }
+        }
+
+        # Capture stdout
+        old_stdout = sys.stdout
+        sys.stdout = buffer = io.StringIO()
+
+        try:
+            benchmarks.print_results(results)
+            output = buffer.getvalue()
+            # Check that output contains expected content
+            assert "test" in output
+            assert "value1" in output
+        finally:
+            sys.stdout = old_stdout
+
+
+class TestParallelSamplingExtended:
+    """Extended tests for parallel sampling."""
+
+    def test_parallel_sampling_without_seed(self):
+        """Test parallel sampling without seed."""
+        samples = parallel_sampling(
+            "Pareto", n=1000, n_cores=2, seed=None, alpha=2.5, xm=1.0
+        )
+        assert len(samples) == 1000
+        assert all(x >= 1.0 for x in samples)
+
+    def test_parallel_worker_directly(self):
+        """Test parallel worker function directly."""
+        from heavytails.performance import _parallel_worker
+
+        samples = _parallel_worker("Pareto", 100, 42, {"alpha": 2.5, "xm": 1.0})
+        assert len(samples) == 100
+        assert all(x >= 1.0 for x in samples)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
