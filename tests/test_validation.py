@@ -2,13 +2,22 @@
 
 import pytest
 
+import heavytails.validation as validation_module
 from heavytails.validation import (
     HYPOTHESIS_AVAILABLE,
     SCIPY_AVAILABLE,
+    GoodnessOfFitTests,
+    MathematicalPropertyVerification,
     NumericalValidation,
+    ParameterEstimationValidation,
     PropertyBasedTests,
+    RegressionTesting,
     convergence_validation,
+    fuzz_testing,
     parameter_stability_check,
+    ppf_edge_case_handler,
+    python_version_compatibility,
+    special_function_accuracy_analysis,
 )
 
 
@@ -491,36 +500,26 @@ class TestPPFEdgeCaseHandler:
 
     def test_ppf_edge_case_u_zero(self):
         """Test PPF edge case with u=0."""
-        from heavytails.validation import ppf_edge_case_handler
-
         with pytest.raises((ValueError, NotImplementedError)):
             ppf_edge_case_handler("pareto", 0.0, alpha=2.5, xm=1.0)
 
     def test_ppf_edge_case_u_one(self):
         """Test PPF edge case with u=1."""
-        from heavytails.validation import ppf_edge_case_handler
-
         with pytest.raises((ValueError, NotImplementedError)):
             ppf_edge_case_handler("pareto", 1.0, alpha=2.5, xm=1.0)
 
     def test_ppf_edge_case_u_negative(self):
         """Test PPF edge case with negative u."""
-        from heavytails.validation import ppf_edge_case_handler
-
         with pytest.raises((ValueError, NotImplementedError)):
             ppf_edge_case_handler("pareto", -0.1, alpha=2.5, xm=1.0)
 
     def test_ppf_edge_case_u_greater_than_one(self):
         """Test PPF edge case with u > 1."""
-        from heavytails.validation import ppf_edge_case_handler
-
         with pytest.raises((ValueError, NotImplementedError)):
             ppf_edge_case_handler("pareto", 1.5, alpha=2.5, xm=1.0)
 
     def test_ppf_edge_case_valid_u(self):
         """Test PPF edge case with valid u."""
-        from heavytails.validation import ppf_edge_case_handler
-
         # Valid u should raise NotImplementedError since function is not fully implemented
         with pytest.raises(NotImplementedError):
             ppf_edge_case_handler("pareto", 0.5, alpha=2.5, xm=1.0)
@@ -567,93 +566,69 @@ class TestUnimplementedFeatures:
 
     def test_goodness_of_fit_ks_test(self):
         """Test that KS test raises NotImplementedError."""
-        from heavytails.validation import GoodnessOfFitTests
-
         gof = GoodnessOfFitTests()
         with pytest.raises(NotImplementedError):
             gof.kolmogorov_smirnov_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
 
     def test_goodness_of_fit_ad_test(self):
         """Test that AD test raises NotImplementedError."""
-        from heavytails.validation import GoodnessOfFitTests
-
         gof = GoodnessOfFitTests()
         with pytest.raises(NotImplementedError):
             gof.anderson_darling_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
 
     def test_regression_testing_add_reference_value(self):
         """Test that regression testing raises NotImplementedError."""
-        from heavytails.validation import RegressionTesting
-
         rt = RegressionTesting()
         with pytest.raises(NotImplementedError):
             rt.add_reference_value("test1", 1.5)
 
     def test_regression_testing_check_regression(self):
         """Test that regression check raises NotImplementedError."""
-        from heavytails.validation import RegressionTesting
-
         rt = RegressionTesting()
         with pytest.raises(NotImplementedError):
             rt.check_regression("test1", 1.5)
 
     def test_parameter_estimation_validation_mle(self):
         """Test that MLE validation raises NotImplementedError."""
-        from heavytails.validation import ParameterEstimationValidation
-
         pev = ParameterEstimationValidation()
         with pytest.raises(NotImplementedError):
             pev.validate_mle("pareto", {"alpha": 2.5, "xm": 1.0})
 
     def test_parameter_estimation_validation_hill(self):
         """Test that Hill estimator validation raises NotImplementedError."""
-        from heavytails.validation import ParameterEstimationValidation
-
         pev = ParameterEstimationValidation()
         with pytest.raises(NotImplementedError):
             pev.validate_hill_estimator(2.5)
 
     def test_fuzz_testing(self):
         """Test that fuzz testing raises NotImplementedError."""
-        from heavytails.validation import fuzz_testing
-
         with pytest.raises(NotImplementedError):
             fuzz_testing()
 
     def test_special_function_accuracy_analysis(self):
         """Test that special function analysis raises NotImplementedError."""
-        from heavytails.validation import special_function_accuracy_analysis
-
         with pytest.raises(NotImplementedError):
             special_function_accuracy_analysis()
 
     def test_python_version_compatibility(self):
         """Test that version compatibility raises NotImplementedError."""
-        from heavytails.validation import python_version_compatibility
-
         with pytest.raises(NotImplementedError):
             python_version_compatibility()
 
     def test_mathematical_property_verification_tail_behavior(self):
         """Test that tail behavior verification raises NotImplementedError."""
-        from heavytails.validation import MathematicalPropertyVerification
-
         mpv = MathematicalPropertyVerification()
         with pytest.raises(NotImplementedError):
             mpv.verify_tail_behavior("pareto", alpha=2.5, xm=1.0)
 
     def test_mathematical_property_verification_moments(self):
         """Test that moments verification raises NotImplementedError."""
-        from heavytails.validation import MathematicalPropertyVerification
-
         mpv = MathematicalPropertyVerification()
         with pytest.raises(NotImplementedError):
             mpv.verify_moments("pareto", alpha=2.5, xm=1.0)
 
     def test_mathematical_property_verification_relationships(self):
         """Test that relationships verification raises NotImplementedError."""
-        from heavytails.validation import MathematicalPropertyVerification
-
         mpv = MathematicalPropertyVerification()
         with pytest.raises(NotImplementedError):
             mpv.verify_relationships("pareto", "lognormal")
@@ -665,8 +640,6 @@ class TestNumericalValidationWithoutScipy:
     def test_validation_without_scipy_mock(self, monkeypatch):
         """Test validation when scipy is mocked as unavailable."""
         # Temporarily set SCIPY_AVAILABLE to False
-        import heavytails.validation as validation_module
-
         original_scipy_available = validation_module.SCIPY_AVAILABLE
         try:
             monkeypatch.setattr(validation_module, "SCIPY_AVAILABLE", False)
@@ -685,8 +658,6 @@ class TestPropertyBasedTestsWithoutHypothesis:
 
     def test_pdf_nonnegativity_without_hypothesis(self, monkeypatch):
         """Test PDF nonnegativity when hypothesis is mocked as unavailable."""
-        import heavytails.validation as validation_module
-
         original_hypothesis_available = validation_module.HYPOTHESIS_AVAILABLE
         try:
             monkeypatch.setattr(validation_module, "HYPOTHESIS_AVAILABLE", False)
@@ -703,8 +674,6 @@ class TestPropertyBasedTestsWithoutHypothesis:
 
     def test_cdf_monotonicity_without_hypothesis(self, monkeypatch):
         """Test CDF monotonicity when hypothesis is mocked as unavailable."""
-        import heavytails.validation as validation_module
-
         original_hypothesis_available = validation_module.HYPOTHESIS_AVAILABLE
         try:
             monkeypatch.setattr(validation_module, "HYPOTHESIS_AVAILABLE", False)

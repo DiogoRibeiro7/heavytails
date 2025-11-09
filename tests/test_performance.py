@@ -9,14 +9,25 @@ This module tests:
 - Performance benchmarking
 """
 
+import io
+import sys
+
 import pytest
 
 from heavytails import Pareto, StudentT
 from heavytails.performance import (
     DistributionCache,
+    MemoryProfiler,
+    OnlineEstimation,
     PerformanceBenchmarks,
     PPFOptimizer,
+    _parallel_worker,
+    cython_special_functions,
+    distribution_specific_optimizations,
+    jit_accelerated_functions,
+    optimized_rejection_sampling,
     parallel_sampling,
+    robust_log_gamma,
     vectorized_cdf_evaluation,
     vectorized_pdf_evaluation,
 )
@@ -504,15 +515,11 @@ class TestUnimplementedFeatures:
 
     def test_cython_special_functions(self):
         """Test that Cython special functions raises NotImplementedError."""
-        from heavytails.performance import cython_special_functions
-
         with pytest.raises(NotImplementedError):
             cython_special_functions()
 
     def test_robust_log_gamma_overflow(self):
         """Test robust log gamma with values."""
-        from heavytails.performance import robust_log_gamma
-
         # Normal values should work
         result = robust_log_gamma(5.0)
         assert result > 0
@@ -523,54 +530,40 @@ class TestUnimplementedFeatures:
 
     def test_jit_accelerated_functions(self):
         """Test that JIT acceleration raises NotImplementedError."""
-        from heavytails.performance import jit_accelerated_functions
-
         with pytest.raises(NotImplementedError):
             jit_accelerated_functions()
 
     def test_memory_profiler_sampling(self):
         """Test that memory profiler raises NotImplementedError."""
-        from heavytails.performance import MemoryProfiler
-
         profiler = MemoryProfiler()
         with pytest.raises(NotImplementedError):
             profiler.profile_sampling("Pareto", 1000)
 
     def test_memory_profiler_optimize(self):
         """Test that memory optimizer raises NotImplementedError."""
-        from heavytails.performance import MemoryProfiler
-
         profiler = MemoryProfiler()
         with pytest.raises(NotImplementedError):
             profiler.optimize_memory_usage()
 
     def test_optimized_rejection_sampling(self):
         """Test that optimized rejection sampling raises NotImplementedError."""
-        from heavytails.performance import optimized_rejection_sampling
-
         with pytest.raises(NotImplementedError):
             optimized_rejection_sampling()
 
     def test_online_estimation_update(self):
         """Test that online estimation update raises NotImplementedError."""
-        from heavytails.performance import OnlineEstimation
-
         estimator = OnlineEstimation("Pareto")
         with pytest.raises(NotImplementedError):
             estimator.update(1.5)
 
     def test_online_estimation_get_estimates(self):
         """Test that online estimation get estimates raises NotImplementedError."""
-        from heavytails.performance import OnlineEstimation
-
         estimator = OnlineEstimation("Pareto")
         with pytest.raises(NotImplementedError):
             estimator.get_current_estimates()
 
     def test_distribution_specific_optimizations(self):
         """Test that distribution-specific optimizations raises NotImplementedError."""
-        from heavytails.performance import distribution_specific_optimizations
-
         with pytest.raises(NotImplementedError):
             distribution_specific_optimizations()
 
@@ -590,9 +583,6 @@ class TestPerformanceBenchmarksExtended:
 
     def test_print_results(self):
         """Test printing benchmark results."""
-        import io
-        import sys
-
         benchmarks = PerformanceBenchmarks()
         results = {
             "test": {
@@ -629,8 +619,6 @@ class TestParallelSamplingExtended:
 
     def test_parallel_worker_directly(self):
         """Test parallel worker function directly."""
-        from heavytails.performance import _parallel_worker
-
         samples = _parallel_worker("Pareto", 100, 42, {"alpha": 2.5, "xm": 1.0})
         assert len(samples) == 100
         assert all(x >= 1.0 for x in samples)

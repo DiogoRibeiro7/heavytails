@@ -12,14 +12,14 @@ from __future__ import annotations
 
 import json
 import math
-from pathlib import Path
 import sys
 import time
+from pathlib import Path
 from typing import Annotated
 
+import typer  # type: ignore[import-not-found]
 from rich.console import Console
 from rich.table import Table
-import typer  # type: ignore[import-not-found]
 
 from heavytails import (
     BetaPrime,

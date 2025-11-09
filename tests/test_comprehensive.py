@@ -8,9 +8,9 @@ and edge case tests for all distributions in the heavytails library.
 import math
 import time
 
+import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
-import pytest
 
 from heavytails import (
     BurrXII,

@@ -110,7 +110,8 @@ class TestMLEFitting:
     def test_weibull_mle(self):
         """Test Weibull MLE fitting."""
         try:
-            from heavytails import Weibull
+            from heavytails import Weibull  # noqa: PLC0415
+
             # Generate Weibull data
             dist = Weibull(k=2.0, lam=1.5)
             data = dist.rvs(500, seed=42)
@@ -133,7 +134,8 @@ class TestMLEFitting:
     def test_studentt_mle(self):
         """Test Student-t MLE fitting."""
         try:
-            from heavytails import StudentT
+            from heavytails import StudentT  # noqa: PLC0415
+
             # Generate Student-t data
             dist = StudentT(nu=5.0)
             data = dist.rvs(500, seed=42)
@@ -149,7 +151,8 @@ class TestMLEFitting:
         """Test Frechet MLE fitting."""
         pytest.importorskip("scipy")
         try:
-            from heavytails import Frechet
+            from heavytails import Frechet  # noqa: PLC0415
+
             # Generate Frechet data
             dist = Frechet(alpha=2.0, s=1.0, m=0.0)
             data = dist.rvs(500, seed=42)
@@ -173,7 +176,8 @@ class TestMLEFitting:
         """Test GPD MLE fitting."""
         pytest.importorskip("scipy")
         try:
-            from heavytails import GeneralizedPareto
+            from heavytails import GeneralizedPareto  # noqa: PLC0415
+
             # Generate GPD data
             dist = GeneralizedPareto(xi=0.1, sigma=1.0, mu=0.0)
             data = dist.rvs(500, seed=42)
@@ -190,7 +194,8 @@ class TestMLEFitting:
         """Test BurrXII MLE fitting."""
         pytest.importorskip("scipy")
         try:
-            from heavytails import BurrXII
+            from heavytails import BurrXII  # noqa: PLC0415
+
             # Generate BurrXII data
             dist = BurrXII(c=2.0, k=2.0)
             data = dist.rvs(500, seed=42)
@@ -213,7 +218,8 @@ class TestMLEFitting:
         """Test LogLogistic MLE fitting."""
         pytest.importorskip("scipy")
         try:
-            from heavytails import LogLogistic
+            from heavytails import LogLogistic  # noqa: PLC0415
+
             # Generate LogLogistic data
             dist = LogLogistic(kappa=2.0, lam=1.0)
             data = dist.rvs(500, seed=42)
@@ -239,7 +245,8 @@ class TestMLEFitting:
         """Test InverseGamma MLE fitting."""
         pytest.importorskip("scipy")
         try:
-            from heavytails import InverseGamma
+            from heavytails import InverseGamma  # noqa: PLC0415
+
             # Generate InverseGamma data
             dist = InverseGamma(alpha=3.0, beta=2.0)
             data = dist.rvs(500, seed=42)
@@ -262,7 +269,8 @@ class TestMLEFitting:
         """Test BetaPrime MLE fitting."""
         pytest.importorskip("scipy")
         try:
-            from heavytails import BetaPrime
+            from heavytails import BetaPrime  # noqa: PLC0415
+
             # Generate BetaPrime data
             dist = BetaPrime(a=2.0, b=2.0, s=1.0)
             data = dist.rvs(500, seed=42)
