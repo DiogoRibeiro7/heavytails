@@ -9,8 +9,8 @@ validation, and testing purposes.
 import csv
 import json
 import math
-import random
 from pathlib import Path
+import random
 
 from heavytails import (
     Frechet,

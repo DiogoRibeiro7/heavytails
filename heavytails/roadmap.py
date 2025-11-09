@@ -7,8 +7,8 @@ automatically converted to GitHub Issues by the TODO workflow.
 """
 
 import math
-import warnings
 from typing import Any
+import warnings
 
 from heavytails import LogNormal
 from heavytails.extra_distributions import _betainc_reg

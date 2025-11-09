@@ -5,11 +5,11 @@ This module contains performance-critical functions and optimization
 TODO items that will be tracked as GitHub Issues.
 """
 
-import math
-import multiprocessing as mp
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import lru_cache
+import math
+import multiprocessing as mp
 from typing import Any
 
 try:

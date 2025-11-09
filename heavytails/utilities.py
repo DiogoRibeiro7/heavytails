@@ -6,13 +6,13 @@ and statistical analysis.
 """
 
 import csv
-import json
-import math
-import warnings
 from dataclasses import dataclass
 from io import StringIO
+import json
+import math
 from pathlib import Path
 from typing import Any
+import warnings
 
 
 class DataIO:
