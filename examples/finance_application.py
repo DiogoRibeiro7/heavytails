@@ -14,10 +14,10 @@ Examples include:
 
 from __future__ import annotations
 
+from datetime import datetime
 import math
 import random
 import statistics
-from datetime import datetime
 from typing import Any
 
 try:

@@ -1,8 +1,8 @@
 # extra_distributions.py
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
+import math
 from typing import TYPE_CHECKING
 
 # Reuse the small utilities from your base module
