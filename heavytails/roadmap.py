@@ -370,29 +370,30 @@ def _fit_loglogistic_mle(data: list[float]) -> dict[str, float]:
     from heavytails import LogLogistic  # noqa: PLC0415
 
     def neg_log_likelihood(params):
-        alpha, beta = params
-        if alpha <= 0 or beta <= 0:
+        kappa, lam = params
+        if kappa <= 0 or lam <= 0:
             return float("inf")
         try:
-            dist = LogLogistic(alpha=alpha, beta=beta)
+            dist = LogLogistic(kappa=kappa, lam=lam)
             return -sum(math.log(dist.pdf(x)) for x in data if dist.pdf(x) > 0)
         except (ValueError, OverflowError):
             return float("inf")
 
     # Initial guess
-    alpha0 = 1.0
-    beta0 = sum(data) / len(data)
+    kappa0 = 1.0
+    lam0 = sum(data) / len(data)
 
     result = optimize.minimize(
-        neg_log_likelihood, [alpha0, beta0], method="Nelder-Mead"
+        neg_log_likelihood, [kappa0, lam0], method="Nelder-Mead"
     )
 
     if result.success:
-        alpha_hat, beta_hat = result.x
-        return {"alpha": float(alpha_hat), "beta": float(beta_hat)}
+        kappa_hat, lam_hat = result.x
+        # Return as kappa and lam for consistency with distribution
+        return {"kappa": float(kappa_hat), "lam": float(lam_hat)}
     else:
         warnings.warn("LogLogistic MLE optimization did not converge", stacklevel=2)
-        return {"alpha": alpha0, "beta": beta0}
+        return {"kappa": kappa0, "lam": lam0}
 
 
 def _fit_inversegamma_mle(data: list[float]) -> dict[str, float]:
@@ -444,28 +445,29 @@ def _fit_betaprime_mle(data: list[float]) -> dict[str, float]:
     from heavytails import BetaPrime  # noqa: PLC0415
 
     def neg_log_likelihood(params):
-        alpha, beta = params
-        if alpha <= 0 or beta <= 0:
+        a, b = params
+        if a <= 0 or b <= 0:
             return float("inf")
         try:
-            dist = BetaPrime(alpha=alpha, beta=beta)
+            dist = BetaPrime(a=a, b=b, s=1.0)
             return -sum(math.log(dist.pdf(x)) for x in data if dist.pdf(x) > 0)
         except (ValueError, OverflowError):
             return float("inf")
 
     # Initial guess
-    alpha0, beta0 = 2.0, 2.0
+    a0, b0 = 2.0, 2.0
 
     result = optimize.minimize(
-        neg_log_likelihood, [alpha0, beta0], method="Nelder-Mead"
+        neg_log_likelihood, [a0, b0], method="Nelder-Mead"
     )
 
     if result.success:
-        alpha_hat, beta_hat = result.x
-        return {"alpha": float(alpha_hat), "beta": float(beta_hat)}
+        a_hat, b_hat = result.x
+        # Return as a and b for consistency with distribution
+        return {"a": float(a_hat), "b": float(b_hat)}
     else:
         warnings.warn("BetaPrime MLE optimization did not converge", stacklevel=2)
-        return {"alpha": alpha0, "beta": beta0}
+        return {"a": a0, "b": b0}
 
 
 def model_comparison(data: list[float], distributions: list[str]) -> dict[str, dict]:
