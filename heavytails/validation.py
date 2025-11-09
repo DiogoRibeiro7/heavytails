@@ -25,9 +25,9 @@ try:
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
-    given = None
-    settings = None
-    st = None
+    given = None  # type: ignore[assignment]
+    settings = None  # type: ignore[assignment,misc]
+    st = None  # type: ignore[assignment]
 
 
 class NumericalValidation:

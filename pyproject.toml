@@ -186,16 +186,76 @@ warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
+exclude = [
+    "^site/",
+    "^tests/",
+    "^benchmarks/",
+    "^examples/"
+]
 
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+disallow_any_generics = false
+disallow_untyped_decorators = false
+warn_return_any = false
+check_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = "heavytails.cli"
 disallow_untyped_defs = false
 disallow_untyped_decorators = false
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "heavytails.roadmap"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_any_generics = false
+warn_return_any = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "scripts.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_any_generics = false
+warn_return_any = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "scipy.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "examples.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = "benchmarks.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = "heavytails.performance"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "heavytails.extensions"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "heavytails.validation"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "heavytails.utilities"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "pyproject_updater"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

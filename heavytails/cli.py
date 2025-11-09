@@ -19,7 +19,7 @@ from typing import Annotated
 
 from rich.console import Console
 from rich.table import Table
-import typer  # type: ignore[import-not-found]
+import typer
 
 from heavytails import (
     BetaPrime,
