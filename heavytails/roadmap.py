@@ -7,8 +7,8 @@ automatically converted to GitHub Issues by the TODO workflow.
 """
 
 import math
-from typing import Any
 import warnings
+from typing import Any
 
 from heavytails import LogNormal
 from heavytails.extra_distributions import _betainc_reg
@@ -383,9 +383,7 @@ def _fit_loglogistic_mle(data: list[float]) -> dict[str, float]:
     kappa0 = 1.0
     lam0 = sum(data) / len(data)
 
-    result = optimize.minimize(
-        neg_log_likelihood, [kappa0, lam0], method="Nelder-Mead"
-    )
+    result = optimize.minimize(neg_log_likelihood, [kappa0, lam0], method="Nelder-Mead")
 
     if result.success:
         kappa_hat, lam_hat = result.x
@@ -457,9 +455,7 @@ def _fit_betaprime_mle(data: list[float]) -> dict[str, float]:
     # Initial guess
     a0, b0 = 2.0, 2.0
 
-    result = optimize.minimize(
-        neg_log_likelihood, [a0, b0], method="Nelder-Mead"
-    )
+    result = optimize.minimize(neg_log_likelihood, [a0, b0], method="Nelder-Mead")
 
     if result.success:
         a_hat, b_hat = result.x

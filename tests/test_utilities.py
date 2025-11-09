@@ -1,9 +1,9 @@
 """Tests for utilities.py module."""
 
 import json
-from pathlib import Path
 import random
 import tempfile
+from pathlib import Path
 
 import pytest
 

@@ -1,6 +1,5 @@
 """Comprehensive tests for heavy_tails.py module."""
 
-
 import pytest
 
 from heavytails.heavy_tails import (

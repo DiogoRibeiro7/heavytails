@@ -5,9 +5,9 @@ This module contains advanced features and extensions that build upon
 the core library functionality.
 """
 
+import math
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-import math
 from typing import Any
 
 try:
