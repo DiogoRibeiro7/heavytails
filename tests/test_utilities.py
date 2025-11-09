@@ -28,7 +28,9 @@ class TestDataIO:
             # Read
             read_data = DataIO.read_csv(filepath)
             assert len(read_data) == len(data)
-            assert all(abs(a - b) < 1e-10 for a, b in zip(read_data, data, strict=False))
+            assert all(
+                abs(a - b) < 1e-10 for a, b in zip(read_data, data, strict=False)
+            )
 
     def test_csv_write_with_metadata(self):
         """Test CSV writing with metadata."""
@@ -90,6 +92,119 @@ class TestDataIO:
             with pytest.raises(ValueError, match="Cannot write empty data"):
                 DataIO.write_csv([], filepath)
 
+    def test_csv_read_only_comments(self):
+        """Test CSV with only comment lines."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "comments.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("# This is a comment\n")
+                f.write("# Another comment\n")
+
+            with pytest.raises(ValueError, match="No data lines found in CSV"):
+                DataIO.read_csv(filepath)
+
+    def test_csv_read_column_not_found(self):
+        """Test CSV reading with non-existent column."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "test_nocol.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("col1,col2\n")
+                f.write("1.5,2.3\n")
+
+            with pytest.raises(ValueError, match="Column 'nonexistent' not found"):
+                DataIO.read_csv(filepath, column="nonexistent")
+
+    def test_csv_read_non_numeric_values_in_column(self):
+        """Test CSV with non-numeric values mixed in."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "test_mixed.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("value\n")
+                f.write("1.5\n")
+                f.write("text\n")
+                f.write("2.3\n")
+                f.write("\n")  # Empty row
+                f.write("3.7\n")
+
+            data = DataIO.read_csv(filepath, column="value")
+            # Should skip the non-numeric and empty values
+            assert len(data) == 3
+            assert abs(data[0] - 1.5) < 1e-10
+            assert abs(data[1] - 2.3) < 1e-10
+            assert abs(data[2] - 3.7) < 1e-10
+
+    def test_csv_read_empty_with_header(self):
+        """Test CSV with header but no data rows."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "header_only.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("value\n")
+
+            with pytest.raises(ValueError, match="CSV file is empty"):
+                DataIO.read_csv(filepath)
+
+    def test_csv_read_no_numerical_columns(self):
+        """Test CSV with no numerical columns."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "no_numbers.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("name,text\n")
+                f.write("alice,hello\n")
+                f.write("bob,world\n")
+
+            with pytest.raises(ValueError, match="No numerical columns found"):
+                DataIO.read_csv(filepath)
+
+    def test_csv_read_no_header_with_data(self):
+        """Test CSV without header."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "no_header.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("1.5,2.0\n")
+                f.write("2.3,3.0\n")
+                f.write("3.7,4.0\n")
+
+            data = DataIO.read_csv(filepath)
+            assert len(data) == 3
+            assert abs(data[0] - 1.5) < 1e-10
+
+    def test_csv_read_no_header_with_empty_values(self):
+        """Test CSV without header with empty values."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "empty_vals.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write(",1.5\n")  # Empty first value
+                f.write("2.3,\n")  # Empty second value
+                f.write(",,3.7\n")  # Multiple empty values
+
+            data = DataIO.read_csv(filepath)
+            # Takes first numeric value from each row, skipping empty values
+            assert len(data) >= 1
+
+    def test_csv_read_no_header_empty_rows(self):
+        """Test CSV without header with empty rows."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "empty_rows.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("1.5\n")
+                f.write("\n")  # Empty row
+                f.write("2.3\n")
+                f.write("\n")  # Another empty row
+
+            data = DataIO.read_csv(filepath)
+            assert len(data) == 2
+
+    def test_csv_read_no_numerical_data(self):
+        """Test CSV with no numerical data at all."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "no_nums.csv"
+            with filepath.open("w", encoding="utf-8") as f:
+                f.write("text1,text2\n")
+                f.write("hello,world\n")
+
+            with pytest.raises(ValueError, match="No numerical columns found"):
+                DataIO.read_csv(filepath)
+
     def test_json_write_and_read_basic(self):
         """Test basic JSON write and read operations."""
         data = [1.5, 2.3, 3.7, 4.2, 5.8]
@@ -127,6 +242,41 @@ class TestDataIO:
             filepath = Path(tmpdir) / "empty.json"
             with pytest.raises(ValueError, match="Cannot write empty data"):
                 DataIO.write_json([], filepath)
+
+    def test_json_read_nonexistent_file(self):
+        """Test JSON read with nonexistent file."""
+        with pytest.raises(FileNotFoundError):
+            DataIO.read_json("nonexistent.json")
+
+    def test_json_read_not_dict(self):
+        """Test JSON read with non-dict content."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "notdict.json"
+            with filepath.open("w", encoding="utf-8") as f:
+                json.dump([1, 2, 3], f)  # List instead of dict
+
+            with pytest.raises(TypeError, match="must contain a dictionary"):
+                DataIO.read_json(filepath)
+
+    def test_json_read_data_not_list(self):
+        """Test JSON read with 'data' not being a list."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "notlist.json"
+            with filepath.open("w", encoding="utf-8") as f:
+                json.dump({"data": "not a list"}, f)
+
+            with pytest.raises(TypeError, match="'data' must be a list"):
+                DataIO.read_json(filepath)
+
+    def test_json_read_non_numeric_data(self):
+        """Test JSON read with non-numeric data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = Path(tmpdir) / "nonnumeric.json"
+            with filepath.open("w", encoding="utf-8") as f:
+                json.dump({"data": [1.5, "text", 2.3]}, f)
+
+            with pytest.raises(ValueError, match="must contain numeric values"):
+                DataIO.read_json(filepath)
 
 
 class TestAutoFit:

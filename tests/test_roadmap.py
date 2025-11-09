@@ -2,6 +2,8 @@
 
 import math
 import random
+import sys
+from unittest.mock import patch
 
 import pytest
 
@@ -9,8 +11,10 @@ from heavytails import Cauchy, LogNormal, Pareto
 from heavytails.roadmap import (
     bootstrap_confidence_intervals,
     fit_mle,
+    improved_incomplete_beta,
     model_comparison,
     robust_hill_estimator,
+    safe_lognormal_ppf,
 )
 
 
@@ -99,6 +103,189 @@ class TestMLEFitting:
         with pytest.raises(ValueError, match="LogNormal requires all data > 0"):
             fit_mle(data, "lognormal")
 
+    def test_exponential_negative_data(self):
+        """Test that Exponential rejects negative data."""
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="Exponential requires all data >= 0"):
+            fit_mle(data, "exponential")
+
+    def test_weibull_mle(self):
+        """Test Weibull MLE fitting."""
+        try:
+            from heavytails import Weibull
+            # Generate Weibull data
+            dist = Weibull(k=2.0, lam=1.5)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "weibull")
+
+            assert "k" in params
+            assert "lam" in params
+            assert params["k"] > 0
+            assert params["lam"] > 0
+        except ImportError:
+            pytest.skip("Weibull distribution not available")
+
+    def test_weibull_negative_data(self):
+        """Test that Weibull rejects non-positive data."""
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="Weibull requires all data > 0"):
+            fit_mle(data, "weibull")
+
+    def test_studentt_mle(self):
+        """Test Student-t MLE fitting."""
+        try:
+            from heavytails import StudentT
+            # Generate Student-t data
+            dist = StudentT(nu=5.0)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "studentt")
+
+            assert "nu" in params
+            assert params["nu"] > 0
+        except ImportError:
+            pytest.skip("StudentT distribution not available")
+
+    def test_frechet_mle(self):
+        """Test Frechet MLE fitting."""
+        pytest.importorskip("scipy")
+        try:
+            from heavytails import Frechet
+            # Generate Frechet data
+            dist = Frechet(alpha=2.0, s=1.0, m=0.0)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "frechet")
+
+            assert "alpha" in params
+            assert "s" in params
+            assert "m" in params
+        except ImportError:
+            pytest.skip("Frechet distribution not available")
+
+    def test_frechet_negative_data(self):
+        """Test that Frechet rejects non-positive data."""
+        pytest.importorskip("scipy")
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="Frechet requires all data > 0"):
+            fit_mle(data, "frechet")
+
+    def test_gpd_mle(self):
+        """Test GPD MLE fitting."""
+        pytest.importorskip("scipy")
+        try:
+            from heavytails import GeneralizedPareto
+            # Generate GPD data
+            dist = GeneralizedPareto(xi=0.1, sigma=1.0, mu=0.0)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "generalizedpareto")
+
+            assert "xi" in params
+            assert "sigma" in params
+            assert "mu" in params
+        except ImportError:
+            pytest.skip("GeneralizedPareto distribution not available")
+
+    def test_burrxii_mle(self):
+        """Test BurrXII MLE fitting."""
+        pytest.importorskip("scipy")
+        try:
+            from heavytails import BurrXII
+            # Generate BurrXII data
+            dist = BurrXII(c=2.0, k=2.0)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "burrxii")
+
+            assert "c" in params
+            assert "k" in params
+        except ImportError:
+            pytest.skip("BurrXII distribution not available")
+
+    def test_burrxii_negative_data(self):
+        """Test that BurrXII rejects non-positive data."""
+        pytest.importorskip("scipy")
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="BurrXII requires all data > 0"):
+            fit_mle(data, "burrxii")
+
+    def test_loglogistic_mle(self):
+        """Test LogLogistic MLE fitting."""
+        pytest.importorskip("scipy")
+        try:
+            from heavytails import LogLogistic
+            # Generate LogLogistic data
+            dist = LogLogistic(kappa=2.0, lam=1.0)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "loglogistic")
+
+            # roadmap.py uses kappa and lam for MLE parameters
+            assert "kappa" in params
+            assert "lam" in params
+            assert params["kappa"] > 0
+            assert params["lam"] > 0
+        except ImportError:
+            pytest.skip("LogLogistic distribution not available")
+
+    def test_loglogistic_negative_data(self):
+        """Test that LogLogistic rejects non-positive data."""
+        pytest.importorskip("scipy")
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="LogLogistic requires all data > 0"):
+            fit_mle(data, "loglogistic")
+
+    def test_inversegamma_mle(self):
+        """Test InverseGamma MLE fitting."""
+        pytest.importorskip("scipy")
+        try:
+            from heavytails import InverseGamma
+            # Generate InverseGamma data
+            dist = InverseGamma(alpha=3.0, beta=2.0)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "inversegamma")
+
+            assert "alpha" in params
+            assert "beta" in params
+        except ImportError:
+            pytest.skip("InverseGamma distribution not available")
+
+    def test_inversegamma_negative_data(self):
+        """Test that InverseGamma rejects non-positive data."""
+        pytest.importorskip("scipy")
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="InverseGamma requires all data > 0"):
+            fit_mle(data, "inversegamma")
+
+    def test_betaprime_mle(self):
+        """Test BetaPrime MLE fitting."""
+        pytest.importorskip("scipy")
+        try:
+            from heavytails import BetaPrime
+            # Generate BetaPrime data
+            dist = BetaPrime(a=2.0, b=2.0, s=1.0)
+            data = dist.rvs(500, seed=42)
+
+            params = fit_mle(data, "betaprime")
+
+            # roadmap.py uses a and b for MLE parameters
+            assert "a" in params
+            assert "b" in params
+            assert params["a"] > 0
+            assert params["b"] > 0
+        except ImportError:
+            pytest.skip("BetaPrime distribution not available")
+
+    def test_betaprime_negative_data(self):
+        """Test that BetaPrime rejects non-positive data."""
+        pytest.importorskip("scipy")
+        data = [-1.0, 1.0, 2.0]
+        with pytest.raises(ValueError, match="BetaPrime requires all data > 0"):
+            fit_mle(data, "betaprime")
+
 
 class TestModelComparison:
     """Test model comparison utilities."""
@@ -181,6 +368,22 @@ class TestModelComparison:
         with pytest.raises(ValueError, match="Data cannot be empty"):
             model_comparison([], ["pareto"])
 
+    def test_model_comparison_with_failed_distribution(self):
+        """Test model comparison when some distributions fail to fit."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(500, seed=42)
+
+        # Include an invalid distribution
+        results = model_comparison(data, ["pareto", "invalid_dist"])
+
+        # Pareto should fit successfully
+        assert results["pareto"]["log_likelihood"] != float("-inf")
+        assert "rank_AIC" in results["pareto"]
+
+        # Invalid dist should have error
+        assert results["invalid_dist"]["log_likelihood"] == float("-inf")
+        assert "error" in results["invalid_dist"]
+
 
 class TestBootstrapConfidenceIntervals:
     """Test bootstrap confidence interval estimation."""
@@ -258,6 +461,19 @@ class TestBootstrapConfidenceIntervals:
         # Should get identical results with same seed
         assert ci1["alpha"] == ci2["alpha"]
         assert ci1["xm"] == ci2["xm"]
+
+    def test_bootstrap_ci_empty_data(self):
+        """Test that bootstrap with empty data raises error."""
+        with pytest.raises(ValueError, match="Data cannot be empty"):
+            bootstrap_confidence_intervals([], "pareto")
+
+    def test_bootstrap_ci_low_n_warning(self):
+        """Test that low n_bootstrap triggers warning."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(100, seed=42)
+
+        with pytest.warns(UserWarning, match="n_bootstrap < 100"):
+            bootstrap_confidence_intervals(data, "pareto", n_bootstrap=50, seed=42)
 
 
 class TestRobustHillEstimator:
@@ -366,6 +582,16 @@ class TestRobustHillEstimator:
         product = result["gamma"] * result["alpha"]
         assert abs(product - 1.0) < 1e-6
 
+    def test_robust_hill_k_adjustment(self):
+        """Test that invalid k values are adjusted."""
+        dist = Pareto(alpha=2.5, xm=1.0)
+        data = dist.rvs(100, seed=42)
+
+        # Try with k that's too large
+        with pytest.warns(UserWarning):
+            result = robust_hill_estimator(data, k=90)
+            assert 5 < result["k_used"] < len(data) // 2
+
 
 class TestIntegration:
     """Integration tests for combined functionality."""
@@ -409,6 +635,31 @@ class TestIntegration:
 
         # They should be reasonably close (both estimate the same parameter)
         assert abs(mle_alpha - hill_alpha) < 1.0
+
+
+class TestHelperFunctions:
+    """Test helper functions in roadmap module."""
+
+    def test_improved_incomplete_beta(self):
+        """Test improved incomplete beta function."""
+        # Test basic functionality
+        result = improved_incomplete_beta(2.0, 3.0, 0.5)
+        assert 0 <= result <= 1
+        assert math.isfinite(result)
+
+    def test_safe_lognormal_ppf(self):
+        """Test safe lognormal PPF function."""
+        # Test normal case
+        result = safe_lognormal_ppf(0.0, 1.0, 0.5)
+        assert result > 0
+        assert math.isfinite(result)
+
+    def test_safe_lognormal_ppf_overflow(self):
+        """Test safe lognormal PPF with extreme parameters."""
+        # Test extreme parameters that might cause overflow
+        result = safe_lognormal_ppf(100.0, 10.0, 0.9999)
+        # Should return inf or a very large number without crashing
+        assert result > 0  # Either finite or inf
 
 
 if __name__ == "__main__":

@@ -77,7 +77,6 @@ class NumericalValidation:
                 "max_error": float("inf"),
             }
 
-
         dist_lower = distribution.lower()
 
         # Get test parameters
