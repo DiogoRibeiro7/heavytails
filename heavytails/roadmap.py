@@ -466,7 +466,9 @@ def _fit_betaprime_mle(data: list[float]) -> dict[str, float]:
         return {"a": a0, "b": b0}
 
 
-def model_comparison(data: list[float], distributions: list[str]) -> dict[str, dict[str, Any]]:
+def model_comparison(
+    data: list[float], distributions: list[str]
+) -> dict[str, dict[str, Any]]:
     """
     Compare distribution fits using information criteria.
 
@@ -648,7 +650,9 @@ def bootstrap_confidence_intervals(
     n = len(data)
 
     # Store bootstrap estimates
-    bootstrap_estimates: dict[str, list[float]] = {param: [] for param in fit_mle(data, distribution)}
+    bootstrap_estimates: dict[str, list[float]] = {
+        param: [] for param in fit_mle(data, distribution)
+    }
 
     # Perform bootstrap resampling
     for _ in range(n_bootstrap):
@@ -1009,7 +1013,9 @@ class HeavyTailSurvival:
         # TODO: Implement hazard function calculation
         raise NotImplementedError()
 
-    def kaplan_meier_estimate(self, times: list[float], events: list[bool]) -> dict[str, Any]:
+    def kaplan_meier_estimate(
+        self, times: list[float], events: list[bool]
+    ) -> dict[str, Any]:
         # TODO: Implement Kaplan-Meier with heavy tails
         raise NotImplementedError()
 
