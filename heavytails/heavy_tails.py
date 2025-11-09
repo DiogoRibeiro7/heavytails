@@ -275,7 +275,9 @@ class Weibull(Samplable):
         if x < 0.0:
             return 0.0
         z = (x / self.lam) ** self.k
-        return float((self.k / self.lam) * (x / self.lam) ** (self.k - 1.0) * math.exp(-z))
+        return float(
+            (self.k / self.lam) * (x / self.lam) ** (self.k - 1.0) * math.exp(-z)
+        )
 
     def cdf(self, x: float) -> float:
         if x < 0.0:
@@ -384,7 +386,9 @@ class GEV_Frechet(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return float(self.mu + (self.sigma / self.xi) * ((-math.log(u)) ** (-self.xi) - 1.0))
+        return float(
+            self.mu + (self.sigma / self.xi) * ((-math.log(u)) ** (-self.xi) - 1.0)
+        )
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()

@@ -6,6 +6,7 @@ and edge case tests for all distributions in the heavytails library.
 """
 
 import math
+import time
 
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
@@ -101,7 +102,9 @@ class TestPropertyBased:
         c=st.floats(min_value=0.5, max_value=5),
         k=st.floats(min_value=0.5, max_value=5),
         s=small_positive_float,
-        u=st.floats(min_value=1e-4, max_value=1 - 1e-4, allow_nan=False, allow_infinity=False),
+        u=st.floats(
+            min_value=1e-4, max_value=1 - 1e-4, allow_nan=False, allow_infinity=False
+        ),
     )
     @settings(max_examples=30, deadline=None)
     def test_burr_ppf_cdf_inverse(self, c: float, k: float, s: float, u: float) -> None:
@@ -161,7 +164,10 @@ class TestPropertyBased:
         pdf_right = dist.pdf(x0 + abs(x - x0))
         assert abs(pdf_left - pdf_right) < 1e-12
 
-    @given(s=st.floats(min_value=1.1, max_value=5), k=st.integers(min_value=10, max_value=100))
+    @given(
+        s=st.floats(min_value=1.1, max_value=5),
+        k=st.integers(min_value=10, max_value=100),
+    )
     @settings(max_examples=30, deadline=None)
     def test_zipf_pmf_sum_approximation(self, s: float, k: int) -> None:
         """Test that Zipf PMF approximately sums to 1."""
@@ -390,9 +396,21 @@ class TestIntegration:
     def test_hill_estimator_with_multiple_distributions(self) -> None:
         """Test Hill estimator across different heavy-tailed distributions."""
         test_cases = [
-            {"distribution": Pareto(alpha=1.5, xm=1.0), "true_alpha": 1.5, "tolerance": 0.3},
-            {"distribution": Pareto(alpha=2.5, xm=1.0), "true_alpha": 2.5, "tolerance": 0.4},
-            {"distribution": Pareto(alpha=0.8, xm=1.0), "true_alpha": 0.8, "tolerance": 0.2},
+            {
+                "distribution": Pareto(alpha=1.5, xm=1.0),
+                "true_alpha": 1.5,
+                "tolerance": 0.3,
+            },
+            {
+                "distribution": Pareto(alpha=2.5, xm=1.0),
+                "true_alpha": 2.5,
+                "tolerance": 0.4,
+            },
+            {
+                "distribution": Pareto(alpha=0.8, xm=1.0),
+                "true_alpha": 0.8,
+                "tolerance": 0.2,
+            },
         ]
 
         for case in test_cases:
@@ -423,7 +441,8 @@ class TestIntegration:
                 # Test estimate stability (coefficient of variation should be < 0.3)
                 if len(estimates) > 2:
                     std_estimates = math.sqrt(
-                        sum((e - mean_estimate) ** 2 for e in estimates) / (len(estimates) - 1)
+                        sum((e - mean_estimate) ** 2 for e in estimates)
+                        / (len(estimates) - 1)
                     )
                     cv = std_estimates / mean_estimate
                     assert cv < 0.3, f"Hill estimates too unstable: CV = {cv:.3f}"
@@ -514,8 +533,6 @@ class TestPerformanceDetailed:
 
     def test_large_scale_sampling_performance(self) -> None:
         """Test sampling performance for very large samples."""
-        import time
-
         distributions = [
             ("pareto", Pareto(alpha=1.5, xm=1.0)),
             ("lognormal", LogNormal(mu=0.0, sigma=1.0)),
@@ -544,8 +561,6 @@ class TestPerformanceDetailed:
 
     def test_pdf_cdf_evaluation_performance(self) -> None:
         """Benchmark PDF and CDF evaluation performance."""
-        import time
-
         # Test with Pareto (analytical PDF/CDF)
         pareto = Pareto(alpha=2.0, xm=1.0)
 
@@ -563,8 +578,12 @@ class TestPerformanceDetailed:
         cdf_time = time.time() - start_time
 
         # Performance targets: should evaluate 10K points in < 0.1 seconds
-        assert pdf_time < 0.1, f"PDF evaluation too slow: {pdf_time:.3f}s for 10K points"
-        assert cdf_time < 0.1, f"CDF evaluation too slow: {cdf_time:.3f}s for 10K points"
+        assert pdf_time < 0.1, (
+            f"PDF evaluation too slow: {pdf_time:.3f}s for 10K points"
+        )
+        assert cdf_time < 0.1, (
+            f"CDF evaluation too slow: {cdf_time:.3f}s for 10K points"
+        )
 
         # Verify correctness
         assert all(p >= 0 for p in pdf_values), "Negative PDF values found"
@@ -602,7 +621,9 @@ class TestNumericalStability:
                     assert not math.isinf(pdf), (
                         f"PDF is infinite for {type(dist).__name__} at x={x}"
                     )
-                    assert pdf >= 0, f"PDF is negative for {type(dist).__name__} at x={x}"
+                    assert pdf >= 0, (
+                        f"PDF is negative for {type(dist).__name__} at x={x}"
+                    )
 
                     # Test CDF only if the distribution has this method
                     if hasattr(dist, "cdf"):

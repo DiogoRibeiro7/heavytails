@@ -15,10 +15,8 @@ Usage:
 from pathlib import Path
 
 from pyproject_updater import (
-    Options,
     check_vulnerabilities,
     detect_conflicts,
-    upgrade_with_prerelease_policy,
 )
 
 
@@ -40,9 +38,7 @@ def demo_vulnerability_checking():
     else:
         print("\n[OK] No known vulnerabilities detected in current dependencies")
 
-    print(
-        "\nNote: This uses a demo vulnerability database. In production,"
-    )
+    print("\nNote: This uses a demo vulnerability database. In production,")
     print("      integrate with pip-audit, Safety DB, or OSV API.")
 
 
@@ -108,7 +104,7 @@ def demo_usage_example():
     print("USAGE EXAMPLE: Security-Only Upgrade")
     print("=" * 70)
 
-    example_code = '''
+    example_code = """
 # Example: Automated security updates in CI/CD
 
 from pathlib import Path
@@ -136,7 +132,7 @@ result = upgrade_with_prerelease_policy(
 )
 
 # In production: set check=False to actually write changes
-    '''
+    """
 
     print(example_code)
 

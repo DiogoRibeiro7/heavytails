@@ -275,7 +275,9 @@ class TestConvergenceValidation:
 
         assert result["converged"] is True
 
-    @pytest.mark.xfail(reason="Student-t PPF has known numerical precision issues at extreme quantiles")
+    @pytest.mark.xfail(
+        reason="Student-t PPF has known numerical precision issues at extreme quantiles"
+    )
     def test_convergence_studentt_ppf(self):
         """Test PPF convergence for Student-t."""
         result = convergence_validation("studentt", method="ppf")

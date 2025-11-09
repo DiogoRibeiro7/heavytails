@@ -128,8 +128,10 @@ class RiskMetrics:
                         return n * math.log(sigma_mle) + sum(excesses) / sigma_mle
                     else:
                         # General case
-                        term = 1 + xi_mle * sum(math.log(1 + xi_mle * x / sigma_mle) for x in excesses)
-                        return n * math.log(sigma_mle) + (1 + 1/xi_mle) * term
+                        term = 1 + xi_mle * sum(
+                            math.log(1 + xi_mle * x / sigma_mle) for x in excesses
+                        )
+                        return n * math.log(sigma_mle) + (1 + 1 / xi_mle) * term
 
                 # Initial guess from method of moments
                 M1 = mean_excess
@@ -197,9 +199,7 @@ class RiskMetrics:
 
         gpd = self.fit_gpd_to_excesses(threshold)
 
-        # POT formula: P(X > VaR) = alpha = prob_exceed * P(excess > VaR - threshold)
-        # Therefore: P(excess > VaR - threshold) = alpha / prob_exceed
-        # And: P(excess < VaR - threshold) = 1 - alpha / prob_exceed
+        # Calculate conditional probability using POT formula
         conditional_prob = 1 - alpha / prob_exceed
         return gpd.ppf(conditional_prob)
 
@@ -337,12 +337,16 @@ class RiskMetrics:
         alpha_ci = (1 - confidence_level) / 2
         var_estimates_sorted = sorted(var_estimates)
         var_lower = var_estimates_sorted[int(alpha_ci * len(var_estimates_sorted))]
-        var_upper = var_estimates_sorted[int((1 - alpha_ci) * len(var_estimates_sorted))]
+        var_upper = var_estimates_sorted[
+            int((1 - alpha_ci) * len(var_estimates_sorted))
+        ]
 
         if es_estimates:
             es_estimates_sorted = sorted(es_estimates)
             es_lower = es_estimates_sorted[int(alpha_ci * len(es_estimates_sorted))]
-            es_upper = es_estimates_sorted[int((1 - alpha_ci) * len(es_estimates_sorted))]
+            es_upper = es_estimates_sorted[
+                int((1 - alpha_ci) * len(es_estimates_sorted))
+            ]
         else:
             es_lower = es_upper = None
 
@@ -584,7 +588,9 @@ class PortfolioRiskAssessment:
                 normal_var = mean_ret + std_ret * norm.ppf(alpha)
                 parametric_results["normal"] = {
                     "VaR": -normal_var,  # Convert to loss
-                    "ES": -(mean_ret + std_ret * norm.pdf(norm.ppf(alpha)) / (1 - alpha)),
+                    "ES": -(
+                        mean_ret + std_ret * norm.pdf(norm.ppf(alpha)) / (1 - alpha)
+                    ),
                 }
             else:
                 # Fallback if scipy not available
@@ -622,7 +628,9 @@ class PortfolioRiskAssessment:
             # GPD tail modeling (for extreme quantiles)
             if alpha >= 0.95:  # Only for tail estimates
                 try:
-                    threshold = self.risk_metrics.empirical_var(0.1)  # 90% empirical quantile
+                    threshold = self.risk_metrics.empirical_var(
+                        0.1
+                    )  # 90% empirical quantile
                     gpd_result = self.risk_metrics.var_es_gpd_with_confidence(
                         1 - alpha, threshold, confidence_level=0.95, n_bootstrap=500
                     )
@@ -872,7 +880,9 @@ def demo_portfolio_risk() -> None:
     report = assessor.comprehensive_risk_report()
 
     print("Portfolio Risk Report:")
-    print(f"Basic Stats: {report.get('basic_statistics', report.get('basic_stats', {}))}")
+    print(
+        f"Basic Stats: {report.get('basic_statistics', report.get('basic_stats', {}))}"
+    )
     print("\nRisk Estimates:")
     for level, estimates in report["risk_estimates"].items():
         print(f"  {level}: {estimates}")
@@ -894,15 +904,11 @@ def demo_comprehensive_backtest() -> dict[str, Any]:
     random.seed(42)
 
     # Create regime-switching returns: 90% normal, 10% crisis
-    normal_returns = [
-        random.gauss(0.001, 0.02) for _ in range(1800)
-    ]  # Normal times
+    normal_returns = [random.gauss(0.001, 0.02) for _ in range(1800)]  # Normal times
 
     # Crisis periods with Student-t(3) distribution
     student_t = StudentT(nu=3)
-    crisis_returns = [
-        x * 0.05 for x in student_t.rvs(200, seed=42)
-    ]  # Crisis times
+    crisis_returns = [x * 0.05 for x in student_t.rvs(200, seed=42)]  # Crisis times
 
     # Combine and shuffle
     all_returns = normal_returns + crisis_returns
@@ -934,7 +940,9 @@ def demo_comprehensive_backtest() -> dict[str, Any]:
         },
         "normal": {
             "description": "Normal Distribution",
-            "var_func": lambda: calculate_normal_var(estimation_returns, confidence_level),
+            "var_func": lambda: calculate_normal_var(
+                estimation_returns, confidence_level
+            ),
         },
         "student_t": {
             "description": "Student-t Distribution",
@@ -991,7 +999,7 @@ def demo_comprehensive_backtest() -> dict[str, Any]:
     # Display results
     print("VaR Model Backtesting Results:")
     print("-" * 60)
-    for _model_name, results in backtest_results.items():
+    for results in backtest_results.values():
         if "error" in results:
             print(f"{results['description']:25s}: ERROR - {results['error']}")
         else:
@@ -1002,7 +1010,9 @@ def demo_comprehensive_backtest() -> dict[str, Any]:
                 f"  Violations: {results['violations']}/{len(test_returns)} "
                 f"({results['violation_rate']:.2%})"
             )
-            print(f"  Expected: {results['expected_violations']:.1f} ({results['expected_rate']:.2%})")
+            print(
+                f"  Expected: {results['expected_violations']:.1f} ({results['expected_rate']:.2%})"
+            )
             print(f"  Test Status: {status}")
             print()
 
@@ -1045,9 +1055,7 @@ def calculate_student_t_var(returns: list[float], confidence_level: float) -> fl
         return calculate_normal_var(returns, confidence_level)
 
 
-def calculate_gpd_var(
-    risk_assessor: PortfolioRiskAssessment, alpha: float
-) -> float:
+def calculate_gpd_var(risk_assessor: PortfolioRiskAssessment, alpha: float) -> float:
     """Calculate VaR using GPD tail model."""
     # Use a threshold that's well into the tail but has enough excesses
     # For 99% VaR (alpha=0.01), use 95% quantile (5% excesses)

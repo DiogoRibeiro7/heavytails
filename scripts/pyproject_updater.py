@@ -571,9 +571,7 @@ def _check_dep_vulnerabilities(package_name: str) -> list[str]:
     # Known vulnerable packages (subset for demonstration)
     # In production, fetch from a real vulnerability database
     known_vulnerabilities: dict[str, list[str]] = {
-        "requests": [
-            "CVE-2023-32681: Unintended leak of Proxy-Authorization header"
-        ],
+        "requests": ["CVE-2023-32681: Unintended leak of Proxy-Authorization header"],
         "pillow": [
             "CVE-2023-44271: Buffer overflow in _getexif",
             "CVE-2023-50447: Arbitrary code execution via crafted font",
@@ -730,7 +728,10 @@ def detect_conflicts(pyproject: Path) -> dict[str, str]:
                             for name, spec in deps.items():
                                 if isinstance(spec, str):
                                     # Check for conflicting constraints
-                                    if name in constraints and constraints[name] != spec:
+                                    if (
+                                        name in constraints
+                                        and constraints[name] != spec
+                                    ):
                                         conflicts[name] = (
                                             f"Conflict: main has {constraints[name]}, "
                                             f"{group_name} has {spec}"
@@ -738,7 +739,10 @@ def detect_conflicts(pyproject: Path) -> dict[str, str]:
                                     constraints[name] = spec
                                 elif isinstance(spec, dict) and "version" in spec:
                                     ver_spec = spec["version"]
-                                    if name in constraints and constraints[name] != ver_spec:
+                                    if (
+                                        name in constraints
+                                        and constraints[name] != ver_spec
+                                    ):
                                         conflicts[name] = (
                                             f"Conflict: main has {constraints[name]}, "
                                             f"{group_name} has {ver_spec}"
@@ -857,7 +861,11 @@ def upgrade_with_analysis(pyproject: Path, opts: Options) -> dict[str, Any]:
             else:
                 new_ver = old_ver
             # Ensure both old_ver and new_ver are strings
-            if isinstance(old_ver, str) and isinstance(new_ver, str) and old_ver != new_ver:
+            if (
+                isinstance(old_ver, str)
+                and isinstance(new_ver, str)
+                and old_ver != new_ver
+            ):
                 version_changes[pkg] = {"from": old_ver, "to": new_ver}
 
     # Impact assessment
