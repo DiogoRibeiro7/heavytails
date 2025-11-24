@@ -60,7 +60,7 @@ pytest-xdist = "^3.8.0"
 pytest-cov = "^7.0.0"
 pytest-benchmark = "^5.2.3"
 pytest-mock = "^3.15.1"
-hypothesis = "^6.147.0"
+hypothesis = "^6.148.1"
 
 # Linting and formatting
 ruff = "^0.14.4"
