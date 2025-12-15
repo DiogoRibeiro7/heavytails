@@ -92,7 +92,7 @@ mkdocs-section-index = "^0.3.9"
 mkdocs-gallery = "^0.10.3"
 
 [tool.poetry.group.examples.dependencies]
-matplotlib = "^3.9.2"
+matplotlib = "^3.10.8"
 seaborn = "^0.13.2"
 pandas = "^2.2.3"
 notebook = ">=7.2,<8.0"
