@@ -64,7 +64,7 @@ hypothesis = "^6.148.4"
 
 # Linting and formatting
 ruff = "^0.14.7"
-mypy = "^1.19.0"
+mypy = "^1.19.1"
 pre-commit = "^4.5.0"
 isort = "^7.0.0"
 
