@@ -55,7 +55,7 @@ jobs:
     
     - name: Download baseline benchmark (if exists)
       continue-on-error: true
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v8
       with:
         name: benchmark-baseline-${{ matrix.python-version }}
         path: benchmark-results/
