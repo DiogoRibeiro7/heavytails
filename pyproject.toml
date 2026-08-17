@@ -55,31 +55,31 @@ python = ">=3.10,<3.13"
 
 [tool.poetry.group.dev.dependencies]
 # Testing
-pytest = "^9.0.1"
+pytest = "^9.1.1"
 pytest-xdist = "^3.8.0"
-pytest-cov = "^7.0.0"
+pytest-cov = "^7.1.0"
 pytest-benchmark = "^5.2.3"
 pytest-mock = "^3.15.1"
-hypothesis = "^6.148.4"
+hypothesis = "^6.165.10"
 
 # Linting and formatting
-ruff = "^0.14.7"
-mypy = "^1.19.0"
-pre-commit = "^4.5.0"
+ruff = "^0.16.3"
+mypy = "^1.20.2"
+pre-commit = "^4.6.2"
 isort = "^7.0.0"
 
 # Security
-bandit = "^1.9.2"
-safety = "^3.7.0"
+bandit = "^1.9.4"
+safety = "^3.8.1"
 
 # Type stubs
-types-PyYAML = "^6.0.12.20250915"
-types-requests = "^2.32.4.20250913"
+types-PyYAML = "^6.0.12.20260815"
+types-requests = "^2.33.0.20260712"
 
 # Development utilities
-ipython = "^8.37.0"
-rich = "^14.2.0"
-typer = "^0.20.0"
+ipython = "^8.39.0"
+rich = "^14.3.4"
+typer = "^0.27.1"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
