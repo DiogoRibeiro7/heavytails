@@ -2,7 +2,7 @@
 
 **A pure-Python library of heavy-tailed probability distributions**
 
-[![CI](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml)
+[![CI](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/DiogoRibeiro7/heavytails/branch/main/graph/badge.svg)](https://codecov.io/gh/DiogoRibeiro7/heavytails)
 [![PyPI](https://img.shields.io/pypi/v/heavytails.svg)](https://pypi.org/project/heavytails/)
 [![Python versions](https://img.shields.io/pypi/pyversions/heavytails.svg)](https://pypi.org/project/heavytails/)
