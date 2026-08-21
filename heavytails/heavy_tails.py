@@ -141,9 +141,19 @@ class Pareto(Samplable):
         return float((self.xm / x) ** self.alpha)
 
     def ppf(self, u: float) -> float:
+        """Quantile function.
+
+        Returns ``inf`` when the quantile exceeds the float range. At extreme
+        parameters the true value is genuinely not representable, and reporting
+        it is more useful than raising, which aborts a parameter sweep at the
+        first point that overflows.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return float(self.xm * (1.0 - u) ** (-1.0 / self.alpha))
+        try:
+            return float(self.xm * (1.0 - u) ** (-1.0 / self.alpha))
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -188,9 +198,19 @@ class Cauchy(Samplable):
         return 0.5 - math.atan(z) / math.pi
 
     def ppf(self, u: float) -> float:
+        """Quantile function.
+
+        Returns ``inf`` when the quantile exceeds the float range. At extreme
+        parameters the true value is genuinely not representable, and reporting
+        it is more useful than raising, which aborts a parameter sweep at the
+        first point that overflows.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return self.x0 + self.gamma * math.tan(math.pi * (u - 0.5))
+        try:
+            return self.x0 + self.gamma * math.tan(math.pi * (u - 0.5))
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -383,9 +403,19 @@ class Weibull(Samplable):
         return math.exp(-((x / self.lam) ** self.k))
 
     def ppf(self, u: float) -> float:
+        """Quantile function.
+
+        Returns ``inf`` when the quantile exceeds the float range. At extreme
+        parameters the true value is genuinely not representable, and reporting
+        it is more useful than raising, which aborts a parameter sweep at the
+        first point that overflows.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return float(self.lam * (-math.log(1.0 - u)) ** (1.0 / self.k))
+        try:
+            return float(self.lam * (-math.log(1.0 - u)) ** (1.0 / self.k))
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -436,9 +466,19 @@ class Frechet(Samplable):
         return float(-math.expm1(-(z ** (-self.alpha))))
 
     def ppf(self, u: float) -> float:
+        """Quantile function.
+
+        Returns ``inf`` when the quantile exceeds the float range. At extreme
+        parameters the true value is genuinely not representable, and reporting
+        it is more useful than raising, which aborts a parameter sweep at the
+        first point that overflows.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return float(self.m + self.s * (-math.log(u)) ** (-1.0 / self.alpha))
+        try:
+            return float(self.m + self.s * (-math.log(u)) ** (-1.0 / self.alpha))
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -500,11 +540,21 @@ class GEV_Frechet(Samplable):
         return float(-math.expm1(-(t ** (-1.0 / self.xi))))
 
     def ppf(self, u: float) -> float:
+        """Quantile function.
+
+        Returns ``inf`` when the quantile exceeds the float range. At extreme
+        parameters the true value is genuinely not representable, and reporting
+        it is more useful than raising, which aborts a parameter sweep at the
+        first point that overflows.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return float(
-            self.mu + (self.sigma / self.xi) * ((-math.log(u)) ** (-self.xi) - 1.0)
-        )
+        try:
+            return float(
+                self.mu + (self.sigma / self.xi) * ((-math.log(u)) ** (-self.xi) - 1.0)
+            )
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()

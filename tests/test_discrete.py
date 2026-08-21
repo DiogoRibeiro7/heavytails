@@ -103,16 +103,16 @@ class TestZipf:
         """Test PPF with invalid u values."""
         zipf = Zipf(s=2.0)
 
-        with pytest.raises(ValueError, match="u in"):
+        with pytest.raises(ValueError, match="u must be in"):
             zipf.ppf(0.0)
 
-        with pytest.raises(ValueError, match="u in"):
+        with pytest.raises(ValueError, match="u must be in"):
             zipf.ppf(1.0)
 
-        with pytest.raises(ValueError, match="u in"):
+        with pytest.raises(ValueError, match="u must be in"):
             zipf.ppf(-0.5)
 
-        with pytest.raises(ValueError, match="u in"):
+        with pytest.raises(ValueError, match="u must be in"):
             zipf.ppf(1.5)
 
     def test_sampling(self) -> None:

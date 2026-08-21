@@ -88,9 +88,14 @@ class GeneralizedPareto(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        if self.xi == 0.0:
-            return self.mu - self.sigma * math.log(1.0 - u)
-        return float(self.mu + (self.sigma / self.xi) * ((1.0 - u) ** (-self.xi) - 1.0))
+        try:
+            if self.xi == 0.0:
+                return self.mu - self.sigma * math.log(1.0 - u)
+            return float(
+                self.mu + (self.sigma / self.xi) * ((1.0 - u) ** (-self.xi) - 1.0)
+            )
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
@@ -140,7 +145,12 @@ class BurrXII(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return float(self.s * (((1.0 - u) ** (-1.0 / self.k)) - 1.0) ** (1.0 / self.c))
+        try:
+            return float(
+                self.s * (((1.0 - u) ** (-1.0 / self.k)) - 1.0) ** (1.0 / self.c)
+            )
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         return self.ppf(rng.uniform_0_1())
@@ -187,7 +197,10 @@ class LogLogistic(Samplable):
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-        return float(self.lam * (u / (1.0 - u)) ** (1.0 / self.kappa))
+        try:
+            return float(self.lam * (u / (1.0 - u)) ** (1.0 / self.kappa))
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         return self.ppf(rng.uniform_0_1())
@@ -243,8 +256,10 @@ class InverseGamma(Samplable):
         b = max(1.0, self.beta / max(self.alpha + 1.0, 2.0))  # initial right
         while cdf_x(b) < u:
             b *= 2.0
-            if b > 1e300:  # avoid overflow
-                break
+            if b > 1e300:
+                # The bracket ran off the top of the float range before reaching
+                # u, so the quantile is not representable.
+                return math.inf
         return _ppf_monotone(cdf_x, max(1e-300, a), b, u, pdf=self.pdf)
 
     def _rvs_one(self, rng: RNG) -> float:
@@ -307,7 +322,8 @@ class BetaPrime(Samplable):
         while cdf_x(b0) < u:
             b0 *= 2.0
             if b0 > 1e300:
-                break
+                # See InverseGamma.ppf: the quantile is beyond the float range.
+                return math.inf
         return _ppf_monotone(cdf_x, max(1e-300, a0), b0, u, pdf=self.pdf)
 
     def _rvs_one(self, rng: RNG) -> float:

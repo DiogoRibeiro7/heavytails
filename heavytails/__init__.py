@@ -28,6 +28,7 @@ License: MIT
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version
 
+from ._special import ConvergenceError
 from .discrete import DiscretePareto, YuleSimon, Zipf
 from .extra_distributions import (
     BetaPrime,
@@ -56,6 +57,7 @@ __all__ = [
     "BetaPrime",
     "BurrXII",
     "Cauchy",
+    "ConvergenceError",
     "DiscretePareto",
     "Frechet",
     "GEV_Frechet",

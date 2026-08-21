@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Quantile functions now behave the same way across every family
+  ([#298](https://github.com/DiogoRibeiro7/heavytails/issues/298)). Previously
+  the answer at the edges depended on which family you asked: `Pareto`,
+  `Weibull`, `Frechet`, `GEV_Frechet`, `BurrXII` and `LogLogistic` raised
+  `OverflowError` where the quantile simply exceeded the float range,
+  `InverseGamma` raised a `ValueError` about failing to bracket the root,
+  `LogNormal` returned `inf`, and `BetaPrime` returned a finite value. All of
+  them now return `inf`.
+- `DiscretePareto.ppf` accepted any float, including `0.0`, `1.5` and negatives,
+  and silently returned the support bounds. It now raises `ValueError` like
+  every other family.
+- `_ppf_monotone` narrowed its bracket only on bisection fallbacks, never on
+  accepted Newton steps, so a run of Newton steps could exhaust the iteration
+  budget with the bracket as wide as it started. It now narrows on every
+  iteration, which also fixed a non-monotonicity in `InverseGamma.ppf`.
+
+### Added
+
+- `ConvergenceError`, raised when a solver cannot reach its tolerance. It
+  previously returned its best guess, which the caller could not distinguish
+  from a converged answer.
+
 - `LogNormal.ppf` raised `OverflowError` when the quantile exceeded the float
   range instead of returning `inf`. The median of `LogNormal(mu=1000)` is
   `exp(1000)`, which is genuinely not representable, so `inf` is the correct
