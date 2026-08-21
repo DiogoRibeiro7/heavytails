@@ -1375,6 +1375,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bounded-influence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounded influence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bounded influence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choosing-beta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing beta
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3105,7 +3144,19 @@ represent and in how efficiently they use the data.</p>
 <td><code>trimmed_hill_estimator</code></td>
 <td><code>gamma &gt; 0</code></td>
 <td>Near-Hill</td>
-<td>The data may be contaminated</td>
+<td>Contamination, count roughly known</td>
+</tr>
+<tr>
+<td><code>t_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>Near-Hill</td>
+<td>Contamination of unknown extremity</td>
+</tr>
+<tr>
+<td><code>harmonic_moment_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>Tunable</td>
+<td>As above, with a robustness dial</td>
 </tr>
 <tr>
 <td><code>hill_estimator</code></td>
@@ -3346,6 +3397,92 @@ that is flat from <code>r = 0</code> says there is no contamination to remove.</
 </span></code></pre></div>
 <p>Without <code>estimator_kwargs</code> the trimmed estimator runs at its default <code>r = 0</code>,
 which is the ordinary Hill estimator and gives no robustness at all.</p>
+<h2 id="bounded-influence">Bounded influence<a class="headerlink" href="#bounded-influence" title="Permanent link">&para;</a></h2>
+<p>Trimming needs you to guess how many observations are contaminated. The
+alternative is to bound each observation's influence so that no single one can
+dominate however extreme it is.</p>
+<p>Hill's contributions are <code>log(X_(i)/u)</code> for a threshold <code>u = X_(k+1)</code>, which
+grow without limit. The harmonic moment family uses the reciprocal ratios
+<code>R_i = u/X_(i)</code>, which lie in <code>(0, 1]</code>. A contaminated observation sent to
+infinity contributes <code>R_i -&gt; 0</code>, and its effect saturates.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">t_hill_estimator</span><span class="p">,</span> <span class="n">harmonic_moment_estimator</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="n">t_hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>                      <span class="c1"># beta = 1</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="n">harmonic_moment_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>   <span class="c1"># more robust, less efficient</span>
+</span></code></pre></div>
+<p>Sending one observation out of ten thousand from <code>1e2</code> to <code>1e30</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Outlier</th>
+<th><code>hill</code></th>
+<th><code>t_hill</code></th>
+<th><code>harmonic</code> (beta=2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1e2</td>
+<td>0.5016</td>
+<td>0.5015</td>
+<td>0.5018</td>
+</tr>
+<tr>
+<td>1e12</td>
+<td>0.5477</td>
+<td>0.5017</td>
+<td>0.5018</td>
+</tr>
+<tr>
+<td>1e30</td>
+<td>0.6306</td>
+<td><strong>0.5017</strong></td>
+<td><strong>0.5018</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The Hill estimate keeps degrading. The other two do not move at all.</p>
+<h3 id="the-derivation">The derivation<a class="headerlink" href="#the-derivation" title="Permanent link">&para;</a></h3>
+<p>With <code>R_i = u / X_(i)</code> for the top <code>k</code> observations, under an exact Pareto tail
+<code>R ~ Beta(alpha, 1)</code>, so <code>E[R**beta] = alpha / (alpha + beta)</code>. Inverting:</p>
+<div class="arithmatex">\[\hat{\alpha} = \frac{\beta H}{1 - H}, \qquad H = \frac{1}{k}\sum_{i=1}^{k} R_i^{\beta}\]</div>
+<p><code>beta = 1</code> gives the <strong>t-Hill</strong> estimator. As <code>beta</code> tends to zero the estimator
+tends to the <strong>Hill</strong> estimator, which is a useful check: at <code>beta = 0.001</code> the
+two agree to five decimal places.</p>
+<h3 id="choosing-beta">Choosing beta<a class="headerlink" href="#choosing-beta" title="Permanent link">&para;</a></h3>
+<p><code>beta</code> trades robustness against efficiency. Larger values weight observations
+near the threshold more and extreme ones less. Deviation from the clean-sample
+estimate, with twenty contaminated observations out of ten thousand:</p>
+<table>
+<thead>
+<tr>
+<th>beta</th>
+<th>0.25</th>
+<th>0.5</th>
+<th>1.0</th>
+<th>3.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shift under contamination</td>
+<td>0.124</td>
+<td>0.047</td>
+<td>0.013</td>
+<td>0.000</td>
+</tr>
+</tbody>
+</table>
+<p>Larger <code>beta</code> is monotonically more robust, at a cost in efficiency on clean
+data. <code>beta = 1</code> to <code>2</code> is a reasonable default.</p>
+<div class="admonition note">
+<p class="admonition-title">Which robust estimator to reach for</p>
+<p>Use <code>trimmed_hill_estimator</code> when you can see roughly how many observations
+are bad, for instance from <code>trimmed_hill_plot</code>. Use <code>t_hill_estimator</code> or
+<code>harmonic_moment_estimator</code> when you cannot, or when the contamination may
+be arbitrarily extreme. They address different problems: trimming removes
+bad values, bounded influence limits what any one of them can do.</p>
+</div>
 
 
 

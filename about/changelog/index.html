@@ -2225,12 +2225,29 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>trimmed_hill_estimator</code> and <code>trimmed_hill_plot</code>, following Bhattacharya,
+<li><code>harmonic_moment_estimator</code> and <code>t_hill_estimator</code>
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/325">#325</a>). Hill's
+  contributions grow without limit, so one extreme observation moves the
+  estimate arbitrarily far; these use the bounded reciprocal ratios
+  <code>u / X_(i)</code> instead. Sending a single observation of ten thousand from <code>1e2</code>
+  to <code>1e30</code> moves the Hill estimate from 0.502 to 0.631 and moves these not at
+  all. <code>beta</code> trades robustness against efficiency, and the estimator tends to
+  the Hill estimator as <code>beta</code> tends to zero.</li>
+<li>
+<p><code>scripts/tail_index_study.py</code> records the <code>heavytails</code> version, the git
+  commit, the Python version and the run configuration in its JSON output, so
+  a results file can be traced back to the code that produced it. The commit
+  is recorded as well as the version because <code>importlib.metadata</code> reports what
+  is installed, which lags a working tree after a version bump.</p>
+</li>
+<li>
+<p><code>trimmed_hill_estimator</code> and <code>trimmed_hill_plot</code>, following Bhattacharya,
   Kallitsis and Stoev (2019)
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/323">#323</a>). Replacing
   three observations out of ten thousand with outliers moves the Hill estimate
   from 0.50 to 0.60; trimming five recovers 0.50. On clean data trimming ten
-  raises the standard deviation only from 0.0296 to 0.0302.</li>
+  raises the standard deviation only from 0.0296 to 0.0302.</p>
+</li>
 <li><code>estimator_kwargs</code> on <code>tail_index_confidence_interval</code>, so tuning parameters
   such as the trimming level <code>r</code> and the smoothing parameter <code>u</code> reach the
   estimator. Without it <code>trimmed_hill</code> silently ran at <code>r = 0</code>, which is the
