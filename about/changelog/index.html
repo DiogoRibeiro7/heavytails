@@ -1907,18 +1907,7 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#020-2026-08-21" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        0.2.0 - 2026-08-21
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="0.2.0 - 2026-08-21">
+    <nav class="md-nav" aria-label="Unreleased">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1934,6 +1923,45 @@
         
           <li class="md-nav__item">
   <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020-2026-08-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.2.0 - 2026-08-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.2.0 - 2026-08-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -1983,7 +2011,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2184,8 +2212,34 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
-<h2 id="020-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...v0.2.0">0.2.0</a> - 2026-08-21<a class="headerlink" href="#020-2026-08-21" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>generalized_hill_estimator</code>, the UH estimator of Beirlant, Vynckier and
+  Teugels (1996)
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/299">#299</a>). Unlike the
+  Hill estimator it is consistent for every extreme-value index, not only
+  positive ones. On a Uniform(0,1) sample, whose index is -1, Hill can only
+  ever return a positive number and reports about +0.026; the generalized Hill
+  estimator recovers -0.99.</li>
+<li><code>hill_plot</code>, which sweeps k on a logarithmic grid and returns the
+  <code>(k, gamma)</code> series. The documentation already told readers to find a
+  plateau; they now have something that produces one.</li>
+<li><code>tail_index_confidence_interval</code>, with an asymptotic interval for the Hill
+  estimator and a percentile bootstrap for all four. Requesting the asymptotic
+  interval for an estimator that has no established closed form raises rather
+  than reporting a number with no basis.</li>
+<li><code>scripts/tail_index_study.py</code>, a simulation study reporting bias, standard
+  deviation and RMSE for every estimator across known indices and sample sizes.
+  Its results are summarised in the tail estimation guide.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>_phi_inverse</code> moved from <code>heavy_tails</code> to <code>_special</code>, alongside the other
+  numeric helpers, so <code>tail_index</code> can use it without importing the
+  distribution module. It was never public.</li>
+</ul>
+<h2 id="020-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...v0.2.0">0.2.0</a> - 2026-08-21<a class="headerlink" href="#020-2026-08-21" title="Permanent link">&para;</a></h2>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>scripts/special_function_accuracy.py</code>, which sweeps both special functions
@@ -2279,7 +2333,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   review, and an executable <code>basic_usage</code> notebook.</p>
 </li>
 </ul>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Migrated project metadata to the PEP 621 <code>[project]</code> table.</p>
@@ -2430,7 +2484,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 </li>
 </ul>
 <h2 id="010-2025-10-25"><a href="https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0">0.1.0</a> - 2025-10-25<a class="headerlink" href="#010-2025-10-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Continuous heavy-tailed distributions implemented from first principles:
   Pareto, Cauchy, Student-t, Log-Normal, Weibull, Fréchet and GEV (ξ &gt; 0).</li>
