@@ -32,8 +32,8 @@ keywords:
   - simulation
   - teaching
 license: MIT
-version: 0.1.0
-date-released: 2025-10-25
+version: 0.2.0
+date-released: 2026-08-21
 references:
   - type: book
     title: "Extreme Value Theory: An Introduction"
