@@ -91,7 +91,7 @@ packaging = "^25.0"
 
 # Needed to exercise the CLI in the test suite
 rich = "^14.2.0"
-typer = "^0.20.0"
+typer = "^0.27.1"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
