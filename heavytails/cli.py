@@ -17,9 +17,17 @@ import sys
 import time
 from typing import Annotated
 
-from rich.console import Console
-from rich.table import Table
-import typer
+try:
+    from rich.console import Console
+    from rich.table import Table
+    import typer
+except (
+    ModuleNotFoundError
+) as _exc:  # pragma: no cover - exercised only when extras are absent
+    raise SystemExit(
+        "The heavytails command-line interface requires the optional 'cli' extra. "
+        "Install it with: pip install 'heavytails[cli]'"
+    ) from _exc
 
 from heavytails import (
     BetaPrime,
@@ -34,6 +42,7 @@ from heavytails import (
     Pareto,
     StudentT,
     Weibull,
+    __version__,
 )
 from heavytails.roadmap import fit_mle, model_comparison
 from heavytails.tail_index import hill_estimator, moment_estimator, pickands_estimator
@@ -44,6 +53,30 @@ app = typer.Typer(
     add_completion=False,
 )
 console = Console()
+
+
+def _version_callback(value: bool) -> None:
+    """Print the installed version and exit."""
+    if value:
+        console.print(f"heavytails {__version__}")
+        raise typer.Exit(0)
+
+
+@app.callback()
+def _root(
+    version: Annotated[
+        bool,
+        typer.Option(
+            "--version",
+            "-V",
+            help="Show the installed heavytails version and exit.",
+            callback=_version_callback,
+            is_eager=True,
+        ),
+    ] = False,
+) -> None:
+    """Heavy-tailed probability distributions toolkit."""
+
 
 # Distribution mapping
 DISTRIBUTIONS = {
@@ -60,6 +93,17 @@ DISTRIBUTIONS = {
     "invgamma": InverseGamma,
     "betaprime": BetaPrime,
 }
+
+
+def _rate(count: int, elapsed: float) -> str:
+    """Format a throughput, tolerating a zero-length timing measurement.
+
+    Clock resolution can round a fast benchmark down to exactly 0.0 seconds,
+    which would otherwise make the rate calculation divide by zero.
+    """
+    if elapsed <= 0.0:
+        return "too fast to measure"
+    return f"{count / elapsed:.0f}"
 
 
 # Map CLI distribution names to roadmap.py names
@@ -694,42 +738,46 @@ def benchmark(
 
         # PDF evaluation benchmark
         x_values = [1.0 + i * 0.01 for i in range(1000)]
-        start_time = time.time()
+        start_time = time.perf_counter()
         [dist.pdf(x) for x in x_values]
-        pdf_time = time.time() - start_time
+        pdf_time = time.perf_counter() - start_time
 
         console.print(
-            f"PDF evaluation (1000 points): {pdf_time:.4f}s ({1000 / pdf_time:.0f} evals/sec)"
+            f"PDF evaluation (1000 points): {pdf_time:.4f}s "
+            f"({_rate(1000, pdf_time)} evals/sec)"
         )
 
         # CDF evaluation benchmark
-        start_time = time.time()
+        start_time = time.perf_counter()
         [dist.cdf(x) for x in x_values]
-        cdf_time = time.time() - start_time
+        cdf_time = time.perf_counter() - start_time
 
         console.print(
-            f"CDF evaluation (1000 points): {cdf_time:.4f}s ({1000 / cdf_time:.0f} evals/sec)"
+            f"CDF evaluation (1000 points): {cdf_time:.4f}s "
+            f"({_rate(1000, cdf_time)} evals/sec)"
         )
 
         # PPF evaluation benchmark
         u_values = [i / 1000 for i in range(1, 1000)]
-        start_time = time.time()
+        start_time = time.perf_counter()
         try:
             [dist.ppf(u) for u in u_values]
-            ppf_time = time.time() - start_time
+            ppf_time = time.perf_counter() - start_time
             console.print(
-                f"PPF evaluation (999 points): {ppf_time:.4f}s ({999 / ppf_time:.0f} evals/sec)"
+                f"PPF evaluation (999 points): {ppf_time:.4f}s "
+                f"({_rate(999, ppf_time)} evals/sec)"
             )
         except Exception as e:
             console.print(f"PPF benchmark failed: {e}")
 
         # Sampling benchmark
-        start_time = time.time()
+        start_time = time.perf_counter()
         dist.rvs(n_samples, seed=42)
-        sampling_time = time.time() - start_time
+        sampling_time = time.perf_counter() - start_time
 
         console.print(
-            f"Sampling ({n_samples} samples): {sampling_time:.4f}s ({n_samples / sampling_time:.0f} samples/sec)"
+            f"Sampling ({n_samples} samples): {sampling_time:.4f}s "
+            f"({_rate(n_samples, sampling_time)} samples/sec)"
         )
 
         # Add memory profiling results
