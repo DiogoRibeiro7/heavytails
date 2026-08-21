@@ -200,10 +200,127 @@ def hill_plot(
     return points
 
 
+def smoothed_hill_estimator(data: Sequence[float], k: int, u: float = 2.0) -> float:
+    """
+    Resnick-Starica smoothed Hill estimator of the extreme-value index.
+
+    The ordinary Hill estimate varies substantially with k, which is the
+    practical difficulty the Hill plot exists to work around. This averages it
+    over a range of k instead:
+
+        gamma_hat(k, u) = 1/((u-1)k) * sum_{j=k+1}^{floor(u*k)} hill(j)
+
+    The asymptotic variance falls from ``gamma**2`` to
+    ``gamma**2 * 2*(u - 1 - log(u)) / (u - 1)**2``: about 0.61 times at
+    ``u = 2`` and 0.45 times at ``u = 3``. The cost is bias, because a larger
+    ``u`` averages over a wider range of k and so reaches further into the body
+    of the distribution. Values between 2 and 3 are the usual compromise.
+
+    Like the Hill estimator it assumes ``gamma > 0``; see
+    :func:`generalized_hill_estimator` if the sign is in doubt.
+
+    Parameters
+    ----------
+    data : sequence of floats
+        Sample values. All must be positive.
+    k : int
+        Lower end of the averaging range.
+    u : float, optional
+        Smoothing parameter, strictly greater than 1. The average runs over
+        ``j`` in ``(k, u*k]``, so ``u*k`` must be less than the sample size.
+
+    Returns
+    -------
+    float
+        The extreme-value index estimate gamma.
+
+    Raises
+    ------
+    ValueError
+        If ``u <= 1``, the averaging range is empty, or it runs past the end of
+        the sample.
+
+    References
+    ----------
+    Resnick, S., & Starica, C. (1997). Smoothing the Hill estimator.
+    *Advances in Applied Probability*, 29(1), 271-293.
+
+    Examples
+    --------
+    >>> from heavytails import Pareto
+    >>> data = Pareto(alpha=2.0, xm=1.0).rvs(20000, seed=11)
+    >>> round(smoothed_hill_estimator(data, k=1000, u=2.0), 1)
+    0.5
+    """
+    if u <= 1.0:
+        raise ValueError("u must be strictly greater than 1.")
+
+    x = sorted(data, reverse=True)
+    n = len(x)
+    upper = int(u * k)
+    if k <= 1:
+        raise ValueError("k must be greater than 1")
+    if upper <= k:
+        raise ValueError(
+            f"the averaging range (k, u*k] is empty for k={k}, u={u}; increase u or k"
+        )
+    if upper >= n:
+        raise ValueError(
+            f"u*k = {upper} must be less than the sample size {n}; reduce k or u"
+        )
+    if x[-1] <= 0.0:
+        raise ValueError("the smoothed Hill estimator requires positive data")
+
+    # Prefix sums give every hill(j) in one pass:
+    # hill(j) = (1/j) * sum_{i<j} log(x_i) - log(x_j)
+    log_x = [math.log(v) for v in x]
+    prefix = [0.0] * (upper + 1)
+    for j in range(1, upper + 1):
+        prefix[j] = prefix[j - 1] + log_x[j - 1]
+
+    total = sum(prefix[j] / j - log_x[j] for j in range(k + 1, upper + 1))
+    return total / (upper - k)
+
+
+def smoothed_hill_variance_ratio(u: float) -> float:
+    """
+    Asymptotic variance of the smoothed Hill estimator relative to Hill.
+
+    Returns ``2*(u - 1 - log(u)) / (u - 1)**2``, the factor by which
+    :func:`smoothed_hill_estimator` reduces the asymptotic variance of the
+    ordinary Hill estimator. It tends to 1 as ``u`` tends to 1 from above, and
+    decreases as ``u`` grows.
+
+    This describes variance only. Larger ``u`` also increases bias, so it is
+    not a quantity to minimise blindly.
+
+    Parameters
+    ----------
+    u : float
+        Smoothing parameter, strictly greater than 1.
+
+    Returns
+    -------
+    float
+        The variance ratio, between 0 and 1.
+
+    Examples
+    --------
+    >>> round(smoothed_hill_variance_ratio(2.0), 4)
+    0.6137
+    >>> round(smoothed_hill_variance_ratio(3.0), 4)
+    0.4507
+    """
+    if u <= 1.0:
+        raise ValueError("u must be strictly greater than 1.")
+    return 2.0 * (u - 1.0 - math.log(u)) / (u - 1.0) ** 2
+
+
 #: Estimators available to :func:`tail_index_confidence_interval`.
 _POINT_ESTIMATORS: dict[str, Callable[[Sequence[float], int], float]] = {
     "hill": hill_estimator,
     "generalized_hill": generalized_hill_estimator,
+    "smoothed_hill": smoothed_hill_estimator,
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
 }

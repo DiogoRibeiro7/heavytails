@@ -30,6 +30,7 @@ from heavytails.tail_index import (
     hill_estimator,
     moment_estimator,
     pickands_estimator,
+    smoothed_hill_estimator,
 )
 
 Estimator = Callable[[list[float], int], float]
@@ -37,6 +38,8 @@ Estimator = Callable[[list[float], int], float]
 ESTIMATORS: dict[str, Estimator] = {
     "hill": hill_estimator,
     "generalized_hill": generalized_hill_estimator,
+    "smoothed_hill_u2": lambda d, k: smoothed_hill_estimator(d, k, u=2.0),
+    "smoothed_hill_u3": lambda d, k: smoothed_hill_estimator(d, k, u=3.0),
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
 }
@@ -147,7 +150,7 @@ def run_study(trials: int) -> list[dict[str, Any]]:
 def _print_table(rows: list[dict[str, Any]]) -> None:
     """Print the study as a readable table, grouped by scenario."""
     header = (
-        f"{'estimator':<18}{'mean':>10}{'bias':>10}{'std':>10}{'rmse':>10}{'fails':>7}"
+        f"{'estimator':<20}{'mean':>10}{'bias':>10}{'std':>10}{'rmse':>10}{'fails':>7}"
     )
     current = None
     for row in rows:
@@ -161,12 +164,12 @@ def _print_table(rows: list[dict[str, Any]]) -> None:
             print(header)
         if "error" in row:
             print(
-                f"{row['estimator']:<18}{'-':>10}{'-':>10}{'-':>10}{'-':>10}"
+                f"{row['estimator']:<20}{'-':>10}{'-':>10}{'-':>10}{'-':>10}"
                 f"{row['failures']:>7}"
             )
             continue
         print(
-            f"{row['estimator']:<18}{row['mean']:>10.4f}{row['bias']:>+10.4f}"
+            f"{row['estimator']:<20}{row['mean']:>10.4f}{row['bias']:>+10.4f}"
             f"{row['std']:>10.4f}{row['rmse']:>10.4f}{row['failures']:>7}"
         )
 
