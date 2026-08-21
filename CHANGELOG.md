@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.actuarial`, building the aggregate loss distribution from a
+  frequency model and a severity, and pricing the reinsurance written on it
+  ([#304](https://github.com/DiogoRibeiro7/heavytails/issues/304)). Frequency
+  models `Poisson`, `NegativeBinomial` and `Binomial` -- the `(a,b,0)` class the
+  Panjer recursion is defined on. `PolicyTerms` and `LayeredSeverity` apply
+  deductibles, limits and coinsurance on either a per-loss or a per-payment
+  basis. `panjer_recursion` gives the whole aggregate distribution;
+  `simulate_aggregate_loss` and `EmpiricalAggregate` give the same interface
+  from a sample, for the cases the recursion cannot reach. `compound_moments`
+  reports the exact mean and variance, including `inf` when the severity is
+  heavy enough that they do not exist. `limited_expected_value`,
+  `excess_of_loss_premium` and `AggregateLoss.stop_loss_premium` price layers.
+  Completes the actuarial item of roadmap Phase 4.
+
 - `heavytails.viz`, rendering the diagnostics with matplotlib behind a new
   `plot` extra ([#302](https://github.com/DiogoRibeiro7/heavytails/issues/302)):
   `plot_tail`, `plot_qq`, `plot_hill`, `plot_trimmed_hill`,

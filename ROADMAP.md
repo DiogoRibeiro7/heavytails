@@ -53,7 +53,7 @@ This roadmap outlines the planned development phases for the **heavytails** proj
 
 * [x] Monte Carlo simulation utilities for heavy-tail risk estimation
 * [x] Tail-risk metrics (VaR, ES, tail conditional expectation)
-* [ ] Actuarial layer: aggregate-loss models and compound distributions
+* [x] Actuarial layer: aggregate-loss models and compound distributions
 * [ ] Integration with log-based or empirical tail fitting (e.g., datasets)
 
 ---
