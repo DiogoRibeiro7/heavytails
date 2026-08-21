@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `trimmed_hill_estimator` and `trimmed_hill_plot`, following Bhattacharya,
+  Kallitsis and Stoev (2019)
+  ([#323](https://github.com/DiogoRibeiro7/heavytails/issues/323)). Replacing
+  three observations out of ten thousand with outliers moves the Hill estimate
+  from 0.50 to 0.60; trimming five recovers 0.50. On clean data trimming ten
+  raises the standard deviation only from 0.0296 to 0.0302.
+- `estimator_kwargs` on `tail_index_confidence_interval`, so tuning parameters
+  such as the trimming level `r` and the smoothing parameter `u` reach the
+  estimator. Without it `trimmed_hill` silently ran at `r = 0`, which is the
+  ordinary Hill estimator and gives no robustness at all.
+- Contaminated scenarios in `scripts/tail_index_study.py`, since robustness is
+  invisible on clean data.
+
+### Changed
+
+- The `tail_index` module docstring now states that every estimator returns the
+  extreme-value index `gamma = 1/alpha`, not the tail index `alpha`
+  ([#322](https://github.com/DiogoRibeiro7/heavytails/issues/322)). The module
+  name refers to the quantity estimated, not the parameterisation returned, and
+  the two conventions are reciprocals.
+
 - `smoothed_hill_estimator`, the smoothed Hill estimator of Resnick and
   Stărică (1997), and `smoothed_hill_variance_ratio`, which reports the
   asymptotic variance reduction it achieves
