@@ -24,13 +24,16 @@ import random
 import sys
 from typing import Any
 
+import heavytails
 from heavytails import Frechet, Pareto
 from heavytails.tail_index import (
     generalized_hill_estimator,
+    harmonic_moment_estimator,
     hill_estimator,
     moment_estimator,
     pickands_estimator,
     smoothed_hill_estimator,
+    t_hill_estimator,
     trimmed_hill_estimator,
 )
 
@@ -42,6 +45,8 @@ ESTIMATORS: dict[str, Estimator] = {
     "smoothed_hill_u2": lambda d, k: smoothed_hill_estimator(d, k, u=2.0),
     "smoothed_hill_u3": lambda d, k: smoothed_hill_estimator(d, k, u=3.0),
     "trimmed_hill_r5": lambda d, k: trimmed_hill_estimator(d, k, r=5),
+    "t_hill": t_hill_estimator,
+    "harmonic_beta2": lambda d, k: harmonic_moment_estimator(d, k, beta=2.0),
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
 }
@@ -132,6 +137,63 @@ def _summarise(values: list[float], truth: float) -> dict[str, float]:
     }
 
 
+def _git_commit() -> str | None:
+    """Return the checked-out commit, or None if this is not a git checkout.
+
+    The package version alone is not reliable provenance for a run made from a
+    working tree: ``importlib.metadata`` reports what is *installed*, which
+    silently lags behind after a version bump in an editable install. The
+    commit is unambiguous.
+
+    Read from the .git directory directly rather than by invoking git, so this
+    needs no subprocess and no git on PATH.
+    """
+    git_dir = Path(__file__).resolve().parent.parent / ".git"
+    head = git_dir / "HEAD"
+    if not head.is_file():
+        return None
+    try:
+        content = head.read_text(encoding="utf-8").strip()
+        if not content.startswith("ref:"):
+            return content or None  # detached HEAD
+        ref = content.removeprefix("ref:").strip()
+        ref_file = git_dir / ref
+        if ref_file.is_file():
+            return ref_file.read_text(encoding="utf-8").strip() or None
+        # Packed refs, which is how a freshly cloned repository stores them.
+        packed = git_dir / "packed-refs"
+        if packed.is_file():
+            for line in packed.read_text(encoding="utf-8").splitlines():
+                if line.endswith(f" {ref}"):
+                    return line.split()[0]
+    except OSError:
+        return None
+    return None
+
+
+def _provenance(trials: int) -> dict[str, Any]:
+    """Describe the run, so a results file can be traced back to its code.
+
+    A table of numbers with no record of the version that produced it
+    cannot be reproduced or cited, which matters as soon as the numbers
+    leave this repository.
+
+    Both the package version and the git commit are recorded. The version
+    comes from the installed distribution metadata and can lag a working tree
+    after a version bump; the commit cannot.
+    """
+    return {
+        "heavytails_version": heavytails.__version__,
+        "git_commit": _git_commit(),
+        "python_version": sys.version.split()[0],
+        "trials": trials,
+        "sample_sizes": list(SAMPLE_SIZES),
+        "estimators": sorted(ESTIMATORS),
+        "scenarios": [sc.name for sc in SCENARIOS],
+        "seeds": f"0..{trials - 1} per scenario and sample size",
+    }
+
+
 def run_study(trials: int) -> list[dict[str, Any]]:
     """Run every estimator over every scenario and sample size."""
     rows: list[dict[str, Any]] = []
@@ -212,11 +274,18 @@ def main() -> int:
     parser.add_argument("--json", type=Path, default=None, help="Write results as JSON")
     args = parser.parse_args()
 
+    prov = _provenance(args.trials)
+    print(
+        f"heavytails {prov['heavytails_version']} on Python "
+        f"{prov['python_version']}, {args.trials} trials per scenario"
+    )
+
     rows = run_study(args.trials)
     _print_table(rows)
 
     if args.json:
-        args.json.write_text(json.dumps(rows, indent=2), encoding="utf-8")
+        report = {"provenance": _provenance(args.trials), "results": rows}
+        args.json.write_text(json.dumps(report, indent=2), encoding="utf-8")
         print(f"\nwrote {args.json}")
     return 0
 

@@ -518,7 +518,9 @@ represent and in how efficiently they use the data.
 | Estimator | Valid range | Efficiency | Use when |
 | --- | --- | --- | --- |
 | `smoothed_hill_estimator` | `gamma > 0` | Highest | Clean data, tail known to be heavy |
-| `trimmed_hill_estimator` | `gamma > 0` | Near-Hill | The data may be contaminated |
+| `trimmed_hill_estimator` | `gamma > 0` | Near-Hill | Contamination, count roughly known |
+| `t_hill_estimator` | `gamma > 0` | Near-Hill | Contamination of unknown extremity |
+| `harmonic_moment_estimator` | `gamma > 0` | Tunable | As above, with a robustness dial |
 | `hill_estimator` | `gamma > 0` | High | The classical baseline |
 | `generalized_hill_estimator` | any `gamma` | Near-Hill | You are not certain the tail is heavy |
 | `moment_estimator` | any `gamma` | Near-Hill | As above; a useful cross-check |
@@ -717,3 +719,62 @@ tail_index_confidence_interval(
 
 Without `estimator_kwargs` the trimmed estimator runs at its default `r = 0`,
 which is the ordinary Hill estimator and gives no robustness at all.
+
+## Bounded influence
+
+Trimming needs you to guess how many observations are contaminated. The
+alternative is to bound each observation's influence so that no single one can
+dominate however extreme it is.
+
+Hill's contributions are `log(X_(i)/u)` for a threshold `u = X_(k+1)`, which
+grow without limit. The harmonic moment family uses the reciprocal ratios
+`R_i = u/X_(i)`, which lie in `(0, 1]`. A contaminated observation sent to
+infinity contributes `R_i -> 0`, and its effect saturates.
+
+```python
+from heavytails import t_hill_estimator, harmonic_moment_estimator
+
+t_hill_estimator(data, k=500)                      # beta = 1
+harmonic_moment_estimator(data, k=500, beta=2.0)   # more robust, less efficient
+```
+
+Sending one observation out of ten thousand from `1e2` to `1e30`:
+
+| Outlier | `hill` | `t_hill` | `harmonic` (beta=2) |
+| --- | --- | --- | --- |
+| 1e2 | 0.5016 | 0.5015 | 0.5018 |
+| 1e12 | 0.5477 | 0.5017 | 0.5018 |
+| 1e30 | 0.6306 | **0.5017** | **0.5018** |
+
+The Hill estimate keeps degrading. The other two do not move at all.
+
+### The derivation
+
+With `R_i = u / X_(i)` for the top `k` observations, under an exact Pareto tail
+`R ~ Beta(alpha, 1)`, so `E[R**beta] = alpha / (alpha + beta)`. Inverting:
+
+$$\hat{\alpha} = \frac{\beta H}{1 - H}, \qquad H = \frac{1}{k}\sum_{i=1}^{k} R_i^{\beta}$$
+
+`beta = 1` gives the **t-Hill** estimator. As `beta` tends to zero the estimator
+tends to the **Hill** estimator, which is a useful check: at `beta = 0.001` the
+two agree to five decimal places.
+
+### Choosing beta
+
+`beta` trades robustness against efficiency. Larger values weight observations
+near the threshold more and extreme ones less. Deviation from the clean-sample
+estimate, with twenty contaminated observations out of ten thousand:
+
+| beta | 0.25 | 0.5 | 1.0 | 3.0 |
+| --- | --- | --- | --- | --- |
+| Shift under contamination | 0.124 | 0.047 | 0.013 | 0.000 |
+
+Larger `beta` is monotonically more robust, at a cost in efficiency on clean
+data. `beta = 1` to `2` is a reasonable default.
+
+!!! note "Which robust estimator to reach for"
+    Use `trimmed_hill_estimator` when you can see roughly how many observations
+    are bad, for instance from `trimmed_hill_plot`. Use `t_hill_estimator` or
+    `harmonic_moment_estimator` when you cannot, or when the contamination may
+    be arbitrarily extreme. They address different problems: trimming removes
+    bad values, bounded influence limits what any one of them can do.
