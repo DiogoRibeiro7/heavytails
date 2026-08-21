@@ -12,7 +12,6 @@ from heavytails.roadmap import (
     improved_incomplete_beta,
     model_comparison,
     robust_hill_estimator,
-    safe_lognormal_ppf,
 )
 
 
@@ -652,20 +651,6 @@ class TestHelperFunctions:
         result = improved_incomplete_beta(2.0, 3.0, 0.5)
         assert 0 <= result <= 1
         assert math.isfinite(result)
-
-    def test_safe_lognormal_ppf(self):
-        """Test safe lognormal PPF function."""
-        # Test normal case
-        result = safe_lognormal_ppf(0.0, 1.0, 0.5)
-        assert result > 0
-        assert math.isfinite(result)
-
-    def test_safe_lognormal_ppf_overflow(self):
-        """Test safe lognormal PPF with extreme parameters."""
-        # Test extreme parameters that might cause overflow
-        result = safe_lognormal_ppf(100.0, 10.0, 0.9999)
-        # Should return inf or a very large number without crashing
-        assert result > 0  # Either finite or inf
 
 
 if __name__ == "__main__":

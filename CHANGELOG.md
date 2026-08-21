@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `LogNormal.ppf` raised `OverflowError` when the quantile exceeded the float
+  range instead of returning `inf`. The median of `LogNormal(mu=1000)` is
+  `exp(1000)`, which is genuinely not representable, so `inf` is the correct
+  answer; raising broke parameter sweeps and made the failure look like a
+  caller error. ([#296](https://github.com/DiogoRibeiro7/heavytails/issues/296))
+- `LogNormal.sf` is computed with `math.erfc` rather than as `1 - cdf(x)`, which
+  reached exactly zero by `x = 1e5` and carried no information beyond it. It now
+  matches SciPy to about 1e-14 relative out to `x = 1e12`.
+
+### Removed
+
+- `roadmap.safe_lognormal_ppf`, a workaround that caught the overflow above. It
+  is redundant now that `LogNormal.ppf` handles the case itself.
+
 ### Added
 
 - Python 3.13 support, covered by the CI test matrix and declared in the package
