@@ -2131,8 +2131,10 @@ aligned for each public release.</p>
 <ol>
 <li>Update the package version in <code>pyproject.toml</code>.</li>
 <li>Update <code>CITATION.cff</code> with the same version and release date.</li>
-<li>Update <code>.zenodo.json</code> when the title, authors, affiliations, keywords,
+<li>Update <code>CITATION.cff</code> when the title, authors, affiliations, keywords,
    references, license, or release date change.</li>
+<li>Update <code>.zenodo.json</code> only when Zenodo-specific fields change. The validator
+   checks that shared citation fields stay aligned with <code>CITATION.cff</code>.</li>
 <li>Run the metadata validator:</li>
 </ol>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>scripts/validate_zenodo_metadata.py
@@ -2150,7 +2152,8 @@ aligned for each public release.</p>
 <h2 id="zenodo-setup">Zenodo Setup<a class="headerlink" href="#zenodo-setup" title="Permanent link">&para;</a></h2>
 <p>Zenodo archives GitHub releases after the repository is connected in Zenodo's
 GitHub integration. The repository-level <code>.zenodo.json</code> file overrides the
-metadata Zenodo would otherwise infer from GitHub.</p>
+metadata Zenodo would otherwise infer from GitHub, while <code>CITATION.cff</code> remains
+the source of truth for shared citation fields.</p>
 <p>For the first archived release:</p>
 <ol>
 <li>Sign in to Zenodo with the maintainer account.</li>
