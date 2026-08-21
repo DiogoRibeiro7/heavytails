@@ -28,6 +28,7 @@ import heavytails
 from heavytails import Frechet, Pareto
 from heavytails.tail_index import (
     generalized_hill_estimator,
+    gpd_mle_estimator,
     harmonic_moment_estimator,
     hill_estimator,
     moment_estimator,
@@ -49,6 +50,7 @@ ESTIMATORS: dict[str, Estimator] = {
     "harmonic_beta2": lambda d, k: harmonic_moment_estimator(d, k, beta=2.0),
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
+    "gpd_mle": gpd_mle_estimator,
 }
 
 

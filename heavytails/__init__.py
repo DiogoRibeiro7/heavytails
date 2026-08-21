@@ -47,7 +47,9 @@ from .heavy_tails import (
     Weibull,
 )
 from .tail_index import (
+    fit_generalized_pareto,
     generalized_hill_estimator,
+    gpd_mle_estimator,
     harmonic_moment_estimator,
     hill_estimator,
     hill_plot,
@@ -84,7 +86,9 @@ __all__ = [
     "YuleSimon",
     "Zipf",
     "__version__",
+    "fit_generalized_pareto",
     "generalized_hill_estimator",
+    "gpd_mle_estimator",
     "harmonic_moment_estimator",
     "hill_estimator",
     "hill_plot",
