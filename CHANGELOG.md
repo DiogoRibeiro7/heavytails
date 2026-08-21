@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `generalized_hill_estimator`, the UH estimator of Beirlant, Vynckier and
+  Teugels (1996)
+  ([#299](https://github.com/DiogoRibeiro7/heavytails/issues/299)). Unlike the
+  Hill estimator it is consistent for every extreme-value index, not only
+  positive ones. On a Uniform(0,1) sample, whose index is -1, Hill can only
+  ever return a positive number and reports about +0.026; the generalized Hill
+  estimator recovers -0.99.
+- `hill_plot`, which sweeps k on a logarithmic grid and returns the
+  `(k, gamma)` series. The documentation already told readers to find a
+  plateau; they now have something that produces one.
+- `tail_index_confidence_interval`, with an asymptotic interval for the Hill
+  estimator and a percentile bootstrap for all four. Requesting the asymptotic
+  interval for an estimator that has no established closed form raises rather
+  than reporting a number with no basis.
+- `scripts/tail_index_study.py`, a simulation study reporting bias, standard
+  deviation and RMSE for every estimator across known indices and sample sizes.
+  Its results are summarised in the tail estimation guide.
+
+### Changed
+
+- `_phi_inverse` moved from `heavy_tails` to `_special`, alongside the other
+  numeric helpers, so `tail_index` can use it without importing the
+  distribution module. It was never public.
+
 ## [0.2.0] - 2026-08-21
 
 ### Added

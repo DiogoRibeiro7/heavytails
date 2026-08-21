@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import math
 import random
 
-from heavytails._special import _betainc_reg, _betaincinv_reg
+from heavytails._special import _betainc_reg, _betaincinv_reg, _phi_inverse
 
 # ----------------------------- Utilities ------------------------------------ #
 
@@ -559,87 +559,6 @@ class GEV_Frechet(Samplable):
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.uniform_0_1()
         return self.ppf(u)
-
-
-# -------------- Normal quantile (Acklam's Φ^{-1}) for LogNormal PPF ---------- #
-
-
-def _phi_inverse(u: float) -> float:
-    """
-    Approximate the inverse standard normal CDF (quantile) for u in (0,1).
-    Accuracy ~1e-9 in double precision. Based on Peter John Acklam's method.
-
-    Reference:
-    https://web.archive.org/web/20150910002153/http://home.online.no/~pjacklam/notes/invnorm/
-    """
-    if not (0.0 < u < 1.0):
-        raise ValueError("u must be in (0,1).")
-
-    # Coefficients
-    a = [
-        -3.969683028665376e01,
-        2.209460984245205e02,
-        -2.759285104469687e02,
-        1.383577518672690e02,
-        -3.066479806614716e01,
-        2.506628277459239e00,
-    ]
-    b = [
-        -5.447609879822406e01,
-        1.615858368580409e02,
-        -1.556989798598866e02,
-        6.680131188771972e01,
-        -1.328068155288572e01,
-    ]
-    c = [
-        -7.784894002430293e-03,
-        -3.223964580411365e-01,
-        -2.400758277161838e00,
-        -2.549732539343734e00,
-        4.374664141464968e00,
-        2.938163982698783e00,
-    ]
-    d = [
-        7.784695709041462e-03,
-        3.224671290700398e-01,
-        2.445134137142996e00,
-        3.754408661907416e00,
-    ]
-
-    # Break-points
-    plow = 0.02425
-    phigh = 1.0 - plow
-
-    if u < plow:
-        q = math.sqrt(-2.0 * math.log(u))
-        num = ((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]
-        den = (((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0
-        x = num / den
-    elif u > phigh:
-        q = math.sqrt(-2.0 * math.log(1.0 - u))
-        num = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5])
-        den = (((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0
-        x = num / den
-    else:
-        q = u - 0.5
-        r = q * q
-        num = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q
-        den = ((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1.0
-        x = num / den
-
-    # One Halley refinement for better accuracy
-    # φ(x) = standard normal pdf, Φ(x) = cdf
-    def phi(x: float) -> float:
-        return math.exp(-0.5 * x * x) / math.sqrt(2.0 * math.pi)
-
-    def Phi(x: float) -> float:
-        return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
-
-    x = x - (Phi(x) - u) / max(phi(x), 1e-300)
-    return x
-
-
-# ----------------------------- Demo / Self-test ------------------------------ #
 
 
 def _demo() -> None:
