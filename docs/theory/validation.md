@@ -181,10 +181,54 @@ would break the no-dependency promise:
 | Incomplete gamma    | Series expansion and continued fraction, switched on the argument | Inverse-Gamma |
 | Incomplete beta     | Continued fraction with a symmetry transform | Student-t, Beta-Prime     |
 
-Both are validated against SciPy over a grid spanning the ranges the
-distributions actually use, and against known closed-form values at special
-points. The switch between the series and the continued fraction is placed where
-both converge well, so accuracy does not degrade at the crossover.
+### Measured accuracy
+
+`scripts/special_function_accuracy.py` sweeps the parameter ranges the
+distributions actually use and compares against `mpmath` at 50 decimal digits,
+which is far beyond double precision and so serves as exact. Reproduce it with:
+
+```bash
+poetry run python scripts/special_function_accuracy.py
+```
+
+| Function | Points | Worst relative error | Worst at |
+| --- | --- | --- | --- |
+| Regularized incomplete beta | 180 | 8.9e-13 | a=1000, b=0.5, x=0.5 |
+| Regularized lower incomplete gamma | 90 | 5.4e-13 | a=1000, x=1000.5 |
+
+Both are therefore accurate to roughly **12 significant digits** across the
+ranges they are used in, against the 15 to 16 that double precision allows.
+
+Accuracy does not degrade where the method changes. Measured on either side of
+the switch point:
+
+| Function | Just below | Just above |
+| --- | --- | --- |
+| Incomplete beta, at `x = (a+1)/(a+b+2)` | 7.3e-13 | 8.4e-12 |
+| Incomplete gamma, at `x = a+1` | 1.1e-12 | 4.6e-14 |
+
+`tests/test_special_accuracy.py` asserts these bounds, so a regression fails the
+build rather than only changing a number on this page. `mpmath` is a
+development dependency and is not needed to use the library.
+
+### The bug this study found
+
+The continued-fraction branch of the incomplete gamma was **wrong**, not merely
+imprecise. Its Lentz recurrence started from `h = 1` instead of `h = 1/b₀` with
+`b₀ = x + 1 - a`, and advanced `b` as `x + 2n - a` rather than `x + 1 - a + 2n`.
+Dropping the leading term and shifting `b` by one produced plausible-looking
+numbers that were badly wrong: `P(20, 21)` returned `0.0` against a true
+`0.6157`.
+
+That branch is reached whenever `x ≥ a + 1`, and `InverseGamma.cdf` evaluates
+`P(α, β/x)`, so every `x` below roughly `β/(α+1)` was affected. Reported values
+were wrong by factors of 2 to 17 in the lower tail.
+
+This is the case for measuring rather than assuming. The function had passed
+every property-based check the suite applied — it was monotone, it stayed in
+[0, 1], it approached the right limits — because none of those properties
+distinguishes a correct value from a consistently wrong one. Only comparison
+against an independent high-precision reference did.
 
 ## Convergence and stability
 

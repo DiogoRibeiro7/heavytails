@@ -138,44 +138,42 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
             n += 1
         return summ * math.exp(-x + a * math.log(x) - math.lgamma(a))
 
-    # Continued fraction (A&S 6.5.31) via Lentz's method
-    # P(a,x) = 1 - e^{-x} x^a / Gamma(a) * 1/CF
-    # We compute Q(a,x) first through the CF, then P=1-Q
+    # Continued fraction (A&S 6.5.31) evaluated by modified Lentz.
+    #
+    #   Q(a,x) = e^{-x} x^a / Gamma(a) * CF,  CF = 1/(x+1-a - 1*(1-a)/(x+3-a - ...))
+    #
+    # The recurrence starts from b_0 = x + 1 - a with h = 1/b_0, and b advances
+    # by 2 each step. Starting from h = 1 and using b = x + 2n - a instead --
+    # dropping the leading term and shifting b by one -- produces a plausible
+    # looking number that is simply wrong, badly enough that P came back as 0.0
+    # where the true value was 0.6.
     MAX_ITER = 10_000
     EPS = 1e-14
     tiny = 1e-300
 
-    # Initialize Lentz
-    f = 1.0
-    C = 1.0 / tiny
-    D = 0.0
+    b = x + 1.0 - a
+    c = 1.0 / tiny
+    d = 1.0 / b if abs(b) > tiny else 1.0 / tiny
+    h = d
 
     for n in range(1, MAX_ITER + 1):
-        # a_n / b_n terms; see standard CF for regularized gamma
-        # Here we implement the modified Lentz for the continued fraction of Q
-        # Coefficients:
-        an = n * (a - n)
-        bn = x + 2.0 * n - a
-        # update D
-        D = bn + an * D
-        if abs(D) < tiny:
-            D = tiny
-        D = 1.0 / D
-        # update C
-        C = bn + an / C
-        if abs(C) < tiny:
-            C = tiny
-        delta = C * D
-        f *= delta
+        an = -n * (n - a)
+        b += 2.0
+        d = an * d + b
+        if abs(d) < tiny:
+            d = tiny
+        c = b + an / c
+        if abs(c) < tiny:
+            c = tiny
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
         if abs(delta - 1.0) < EPS:
             break
-    # Q(a,x) approx:
-    Q = f * math.exp(-x + a * math.log(x) - math.lgamma(a))
+
+    Q = h * math.exp(-x + a * math.log(x) - math.lgamma(a))
     P = 1.0 - Q
-    # Clamp to [0,1]
-    P = max(P, 0.0)
-    P = min(P, 1.0)
-    return P
+    return min(max(P, 0.0), 1.0)
 
 
 def _ppf_monotone(

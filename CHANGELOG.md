@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The continued-fraction branch of the regularized lower incomplete gamma was
+  wrong, not merely imprecise: its Lentz recurrence was missing its leading
+  term and its `b` was shifted by one, so `P(20, 21)` returned `0.0` against a
+  true `0.6157`
+  ([#297](https://github.com/DiogoRibeiro7/heavytails/issues/297)). That branch
+  is reached whenever `x >= a + 1`, and `InverseGamma.cdf` evaluates
+  `P(alpha, beta/x)`, so its reported probabilities were wrong by factors of 2
+  to 17 in the lower tail. Found by comparing against `mpmath`; the
+  property-based checks could not have caught it, because a consistently wrong
+  value is still monotone and still lies in [0, 1].
+
+### Added
+
+- `scripts/special_function_accuracy.py`, which sweeps both special functions
+  against `mpmath` at 50 decimal digits and reports the worst relative error.
+  Both are accurate to about 12 significant digits over the ranges the
+  distributions use, with no degradation at the series/continued-fraction
+  switch. `tests/test_special_accuracy.py` asserts those bounds.
+
+### Removed
+
+- `roadmap.improved_incomplete_beta`, a placeholder that delegated to
+  `_betainc_reg` unchanged. The accuracy work it stood in for is now done and
+  measured.
+
 ### Added
 
 - Kolmogorov-Smirnov and Anderson-Darling goodness-of-fit tests in
