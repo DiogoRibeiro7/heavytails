@@ -1,0 +1,11 @@
+# Default owner for everything in this repository.
+# Ordered by precedence: the last matching pattern wins.
+*                       @DiogoRibeiro7
+
+# Build, release and CI configuration.
+/.github/               @DiogoRibeiro7
+/pyproject.toml         @DiogoRibeiro7
+/poetry.lock            @DiogoRibeiro7
+
+# Numerical core: changes here need a careful mathematical review.
+/heavytails/            @DiogoRibeiro7

@@ -2,226 +2,278 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main, develop]
   release:
-    types: [ published ]
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  POETRY_VERSION: "2.2.1"
 
 jobs:
   test:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.10", "3.11", "3.12"]
-        
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          # Smoke-test the other platforms on a single interpreter to keep the
+          # matrix small while still catching OS-specific breakage.
+          - os: windows-latest
+            python-version: "3.12"
+          - os: macos-latest
+            python-version: "3.12"
+
     steps:
-    - uses: actions/checkout@v5
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install Poetry (with retry)
-      uses: snok/install-poetry@v1.4.1
-      with:
-        version: 1.8.3
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-      env:
-        POETRY_INSTALLER_MODERN: true
-        
-    - name: Configure Poetry
-      run: |
-        poetry config virtualenvs.create true
-        poetry config virtualenvs.in-project true
-        poetry config installer.modern-installation true
-        
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          venv-${{ runner.os }}-${{ matrix.python-version }}-
-          
-    - name: Install dependencies (with retry)
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: |
-        for i in {1..3}; do
-          poetry install --no-interaction --no-root --with dev && break
-          echo "Attempt $i failed, retrying..."
-          sleep 10
-        done
-      
-    - name: Install project
-      run: poetry install --no-interaction
-      
-    - name: Run tests with coverage
-      run: |
-        poetry run pytest tests/ \
-          --cov=heavytails \
-          --cov-report=xml \
-          --cov-report=html \
-          --cov-report=term-missing \
-          --cov-fail-under=73 \
+      - uses: actions/checkout@v5
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root --with dev
+
+      - name: Install project
+        run: poetry install --no-interaction --only-root
+
+      - name: Verify the lock file matches pyproject.toml
+        run: poetry check --lock
+
+      - name: Validate Zenodo metadata
+        run: poetry run python scripts/validate_zenodo_metadata.py
+
+      - name: Run tests with coverage
+        run: >-
+          poetry run pytest tests/
+          --cov=heavytails
+          --cov-report=xml
+          --cov-report=term-missing
+          --cov-fail-under=80
           --junitxml=pytest.xml
-          
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        
-    - name: Upload test results
-      uses: actions/upload-artifact@v5
-      if: always()
-      with:
-        name: test-results-${{ matrix.os }}-${{ matrix.python-version }}
-        path: |
-          pytest.xml
-          htmlcov/
-          
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: pytest.xml
+
   lint-and-type-check:
+    name: Lint and type check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v5
-    
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.11"
-        
-    - name: Install Poetry
-      uses: snok/install-poetry@v1.4.1
-      with:
-        version: 1.8.3
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-      env:
-        POETRY_INSTALLER_MODERN: true
-      
-    - name: Load cached venv
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-lint-${{ hashFiles('**/poetry.lock') }}
-        
-    - name: Install dependencies
-      run: poetry install --with dev
-      
-    - name: Run ruff linting
-      run: poetry run ruff check .
-      
-    - name: Run ruff formatting check
-      run: poetry run ruff format --check .
-      
-    - name: Run mypy type checking
-      run: poetry run mypy heavytails/ scripts/
-      
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-lint-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with dev
+
+      - name: Run ruff linting
+        run: poetry run ruff check --output-format=github .
+
+      - name: Run ruff formatting check
+        run: poetry run ruff format --check .
+
+      - name: Run mypy type checking
+        run: poetry run mypy heavytails/ scripts/
+
   security:
+    name: Security scan
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v5
-    
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.11"
-        
-    - name: Install Poetry
-      uses: snok/install-poetry@v1.4.1
-      with:
-        version: 1.8.3
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-      env:
-        POETRY_INSTALLER_MODERN: true
-      
-    - name: Install dependencies
-      run: poetry install --with dev
-      
-    - name: Run bandit security linter
-      run: poetry run bandit -r heavytails/ -f json -o bandit-report.json || true
-      
-    - name: Run safety check
-      run: poetry run safety check --json --output safety-report.json || true
-      
-    - name: Upload security reports
-      uses: actions/upload-artifact@v5
-      if: always()
-      with:
-        name: security-reports
-        path: |
-          bandit-report.json
-          safety-report.json
-          
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with dev,docs
+
+      # Findings here are actionable, so let the job fail instead of quietly
+      # uploading a report that nobody reads.
+      - name: Run bandit security linter
+        run: poetry run bandit -c pyproject.toml -r heavytails/ scripts/
+
+      # Audits the resolved environment. heavytails itself is installed as an
+      # editable local project and has no releases to check, hence --skip-editable.
+      - name: Audit dependencies for known vulnerabilities
+        run: poetry run pip-audit --skip-editable
+
   docs:
+    name: Documentation
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v5
-    
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.11"
-        
-    - name: Install Poetry
-      uses: snok/install-poetry@v1.4.1
-      with:
-        version: 1.8.3
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-      env:
-        POETRY_INSTALLER_MODERN: true
-      
-    - name: Install dependencies
-      run: poetry install --with dev,docs
-      
-    - name: Build documentation
-      run: poetry run mkdocs build
-      
-    - name: Deploy documentation to GitHub Pages
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: poetry run mkdocs gh-deploy --force
-      
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with docs
+
+      # --strict turns broken links and missing references into failures.
+      - name: Build documentation
+        run: poetry run mkdocs build --strict
+
+  deploy-docs:
+    name: Deploy documentation
+    needs: [test, lint-and-type-check, docs]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --with docs
+
+      - name: Deploy to GitHub Pages
+        run: poetry run mkdocs gh-deploy --force
+
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+
+      - name: Build package
+        run: poetry build
+
+      # Catches malformed metadata before it reaches PyPI, where it is permanent.
+      - name: Check distribution metadata
+        run: |
+          python -m pip install --upgrade twine
+          twine check dist/*
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v5
+        with:
+          name: dist
+          path: dist/
+
   publish:
-    needs: [test, lint-and-type-check, security]
+    name: Publish to PyPI
+    needs: [test, lint-and-type-check, security, build]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
-    environment: 
+    environment:
       name: pypi
       url: https://pypi.org/p/heavytails
     permissions:
-      id-token: write  # for trusted publishing
-    
+      id-token: write # required for PyPI trusted publishing
     steps:
-    - uses: actions/checkout@v5
-    
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.11"
-        
-    - name: Install Poetry
-      uses: snok/install-poetry@v1.4.1
-      with:
-        version: 1.8.3
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-      env:
-        POETRY_INSTALLER_MODERN: true
-      
-    - name: Build package
-      run: poetry build
-      
-    - name: Publish to PyPI (Trusted Publishing)
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        packages-dir: dist/
+      - name: Download distributions
+        uses: actions/download-artifact@v6
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI (Trusted Publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

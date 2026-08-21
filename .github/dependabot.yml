@@ -1,24 +1,61 @@
 version: 2
+
+# Reviewers are assigned from .github/CODEOWNERS; the `reviewers` key here is
+# deprecated and is intentionally omitted.
 updates:
-  # Python dependencies
+  # Python dependencies. Updates are grouped so a normal week produces a couple
+  # of reviewable pull requests rather than a dozen single-package ones.
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "diogoribeiro7"
+      day: "monday"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "python"
+    commit-message:
+      prefix: "build"
+      prefix-development: "build"
+      include: "scope"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "pytest*"
+          - "hypothesis"
+          - "ruff"
+          - "mypy"
+          - "pre-commit"
+          - "bandit"
+          - "pip-audit"
+          - "types-*"
+      docs-dependencies:
+        patterns:
+          - "mkdocs*"
+          - "mkdocstrings*"
+      example-dependencies:
+        patterns:
+          - "matplotlib"
+          - "seaborn"
+          - "pandas"
+          - "plotly"
+          - "notebook"
+          - "numpy"
+          - "scipy"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
-    reviewers:
-      - "diogoribeiro7"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions:
+        patterns:
+          - "*"
