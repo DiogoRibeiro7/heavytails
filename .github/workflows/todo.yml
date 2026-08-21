@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           # If you plan to run "import all" against history, set fetch-depth: 0
           fetch-depth: 1
@@ -99,7 +99,7 @@ jobs:
 
       # Run Issue Bot
       - name: Run Issue Bot
-        uses: juulsn/todo-issue@v1.1.5
+        uses: juulsn/todo-issue@v2.0.0
         env:
           GITHUB_TOKEN: ${{ env.ISSUE_TOKEN }}
         with:
