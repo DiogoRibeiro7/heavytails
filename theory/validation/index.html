@@ -1309,6 +1309,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Numerical accuracy of the special functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#measured-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured accuracy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-bug-this-study-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The bug this study found
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2431,10 +2459,79 @@ would break the no-dependency promise:</p>
 </tr>
 </tbody>
 </table>
-<p>Both are validated against SciPy over a grid spanning the ranges the
-distributions actually use, and against known closed-form values at special
-points. The switch between the series and the continued fraction is placed where
-both converge well, so accuracy does not degrade at the crossover.</p>
+<h3 id="measured-accuracy">Measured accuracy<a class="headerlink" href="#measured-accuracy" title="Permanent link">&para;</a></h3>
+<p><code>scripts/special_function_accuracy.py</code> sweeps the parameter ranges the
+distributions actually use and compares against <code>mpmath</code> at 50 decimal digits,
+which is far beyond double precision and so serves as exact. Reproduce it with:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>scripts/special_function_accuracy.py
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Points</th>
+<th>Worst relative error</th>
+<th>Worst at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Regularized incomplete beta</td>
+<td>180</td>
+<td>8.9e-13</td>
+<td>a=1000, b=0.5, x=0.5</td>
+</tr>
+<tr>
+<td>Regularized lower incomplete gamma</td>
+<td>90</td>
+<td>5.4e-13</td>
+<td>a=1000, x=1000.5</td>
+</tr>
+</tbody>
+</table>
+<p>Both are therefore accurate to roughly <strong>12 significant digits</strong> across the
+ranges they are used in, against the 15 to 16 that double precision allows.</p>
+<p>Accuracy does not degrade where the method changes. Measured on either side of
+the switch point:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Just below</th>
+<th>Just above</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Incomplete beta, at <code>x = (a+1)/(a+b+2)</code></td>
+<td>7.3e-13</td>
+<td>8.4e-12</td>
+</tr>
+<tr>
+<td>Incomplete gamma, at <code>x = a+1</code></td>
+<td>1.1e-12</td>
+<td>4.6e-14</td>
+</tr>
+</tbody>
+</table>
+<p><code>tests/test_special_accuracy.py</code> asserts these bounds, so a regression fails the
+build rather than only changing a number on this page. <code>mpmath</code> is a
+development dependency and is not needed to use the library.</p>
+<h3 id="the-bug-this-study-found">The bug this study found<a class="headerlink" href="#the-bug-this-study-found" title="Permanent link">&para;</a></h3>
+<p>The continued-fraction branch of the incomplete gamma was <strong>wrong</strong>, not merely
+imprecise. Its Lentz recurrence started from <code>h = 1</code> instead of <code>h = 1/b₀</code> with
+<code>b₀ = x + 1 - a</code>, and advanced <code>b</code> as <code>x + 2n - a</code> rather than <code>x + 1 - a + 2n</code>.
+Dropping the leading term and shifting <code>b</code> by one produced plausible-looking
+numbers that were badly wrong: <code>P(20, 21)</code> returned <code>0.0</code> against a true
+<code>0.6157</code>.</p>
+<p>That branch is reached whenever <code>x ≥ a + 1</code>, and <code>InverseGamma.cdf</code> evaluates
+<code>P(α, β/x)</code>, so every <code>x</code> below roughly <code>β/(α+1)</code> was affected. Reported values
+were wrong by factors of 2 to 17 in the lower tail.</p>
+<p>This is the case for measuring rather than assuming. The function had passed
+every property-based check the suite applied — it was monotone, it stayed in
+[0, 1], it approached the right limits — because none of those properties
+distinguishes a correct value from a consistently wrong one. Only comparison
+against an independent high-precision reference did.</p>
 <h2 id="convergence-and-stability">Convergence and stability<a class="headerlink" href="#convergence-and-stability" title="Permanent link">&para;</a></h2>
 <p>Two further studies check behaviour that a single-point comparison cannot:</p>
 <ul>
@@ -2445,15 +2542,15 @@ both converge well, so accuracy does not degrade at the crossover.</p>
 <li><strong>Parameter stability.</strong> <code>parameter_stability_check</code> sweeps a family across its
   parameter range and looks for discontinuities, overflow and loss of precision.</li>
 </ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameter_stability_check</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">parameter_stability_check</span><span class="p">(</span><span class="s2">"pareto"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameter_stability_check</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">parameter_stability_check</span><span class="p">(</span><span class="s2">"pareto"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="reproducing-the-results">Reproducing the results<a class="headerlink" href="#reproducing-the-results" title="Permanent link">&para;</a></h2>
 <p>Everything on this page runs from a checkout:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>dev,benchmarks
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">                    </span><span class="c1"># the full suite, including property tests</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>property<span class="w">        </span><span class="c1"># property-based tests only</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>dev,benchmarks
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">                    </span><span class="c1"># the full suite, including property tests</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>property<span class="w">        </span><span class="c1"># property-based tests only</span>
 </span></code></pre></div>
 <p>Sampling is seeded through the library's deterministic RNG wrapper, so validation
 runs are reproducible: the same seed gives the same sample and therefore the same

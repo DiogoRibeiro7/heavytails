@@ -1911,17 +1911,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Added
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1933,7 +1922,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1955,7 +1944,51 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1977,7 +2010,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1988,7 +2021,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed_1" class="md-nav__link">
+  <a href="#removed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Removed
@@ -2016,7 +2049,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_3" class="md-nav__link">
+  <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2217,7 +2250,34 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The continued-fraction branch of the regularized lower incomplete gamma was
+  wrong, not merely imprecise: its Lentz recurrence was missing its leading
+  term and its <code>b</code> was shifted by one, so <code>P(20, 21)</code> returned <code>0.0</code> against a
+  true <code>0.6157</code>
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/297">#297</a>). That branch
+  is reached whenever <code>x &gt;= a + 1</code>, and <code>InverseGamma.cdf</code> evaluates
+  <code>P(alpha, beta/x)</code>, so its reported probabilities were wrong by factors of 2
+  to 17 in the lower tail. Found by comparing against <code>mpmath</code>; the
+  property-based checks could not have caught it, because a consistently wrong
+  value is still monotone and still lies in [0, 1].</li>
+</ul>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>scripts/special_function_accuracy.py</code>, which sweeps both special functions
+  against <code>mpmath</code> at 50 decimal digits and reports the worst relative error.
+  Both are accurate to about 12 significant digits over the ranges the
+  distributions use, with no degradation at the series/continued-fraction
+  switch. <code>tests/test_special_accuracy.py</code> asserts those bounds.</li>
+</ul>
+<h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>roadmap.improved_incomplete_beta</code>, a placeholder that delegated to
+  <code>_betainc_reg</code> unchanged. The accuracy work it stood in for is now done and
+  measured.</li>
+</ul>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Kolmogorov-Smirnov and Anderson-Darling goodness-of-fit tests in
   <code>heavytails.validation.GoodnessOfFitTests</code>, which previously raised
@@ -2227,7 +2287,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   command, so a comparison now says whether the winning family fits, not only
   how it ranks.</li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Quantile functions now behave the same way across every family
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/298">#298</a>). Previously
@@ -2245,7 +2305,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   budget with the bracket as wide as it started. It now narrows on every
   iteration, which also fixed a non-monotonicity in <code>InverseGamma.ppf</code>.</li>
 </ul>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>ConvergenceError</code>, raised when a solver cannot reach its tolerance. It
@@ -2263,12 +2323,12 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   reached exactly zero by <code>x = 1e5</code> and carried no information beyond it. It now
   matches SciPy to about 1e-14 relative out to <code>x = 1e12</code>.</li>
 </ul>
-<h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
+<h3 id="removed_1">Removed<a class="headerlink" href="#removed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>roadmap.safe_lognormal_ppf</code>, a workaround that caught the overflow above. It
   is redundant now that <code>LogNormal.ppf</code> handles the case itself.</li>
 </ul>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Python 3.13 support, covered by the CI test matrix and declared in the package
   classifiers.</li>
@@ -2330,7 +2390,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   hand-written reference pages while <code>literate-nav</code> looked for a <code>SUMMARY.md</code>
   that was never generated.</li>
 </ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails benchmark</code> raised <code>ZeroDivisionError</code> on platforms with a
   low-resolution wall clock, because a sub-millisecond timing measured exactly
@@ -2357,7 +2417,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Removed a stale <code>xfail</code> marker on the Student-t PPF convergence test. It was
   recording precision loss that the new incomplete beta inverse eliminates.</li>
 </ul>
-<h3 id="removed_1">Removed<a class="headerlink" href="#removed_1" title="Permanent link">&para;</a></h3>
+<h3 id="removed_2">Removed<a class="headerlink" href="#removed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>tox.ini</code>, which ran the test suite against <code>scripts/</code> instead of the package
   and duplicated the CI matrix.</li>
@@ -2368,7 +2428,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   Ruff's <code>I</code> rules.</li>
 </ul>
 <h2 id="010-2025-10-25"><a href="https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0">0.1.0</a> - 2025-10-25<a class="headerlink" href="#010-2025-10-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Continuous heavy-tailed distributions implemented from first principles:
   Pareto, Cauchy, Student-t, Log-Normal, Weibull, Fréchet and GEV (ξ &gt; 0).</li>
