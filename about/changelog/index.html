@@ -1922,6 +1922,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#removed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1933,7 +1944,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1994,7 +2005,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2197,11 +2208,36 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>LogNormal.ppf</code> raised <code>OverflowError</code> when the quantile exceeded the float
+<li>Quantile functions now behave the same way across every family
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/298">#298</a>). Previously
+  the answer at the edges depended on which family you asked: <code>Pareto</code>,
+  <code>Weibull</code>, <code>Frechet</code>, <code>GEV_Frechet</code>, <code>BurrXII</code> and <code>LogLogistic</code> raised
+  <code>OverflowError</code> where the quantile simply exceeded the float range,
+  <code>InverseGamma</code> raised a <code>ValueError</code> about failing to bracket the root,
+  <code>LogNormal</code> returned <code>inf</code>, and <code>BetaPrime</code> returned a finite value. All of
+  them now return <code>inf</code>.</li>
+<li><code>DiscretePareto.ppf</code> accepted any float, including <code>0.0</code>, <code>1.5</code> and negatives,
+  and silently returned the support bounds. It now raises <code>ValueError</code> like
+  every other family.</li>
+<li><code>_ppf_monotone</code> narrowed its bracket only on bisection fallbacks, never on
+  accepted Newton steps, so a run of Newton steps could exhaust the iteration
+  budget with the bracket as wide as it started. It now narrows on every
+  iteration, which also fixed a non-monotonicity in <code>InverseGamma.ppf</code>.</li>
+</ul>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>ConvergenceError</code>, raised when a solver cannot reach its tolerance. It
+  previously returned its best guess, which the caller could not distinguish
+  from a converged answer.</p>
+</li>
+<li>
+<p><code>LogNormal.ppf</code> raised <code>OverflowError</code> when the quantile exceeded the float
   range instead of returning <code>inf</code>. The median of <code>LogNormal(mu=1000)</code> is
   <code>exp(1000)</code>, which is genuinely not representable, so <code>inf</code> is the correct
   answer; raising broke parameter sweeps and made the failure look like a
-  caller error. (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/296">#296</a>)</li>
+  caller error. (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/296">#296</a>)</p>
+</li>
 <li><code>LogNormal.sf</code> is computed with <code>math.erfc</code> rather than as <code>1 - cdf(x)</code>, which
   reached exactly zero by <code>x = 1e5</code> and carried no information beyond it. It now
   matches SciPy to about 1e-14 relative out to <code>x = 1e12</code>.</li>
@@ -2211,7 +2247,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>roadmap.safe_lognormal_ppf</code>, a workaround that caught the overflow above. It
   is redundant now that <code>LogNormal.ppf</code> handles the case itself.</li>
 </ul>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Python 3.13 support, covered by the CI test matrix and declared in the package
   classifiers.</li>
@@ -2311,7 +2347,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   Ruff's <code>I</code> rules.</li>
 </ul>
 <h2 id="010-2025-10-25"><a href="https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0">0.1.0</a> - 2025-10-25<a class="headerlink" href="#010-2025-10-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Continuous heavy-tailed distributions implemented from first principles:
   Pareto, Cauchy, Student-t, Log-Normal, Weibull, Fréchet and GEV (ξ &gt; 0).</li>

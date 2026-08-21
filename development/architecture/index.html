@@ -1743,6 +1743,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#the-quantile-function-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The quantile function contract
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#3-the-numeric-quantile-solver" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2355,11 +2366,48 @@ each switching between a series expansion and a continued fraction depending on
 the argument. The switch point is chosen where both converge well, so accuracy
 does not dip at the crossover. Their accuracy is checked against SciPy in
 <a href="../../theory/validation/">Validation Studies</a>.</p>
+<h3 id="the-quantile-function-contract">The quantile function contract<a class="headerlink" href="#the-quantile-function-contract" title="Permanent link">&para;</a></h3>
+<p>Every family honours the same contract, so callers do not have to special-case
+by family:</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>u</code> outside the open interval (0, 1)</td>
+<td>raises <code>ValueError</code></td>
+</tr>
+<tr>
+<td>Quantile beyond the float range</td>
+<td>returns <code>inf</code></td>
+</tr>
+<tr>
+<td>Solver cannot converge</td>
+<td>raises <code>ConvergenceError</code></td>
+</tr>
+</tbody>
+</table>
+<p>Returning <code>inf</code> rather than raising matters in practice: a parameter sweep that
+crosses into the unrepresentable region should report <code>inf</code> for those points and
+carry on, not abort at the first one. <code>LogNormal(mu=1000).ppf(0.5)</code> is <code>exp(1000)</code>,
+which is genuinely not a float, and <code>inf</code> is the honest answer.</p>
+<p><code>ConvergenceError</code> exists so that a solver which ran out of iterations is
+distinguishable from one that succeeded. Returning a best guess would leave the
+caller unable to tell the two apart.</p>
 <h3 id="3-the-numeric-quantile-solver">3. The numeric quantile solver<a class="headerlink" href="#3-the-numeric-quantile-solver" title="Permanent link">&para;</a></h3>
 <p>Families without a closed-form quantile use a safeguarded Newton iteration in
-<code>extra_distributions</code>: Newton steps for speed, with a bisection fallback whenever
-a step would leave the bracket. That guarantees convergence even where the
-density is nearly flat, which unguarded Newton cannot.</p>
+<code>_special</code>: Newton steps for speed, with a bisection fallback whenever a step
+would leave the bracket. That guarantees convergence even where the density is
+nearly flat, which unguarded Newton cannot.</p>
+<p>The bracket is narrowed on every iteration from the sign of the residual,
+including the iterations where a Newton step is accepted. Narrowing it only on
+bisection fallbacks looks equivalent but is not: a run of accepted Newton steps
+then consumes the whole iteration budget while the bracket stays as wide as it
+started, so the method cannot tell whether it has converged.</p>
 <h3 id="4-estimation-and-diagnostics">4. Estimation and diagnostics<a class="headerlink" href="#4-estimation-and-diagnostics" title="Permanent link">&para;</a></h3>
 <p><code>tail_index</code> and <code>plotting</code> are deliberately thin and free of state. They take
 sequences of floats and return numbers or coordinate lists. Keeping them
