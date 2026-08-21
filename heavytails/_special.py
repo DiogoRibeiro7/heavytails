@@ -7,10 +7,22 @@ These live in their own module so that both :mod:`heavytails.heavy_tails` and
 from __future__ import annotations
 
 import math
+import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+# Spacing of the floats near 1.0; used to decide when a bracket has collapsed.
+_ULP = sys.float_info.epsilon
+
+
+class ConvergenceError(RuntimeError):
+    """Raised when an iterative solver fails to reach the requested tolerance.
+
+    Returning a best guess instead would be worse: the caller cannot tell an
+    answer good to machine precision from one the solver simply stopped at.
+    """
 
 
 def _log_beta(a: float, b: float) -> float:
@@ -175,17 +187,52 @@ def _ppf_monotone(
     max_iter: int = 100,
     tol: float = 1e-12,
 ) -> float:
-    """
-    Generic monotone inverse for continuous distributions on (lo,hi).
-    Safeguarded Newton: try Newton when pdf is available and well-behaved,
-    otherwise fall back to bisection.
+    """Generic monotone inverse for continuous distributions on ``(lo, hi)``.
+
+    Safeguarded Newton: a Newton step is taken whenever the density is
+    available, positive, and the step stays inside the current bracket;
+    otherwise the method bisects.
+
+    The bracket is narrowed on **every** iteration from the sign of the
+    residual, including the ones where a Newton step is taken. An earlier
+    version only narrowed it on bisection fallbacks, so a run of accepted
+    Newton steps could consume the whole iteration budget while the bracket
+    stayed as wide as it started, leaving no way to tell a converged answer
+    from an abandoned one.
+
+    Parameters
+    ----------
+    cdf : callable
+        Monotone non-decreasing distribution function.
+    lo, hi : float
+        Bracket known to contain the quantile.
+    u : float
+        Probability in the open interval (0, 1).
+    pdf : callable, optional
+        Density, used for the Newton steps. Bisection only, if omitted.
+    max_iter : int, optional
+        Maximum iterations before giving up.
+    tol : float, optional
+        Absolute tolerance on the residual ``cdf(x) - u``.
+
+    Returns
+    -------
+    float
+        The quantile.
+
+    Raises
+    ------
+    ValueError
+        If ``u`` is outside (0, 1) or ``[lo, hi]`` does not bracket the root.
+    ConvergenceError
+        If the tolerance is not met and the bracket has not collapsed to the
+        resolution of the floats around it.
     """
     if not (0.0 < u < 1.0):
         raise ValueError("u must be in (0,1).")
     a, b = lo, hi
     fa, fb = cdf(a), cdf(b)
     if not (fa <= u <= fb):
-        # expand bounds if possible
         raise ValueError("Provided [lo, hi] does not bracket the quantile.")
     x = 0.5 * (a + b)
 
@@ -193,22 +240,37 @@ def _ppf_monotone(
         fx = cdf(x) - u
         if abs(fx) < tol:
             return x
-        # Try Newton if pdf provided
-        if pdf is not None:
-            dfx = pdf(x)
-            if dfx > 0.0:
-                step = fx / dfx
-                xn = x - step
-                if a < xn < b:
-                    x = xn
-                    continue
-        # Bisection fallback
+
+        # Narrow the bracket from the sign of the residual, whatever kind of
+        # step produced x. This is what guarantees progress.
         if fx > 0.0:
             b = x
         else:
             a = x
-        x = 0.5 * (a + b)
-    return x
+
+        # A bracket at the resolution of the floats around it cannot be
+        # narrowed further; the density is flat here and x is as good as the
+        # representation allows.
+        if b - a <= 4.0 * _ULP * max(abs(a), abs(b), 1.0):
+            return x
+
+        stepped = False
+        if pdf is not None:
+            dfx = pdf(x)
+            if dfx > 0.0:
+                xn = x - fx / dfx
+                if a < xn < b:
+                    x = xn
+                    stepped = True
+        if not stepped:
+            x = 0.5 * (a + b)
+
+    if b - a <= 4.0 * _ULP * max(abs(a), abs(b), 1.0):
+        return x
+    raise ConvergenceError(
+        f"ppf did not converge for u={u!r}: after {max_iter} iterations the "
+        f"bracket is still [{a!r}, {b!r}] with residual {cdf(x) - u!r}."
+    )
 
 
 def _betaincinv_reg(

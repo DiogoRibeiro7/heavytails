@@ -46,7 +46,7 @@ class Zipf(Samplable):
 
     def ppf(self, u: float) -> int:
         if not (0.0 < u < 1.0):
-            raise ValueError("u in (0,1)")
+            raise ValueError("u must be in (0,1).")
         c, _total = 0.0, 0
         for n in range(1, self.kmax + 1):
             c += n ** (-self.s)
@@ -186,6 +186,9 @@ class DiscretePareto(Samplable):
         return self.ppf(rng.uniform_0_1())
 
     def ppf(self, u: float) -> int:
+        """Smallest k with ``cdf(k) >= u``."""
+        if not (0.0 < u < 1.0):
+            raise ValueError("u must be in (0,1).")
         c = 0.0
         for k in range(self.k_min, self.k_max + 1):
             c += ((k / self.k_min) ** (-self.alpha)) / self._H

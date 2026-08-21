@@ -97,12 +97,38 @@ the argument. The switch point is chosen where both converge well, so accuracy
 does not dip at the crossover. Their accuracy is checked against SciPy in
 [Validation Studies](../theory/validation.md).
 
+### The quantile function contract
+
+Every family honours the same contract, so callers do not have to special-case
+by family:
+
+| Situation | Behaviour |
+| --- | --- |
+| `u` outside the open interval (0, 1) | raises `ValueError` |
+| Quantile beyond the float range | returns `inf` |
+| Solver cannot converge | raises `ConvergenceError` |
+
+Returning `inf` rather than raising matters in practice: a parameter sweep that
+crosses into the unrepresentable region should report `inf` for those points and
+carry on, not abort at the first one. `LogNormal(mu=1000).ppf(0.5)` is `exp(1000)`,
+which is genuinely not a float, and `inf` is the honest answer.
+
+`ConvergenceError` exists so that a solver which ran out of iterations is
+distinguishable from one that succeeded. Returning a best guess would leave the
+caller unable to tell the two apart.
+
 ### 3. The numeric quantile solver
 
 Families without a closed-form quantile use a safeguarded Newton iteration in
-`extra_distributions`: Newton steps for speed, with a bisection fallback whenever
-a step would leave the bracket. That guarantees convergence even where the
-density is nearly flat, which unguarded Newton cannot.
+`_special`: Newton steps for speed, with a bisection fallback whenever a step
+would leave the bracket. That guarantees convergence even where the density is
+nearly flat, which unguarded Newton cannot.
+
+The bracket is narrowed on every iteration from the sign of the residual,
+including the iterations where a Newton step is accepted. Narrowing it only on
+bisection fallbacks looks equivalent but is not: a run of accepted Newton steps
+then consumes the whole iteration budget while the bracket stays as wide as it
+started, so the method cannot tell whether it has converged.
 
 ### 4. Estimation and diagnostics
 
