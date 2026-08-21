@@ -612,6 +612,202 @@ def t_hill_estimator(data: Sequence[float], k: int) -> float:
     return harmonic_moment_estimator(data, k, beta=1.0)
 
 
+def _gpd_profile_log_likelihood(theta: float, exceedances: Sequence[float]) -> float:
+    """Profile log-likelihood of the GPD at ``theta = xi / sigma``.
+
+    Substituting ``theta`` reduces the two-parameter likelihood to one
+    dimension (Grimshaw 1993): for fixed theta the profile maximum is
+    ``xi = mean(log(1 + theta * y))`` and ``sigma = xi / theta``, at which the
+    log-likelihood is ``n * (log|theta| - log|xi| - xi - 1)``.
+    """
+    if theta == 0.0:
+        return -math.inf
+    xi = sum(math.log1p(theta * y) for y in exceedances) / len(exceedances)
+    if xi == 0.0:
+        return -math.inf
+    # sigma must be positive, which requires xi and theta to share a sign.
+    if xi / theta <= 0.0:
+        return -math.inf
+    return len(exceedances) * (math.log(abs(theta)) - math.log(abs(xi)) - xi - 1.0)
+
+
+def fit_generalized_pareto(
+    exceedances: Sequence[float], scan: int = 200, iterations: int = 60
+) -> dict[str, float]:
+    """
+    Fit a generalized Pareto distribution to exceedances by maximum likelihood.
+
+    Uses the reduction of Grimshaw (1993), which turns the two-parameter
+    problem into a one-dimensional search over ``theta = xi / sigma``. The
+    profile is scanned coarsely to bracket the maximum and then refined by
+    golden-section search, which needs no derivatives and no third-party
+    optimiser.
+
+    Valid for any sign of ``xi``, so unlike the Hill family this does not
+    assume the tail is heavy.
+
+    Parameters
+    ----------
+    exceedances : sequence of floats
+        Amounts by which observations exceed a threshold. All must be strictly
+        positive.
+    scan : int, optional
+        Number of points in the initial bracketing scan. The profile can be
+        flat far from its maximum, so a scan is more reliable than starting the
+        search from an arbitrary point.
+    iterations : int, optional
+        Golden-section refinement steps. Sixty reduces the bracket by a factor
+        of about 1e-13, which is past the precision of the data.
+
+    Returns
+    -------
+    dict
+        ``xi`` (shape), ``sigma`` (scale), ``n`` and ``log_likelihood``.
+
+    Raises
+    ------
+    ValueError
+        If fewer than two exceedances are given, or any is not positive.
+
+    References
+    ----------
+    Grimshaw, S. D. (1993). Computing maximum likelihood estimates for the
+    generalized Pareto distribution. *Technometrics*, 35(2), 185-191.
+
+    Examples
+    --------
+    >>> from heavytails import GeneralizedPareto
+    >>> y = GeneralizedPareto(xi=0.5, sigma=1.0, mu=0.0).rvs(5000, seed=7)
+    >>> round(fit_generalized_pareto(y)["xi"], 1)
+    0.5
+    """
+    values = [float(y) for y in exceedances]
+    if len(values) < 2:
+        raise ValueError("need at least two exceedances to fit a GPD")
+    if min(values) <= 0.0:
+        raise ValueError("exceedances must be strictly positive")
+
+    largest = max(values)
+    ordered = sorted(values)
+    median = ordered[len(ordered) // 2]
+
+    # theta > -1/max(y) keeps 1 + theta*y positive for every observation.
+    lo = -1.0 / largest + 1e-10
+
+    # theta = xi/sigma, and sigma is a scale, so theta is of order 1/scale. The
+    # median is the scale proxy rather than the mean, because the mean does not
+    # exist for xi >= 1: at xi = 1.5 a bound of 20/mean puts the true theta of
+    # 3.0 outside the search entirely. Both halves are spaced logarithmically
+    # in |theta|, so the grid is equally fine near zero and near the boundary;
+    # a linear negative grid is too coarse where the optimum sits close to
+    # -1/max(y), which cost two decimal places at xi = -0.5.
+    points = max(scan, 16)
+
+    negative_high, negative_low = math.log(abs(lo)), math.log(abs(lo) * 1e-6)
+    negatives = [
+        -math.exp(negative_low + (negative_high - negative_low) * i / points)
+        for i in range(points + 1)
+    ]
+    negatives.reverse()  # ascending, from just above lo to just below zero
+
+    log_low, log_high = math.log(1e-6 / median), math.log(1e6 / median)
+    positives = [
+        math.exp(log_low + (log_high - log_low) * i / points) for i in range(points + 1)
+    ]
+    candidates: list[float] = negatives + positives
+
+    best_theta = None
+    best_value = -math.inf
+    best_index = 0
+    for index, theta in enumerate(candidates):
+        value = _gpd_profile_log_likelihood(theta, values)
+        if value > best_value:
+            best_value, best_theta, best_index = value, theta, index
+
+    if best_theta is None:
+        raise ValueError(
+            "could not bracket the likelihood maximum; the sample may be degenerate"
+        )
+
+    # Refine between the neighbours of the best grid point.
+    a = candidates[max(best_index - 1, 0)]
+    b = candidates[min(best_index + 1, len(candidates) - 1)]
+    if a > b:
+        a, b = b, a
+    golden = (math.sqrt(5.0) - 1.0) / 2.0
+    for _ in range(iterations):
+        c, d = b - golden * (b - a), a + golden * (b - a)
+        if _gpd_profile_log_likelihood(c, values) > _gpd_profile_log_likelihood(
+            d, values
+        ):
+            b = d
+        else:
+            a = c
+
+    theta = 0.5 * (a + b)
+    xi = sum(math.log1p(theta * y) for y in values) / len(values)
+    return {
+        "xi": float(xi),
+        "sigma": float(xi / theta),
+        "n": len(values),
+        "log_likelihood": _gpd_profile_log_likelihood(theta, values),
+    }
+
+
+def gpd_mle_estimator(data: Sequence[float], k: int) -> float:
+    """
+    Peaks-over-threshold estimator: fit a GPD to the exceedances above X_(k+1).
+
+    The parametric alternative to the semiparametric estimators in this module.
+    Rather than averaging a functional of the upper order statistics, it fits a
+    two-parameter model to the exceedances and estimates shape and scale
+    jointly, which is what the Pickands-Balkema-de Haan theorem licenses.
+
+    Valid for any sign of the index, and noticeably slower than the closed-form
+    estimators because it optimises. That matters mainly for bootstrapping, so
+    reduce ``n_bootstrap`` accordingly.
+
+    Parameters
+    ----------
+    data : sequence of floats
+        Sample values.
+    k : int
+        Number of exceedances to use, with ``1 < k < n``. The threshold is the
+        ``(k+1)``-th largest observation.
+
+    Returns
+    -------
+    float
+        The extreme-value index estimate gamma, which is the GPD shape
+        parameter.
+
+    Raises
+    ------
+    ValueError
+        If k is out of range or the exceedances are degenerate.
+
+    Examples
+    --------
+    >>> from heavytails import Pareto
+    >>> data = Pareto(alpha=2.0, xm=1.0).rvs(20000, seed=3)
+    >>> round(gpd_mle_estimator(data, k=1000), 1)
+    0.5
+    """
+    x = sorted(data, reverse=True)
+    n = len(x)
+    if not (1 < k < n):
+        raise ValueError("k must be between 1 and n-1")
+
+    threshold = x[k]
+    exceedances = [x[i] - threshold for i in range(k) if x[i] > threshold]
+    if len(exceedances) < 2:
+        raise ValueError(
+            "fewer than two observations exceed the threshold; the sample is "
+            "tied at the top and the index is not identifiable"
+        )
+    return fit_generalized_pareto(exceedances)["xi"]
+
+
 #: Estimators available to :func:`tail_index_confidence_interval`.
 _POINT_ESTIMATORS: dict[str, Callable[..., float]] = {
     "hill": hill_estimator,
@@ -620,6 +816,7 @@ _POINT_ESTIMATORS: dict[str, Callable[..., float]] = {
     "trimmed_hill": trimmed_hill_estimator,
     "harmonic_moment": harmonic_moment_estimator,
     "t_hill": t_hill_estimator,
+    "gpd_mle": gpd_mle_estimator,
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
 }

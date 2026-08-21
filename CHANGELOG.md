@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `gpd_mle_estimator` and `fit_generalized_pareto`
+  ([#327](https://github.com/DiogoRibeiro7/heavytails/issues/327)), the
+  parametric peaks-over-threshold counterpart to the semiparametric estimators.
+  Fitting uses the reduction of Grimshaw (1993), which turns the two-parameter
+  likelihood into a one-dimensional search, so no third-party optimiser is
+  needed; the fit matches `scipy.stats.genpareto.fit` to four decimal places
+  for positive, near-zero and negative shape. Being a general-EVI estimator it
+  handles a bounded tail, where the whole Hill family cannot.
+
 - `harmonic_moment_estimator` and `t_hill_estimator`
   ([#325](https://github.com/DiogoRibeiro7/heavytails/issues/325)). Hill's
   contributions grow without limit, so one extreme observation moves the

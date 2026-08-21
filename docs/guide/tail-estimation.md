@@ -521,6 +521,7 @@ represent and in how efficiently they use the data.
 | `trimmed_hill_estimator` | `gamma > 0` | Near-Hill | Contamination, count roughly known |
 | `t_hill_estimator` | `gamma > 0` | Near-Hill | Contamination of unknown extremity |
 | `harmonic_moment_estimator` | `gamma > 0` | Tunable | As above, with a robustness dial |
+| `gpd_mle_estimator` | any `gamma` | Lower | Parametric peaks-over-threshold |
 | `hill_estimator` | `gamma > 0` | High | The classical baseline |
 | `generalized_hill_estimator` | any `gamma` | Near-Hill | You are not certain the tail is heavy |
 | `moment_estimator` | any `gamma` | Near-Hill | As above; a useful cross-check |
@@ -778,3 +779,47 @@ data. `beta = 1` to `2` is a reasonable default.
     `harmonic_moment_estimator` when you cannot, or when the contamination may
     be arbitrarily extreme. They address different problems: trimming removes
     bad values, bounded influence limits what any one of them can do.
+
+## Peaks over threshold
+
+Every estimator above is semiparametric: it averages some functional of the
+upper order statistics and assumes nothing about their distribution beyond
+regular variation. The parametric alternative fits a generalized Pareto
+distribution to the exceedances, which is what the Pickands-Balkema-de Haan
+theorem licenses, and estimates shape and scale jointly.
+
+```python
+from heavytails import gpd_mle_estimator, fit_generalized_pareto
+
+gpd_mle_estimator(data, k=500)          # the shape parameter, i.e. gamma
+
+threshold = sorted(data, reverse=True)[500]
+excesses = [x - threshold for x in data if x > threshold]
+fit_generalized_pareto(excesses)        # {'xi': ..., 'sigma': ..., ...}
+```
+
+Fitting is done by maximum likelihood, using the reduction of Grimshaw (1993):
+substituting `theta = xi/sigma` turns the two-parameter problem into a
+one-dimensional search, so no third-party optimiser is needed. The fit agrees
+with `scipy.stats.genpareto.fit` to four decimal places for positive, near-zero
+and negative shape.
+
+It is a general-EVI estimator, so unlike the whole Hill family it handles a
+bounded tail. On a Uniform(0,1) sample, where the true index is -1:
+
+| Estimator | Mean | RMSE |
+| --- | --- | --- |
+| `hill` | +0.026 | 1.026 |
+| `t_hill` | +0.026 | 1.026 |
+| `gpd_mle` | **-1.056** | 0.078 |
+| `generalized_hill` | -0.998 | 0.049 |
+
+The cost is variance. On `Pareto(alpha=2)` at `n = 10000, k = 500` its RMSE is
+0.072 against 0.023 for Hill, because it estimates two parameters where Hill
+estimates one.
+
+!!! note "It is much slower"
+    A single fit at `k = 1000` takes about 25 ms, against microseconds for the
+    closed-form estimators, because it optimises. That is irrelevant for one
+    estimate and significant for bootstrapping, so reduce `n_bootstrap`
+    accordingly.
