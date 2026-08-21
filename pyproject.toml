@@ -40,6 +40,9 @@ dependencies = []
 [project.optional-dependencies]
 # The `heavytails` console script needs these; the library itself does not.
 cli = ["typer>=0.20,<1.0", "rich>=14.0,<15.0"]
+# heavytails.viz renders the diagnostics; the coordinate-returning functions
+# in heavytails.plotting work without it.
+plot = ["matplotlib>=3.9,<4.0"]
 
 [project.urls]
 Homepage = "https://github.com/DiogoRibeiro7/heavytails"

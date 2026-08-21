@@ -42,18 +42,36 @@ $\bar{F}_n(x_{(i)}) = (n - i)/n$ from the sorted sample and returns
 $(\log x, \log \bar{F}_n(x))$ for every strictly positive observation. Values at
 or below zero are dropped, since the logarithm is undefined there.
 
-Plotting the result with matplotlib:
+### Drawing it
+
+`heavytails.viz` renders these directly, so you do not have to write the
+matplotlib yourself. It needs the optional `plot` extra:
+
+```bash
+pip install "heavytails[plot]"
+```
+
+```python
+from heavytails.viz import plot_tail
+
+plot_tail(samples)
+```
+
+Every function takes an optional `ax` and returns it, so a panel of
+diagnostics composes normally:
 
 ```python
 import matplotlib.pyplot as plt
+from heavytails.viz import plot_hill, plot_qq, plot_tail
 
-xs, ys = zip(*points)
-fig, ax = plt.subplots()
-ax.plot(xs, ys, ".", markersize=2)
-ax.set_xlabel(r"$\log x$")
-ax.set_ylabel(r"$\log P(X > x)$")
-ax.set_title("Log–log tail plot")
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+plot_tail(samples, ax=axes[0])
+plot_qq(samples, ax=axes[1])
+plot_hill(samples, ax=axes[2], true_gamma=0.5)
 ```
+
+The coordinate-returning functions stay available and dependency-free, so the
+library itself never requires matplotlib.
 
 ### Reading the plot
 

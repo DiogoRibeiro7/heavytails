@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.viz`, rendering the diagnostics with matplotlib behind a new
+  `plot` extra ([#302](https://github.com/DiogoRibeiro7/heavytails/issues/302)):
+  `plot_tail`, `plot_qq`, `plot_hill`, `plot_trimmed_hill`,
+  `plot_mean_residual_life` and `plot_parameter_stability`. Each takes an
+  optional `ax` and returns it, so a panel of diagnostics composes normally,
+  and `plot_tail` can overlay a fitted distribution against the empirical
+  curve. `heavytails.plotting` keeps returning coordinates and stays free of
+  third-party imports, so the library itself still never requires matplotlib.
+  Install with `pip install "heavytails[plot]"`.
+
 - `heavytails.threshold`, with `mean_residual_life`, `parameter_stability`,
   `select_threshold` and `return_level`
   ([#300](https://github.com/DiogoRibeiro7/heavytails/issues/300)). Choosing

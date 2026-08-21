@@ -164,6 +164,7 @@ nav:
     - Discrete Distributions: reference/discrete.md
     - Tail Estimators: reference/tail_index.md
     - Plotting Utilities: reference/plotting.md
+    - Diagnostic Plots: reference/viz.md
     - Tail-Risk Metrics: reference/risk.md
     - Threshold Selection: reference/threshold.md
     - Utilities: reference/utilities.md

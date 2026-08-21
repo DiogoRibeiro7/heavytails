@@ -42,7 +42,7 @@ This roadmap outlines the planned development phases for the **heavytails** proj
 
 * [x] Implement additional tail-index estimators (Generalized Hill, Resnick–Stărică smoothed Hill)
 * [x] Add bias-correction and variance estimation tools
-* [ ] Develop tail QQ and Hill plot visual diagnostics (optional matplotlib support)
+* [x] Develop tail QQ and Hill plot visual diagnostics (optional matplotlib support)
 * [x] Implement EVT-based threshold selection and excess fitting
 
 ---
