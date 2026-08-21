@@ -2,99 +2,191 @@
 
 **A pure-Python library of heavy-tailed probability distributions**
 
-`heavytails` implements a broad collection of heavy-tailed continuous distributions — Pareto, Cauchy, Student-t, Log-Normal, Weibull (k<1), Fréchet, GEV (ξ>0), and additional families such as Generalized Pareto, Burr XII, Log-Logistic, Inverse-Gamma, and Beta-Prime — **without using any third-party dependencies**.
+[![CI](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/DiogoRibeiro7/heavytails/branch/main/graph/badge.svg)](https://codecov.io/gh/DiogoRibeiro7/heavytails)
+[![PyPI](https://img.shields.io/pypi/v/heavytails.svg)](https://pypi.org/project/heavytails/)
+[![Python versions](https://img.shields.io/pypi/pyversions/heavytails.svg)](https://pypi.org/project/heavytails/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-mkdocs--material-blue)](https://diogoribeiro7.github.io/heavytails)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue)](https://mypy-lang.org/)
 
-The goal is a **transparent, educational, and mathematically rigorous** implementation suitable for research, teaching, or simulation studies in risk, finance, insurance, and extreme-value analysis.
+`heavytails` implements continuous and discrete heavy-tailed distributions, tail
+index estimators, and diagnostic utilities — **using only the Python standard
+library**. Every density, quantile and sampler is derived from first principles,
+so the implementation can be read, checked and taught rather than taken on faith.
+
+It targets research, teaching and simulation work in risk, finance, insurance and
+extreme-value analysis.
 
 ---
 
-## ✨ Features
+## Features
 
-* Continuous heavy-tailed families implemented from first principles
-* Full PDF / CDF / survival / quantile / random-sampling interface
-* No external dependencies (only `math` and `random`)
-* Deterministic RNG wrapper for reproducibility
-* Custom incomplete-gamma and incomplete-beta functions
-* Optional safeguarded-Newton numeric PPF solver for closed-form-free distributions
+- **No runtime dependencies.** The library imports nothing outside `math`,
+  `random` and friends, so it installs anywhere Python does.
+- **Complete distribution interface.** PDF/PMF, CDF, survival function, quantile
+  function and random sampling for every family, with survival functions computed
+  directly so they stay accurate far into the tail where `1 - cdf(x)` has lost
+  every significant digit.
+- **Reproducible sampling** through a deterministic RNG wrapper.
+- **Special functions from scratch** — incomplete gamma and incomplete beta —
+  plus a safeguarded-Newton numeric PPF for families with no closed form.
+- **Tail index estimation** with the Hill, Pickands and moment estimators.
+- **Parameter fitting** by maximum likelihood and method of moments, with
+  AIC/BIC model comparison.
+- **Diagnostics** for log–log tail plots and QQ plots.
+- **A command-line interface** for sampling, fitting, comparison and
+  benchmarking.
+- **Typed throughout**, with a `py.typed` marker so downstream type checkers see
+  the annotations.
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
-poetry add heavytails
+pip install heavytails
 ```
 
-*(or clone directly if you prefer local source use)*
+The command-line interface needs two extra packages; install it with the `cli`
+extra:
+
+```bash
+pip install "heavytails[cli]"
+```
+
+To work on the library itself:
 
 ```bash
 git clone https://github.com/DiogoRibeiro7/heavytails.git
 cd heavytails
-poetry install
+poetry install --with dev,docs
 ```
+
+Requires Python 3.10 or newer.
 
 ---
 
-## 🧬 Example
+## Quick start
 
 ```python
-from heavytails import Pareto, Cauchy, LogNormal, BurrXII
+from heavytails import BurrXII, Pareto, hill_estimator
 
 pareto = Pareto(alpha=1.5, xm=1.0)
-print("Pareto P(X>10) =", pareto.sf(10.0))
-print("Random samples:", pareto.rvs(5, seed=42))
+
+pareto.pdf(2.0)        # density
+pareto.cdf(2.0)        # distribution function
+pareto.sf(10.0)        # survival function: P(X > 10)
+pareto.ppf(0.99)       # 99th percentile
+samples = pareto.rvs(10_000, seed=42)
+
+# Recover the tail index from the sample. The estimators return the
+# extreme-value index gamma = 1 / alpha, so invert it to read alpha back.
+gamma = hill_estimator(samples, k=100)   # ≈ 0.65
+alpha = 1 / gamma                        # ≈ 1.53, against a true 1.5
 
 burr = BurrXII(c=1.2, k=2.5, s=3.0)
-print("Burr 95% quantile =", burr.ppf(0.95))
+burr.ppf(0.95)
 ```
 
----
-
-## 📚 Available Distributions
-
-| Module                   | Distribution        | Heavy-Tail Regime |
-| ------------------------ | ------------------- | ----------------- |
-| `heavy_tails.py`         | Pareto              | always            |
-|                          | Cauchy              | always            |
-|                          | Student-t           | ν small           |
-|                          | LogNormal           | always            |
-|                          | Weibull             | k < 1             |
-|                          | Fréchet             | always            |
-|                          | GEV (ξ>0)           | ξ>0               |
-| `extra_distributions.py` | Generalized Pareto  | ξ>0               |
-|                          | Burr XII            | always            |
-|                          | Log-Logistic (Fisk) | always            |
-|                          | Inverse-Gamma       | always            |
-|                          | Beta-Prime          | always            |
-
----
-
-## 🧠 Future Extensions
-
-* Discrete heavy-tailed families (Zipf, Zeta, Yule–Simon)
-* Tail-index estimation (Hill, Pickands, Moment)
-* Empirical tail diagnostics and QQ-plots
-* Monte-Carlo tail-risk estimators
-
----
-
-## 🤪 Tests
+### Command line
 
 ```bash
-poetry run pytest -v
+heavytails list-distributions
+heavytails sample pareto --params '{"alpha": 2.0, "xm": 1.0}' -n 1000 -o samples.txt
+heavytails estimate-tail samples.txt --method hill
+heavytails compare samples.txt
+```
+
+Run `heavytails --help` for the full command list.
+
+---
+
+## Available distributions
+
+### Continuous
+
+| Distribution            | Module                   | Heavy-tail regime |
+| ----------------------- | ------------------------ | ----------------- |
+| Pareto                  | `heavy_tails`            | always            |
+| Cauchy                  | `heavy_tails`            | always            |
+| Student-t               | `heavy_tails`            | small ν           |
+| Log-Normal              | `heavy_tails`            | always            |
+| Weibull                 | `heavy_tails`            | k < 1             |
+| Fréchet                 | `heavy_tails`            | always            |
+| GEV (Fréchet branch)    | `heavy_tails`            | ξ > 0             |
+| Generalized Pareto      | `extra_distributions`    | ξ > 0             |
+| Burr XII                | `extra_distributions`    | always            |
+| Log-Logistic (Fisk)     | `extra_distributions`    | always            |
+| Inverse-Gamma           | `extra_distributions`    | always            |
+| Beta-Prime              | `extra_distributions`    | always            |
+
+### Discrete
+
+| Distribution     | Module     | Heavy-tail regime |
+| ---------------- | ---------- | ----------------- |
+| Zipf             | `discrete` | always            |
+| Yule–Simon       | `discrete` | always            |
+| Discrete Pareto  | `discrete` | always            |
+
+Every continuous family provides `pdf`, `cdf`, `sf`, `ppf` and `rvs`; every
+discrete family provides `pmf`, `cdf`, `ppf` and `rvs`.
+
+### Estimation and diagnostics
+
+| Module       | Contents                                              |
+| ------------ | ----------------------------------------------------- |
+| `tail_index` | Hill, Pickands and moment tail index estimators        |
+| `plotting`   | Log–log tail plots and QQ plots                        |
+| `utilities`  | Data I/O, automatic fitting and model comparison       |
+| `validation` | Mathematical and numerical validation of the families  |
+| `cli`        | Command-line entry point                               |
+
+---
+
+## Documentation
+
+Full documentation, including the mathematical background, is at
+**<https://diogoribeiro7.github.io/heavytails>**.
+
+To build it locally:
+
+```bash
+make docs-serve
 ```
 
 ---
 
-## ⚖️ License
+## Development
 
-MIT License © 2025 Diogo Ribeiro
+```bash
+make install-dev   # install every dependency group
+make hooks         # install the pre-commit hooks
+make check         # everything CI runs: lint, format, types, tests, security
+```
+
+Individual targets are listed by `make help`. Contributions are welcome — see
+[CONTRIBUTING.md](CONTRIBUTING.md) for the branch flow, commit conventions and
+review process, and [ROADMAP.md](ROADMAP.md) for what is planned next.
+
+Notable changes are recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
-## 🧉 Citation
+## License
 
-If you use this package in research or teaching, please cite:
+MIT License © 2025 Diogo Ribeiro. See [LICENSE](LICENSE).
+
+---
+
+## Citation
+
+If you use this package in research or teaching, please cite it. GitHub's
+"Cite this repository" button reads [CITATION.cff](CITATION.cff), or use:
 
 > Ribeiro, D. (2025). *heavytails: Pure-Python heavy-tailed distribution library*.
-> [https://github.com/DiogoRibeiro7/heavytails](https://github.com/DiogoRibeiro7/heavytails)
+> <https://github.com/DiogoRibeiro7/heavytails>
+
+Zenodo metadata is maintained in `.zenodo.json`; the DOI will be added after
+the first archived GitHub release.

@@ -41,7 +41,7 @@ def cython_special_functions():
 
 
 def vectorized_pdf_evaluation(
-    distribution: str, x_array: list[float], **params
+    distribution: str, x_array: list[float], **params: Any
 ) -> list[float]:
     """
     Vectorized PDF evaluation for array inputs.
@@ -94,7 +94,7 @@ def vectorized_pdf_evaluation(
 
 
 def vectorized_cdf_evaluation(
-    distribution: str, x_array: list[float], **params
+    distribution: str, x_array: list[float], **params: Any
 ) -> list[float]:
     """
     Vectorized CDF evaluation for array inputs.
@@ -368,7 +368,7 @@ def parallel_sampling(
     n: int,
     n_cores: int | None = None,
     seed: int | None = None,
-    **params,
+    **params: Any,
 ) -> list[float]:
     """
     Parallel random number generation for large samples using multiprocessing.
@@ -584,7 +584,7 @@ class DistributionCache:
         self._cached_cdf_impl = lru_cache(maxsize=max_size)(self._compute_cdf)
         self._cached_ppf_impl = lru_cache(maxsize=max_size)(self._compute_ppf)
 
-    def cached_pdf(self, distribution: str, x: float, **params) -> float:
+    def cached_pdf(self, distribution: str, x: float, **params: Any) -> float:
         """
         Cached PDF evaluation.
 
@@ -605,7 +605,7 @@ class DistributionCache:
         param_key = self._make_param_key(params)
         return self._cached_pdf_impl(distribution, x, param_key)
 
-    def cached_cdf(self, distribution: str, x: float, **params) -> float:
+    def cached_cdf(self, distribution: str, x: float, **params: Any) -> float:
         """
         Cached CDF evaluation.
 
@@ -625,7 +625,7 @@ class DistributionCache:
         param_key = self._make_param_key(params)
         return self._cached_cdf_impl(distribution, x, param_key)
 
-    def cached_ppf(self, distribution: str, u: float, **params) -> float:
+    def cached_ppf(self, distribution: str, u: float, **params: Any) -> float:
         """
         Cached PPF (quantile) evaluation.
 
@@ -724,7 +724,7 @@ class PerformanceBenchmarks:
         self.benchmarks: dict[str, dict] = {}
 
     def benchmark_sampling(
-        self, distribution: str, sizes: list[int], **params
+        self, distribution: str, sizes: list[int], **params: Any
     ) -> dict[str, Any]:
         """
         Benchmark sampling performance across different sample sizes.
@@ -776,7 +776,7 @@ class PerformanceBenchmarks:
         return results
 
     def benchmark_pdf_evaluation(
-        self, distribution: str, n_points: int, **params
+        self, distribution: str, n_points: int, **params: Any
     ) -> dict[str, Any]:
         """
         Benchmark PDF evaluation performance.
@@ -825,7 +825,7 @@ class PerformanceBenchmarks:
         return results
 
     def benchmark_cache_effectiveness(
-        self, distribution: str, n_evaluations: int, n_unique: int, **params
+        self, distribution: str, n_evaluations: int, n_unique: int, **params: Any
     ) -> dict[str, Any]:
         """
         Benchmark cache effectiveness for repeated evaluations.
