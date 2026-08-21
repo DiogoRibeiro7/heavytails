@@ -90,7 +90,7 @@ Current coverage: [X]% Target coverage: [Y]%
 - [ ] All CI checks pass
 - [ ] Documentation builds successfully
 - [ ] No merge conflicts
-- [ ] Target branch is correct (usually `develop`)
+- [ ] Target branch is correct (usually `main`)
 
 # Reviewer Notes
 
