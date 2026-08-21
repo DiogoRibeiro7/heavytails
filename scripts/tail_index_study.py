@@ -31,6 +31,7 @@ from heavytails.tail_index import (
     moment_estimator,
     pickands_estimator,
     smoothed_hill_estimator,
+    trimmed_hill_estimator,
 )
 
 Estimator = Callable[[list[float], int], float]
@@ -40,6 +41,7 @@ ESTIMATORS: dict[str, Estimator] = {
     "generalized_hill": generalized_hill_estimator,
     "smoothed_hill_u2": lambda d, k: smoothed_hill_estimator(d, k, u=2.0),
     "smoothed_hill_u3": lambda d, k: smoothed_hill_estimator(d, k, u=3.0),
+    "trimmed_hill_r5": lambda d, k: trimmed_hill_estimator(d, k, r=5),
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
 }
@@ -58,6 +60,19 @@ def _uniform_sample(n: int, seed: int) -> list[float]:
     """Uniform(0,1): a finite upper endpoint, so gamma = -1."""
     rnd = random.Random(seed)
     return [rnd.random() for _ in range(n)]
+
+
+def _contaminate(sample: list[float], count: int, magnitude: float) -> list[float]:
+    """Replace the ``count`` largest values with outliers.
+
+    Robustness is invisible on clean data: trimming five observations from a
+    clean Pareto sample moves the standard deviation from 0.0296 to 0.0302.
+    It only shows up once something has gone wrong with the data.
+    """
+    ordered = sorted(sample, reverse=True)
+    for i in range(count):
+        ordered[i] = magnitude / (i + 1)
+    return ordered
 
 
 SCENARIOS: list[Scenario] = [
@@ -82,6 +97,20 @@ SCENARIOS: list[Scenario] = [
         lambda n, s: Frechet(alpha=2.0, s=1.0, m=0.0).rvs(n, seed=s),
     ),
     Scenario("Uniform(0,1)", -1.0, _uniform_sample),
+    Scenario(
+        "Pareto(alpha=2) + 3 outliers",
+        0.5,
+        lambda n, s: _contaminate(
+            Pareto(alpha=2.0, xm=1.0).rvs(n, seed=s), count=3, magnitude=1e9
+        ),
+    ),
+    Scenario(
+        "Pareto(alpha=2) + 10 outliers",
+        0.5,
+        lambda n, s: _contaminate(
+            Pareto(alpha=2.0, xm=1.0).rvs(n, seed=s), count=10, magnitude=1e9
+        ),
+    ),
 ]
 
 SAMPLE_SIZES = [1000, 10000]

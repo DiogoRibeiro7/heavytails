@@ -1,4 +1,24 @@
-# heavytails/tail_index.py
+"""Estimators of the extreme-value index.
+
+Two conventions are in circulation and they are reciprocals of each other:
+
+* the **tail index** ``alpha``, from the regular variation form
+  ``P(X > x) ~ L(x) * x**-alpha``, common in economics and network science;
+* the **extreme-value index** ``xi``, also written ``gamma``, the convention of
+  the extreme value theory literature, with ``gamma = 1 / alpha``.
+
+**Every estimator in this module returns gamma, not alpha.** Larger gamma means
+a heavier tail. Invert it to recover alpha:
+
+    gamma = hill_estimator(data, k=100)
+    alpha = 1 / gamma
+
+The module name refers to the quantity being estimated, not to the
+parameterisation of the return value. :func:`moment_estimator` is the one
+exception in shape, returning the pair ``(gamma, alpha)`` for convenience, and
+:func:`tail_index_confidence_interval` reports both.
+"""
+
 from __future__ import annotations
 
 import math
@@ -316,11 +336,154 @@ def smoothed_hill_variance_ratio(u: float) -> float:
     return 2.0 * (u - 1.0 - math.log(u)) / (u - 1.0) ** 2
 
 
+def _normalised_log_spacings(x_desc: list[float], k: int) -> list[float]:
+    """Return ``Y_i = i * (log X_(i) - log X_(i+1))`` for ``i = 1..k``.
+
+    Under an exact Pareto tail these are independent and exponentially
+    distributed with mean gamma, by the Renyi representation of exponential
+    order statistics. That is what makes the Hill estimator the sample mean of
+    them, and what makes trimming the leading ones a well-behaved operation:
+    the remainder is still an iid exponential sample.
+
+    Args:
+        x_desc: Sample sorted in decreasing order.
+        k: Number of spacings to return.
+
+    Returns:
+        The k normalised log-spacings.
+    """
+    return [(i + 1) * (math.log(x_desc[i]) - math.log(x_desc[i + 1])) for i in range(k)]
+
+
+def trimmed_hill_estimator(data: Sequence[float], k: int, r: int = 0) -> float:
+    """
+    Trimmed Hill estimator: Hill with the r largest observations discarded.
+
+    The Hill estimator gives enormous leverage to the largest order statistics,
+    which enter through unbounded logarithms of ratios, so a handful of
+    contaminated observations is enough to destroy it. Replacing the three
+    largest of ten thousand Pareto(2) draws with outliers moves the ordinary
+    Hill estimate from 0.50 to 0.66; trimming five recovers 0.50.
+
+    On clean data the cost is small. For the same sample, the standard
+    deviation rises only from 0.0296 at ``r = 0`` to 0.0302 at ``r = 10``.
+
+    ``r`` must exceed the number of contaminated observations. Trimming two
+    when three are contaminated leaves the estimate essentially as bad as
+    trimming none, because the third still enters through a spacing.
+
+    Like the Hill estimator this assumes ``gamma > 0``; see
+    :func:`generalized_hill_estimator` if the sign is in doubt.
+
+    Parameters
+    ----------
+    data : sequence of floats
+        Sample values. All must be positive.
+    k : int
+        Number of top order statistics to use, with ``1 < k < n``.
+    r : int, optional
+        Number of largest observations to discard, with ``0 <= r < k``.
+        ``r = 0`` reproduces the ordinary Hill estimator exactly.
+
+    Returns
+    -------
+    float
+        The extreme-value index estimate gamma, equal to ``1 / alpha``.
+
+    Raises
+    ------
+    ValueError
+        If k or r is out of range, or the data is not positive.
+
+    References
+    ----------
+    Bhattacharya, S., Kallitsis, M., & Stoev, S. (2019). Trimming the Hill
+    estimator: robustness, optimality and adaptivity. arXiv:1705.03088.
+
+    Examples
+    --------
+    >>> from heavytails import Pareto
+    >>> data = sorted(Pareto(alpha=2.0, xm=1.0).rvs(10000, seed=1), reverse=True)
+    >>> data[0] = 1e9  # one contaminated observation
+    >>> round(trimmed_hill_estimator(data, k=300, r=5), 1)
+    0.5
+    """
+    x = sorted(data, reverse=True)
+    n = len(x)
+    if not (1 < k < n):
+        raise ValueError("k must be between 1 and n-1")
+    if not (0 <= r < k):
+        raise ValueError(f"r must satisfy 0 <= r < k; got r={r}, k={k}")
+    if x[k] <= 0.0:
+        raise ValueError("the trimmed Hill estimator requires positive data")
+
+    spacings = _normalised_log_spacings(x, k)
+    return sum(spacings[r:]) / (k - r)
+
+
+def trimmed_hill_plot(
+    data: Sequence[float], k: int, max_trim: int | None = None
+) -> list[tuple[int, float]]:
+    """
+    Trimmed Hill estimates across a range of r, for choosing the trimming level.
+
+    Read it the way you read a Hill plot. The estimate typically moves sharply
+    while r is below the number of contaminated observations and then flattens
+    once they have all been discarded, so the elbow indicates how much
+    contamination is present. A plot that is flat from ``r = 0`` suggests there
+    is none.
+
+    Parameters
+    ----------
+    data : sequence of floats
+        Sample values.
+    k : int
+        Number of top order statistics to use.
+    max_trim : int, optional
+        Largest r to evaluate. Defaults to ``k // 10``, which is enough to
+        reveal an elbow without spending the whole sample on trimming.
+
+    Returns
+    -------
+    list of (int, float)
+        ``(r, gamma_hat)`` pairs, ordered by r.
+
+    Examples
+    --------
+    >>> from heavytails import Pareto
+    >>> data = Pareto(alpha=2.0, xm=1.0).rvs(5000, seed=1)
+    >>> points = trimmed_hill_plot(data, k=250)
+    >>> first_r, first_gamma = points[0]
+    >>> first_r
+    0
+    """
+    x = sorted(data, reverse=True)
+    n = len(x)
+    if not (1 < k < n):
+        raise ValueError("k must be between 1 and n-1")
+    if max_trim is None:
+        max_trim = max(1, k // 10)
+    if not (0 < max_trim < k):
+        raise ValueError(f"max_trim must satisfy 0 < max_trim < k; got {max_trim}")
+    if x[k] <= 0.0:
+        raise ValueError("the trimmed Hill estimator requires positive data")
+
+    spacings = _normalised_log_spacings(x, k)
+    total = sum(spacings)
+    points = []
+    for r in range(max_trim + 1):
+        points.append((r, total / (k - r)))
+        if r < max_trim:
+            total -= spacings[r]
+    return points
+
+
 #: Estimators available to :func:`tail_index_confidence_interval`.
-_POINT_ESTIMATORS: dict[str, Callable[[Sequence[float], int], float]] = {
+_POINT_ESTIMATORS: dict[str, Callable[..., float]] = {
     "hill": hill_estimator,
     "generalized_hill": generalized_hill_estimator,
     "smoothed_hill": smoothed_hill_estimator,
+    "trimmed_hill": trimmed_hill_estimator,
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
 }
@@ -335,6 +498,7 @@ def tail_index_confidence_interval(
     method: str = "asymptotic",
     n_bootstrap: int = 500,
     seed: int | None = None,
+    estimator_kwargs: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Point estimate and confidence interval for the extreme-value index.
@@ -375,6 +539,11 @@ def tail_index_confidence_interval(
         Number of bootstrap resamples.
     seed : int, optional
         Seed for reproducible bootstrap resampling.
+    estimator_kwargs : dict, optional
+        Extra keyword arguments for the estimator, such as ``{"r": 5}`` for the
+        trimmed Hill estimator or ``{"u": 3.0}`` for the smoothed one. Without
+        this the estimators run at their defaults, which for ``trimmed_hill``
+        means no trimming at all and therefore no robustness.
 
     Returns
     -------
@@ -404,7 +573,12 @@ def tail_index_confidence_interval(
     if not (0.0 < level < 1.0):
         raise ValueError("level must be in (0,1).")
 
-    point = _POINT_ESTIMATORS[estimator](data, k)
+    kwargs = dict(estimator_kwargs or {})
+
+    def estimate(sample: Sequence[float], top: int) -> float:
+        return _POINT_ESTIMATORS[estimator](sample, top, **kwargs)
+
+    point = estimate(data, k)
 
     if method == "asymptotic":
         if estimator != "hill":
@@ -417,9 +591,7 @@ def tail_index_confidence_interval(
         half_width = z * point / math.sqrt(k)
         lower, upper = point - half_width, point + half_width
     elif method == "bootstrap":
-        lower, upper = _bootstrap_interval(
-            data, k, _POINT_ESTIMATORS[estimator], level, n_bootstrap, seed
-        )
+        lower, upper = _bootstrap_interval(data, k, estimate, level, n_bootstrap, seed)
     else:
         raise ValueError(f"Unknown method {method!r}. Available: asymptotic, bootstrap")
 
@@ -432,6 +604,7 @@ def tail_index_confidence_interval(
         "upper": upper,
         "level": level,
         "method": method,
+        "estimator_kwargs": kwargs,
     }
 
 

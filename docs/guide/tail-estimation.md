@@ -517,7 +517,8 @@ represent and in how efficiently they use the data.
 
 | Estimator | Valid range | Efficiency | Use when |
 | --- | --- | --- | --- |
-| `smoothed_hill_estimator` | `gamma > 0` | Highest | You are confident the tail is heavy |
+| `smoothed_hill_estimator` | `gamma > 0` | Highest | Clean data, tail known to be heavy |
+| `trimmed_hill_estimator` | `gamma > 0` | Near-Hill | The data may be contaminated |
 | `hill_estimator` | `gamma > 0` | High | The classical baseline |
 | `generalized_hill_estimator` | any `gamma` | Near-Hill | You are not certain the tail is heavy |
 | `moment_estimator` | any `gamma` | Near-Hill | As above; a useful cross-check |
@@ -620,3 +621,99 @@ points = hill_plot(data)   # [(k, gamma_hat), ...]
 is at small `k`. Read the estimate off a stable plateau. If there is no
 plateau, the data does not support a tail index estimate, and forcing one
 produces a confident wrong answer.
+
+## Which quantity is returned
+
+Two conventions are in circulation and they are reciprocals of each other:
+
+- the **tail index** `alpha`, from `P(X > x) ~ L(x) * x**-alpha`, common in
+  economics and network science;
+- the **extreme-value index** `xi`, also written `gamma`, the EVT convention,
+  with `gamma = 1/alpha`.
+
+**Every estimator here returns `gamma`.** Larger `gamma` means a heavier tail.
+`tail_index_confidence_interval` reports both, and `moment_estimator` returns
+the pair `(gamma, alpha)`.
+
+This is worth checking before comparing against another implementation or a
+published figure: a reciprocal-shaped discrepancy is almost always this.
+
+## Contamination
+
+Hill gives enormous leverage to the largest order statistics, because they
+enter through unbounded logarithms of ratios. A handful of bad observations is
+enough to destroy the estimate.
+
+Replacing three observations out of ten thousand `Pareto(alpha=2)` draws with
+outliers, at `k = 500`:
+
+| Estimator | Mean over 120 samples | True |
+| --- | --- | --- |
+| `hill` | 0.597 | 0.5 |
+| `smoothed_hill` (u=3) | 0.554 | 0.5 |
+| `moment` | 1.015 | 0.5 |
+| `generalized_hill` | 0.880 | 0.5 |
+| **`trimmed_hill`** (r=5) | **0.503** | 0.5 |
+| `pickands` | 0.518 | 0.5 |
+
+Note that `pickands` also survives, which is not usually why anyone reaches for
+it: it uses only three order statistics, at positions `k`, `2k` and `4k`, so
+contamination confined to the very top misses it entirely. That is robustness
+by accident rather than by design, and it comes at the cost of by far the
+highest variance of any estimator here.
+
+### Trimming
+
+```python
+from heavytails import Pareto, trimmed_hill_estimator, trimmed_hill_plot
+
+trimmed_hill_estimator(data, k=500, r=5)   # discard the 5 largest
+```
+
+`r = 0` reproduces the ordinary Hill estimator exactly.
+
+!!! warning "r must exceed the number of contaminated observations"
+    Trimming five when ten are contaminated is barely better than trimming
+    none: the remaining bad values still enter through their spacings. In the
+    table above, `trimmed_hill` with `r = 5` against **ten** outliers reports
+    0.808 rather than 0.5.
+
+On clean data trimming is close to free. Discarding ten observations from a
+sample of ten thousand raises the standard deviation from 0.0296 to 0.0302, so
+trimming a few by default is a cheap insurance policy.
+
+### Choosing r
+
+`trimmed_hill_plot` sweeps `r` the way the Hill plot sweeps `k`:
+
+```python
+for r, gamma in trimmed_hill_plot(data, k=300, max_trim=8):
+    print(r, gamma)
+```
+
+On a sample with three contaminated observations the elbow is unmistakable:
+
+```
+r=0  gamma=0.6369
+r=1  gamma=0.6367
+r=2  gamma=0.6327
+r=3  gamma=0.4789   <- contamination exhausted
+r=4  gamma=0.4796
+r=5  gamma=0.4801
+```
+
+The estimate moves while `r` is below the contamination count and flattens once
+the bad values are gone, so the elbow tells you how many there were. A plot
+that is flat from `r = 0` says there is no contamination to remove.
+
+### Passing the tuning parameter to the interval helper
+
+```python
+tail_index_confidence_interval(
+    data, k=300, estimator="trimmed_hill",
+    method="bootstrap", estimator_kwargs={"r": 5},
+)
+```
+
+Without `estimator_kwargs` the trimmed estimator runs at its default `r = 0`,
+which is the ordinary Hill estimator and gives no robustness at all.

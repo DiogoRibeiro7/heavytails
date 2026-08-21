@@ -55,6 +55,8 @@ from .tail_index import (
     smoothed_hill_estimator,
     smoothed_hill_variance_ratio,
     tail_index_confidence_interval,
+    trimmed_hill_estimator,
+    trimmed_hill_plot,
 )
 
 try:
@@ -88,4 +90,6 @@ __all__ = [
     "smoothed_hill_estimator",
     "smoothed_hill_variance_ratio",
     "tail_index_confidence_interval",
+    "trimmed_hill_estimator",
+    "trimmed_hill_plot",
 ]
