@@ -1369,6 +1369,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#heavytails.tail_index.bias_reduced_hill_estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;bias_reduced_hill_estimator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#heavytails.tail_index.fit_generalized_pareto" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1750,6 +1761,39 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pickands_estimator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#heavytails.tail_index.recommended_rho_k" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;recommended_rho_k
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#heavytails.tail_index.second_order_beta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;second_order_beta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#heavytails.tail_index.second_order_rho" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;second_order_rho
       
     </span>
   </a>
@@ -2902,6 +2946,330 @@ exception in shape, returning the pair <code>(gamma, alpha)</code> for convenien
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="heavytails.tail_index.bias_reduced_hill_estimator" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">bias_reduced_hill_estimator</span>
+
+
+<a href="#heavytails.tail_index.bias_reduced_hill_estimator" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">bias_reduced_hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Bias-reduced Hill estimator of Caeiro, Gomes and Pestana (2005).</p>
+<p>The Hill estimator trades variance at small k against bias at large k, and
+that bias is systematic rather than random: it comes from the second-order
+behaviour of the tail, so it can be estimated and subtracted.</p>
+<div class="language-text highlight"><pre><span></span><code>gamma = hill(k) * (1 - beta / (1 - rho) * (n/k) ** rho)
+</code></pre></div>
+<p>Measured over forty samples at <code>n = 20000</code> with rho supplied, the bias of
+the Hill estimator falls by a factor of four to twenty::</p>
+<div class="language-text highlight"><pre><span></span><code>case                k     Hill      corrected
+Frechet(2)          2000  0.0162    0.0046
+BurrXII(c=2, k=1)   2000  0.0298    0.0050
+BurrXII(c=1, k=2)   2000  0.1422    0.0081
+</code></pre></div>
+
+
+<details class="note" open>
+  <summary>Note</summary>
+  <p><strong>Supply rho where you can.</strong> Estimating it works and the correction
+still helps, taking the worst case above from 0.1422 to 0.0354, but
+:func:<code>second_order_rho</code> is unstable and a poor estimate costs most of
+the benefit. Practitioners commonly fix rho at a canonical value such
+as -1 rather than estimate it.</p>
+</details>
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code><span title="collections.abc.Sequence">Sequence</span>[<span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sample values. The top <code>k + 1</code> are read and must be positive.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>k</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of top order statistics, with <code>1 &lt; k &lt; n</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>rho</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Second-order shape parameter, which must be negative. Estimated
+with :func:<code>second_order_rho</code> when omitted.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>beta</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Second-order scale parameter. Estimated with
+:func:<code>second_order_beta</code> when omitted.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The extreme-value index estimate gamma, equal to <code>1 / alpha</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If k is out of range, rho is not negative, or either
+second-order parameter cannot be estimated.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="references" open>
+  <summary>References</summary>
+  <p>Caeiro, F., Gomes, M. I., &amp; Pestana, D. (2005). Direct reduction of
+bias of the classical Hill estimator. <em>Revstat</em>, 3(2), 113-136.</p>
+</details>
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="language-pycon highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frechet</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Frechet</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">bias_reduced_hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">rho</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="go">0.5</span>
+</span></code></pre></div>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>heavytails/tail_index.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-976"> 976</a></span>
+<span class="normal"><a href="#__codelineno-0-977"> 977</a></span>
+<span class="normal"><a href="#__codelineno-0-978"> 978</a></span>
+<span class="normal"><a href="#__codelineno-0-979"> 979</a></span>
+<span class="normal"><a href="#__codelineno-0-980"> 980</a></span>
+<span class="normal"><a href="#__codelineno-0-981"> 981</a></span>
+<span class="normal"><a href="#__codelineno-0-982"> 982</a></span>
+<span class="normal"><a href="#__codelineno-0-983"> 983</a></span>
+<span class="normal"><a href="#__codelineno-0-984"> 984</a></span>
+<span class="normal"><a href="#__codelineno-0-985"> 985</a></span>
+<span class="normal"><a href="#__codelineno-0-986"> 986</a></span>
+<span class="normal"><a href="#__codelineno-0-987"> 987</a></span>
+<span class="normal"><a href="#__codelineno-0-988"> 988</a></span>
+<span class="normal"><a href="#__codelineno-0-989"> 989</a></span>
+<span class="normal"><a href="#__codelineno-0-990"> 990</a></span>
+<span class="normal"><a href="#__codelineno-0-991"> 991</a></span>
+<span class="normal"><a href="#__codelineno-0-992"> 992</a></span>
+<span class="normal"><a href="#__codelineno-0-993"> 993</a></span>
+<span class="normal"><a href="#__codelineno-0-994"> 994</a></span>
+<span class="normal"><a href="#__codelineno-0-995"> 995</a></span>
+<span class="normal"><a href="#__codelineno-0-996"> 996</a></span>
+<span class="normal"><a href="#__codelineno-0-997"> 997</a></span>
+<span class="normal"><a href="#__codelineno-0-998"> 998</a></span>
+<span class="normal"><a href="#__codelineno-0-999"> 999</a></span>
+<span class="normal"><a href="#__codelineno-0-1000">1000</a></span>
+<span class="normal"><a href="#__codelineno-0-1001">1001</a></span>
+<span class="normal"><a href="#__codelineno-0-1002">1002</a></span>
+<span class="normal"><a href="#__codelineno-0-1003">1003</a></span>
+<span class="normal"><a href="#__codelineno-0-1004">1004</a></span>
+<span class="normal"><a href="#__codelineno-0-1005">1005</a></span>
+<span class="normal"><a href="#__codelineno-0-1006">1006</a></span>
+<span class="normal"><a href="#__codelineno-0-1007">1007</a></span>
+<span class="normal"><a href="#__codelineno-0-1008">1008</a></span>
+<span class="normal"><a href="#__codelineno-0-1009">1009</a></span>
+<span class="normal"><a href="#__codelineno-0-1010">1010</a></span>
+<span class="normal"><a href="#__codelineno-0-1011">1011</a></span>
+<span class="normal"><a href="#__codelineno-0-1012">1012</a></span>
+<span class="normal"><a href="#__codelineno-0-1013">1013</a></span>
+<span class="normal"><a href="#__codelineno-0-1014">1014</a></span>
+<span class="normal"><a href="#__codelineno-0-1015">1015</a></span>
+<span class="normal"><a href="#__codelineno-0-1016">1016</a></span>
+<span class="normal"><a href="#__codelineno-0-1017">1017</a></span>
+<span class="normal"><a href="#__codelineno-0-1018">1018</a></span>
+<span class="normal"><a href="#__codelineno-0-1019">1019</a></span>
+<span class="normal"><a href="#__codelineno-0-1020">1020</a></span>
+<span class="normal"><a href="#__codelineno-0-1021">1021</a></span>
+<span class="normal"><a href="#__codelineno-0-1022">1022</a></span>
+<span class="normal"><a href="#__codelineno-0-1023">1023</a></span>
+<span class="normal"><a href="#__codelineno-0-1024">1024</a></span>
+<span class="normal"><a href="#__codelineno-0-1025">1025</a></span>
+<span class="normal"><a href="#__codelineno-0-1026">1026</a></span>
+<span class="normal"><a href="#__codelineno-0-1027">1027</a></span>
+<span class="normal"><a href="#__codelineno-0-1028">1028</a></span>
+<span class="normal"><a href="#__codelineno-0-1029">1029</a></span>
+<span class="normal"><a href="#__codelineno-0-1030">1030</a></span>
+<span class="normal"><a href="#__codelineno-0-1031">1031</a></span>
+<span class="normal"><a href="#__codelineno-0-1032">1032</a></span>
+<span class="normal"><a href="#__codelineno-0-1033">1033</a></span>
+<span class="normal"><a href="#__codelineno-0-1034">1034</a></span>
+<span class="normal"><a href="#__codelineno-0-1035">1035</a></span>
+<span class="normal"><a href="#__codelineno-0-1036">1036</a></span>
+<span class="normal"><a href="#__codelineno-0-1037">1037</a></span>
+<span class="normal"><a href="#__codelineno-0-1038">1038</a></span>
+<span class="normal"><a href="#__codelineno-0-1039">1039</a></span>
+<span class="normal"><a href="#__codelineno-0-1040">1040</a></span>
+<span class="normal"><a href="#__codelineno-0-1041">1041</a></span>
+<span class="normal"><a href="#__codelineno-0-1042">1042</a></span>
+<span class="normal"><a href="#__codelineno-0-1043">1043</a></span>
+<span class="normal"><a href="#__codelineno-0-1044">1044</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-976"><a id="__codelineno-0-976" name="__codelineno-0-976"></a><span class="k">def</span><span class="w"> </span><span class="nf">bias_reduced_hill_estimator</span><span class="p">(</span>
+</span><span id="__span-0-977"><a id="__codelineno-0-977" name="__codelineno-0-977"></a>    <span class="n">data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+</span><span id="__span-0-978"><a id="__codelineno-0-978" name="__codelineno-0-978"></a>    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="__span-0-979"><a id="__codelineno-0-979" name="__codelineno-0-979"></a>    <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-980"><a id="__codelineno-0-980" name="__codelineno-0-980"></a>    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-981"><a id="__codelineno-0-981" name="__codelineno-0-981"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="__span-0-982"><a id="__codelineno-0-982" name="__codelineno-0-982"></a><span class="w">    </span><span class="sd">"""Bias-reduced Hill estimator of Caeiro, Gomes and Pestana (2005).</span>
+</span><span id="__span-0-983"><a id="__codelineno-0-983" name="__codelineno-0-983"></a>
+</span><span id="__span-0-984"><a id="__codelineno-0-984" name="__codelineno-0-984"></a><span class="sd">    The Hill estimator trades variance at small k against bias at large k, and</span>
+</span><span id="__span-0-985"><a id="__codelineno-0-985" name="__codelineno-0-985"></a><span class="sd">    that bias is systematic rather than random: it comes from the second-order</span>
+</span><span id="__span-0-986"><a id="__codelineno-0-986" name="__codelineno-0-986"></a><span class="sd">    behaviour of the tail, so it can be estimated and subtracted.</span>
+</span><span id="__span-0-987"><a id="__codelineno-0-987" name="__codelineno-0-987"></a>
+</span><span id="__span-0-988"><a id="__codelineno-0-988" name="__codelineno-0-988"></a><span class="sd">        gamma = hill(k) * (1 - beta / (1 - rho) * (n/k) ** rho)</span>
+</span><span id="__span-0-989"><a id="__codelineno-0-989" name="__codelineno-0-989"></a>
+</span><span id="__span-0-990"><a id="__codelineno-0-990" name="__codelineno-0-990"></a><span class="sd">    Measured over forty samples at ``n = 20000`` with rho supplied, the bias of</span>
+</span><span id="__span-0-991"><a id="__codelineno-0-991" name="__codelineno-0-991"></a><span class="sd">    the Hill estimator falls by a factor of four to twenty::</span>
+</span><span id="__span-0-992"><a id="__codelineno-0-992" name="__codelineno-0-992"></a>
+</span><span id="__span-0-993"><a id="__codelineno-0-993" name="__codelineno-0-993"></a><span class="sd">        case                k     Hill      corrected</span>
+</span><span id="__span-0-994"><a id="__codelineno-0-994" name="__codelineno-0-994"></a><span class="sd">        Frechet(2)          2000  0.0162    0.0046</span>
+</span><span id="__span-0-995"><a id="__codelineno-0-995" name="__codelineno-0-995"></a><span class="sd">        BurrXII(c=2, k=1)   2000  0.0298    0.0050</span>
+</span><span id="__span-0-996"><a id="__codelineno-0-996" name="__codelineno-0-996"></a><span class="sd">        BurrXII(c=1, k=2)   2000  0.1422    0.0081</span>
+</span><span id="__span-0-997"><a id="__codelineno-0-997" name="__codelineno-0-997"></a>
+</span><span id="__span-0-998"><a id="__codelineno-0-998" name="__codelineno-0-998"></a><span class="sd">    Note:</span>
+</span><span id="__span-0-999"><a id="__codelineno-0-999" name="__codelineno-0-999"></a><span class="sd">        **Supply rho where you can.** Estimating it works and the correction</span>
+</span><span id="__span-0-1000"><a id="__codelineno-0-1000" name="__codelineno-0-1000"></a><span class="sd">        still helps, taking the worst case above from 0.1422 to 0.0354, but</span>
+</span><span id="__span-0-1001"><a id="__codelineno-0-1001" name="__codelineno-0-1001"></a><span class="sd">        :func:`second_order_rho` is unstable and a poor estimate costs most of</span>
+</span><span id="__span-0-1002"><a id="__codelineno-0-1002" name="__codelineno-0-1002"></a><span class="sd">        the benefit. Practitioners commonly fix rho at a canonical value such</span>
+</span><span id="__span-0-1003"><a id="__codelineno-0-1003" name="__codelineno-0-1003"></a><span class="sd">        as -1 rather than estimate it.</span>
+</span><span id="__span-0-1004"><a id="__codelineno-0-1004" name="__codelineno-0-1004"></a>
+</span><span id="__span-0-1005"><a id="__codelineno-0-1005" name="__codelineno-0-1005"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-1006"><a id="__codelineno-0-1006" name="__codelineno-0-1006"></a><span class="sd">        data: Sample values. The top ``k + 1`` are read and must be positive.</span>
+</span><span id="__span-0-1007"><a id="__codelineno-0-1007" name="__codelineno-0-1007"></a><span class="sd">        k: Number of top order statistics, with ``1 &lt; k &lt; n``.</span>
+</span><span id="__span-0-1008"><a id="__codelineno-0-1008" name="__codelineno-0-1008"></a><span class="sd">        rho: Second-order shape parameter, which must be negative. Estimated</span>
+</span><span id="__span-0-1009"><a id="__codelineno-0-1009" name="__codelineno-0-1009"></a><span class="sd">            with :func:`second_order_rho` when omitted.</span>
+</span><span id="__span-0-1010"><a id="__codelineno-0-1010" name="__codelineno-0-1010"></a><span class="sd">        beta: Second-order scale parameter. Estimated with</span>
+</span><span id="__span-0-1011"><a id="__codelineno-0-1011" name="__codelineno-0-1011"></a><span class="sd">            :func:`second_order_beta` when omitted.</span>
+</span><span id="__span-0-1012"><a id="__codelineno-0-1012" name="__codelineno-0-1012"></a>
+</span><span id="__span-0-1013"><a id="__codelineno-0-1013" name="__codelineno-0-1013"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-1014"><a id="__codelineno-0-1014" name="__codelineno-0-1014"></a><span class="sd">        The extreme-value index estimate gamma, equal to ``1 / alpha``.</span>
+</span><span id="__span-0-1015"><a id="__codelineno-0-1015" name="__codelineno-0-1015"></a>
+</span><span id="__span-0-1016"><a id="__codelineno-0-1016" name="__codelineno-0-1016"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-1017"><a id="__codelineno-0-1017" name="__codelineno-0-1017"></a><span class="sd">        ValueError: If k is out of range, rho is not negative, or either</span>
+</span><span id="__span-0-1018"><a id="__codelineno-0-1018" name="__codelineno-0-1018"></a><span class="sd">            second-order parameter cannot be estimated.</span>
+</span><span id="__span-0-1019"><a id="__codelineno-0-1019" name="__codelineno-0-1019"></a>
+</span><span id="__span-0-1020"><a id="__codelineno-0-1020" name="__codelineno-0-1020"></a><span class="sd">    References:</span>
+</span><span id="__span-0-1021"><a id="__codelineno-0-1021" name="__codelineno-0-1021"></a><span class="sd">        Caeiro, F., Gomes, M. I., &amp; Pestana, D. (2005). Direct reduction of</span>
+</span><span id="__span-0-1022"><a id="__codelineno-0-1022" name="__codelineno-0-1022"></a><span class="sd">        bias of the classical Hill estimator. *Revstat*, 3(2), 113-136.</span>
+</span><span id="__span-0-1023"><a id="__codelineno-0-1023" name="__codelineno-0-1023"></a>
+</span><span id="__span-0-1024"><a id="__codelineno-0-1024" name="__codelineno-0-1024"></a><span class="sd">    Examples:</span>
+</span><span id="__span-0-1025"><a id="__codelineno-0-1025" name="__codelineno-0-1025"></a><span class="sd">        &gt;&gt;&gt; from heavytails import Frechet</span>
+</span><span id="__span-0-1026"><a id="__codelineno-0-1026" name="__codelineno-0-1026"></a><span class="sd">        &gt;&gt;&gt; data = Frechet(alpha=2.0, s=1.0, m=0.0).rvs(20000, seed=1)</span>
+</span><span id="__span-0-1027"><a id="__codelineno-0-1027" name="__codelineno-0-1027"></a><span class="sd">        &gt;&gt;&gt; round(bias_reduced_hill_estimator(data, k=2000, rho=-1.0), 1)</span>
+</span><span id="__span-0-1028"><a id="__codelineno-0-1028" name="__codelineno-0-1028"></a><span class="sd">        0.5</span>
+</span><span id="__span-0-1029"><a id="__codelineno-0-1029" name="__codelineno-0-1029"></a><span class="sd">    """</span>
+</span><span id="__span-0-1030"><a id="__codelineno-0-1030" name="__codelineno-0-1030"></a>    <span class="n">x</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-0-1031"><a id="__codelineno-0-1031" name="__codelineno-0-1031"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span id="__span-0-1032"><a id="__codelineno-0-1032" name="__codelineno-0-1032"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">):</span>
+</span><span id="__span-0-1033"><a id="__codelineno-0-1033" name="__codelineno-0-1033"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"k must be between 1 and n-1"</span><span class="p">)</span>
+</span><span id="__span-0-1034"><a id="__codelineno-0-1034" name="__codelineno-0-1034"></a>
+</span><span id="__span-0-1035"><a id="__codelineno-0-1035" name="__codelineno-0-1035"></a>    <span class="k">if</span> <span class="n">rho</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-1036"><a id="__codelineno-0-1036" name="__codelineno-0-1036"></a>        <span class="n">rho</span> <span class="o">=</span> <span class="n">second_order_rho</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span id="__span-0-1037"><a id="__codelineno-0-1037" name="__codelineno-0-1037"></a>    <span class="k">if</span> <span class="n">rho</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-1038"><a id="__codelineno-0-1038" name="__codelineno-0-1038"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rho must be negative"</span><span class="p">)</span>
+</span><span id="__span-0-1039"><a id="__codelineno-0-1039" name="__codelineno-0-1039"></a>    <span class="k">if</span> <span class="n">beta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-1040"><a id="__codelineno-0-1040" name="__codelineno-0-1040"></a>        <span class="n">beta</span> <span class="o">=</span> <span class="n">second_order_beta</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+</span><span id="__span-0-1041"><a id="__codelineno-0-1041" name="__codelineno-0-1041"></a>
+</span><span id="__span-0-1042"><a id="__codelineno-0-1042" name="__codelineno-0-1042"></a>    <span class="n">hill</span> <span class="o">=</span> <span class="n">hill_estimator</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</span><span id="__span-0-1043"><a id="__codelineno-0-1043" name="__codelineno-0-1043"></a>    <span class="n">correction</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">beta</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">rho</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span> <span class="o">**</span> <span class="n">rho</span>
+</span><span id="__span-0-1044"><a id="__codelineno-0-1044" name="__codelineno-0-1044"></a>    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">hill</span> <span class="o">*</span> <span class="n">correction</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-function">
 
@@ -4160,6 +4528,737 @@ True</p>
 <div class="doc doc-object doc-function">
 
 
+<h3 id="heavytails.tail_index.recommended_rho_k" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">recommended_rho_k</span>
+
+
+<a href="#heavytails.tail_index.recommended_rho_k" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">recommended_rho_k</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Recommended number of order statistics for estimating rho.</p>
+<p>Estimating the second-order parameter needs far more of the sample than
+estimating gamma does, because it describes how the tail approaches its
+limit rather than the limit itself. The usual recommendation is
+<code>min(n - 1, floor(2n / log log n))</code>, roughly 85% of the sample.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>n</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sample size, at least 16 so that <code>log log n</code> is positive.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The recommended k.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If n is below 16.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>heavytails/tail_index.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-811">811</a></span>
+<span class="normal"><a href="#__codelineno-0-812">812</a></span>
+<span class="normal"><a href="#__codelineno-0-813">813</a></span>
+<span class="normal"><a href="#__codelineno-0-814">814</a></span>
+<span class="normal"><a href="#__codelineno-0-815">815</a></span>
+<span class="normal"><a href="#__codelineno-0-816">816</a></span>
+<span class="normal"><a href="#__codelineno-0-817">817</a></span>
+<span class="normal"><a href="#__codelineno-0-818">818</a></span>
+<span class="normal"><a href="#__codelineno-0-819">819</a></span>
+<span class="normal"><a href="#__codelineno-0-820">820</a></span>
+<span class="normal"><a href="#__codelineno-0-821">821</a></span>
+<span class="normal"><a href="#__codelineno-0-822">822</a></span>
+<span class="normal"><a href="#__codelineno-0-823">823</a></span>
+<span class="normal"><a href="#__codelineno-0-824">824</a></span>
+<span class="normal"><a href="#__codelineno-0-825">825</a></span>
+<span class="normal"><a href="#__codelineno-0-826">826</a></span>
+<span class="normal"><a href="#__codelineno-0-827">827</a></span>
+<span class="normal"><a href="#__codelineno-0-828">828</a></span>
+<span class="normal"><a href="#__codelineno-0-829">829</a></span>
+<span class="normal"><a href="#__codelineno-0-830">830</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-811"><a id="__codelineno-0-811" name="__codelineno-0-811"></a><span class="k">def</span><span class="w"> </span><span class="nf">recommended_rho_k</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="__span-0-812"><a id="__codelineno-0-812" name="__codelineno-0-812"></a><span class="w">    </span><span class="sd">"""Recommended number of order statistics for estimating rho.</span>
+</span><span id="__span-0-813"><a id="__codelineno-0-813" name="__codelineno-0-813"></a>
+</span><span id="__span-0-814"><a id="__codelineno-0-814" name="__codelineno-0-814"></a><span class="sd">    Estimating the second-order parameter needs far more of the sample than</span>
+</span><span id="__span-0-815"><a id="__codelineno-0-815" name="__codelineno-0-815"></a><span class="sd">    estimating gamma does, because it describes how the tail approaches its</span>
+</span><span id="__span-0-816"><a id="__codelineno-0-816" name="__codelineno-0-816"></a><span class="sd">    limit rather than the limit itself. The usual recommendation is</span>
+</span><span id="__span-0-817"><a id="__codelineno-0-817" name="__codelineno-0-817"></a><span class="sd">    ``min(n - 1, floor(2n / log log n))``, roughly 85% of the sample.</span>
+</span><span id="__span-0-818"><a id="__codelineno-0-818" name="__codelineno-0-818"></a>
+</span><span id="__span-0-819"><a id="__codelineno-0-819" name="__codelineno-0-819"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-820"><a id="__codelineno-0-820" name="__codelineno-0-820"></a><span class="sd">        n: Sample size, at least 16 so that ``log log n`` is positive.</span>
+</span><span id="__span-0-821"><a id="__codelineno-0-821" name="__codelineno-0-821"></a>
+</span><span id="__span-0-822"><a id="__codelineno-0-822" name="__codelineno-0-822"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-823"><a id="__codelineno-0-823" name="__codelineno-0-823"></a><span class="sd">        The recommended k.</span>
+</span><span id="__span-0-824"><a id="__codelineno-0-824" name="__codelineno-0-824"></a>
+</span><span id="__span-0-825"><a id="__codelineno-0-825" name="__codelineno-0-825"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-826"><a id="__codelineno-0-826" name="__codelineno-0-826"></a><span class="sd">        ValueError: If n is below 16.</span>
+</span><span id="__span-0-827"><a id="__codelineno-0-827" name="__codelineno-0-827"></a><span class="sd">    """</span>
+</span><span id="__span-0-828"><a id="__codelineno-0-828" name="__codelineno-0-828"></a>    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">:</span>
+</span><span id="__span-0-829"><a id="__codelineno-0-829" name="__codelineno-0-829"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"need at least 16 observations to estimate rho"</span><span class="p">)</span>
+</span><span id="__span-0-830"><a id="__codelineno-0-830" name="__codelineno-0-830"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">n</span><span class="p">))))</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="heavytails.tail_index.second_order_beta" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">second_order_beta</span>
+
+
+<a href="#heavytails.tail_index.second_order_beta" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">second_order_beta</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Estimate the second-order scale parameter beta, given rho.</p>
+<p>Implements the estimator of Gomes and Martins (2002), built from the
+normalised log-spacings weighted by powers of <code>i / k</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code><span title="collections.abc.Sequence">Sequence</span>[<span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sample values.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>k</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of order statistics, matching the k used for gamma.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>rho</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The second-order shape parameter, which must be negative.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The estimate of beta.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If rho is not negative, k is out of range, or the
+estimator is degenerate.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="references" open>
+  <summary>References</summary>
+  <p>Gomes, M. I., &amp; Martins, M. J. (2002). Asymptotically unbiased
+estimators of the tail index based on external estimation of the
+second order parameter. <em>Extremes</em>, 5(1), 5-31.</p>
+</details>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>heavytails/tail_index.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-924">924</a></span>
+<span class="normal"><a href="#__codelineno-0-925">925</a></span>
+<span class="normal"><a href="#__codelineno-0-926">926</a></span>
+<span class="normal"><a href="#__codelineno-0-927">927</a></span>
+<span class="normal"><a href="#__codelineno-0-928">928</a></span>
+<span class="normal"><a href="#__codelineno-0-929">929</a></span>
+<span class="normal"><a href="#__codelineno-0-930">930</a></span>
+<span class="normal"><a href="#__codelineno-0-931">931</a></span>
+<span class="normal"><a href="#__codelineno-0-932">932</a></span>
+<span class="normal"><a href="#__codelineno-0-933">933</a></span>
+<span class="normal"><a href="#__codelineno-0-934">934</a></span>
+<span class="normal"><a href="#__codelineno-0-935">935</a></span>
+<span class="normal"><a href="#__codelineno-0-936">936</a></span>
+<span class="normal"><a href="#__codelineno-0-937">937</a></span>
+<span class="normal"><a href="#__codelineno-0-938">938</a></span>
+<span class="normal"><a href="#__codelineno-0-939">939</a></span>
+<span class="normal"><a href="#__codelineno-0-940">940</a></span>
+<span class="normal"><a href="#__codelineno-0-941">941</a></span>
+<span class="normal"><a href="#__codelineno-0-942">942</a></span>
+<span class="normal"><a href="#__codelineno-0-943">943</a></span>
+<span class="normal"><a href="#__codelineno-0-944">944</a></span>
+<span class="normal"><a href="#__codelineno-0-945">945</a></span>
+<span class="normal"><a href="#__codelineno-0-946">946</a></span>
+<span class="normal"><a href="#__codelineno-0-947">947</a></span>
+<span class="normal"><a href="#__codelineno-0-948">948</a></span>
+<span class="normal"><a href="#__codelineno-0-949">949</a></span>
+<span class="normal"><a href="#__codelineno-0-950">950</a></span>
+<span class="normal"><a href="#__codelineno-0-951">951</a></span>
+<span class="normal"><a href="#__codelineno-0-952">952</a></span>
+<span class="normal"><a href="#__codelineno-0-953">953</a></span>
+<span class="normal"><a href="#__codelineno-0-954">954</a></span>
+<span class="normal"><a href="#__codelineno-0-955">955</a></span>
+<span class="normal"><a href="#__codelineno-0-956">956</a></span>
+<span class="normal"><a href="#__codelineno-0-957">957</a></span>
+<span class="normal"><a href="#__codelineno-0-958">958</a></span>
+<span class="normal"><a href="#__codelineno-0-959">959</a></span>
+<span class="normal"><a href="#__codelineno-0-960">960</a></span>
+<span class="normal"><a href="#__codelineno-0-961">961</a></span>
+<span class="normal"><a href="#__codelineno-0-962">962</a></span>
+<span class="normal"><a href="#__codelineno-0-963">963</a></span>
+<span class="normal"><a href="#__codelineno-0-964">964</a></span>
+<span class="normal"><a href="#__codelineno-0-965">965</a></span>
+<span class="normal"><a href="#__codelineno-0-966">966</a></span>
+<span class="normal"><a href="#__codelineno-0-967">967</a></span>
+<span class="normal"><a href="#__codelineno-0-968">968</a></span>
+<span class="normal"><a href="#__codelineno-0-969">969</a></span>
+<span class="normal"><a href="#__codelineno-0-970">970</a></span>
+<span class="normal"><a href="#__codelineno-0-971">971</a></span>
+<span class="normal"><a href="#__codelineno-0-972">972</a></span>
+<span class="normal"><a href="#__codelineno-0-973">973</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-924"><a id="__codelineno-0-924" name="__codelineno-0-924"></a><span class="k">def</span><span class="w"> </span><span class="nf">second_order_beta</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="__span-0-925"><a id="__codelineno-0-925" name="__codelineno-0-925"></a><span class="w">    </span><span class="sd">"""Estimate the second-order scale parameter beta, given rho.</span>
+</span><span id="__span-0-926"><a id="__codelineno-0-926" name="__codelineno-0-926"></a>
+</span><span id="__span-0-927"><a id="__codelineno-0-927" name="__codelineno-0-927"></a><span class="sd">    Implements the estimator of Gomes and Martins (2002), built from the</span>
+</span><span id="__span-0-928"><a id="__codelineno-0-928" name="__codelineno-0-928"></a><span class="sd">    normalised log-spacings weighted by powers of ``i / k``.</span>
+</span><span id="__span-0-929"><a id="__codelineno-0-929" name="__codelineno-0-929"></a>
+</span><span id="__span-0-930"><a id="__codelineno-0-930" name="__codelineno-0-930"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-931"><a id="__codelineno-0-931" name="__codelineno-0-931"></a><span class="sd">        data: Sample values.</span>
+</span><span id="__span-0-932"><a id="__codelineno-0-932" name="__codelineno-0-932"></a><span class="sd">        k: Number of order statistics, matching the k used for gamma.</span>
+</span><span id="__span-0-933"><a id="__codelineno-0-933" name="__codelineno-0-933"></a><span class="sd">        rho: The second-order shape parameter, which must be negative.</span>
+</span><span id="__span-0-934"><a id="__codelineno-0-934" name="__codelineno-0-934"></a>
+</span><span id="__span-0-935"><a id="__codelineno-0-935" name="__codelineno-0-935"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-936"><a id="__codelineno-0-936" name="__codelineno-0-936"></a><span class="sd">        The estimate of beta.</span>
+</span><span id="__span-0-937"><a id="__codelineno-0-937" name="__codelineno-0-937"></a>
+</span><span id="__span-0-938"><a id="__codelineno-0-938" name="__codelineno-0-938"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-939"><a id="__codelineno-0-939" name="__codelineno-0-939"></a><span class="sd">        ValueError: If rho is not negative, k is out of range, or the</span>
+</span><span id="__span-0-940"><a id="__codelineno-0-940" name="__codelineno-0-940"></a><span class="sd">            estimator is degenerate.</span>
+</span><span id="__span-0-941"><a id="__codelineno-0-941" name="__codelineno-0-941"></a>
+</span><span id="__span-0-942"><a id="__codelineno-0-942" name="__codelineno-0-942"></a><span class="sd">    References:</span>
+</span><span id="__span-0-943"><a id="__codelineno-0-943" name="__codelineno-0-943"></a><span class="sd">        Gomes, M. I., &amp; Martins, M. J. (2002). Asymptotically unbiased</span>
+</span><span id="__span-0-944"><a id="__codelineno-0-944" name="__codelineno-0-944"></a><span class="sd">        estimators of the tail index based on external estimation of the</span>
+</span><span id="__span-0-945"><a id="__codelineno-0-945" name="__codelineno-0-945"></a><span class="sd">        second order parameter. *Extremes*, 5(1), 5-31.</span>
+</span><span id="__span-0-946"><a id="__codelineno-0-946" name="__codelineno-0-946"></a><span class="sd">    """</span>
+</span><span id="__span-0-947"><a id="__codelineno-0-947" name="__codelineno-0-947"></a>    <span class="k">if</span> <span class="n">rho</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-948"><a id="__codelineno-0-948" name="__codelineno-0-948"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rho must be negative"</span><span class="p">)</span>
+</span><span id="__span-0-949"><a id="__codelineno-0-949" name="__codelineno-0-949"></a>
+</span><span id="__span-0-950"><a id="__codelineno-0-950" name="__codelineno-0-950"></a>    <span class="n">x</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-0-951"><a id="__codelineno-0-951" name="__codelineno-0-951"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span id="__span-0-952"><a id="__codelineno-0-952" name="__codelineno-0-952"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">):</span>
+</span><span id="__span-0-953"><a id="__codelineno-0-953" name="__codelineno-0-953"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"k must be between 1 and n-1"</span><span class="p">)</span>
+</span><span id="__span-0-954"><a id="__codelineno-0-954" name="__codelineno-0-954"></a>    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-955"><a id="__codelineno-0-955" name="__codelineno-0-955"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"beta estimation requires positive data"</span><span class="p">)</span>
+</span><span id="__span-0-956"><a id="__codelineno-0-956" name="__codelineno-0-956"></a>
+</span><span id="__span-0-957"><a id="__codelineno-0-957" name="__codelineno-0-957"></a>    <span class="n">spacings</span> <span class="o">=</span> <span class="n">_normalised_log_spacings</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</span><span id="__span-0-958"><a id="__codelineno-0-958" name="__codelineno-0-958"></a>
+</span><span id="__span-0-959"><a id="__codelineno-0-959" name="__codelineno-0-959"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">moment</span><span class="p">(</span><span class="n">power</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+</span><span id="__span-0-960"><a id="__codelineno-0-960" name="__codelineno-0-960"></a><span class="w">        </span><span class="sd">"""Unweighted and spacing-weighted means of ``(i/k) ** -power``."""</span>
+</span><span id="__span-0-961"><a id="__codelineno-0-961" name="__codelineno-0-961"></a>        <span class="n">weights</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span> <span class="o">/</span> <span class="n">k</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">power</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+</span><span id="__span-0-962"><a id="__codelineno-0-962" name="__codelineno-0-962"></a>        <span class="n">plain</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">/</span> <span class="n">k</span>
+</span><span id="__span-0-963"><a id="__codelineno-0-963" name="__codelineno-0-963"></a>        <span class="n">weighted</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">u</span> <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">spacings</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">/</span> <span class="n">k</span>
+</span><span id="__span-0-964"><a id="__codelineno-0-964" name="__codelineno-0-964"></a>        <span class="k">return</span> <span class="n">plain</span><span class="p">,</span> <span class="n">weighted</span>
+</span><span id="__span-0-965"><a id="__codelineno-0-965" name="__codelineno-0-965"></a>
+</span><span id="__span-0-966"><a id="__codelineno-0-966" name="__codelineno-0-966"></a>    <span class="n">d_rho</span><span class="p">,</span> <span class="n">big_d_rho</span> <span class="o">=</span> <span class="n">moment</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+</span><span id="__span-0-967"><a id="__codelineno-0-967" name="__codelineno-0-967"></a>    <span class="n">_</span><span class="p">,</span> <span class="n">big_d_zero</span> <span class="o">=</span> <span class="n">moment</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+</span><span id="__span-0-968"><a id="__codelineno-0-968" name="__codelineno-0-968"></a>    <span class="n">_</span><span class="p">,</span> <span class="n">big_d_two_rho</span> <span class="o">=</span> <span class="n">moment</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">rho</span><span class="p">)</span>
+</span><span id="__span-0-969"><a id="__codelineno-0-969" name="__codelineno-0-969"></a>
+</span><span id="__span-0-970"><a id="__codelineno-0-970" name="__codelineno-0-970"></a>    <span class="n">denominator</span> <span class="o">=</span> <span class="n">d_rho</span> <span class="o">*</span> <span class="n">big_d_rho</span> <span class="o">-</span> <span class="n">big_d_two_rho</span>
+</span><span id="__span-0-971"><a id="__codelineno-0-971" name="__codelineno-0-971"></a>    <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-972"><a id="__codelineno-0-972" name="__codelineno-0-972"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"beta is not identifiable at this k and rho"</span><span class="p">)</span>
+</span><span id="__span-0-973"><a id="__codelineno-0-973" name="__codelineno-0-973"></a>    <span class="k">return</span> <span class="nb">float</span><span class="p">(((</span><span class="n">k</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">**</span> <span class="n">rho</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">d_rho</span> <span class="o">*</span> <span class="n">big_d_zero</span> <span class="o">-</span> <span class="n">big_d_rho</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="heavytails.tail_index.second_order_rho" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">second_order_rho</span>
+
+
+<a href="#heavytails.tail_index.second_order_rho" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">second_order_rho</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Estimate the second-order parameter rho of a regularly varying tail.</p>
+<p>Under second-order regular variation the tail behaves like
+<code>C x**(-1/gamma) [1 + D x**(rho/gamma) + ...]</code> with <code>rho &lt; 0</code>. The
+parameter controls how fast the tail approaches its Pareto limit, and so
+how quickly the Hill estimator's bias grows with k.</p>
+<p>Implements the estimator of Fraga Alves, Gomes and de Haan (2003), built
+from the first three moments of the log-excesses.</p>
+
+
+<details class="warning" open>
+  <summary>Warning</summary>
+  <p>This estimator is unstable, which is a property of the estimator
+rather than of this implementation. Sweeping k on a Frechet sample
+whose true rho is -1 gives estimates ranging from -0.07 to -20.5, the
+latter at a pole where the denominator crosses zero. Prefer supplying
+a known or assumed rho to :func:<code>bias_reduced_hill_estimator</code>, and
+plot the estimate against k before trusting any single value.</p>
+</details>
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code><span title="collections.abc.Sequence">Sequence</span>[<span title="float">float</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sample values. The top <code>k + 1</code> are read and must be positive.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>k</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of order statistics. Defaults to :func:<code>recommended_rho_k</code>,
+which is much larger than the k used for gamma.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>tau</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Tuning parameter. <code>0.0</code> uses the logarithmic form, positive
+values the power form. Both are in the original paper, and the
+choice matters as much as k does.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.0</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The estimate of rho, always negative.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If k is out of range, tau is negative, or the moments are
+degenerate.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="references" open>
+  <summary>References</summary>
+  <p>Fraga Alves, M. I., Gomes, M. I., &amp; de Haan, L. (2003). A new class of
+semi-parametric estimators of the second order parameter.
+<em>Portugaliae Mathematica</em>, 60(2), 193-213.</p>
+</details>
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="language-pycon highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frechet</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">Frechet</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">second_order_rho</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span>   <span class="c1"># true value is -1</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="go">True</span>
+</span></code></pre></div>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>heavytails/tail_index.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-833">833</a></span>
+<span class="normal"><a href="#__codelineno-0-834">834</a></span>
+<span class="normal"><a href="#__codelineno-0-835">835</a></span>
+<span class="normal"><a href="#__codelineno-0-836">836</a></span>
+<span class="normal"><a href="#__codelineno-0-837">837</a></span>
+<span class="normal"><a href="#__codelineno-0-838">838</a></span>
+<span class="normal"><a href="#__codelineno-0-839">839</a></span>
+<span class="normal"><a href="#__codelineno-0-840">840</a></span>
+<span class="normal"><a href="#__codelineno-0-841">841</a></span>
+<span class="normal"><a href="#__codelineno-0-842">842</a></span>
+<span class="normal"><a href="#__codelineno-0-843">843</a></span>
+<span class="normal"><a href="#__codelineno-0-844">844</a></span>
+<span class="normal"><a href="#__codelineno-0-845">845</a></span>
+<span class="normal"><a href="#__codelineno-0-846">846</a></span>
+<span class="normal"><a href="#__codelineno-0-847">847</a></span>
+<span class="normal"><a href="#__codelineno-0-848">848</a></span>
+<span class="normal"><a href="#__codelineno-0-849">849</a></span>
+<span class="normal"><a href="#__codelineno-0-850">850</a></span>
+<span class="normal"><a href="#__codelineno-0-851">851</a></span>
+<span class="normal"><a href="#__codelineno-0-852">852</a></span>
+<span class="normal"><a href="#__codelineno-0-853">853</a></span>
+<span class="normal"><a href="#__codelineno-0-854">854</a></span>
+<span class="normal"><a href="#__codelineno-0-855">855</a></span>
+<span class="normal"><a href="#__codelineno-0-856">856</a></span>
+<span class="normal"><a href="#__codelineno-0-857">857</a></span>
+<span class="normal"><a href="#__codelineno-0-858">858</a></span>
+<span class="normal"><a href="#__codelineno-0-859">859</a></span>
+<span class="normal"><a href="#__codelineno-0-860">860</a></span>
+<span class="normal"><a href="#__codelineno-0-861">861</a></span>
+<span class="normal"><a href="#__codelineno-0-862">862</a></span>
+<span class="normal"><a href="#__codelineno-0-863">863</a></span>
+<span class="normal"><a href="#__codelineno-0-864">864</a></span>
+<span class="normal"><a href="#__codelineno-0-865">865</a></span>
+<span class="normal"><a href="#__codelineno-0-866">866</a></span>
+<span class="normal"><a href="#__codelineno-0-867">867</a></span>
+<span class="normal"><a href="#__codelineno-0-868">868</a></span>
+<span class="normal"><a href="#__codelineno-0-869">869</a></span>
+<span class="normal"><a href="#__codelineno-0-870">870</a></span>
+<span class="normal"><a href="#__codelineno-0-871">871</a></span>
+<span class="normal"><a href="#__codelineno-0-872">872</a></span>
+<span class="normal"><a href="#__codelineno-0-873">873</a></span>
+<span class="normal"><a href="#__codelineno-0-874">874</a></span>
+<span class="normal"><a href="#__codelineno-0-875">875</a></span>
+<span class="normal"><a href="#__codelineno-0-876">876</a></span>
+<span class="normal"><a href="#__codelineno-0-877">877</a></span>
+<span class="normal"><a href="#__codelineno-0-878">878</a></span>
+<span class="normal"><a href="#__codelineno-0-879">879</a></span>
+<span class="normal"><a href="#__codelineno-0-880">880</a></span>
+<span class="normal"><a href="#__codelineno-0-881">881</a></span>
+<span class="normal"><a href="#__codelineno-0-882">882</a></span>
+<span class="normal"><a href="#__codelineno-0-883">883</a></span>
+<span class="normal"><a href="#__codelineno-0-884">884</a></span>
+<span class="normal"><a href="#__codelineno-0-885">885</a></span>
+<span class="normal"><a href="#__codelineno-0-886">886</a></span>
+<span class="normal"><a href="#__codelineno-0-887">887</a></span>
+<span class="normal"><a href="#__codelineno-0-888">888</a></span>
+<span class="normal"><a href="#__codelineno-0-889">889</a></span>
+<span class="normal"><a href="#__codelineno-0-890">890</a></span>
+<span class="normal"><a href="#__codelineno-0-891">891</a></span>
+<span class="normal"><a href="#__codelineno-0-892">892</a></span>
+<span class="normal"><a href="#__codelineno-0-893">893</a></span>
+<span class="normal"><a href="#__codelineno-0-894">894</a></span>
+<span class="normal"><a href="#__codelineno-0-895">895</a></span>
+<span class="normal"><a href="#__codelineno-0-896">896</a></span>
+<span class="normal"><a href="#__codelineno-0-897">897</a></span>
+<span class="normal"><a href="#__codelineno-0-898">898</a></span>
+<span class="normal"><a href="#__codelineno-0-899">899</a></span>
+<span class="normal"><a href="#__codelineno-0-900">900</a></span>
+<span class="normal"><a href="#__codelineno-0-901">901</a></span>
+<span class="normal"><a href="#__codelineno-0-902">902</a></span>
+<span class="normal"><a href="#__codelineno-0-903">903</a></span>
+<span class="normal"><a href="#__codelineno-0-904">904</a></span>
+<span class="normal"><a href="#__codelineno-0-905">905</a></span>
+<span class="normal"><a href="#__codelineno-0-906">906</a></span>
+<span class="normal"><a href="#__codelineno-0-907">907</a></span>
+<span class="normal"><a href="#__codelineno-0-908">908</a></span>
+<span class="normal"><a href="#__codelineno-0-909">909</a></span>
+<span class="normal"><a href="#__codelineno-0-910">910</a></span>
+<span class="normal"><a href="#__codelineno-0-911">911</a></span>
+<span class="normal"><a href="#__codelineno-0-912">912</a></span>
+<span class="normal"><a href="#__codelineno-0-913">913</a></span>
+<span class="normal"><a href="#__codelineno-0-914">914</a></span>
+<span class="normal"><a href="#__codelineno-0-915">915</a></span>
+<span class="normal"><a href="#__codelineno-0-916">916</a></span>
+<span class="normal"><a href="#__codelineno-0-917">917</a></span>
+<span class="normal"><a href="#__codelineno-0-918">918</a></span>
+<span class="normal"><a href="#__codelineno-0-919">919</a></span>
+<span class="normal"><a href="#__codelineno-0-920">920</a></span>
+<span class="normal"><a href="#__codelineno-0-921">921</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-833"><a id="__codelineno-0-833" name="__codelineno-0-833"></a><span class="k">def</span><span class="w"> </span><span class="nf">second_order_rho</span><span class="p">(</span>
+</span><span id="__span-0-834"><a id="__codelineno-0-834" name="__codelineno-0-834"></a>    <span class="n">data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span id="__span-0-835"><a id="__codelineno-0-835" name="__codelineno-0-835"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="__span-0-836"><a id="__codelineno-0-836" name="__codelineno-0-836"></a><span class="w">    </span><span class="sd">"""Estimate the second-order parameter rho of a regularly varying tail.</span>
+</span><span id="__span-0-837"><a id="__codelineno-0-837" name="__codelineno-0-837"></a>
+</span><span id="__span-0-838"><a id="__codelineno-0-838" name="__codelineno-0-838"></a><span class="sd">    Under second-order regular variation the tail behaves like</span>
+</span><span id="__span-0-839"><a id="__codelineno-0-839" name="__codelineno-0-839"></a><span class="sd">    ``C x**(-1/gamma) [1 + D x**(rho/gamma) + ...]`` with ``rho &lt; 0``. The</span>
+</span><span id="__span-0-840"><a id="__codelineno-0-840" name="__codelineno-0-840"></a><span class="sd">    parameter controls how fast the tail approaches its Pareto limit, and so</span>
+</span><span id="__span-0-841"><a id="__codelineno-0-841" name="__codelineno-0-841"></a><span class="sd">    how quickly the Hill estimator's bias grows with k.</span>
+</span><span id="__span-0-842"><a id="__codelineno-0-842" name="__codelineno-0-842"></a>
+</span><span id="__span-0-843"><a id="__codelineno-0-843" name="__codelineno-0-843"></a><span class="sd">    Implements the estimator of Fraga Alves, Gomes and de Haan (2003), built</span>
+</span><span id="__span-0-844"><a id="__codelineno-0-844" name="__codelineno-0-844"></a><span class="sd">    from the first three moments of the log-excesses.</span>
+</span><span id="__span-0-845"><a id="__codelineno-0-845" name="__codelineno-0-845"></a>
+</span><span id="__span-0-846"><a id="__codelineno-0-846" name="__codelineno-0-846"></a><span class="sd">    Warning:</span>
+</span><span id="__span-0-847"><a id="__codelineno-0-847" name="__codelineno-0-847"></a><span class="sd">        This estimator is unstable, which is a property of the estimator</span>
+</span><span id="__span-0-848"><a id="__codelineno-0-848" name="__codelineno-0-848"></a><span class="sd">        rather than of this implementation. Sweeping k on a Frechet sample</span>
+</span><span id="__span-0-849"><a id="__codelineno-0-849" name="__codelineno-0-849"></a><span class="sd">        whose true rho is -1 gives estimates ranging from -0.07 to -20.5, the</span>
+</span><span id="__span-0-850"><a id="__codelineno-0-850" name="__codelineno-0-850"></a><span class="sd">        latter at a pole where the denominator crosses zero. Prefer supplying</span>
+</span><span id="__span-0-851"><a id="__codelineno-0-851" name="__codelineno-0-851"></a><span class="sd">        a known or assumed rho to :func:`bias_reduced_hill_estimator`, and</span>
+</span><span id="__span-0-852"><a id="__codelineno-0-852" name="__codelineno-0-852"></a><span class="sd">        plot the estimate against k before trusting any single value.</span>
+</span><span id="__span-0-853"><a id="__codelineno-0-853" name="__codelineno-0-853"></a>
+</span><span id="__span-0-854"><a id="__codelineno-0-854" name="__codelineno-0-854"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-855"><a id="__codelineno-0-855" name="__codelineno-0-855"></a><span class="sd">        data: Sample values. The top ``k + 1`` are read and must be positive.</span>
+</span><span id="__span-0-856"><a id="__codelineno-0-856" name="__codelineno-0-856"></a><span class="sd">        k: Number of order statistics. Defaults to :func:`recommended_rho_k`,</span>
+</span><span id="__span-0-857"><a id="__codelineno-0-857" name="__codelineno-0-857"></a><span class="sd">            which is much larger than the k used for gamma.</span>
+</span><span id="__span-0-858"><a id="__codelineno-0-858" name="__codelineno-0-858"></a><span class="sd">        tau: Tuning parameter. ``0.0`` uses the logarithmic form, positive</span>
+</span><span id="__span-0-859"><a id="__codelineno-0-859" name="__codelineno-0-859"></a><span class="sd">            values the power form. Both are in the original paper, and the</span>
+</span><span id="__span-0-860"><a id="__codelineno-0-860" name="__codelineno-0-860"></a><span class="sd">            choice matters as much as k does.</span>
+</span><span id="__span-0-861"><a id="__codelineno-0-861" name="__codelineno-0-861"></a>
+</span><span id="__span-0-862"><a id="__codelineno-0-862" name="__codelineno-0-862"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-863"><a id="__codelineno-0-863" name="__codelineno-0-863"></a><span class="sd">        The estimate of rho, always negative.</span>
+</span><span id="__span-0-864"><a id="__codelineno-0-864" name="__codelineno-0-864"></a>
+</span><span id="__span-0-865"><a id="__codelineno-0-865" name="__codelineno-0-865"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-866"><a id="__codelineno-0-866" name="__codelineno-0-866"></a><span class="sd">        ValueError: If k is out of range, tau is negative, or the moments are</span>
+</span><span id="__span-0-867"><a id="__codelineno-0-867" name="__codelineno-0-867"></a><span class="sd">            degenerate.</span>
+</span><span id="__span-0-868"><a id="__codelineno-0-868" name="__codelineno-0-868"></a>
+</span><span id="__span-0-869"><a id="__codelineno-0-869" name="__codelineno-0-869"></a><span class="sd">    References:</span>
+</span><span id="__span-0-870"><a id="__codelineno-0-870" name="__codelineno-0-870"></a><span class="sd">        Fraga Alves, M. I., Gomes, M. I., &amp; de Haan, L. (2003). A new class of</span>
+</span><span id="__span-0-871"><a id="__codelineno-0-871" name="__codelineno-0-871"></a><span class="sd">        semi-parametric estimators of the second order parameter.</span>
+</span><span id="__span-0-872"><a id="__codelineno-0-872" name="__codelineno-0-872"></a><span class="sd">        *Portugaliae Mathematica*, 60(2), 193-213.</span>
+</span><span id="__span-0-873"><a id="__codelineno-0-873" name="__codelineno-0-873"></a>
+</span><span id="__span-0-874"><a id="__codelineno-0-874" name="__codelineno-0-874"></a><span class="sd">    Examples:</span>
+</span><span id="__span-0-875"><a id="__codelineno-0-875" name="__codelineno-0-875"></a><span class="sd">        &gt;&gt;&gt; from heavytails import Frechet</span>
+</span><span id="__span-0-876"><a id="__codelineno-0-876" name="__codelineno-0-876"></a><span class="sd">        &gt;&gt;&gt; data = Frechet(alpha=2.0, s=1.0, m=0.0).rvs(20000, seed=11)</span>
+</span><span id="__span-0-877"><a id="__codelineno-0-877" name="__codelineno-0-877"></a><span class="sd">        &gt;&gt;&gt; second_order_rho(data) &lt; 0   # true value is -1</span>
+</span><span id="__span-0-878"><a id="__codelineno-0-878" name="__codelineno-0-878"></a><span class="sd">        True</span>
+</span><span id="__span-0-879"><a id="__codelineno-0-879" name="__codelineno-0-879"></a><span class="sd">    """</span>
+</span><span id="__span-0-880"><a id="__codelineno-0-880" name="__codelineno-0-880"></a>    <span class="k">if</span> <span class="n">tau</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-881"><a id="__codelineno-0-881" name="__codelineno-0-881"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"tau must be non-negative"</span><span class="p">)</span>
+</span><span id="__span-0-882"><a id="__codelineno-0-882" name="__codelineno-0-882"></a>
+</span><span id="__span-0-883"><a id="__codelineno-0-883" name="__codelineno-0-883"></a>    <span class="n">x</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-0-884"><a id="__codelineno-0-884" name="__codelineno-0-884"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span id="__span-0-885"><a id="__codelineno-0-885" name="__codelineno-0-885"></a>    <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-886"><a id="__codelineno-0-886" name="__codelineno-0-886"></a>        <span class="n">k</span> <span class="o">=</span> <span class="n">recommended_rho_k</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</span><span id="__span-0-887"><a id="__codelineno-0-887" name="__codelineno-0-887"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">):</span>
+</span><span id="__span-0-888"><a id="__codelineno-0-888" name="__codelineno-0-888"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"k must be between 1 and n-1"</span><span class="p">)</span>
+</span><span id="__span-0-889"><a id="__codelineno-0-889" name="__codelineno-0-889"></a>    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-890"><a id="__codelineno-0-890" name="__codelineno-0-890"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rho estimation requires positive data"</span><span class="p">)</span>
+</span><span id="__span-0-891"><a id="__codelineno-0-891" name="__codelineno-0-891"></a>
+</span><span id="__span-0-892"><a id="__codelineno-0-892" name="__codelineno-0-892"></a>    <span class="n">log_threshold</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+</span><span id="__span-0-893"><a id="__codelineno-0-893" name="__codelineno-0-893"></a>    <span class="n">excess</span> <span class="o">=</span> <span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="n">log_threshold</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span>
+</span><span id="__span-0-894"><a id="__codelineno-0-894" name="__codelineno-0-894"></a>    <span class="n">m1</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">excess</span><span class="p">)</span> <span class="o">/</span> <span class="n">k</span>
+</span><span id="__span-0-895"><a id="__codelineno-0-895" name="__codelineno-0-895"></a>    <span class="n">m2</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">excess</span><span class="p">)</span> <span class="o">/</span> <span class="n">k</span>
+</span><span id="__span-0-896"><a id="__codelineno-0-896" name="__codelineno-0-896"></a>    <span class="n">m3</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">e</span> <span class="o">*</span> <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">excess</span><span class="p">)</span> <span class="o">/</span> <span class="n">k</span>
+</span><span id="__span-0-897"><a id="__codelineno-0-897" name="__codelineno-0-897"></a>    <span class="k">if</span> <span class="n">m1</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">m2</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">m3</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-898"><a id="__codelineno-0-898" name="__codelineno-0-898"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="__span-0-899"><a id="__codelineno-0-899" name="__codelineno-0-899"></a>            <span class="s2">"degenerate log-excess moments; the sample is tied in its upper tail"</span>
+</span><span id="__span-0-900"><a id="__codelineno-0-900" name="__codelineno-0-900"></a>        <span class="p">)</span>
+</span><span id="__span-0-901"><a id="__codelineno-0-901" name="__codelineno-0-901"></a>
+</span><span id="__span-0-902"><a id="__codelineno-0-902" name="__codelineno-0-902"></a>    <span class="k">if</span> <span class="n">tau</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-903"><a id="__codelineno-0-903" name="__codelineno-0-903"></a>        <span class="n">numerator</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">m2</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+</span><span id="__span-0-904"><a id="__codelineno-0-904" name="__codelineno-0-904"></a>        <span class="n">denominator</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">m2</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">m3</span> <span class="o">/</span> <span class="mf">6.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+</span><span id="__span-0-905"><a id="__codelineno-0-905" name="__codelineno-0-905"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-906"><a id="__codelineno-0-906" name="__codelineno-0-906"></a>        <span class="n">first</span> <span class="o">=</span> <span class="n">m1</span><span class="o">**</span><span class="n">tau</span>
+</span><span id="__span-0-907"><a id="__codelineno-0-907" name="__codelineno-0-907"></a>        <span class="n">second</span> <span class="o">=</span> <span class="p">(</span><span class="n">m2</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+</span><span id="__span-0-908"><a id="__codelineno-0-908" name="__codelineno-0-908"></a>        <span class="n">third</span> <span class="o">=</span> <span class="p">(</span><span class="n">m3</span> <span class="o">/</span> <span class="mf">6.0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">tau</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+</span><span id="__span-0-909"><a id="__codelineno-0-909" name="__codelineno-0-909"></a>        <span class="n">numerator</span> <span class="o">=</span> <span class="n">first</span> <span class="o">-</span> <span class="n">second</span>
+</span><span id="__span-0-910"><a id="__codelineno-0-910" name="__codelineno-0-910"></a>        <span class="n">denominator</span> <span class="o">=</span> <span class="n">second</span> <span class="o">-</span> <span class="n">third</span>
+</span><span id="__span-0-911"><a id="__codelineno-0-911" name="__codelineno-0-911"></a>
+</span><span id="__span-0-912"><a id="__codelineno-0-912" name="__codelineno-0-912"></a>    <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+</span><span id="__span-0-913"><a id="__codelineno-0-913" name="__codelineno-0-913"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="__span-0-914"><a id="__codelineno-0-914" name="__codelineno-0-914"></a>            <span class="s2">"rho is not identifiable at this k: the denominator vanished. "</span>
+</span><span id="__span-0-915"><a id="__codelineno-0-915" name="__codelineno-0-915"></a>            <span class="s2">"Try a different k or tau."</span>
+</span><span id="__span-0-916"><a id="__codelineno-0-916" name="__codelineno-0-916"></a>        <span class="p">)</span>
+</span><span id="__span-0-917"><a id="__codelineno-0-917" name="__codelineno-0-917"></a>
+</span><span id="__span-0-918"><a id="__codelineno-0-918" name="__codelineno-0-918"></a>    <span class="n">statistic</span> <span class="o">=</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+</span><span id="__span-0-919"><a id="__codelineno-0-919" name="__codelineno-0-919"></a>    <span class="k">if</span> <span class="n">statistic</span> <span class="o">==</span> <span class="mf">3.0</span><span class="p">:</span>
+</span><span id="__span-0-920"><a id="__codelineno-0-920" name="__codelineno-0-920"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rho is not identifiable at this k: the estimator has a pole"</span><span class="p">)</span>
+</span><span id="__span-0-921"><a id="__codelineno-0-921" name="__codelineno-0-921"></a>    <span class="k">return</span> <span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">statistic</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">statistic</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">))</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h3 id="heavytails.tail_index.smoothed_hill_estimator" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">smoothed_hill_estimator</span>
 
@@ -4717,239 +5816,239 @@ True</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>heavytails/tail_index.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-825">825</a></span>
-<span class="normal"><a href="#__codelineno-0-826">826</a></span>
-<span class="normal"><a href="#__codelineno-0-827">827</a></span>
-<span class="normal"><a href="#__codelineno-0-828">828</a></span>
-<span class="normal"><a href="#__codelineno-0-829">829</a></span>
-<span class="normal"><a href="#__codelineno-0-830">830</a></span>
-<span class="normal"><a href="#__codelineno-0-831">831</a></span>
-<span class="normal"><a href="#__codelineno-0-832">832</a></span>
-<span class="normal"><a href="#__codelineno-0-833">833</a></span>
-<span class="normal"><a href="#__codelineno-0-834">834</a></span>
-<span class="normal"><a href="#__codelineno-0-835">835</a></span>
-<span class="normal"><a href="#__codelineno-0-836">836</a></span>
-<span class="normal"><a href="#__codelineno-0-837">837</a></span>
-<span class="normal"><a href="#__codelineno-0-838">838</a></span>
-<span class="normal"><a href="#__codelineno-0-839">839</a></span>
-<span class="normal"><a href="#__codelineno-0-840">840</a></span>
-<span class="normal"><a href="#__codelineno-0-841">841</a></span>
-<span class="normal"><a href="#__codelineno-0-842">842</a></span>
-<span class="normal"><a href="#__codelineno-0-843">843</a></span>
-<span class="normal"><a href="#__codelineno-0-844">844</a></span>
-<span class="normal"><a href="#__codelineno-0-845">845</a></span>
-<span class="normal"><a href="#__codelineno-0-846">846</a></span>
-<span class="normal"><a href="#__codelineno-0-847">847</a></span>
-<span class="normal"><a href="#__codelineno-0-848">848</a></span>
-<span class="normal"><a href="#__codelineno-0-849">849</a></span>
-<span class="normal"><a href="#__codelineno-0-850">850</a></span>
-<span class="normal"><a href="#__codelineno-0-851">851</a></span>
-<span class="normal"><a href="#__codelineno-0-852">852</a></span>
-<span class="normal"><a href="#__codelineno-0-853">853</a></span>
-<span class="normal"><a href="#__codelineno-0-854">854</a></span>
-<span class="normal"><a href="#__codelineno-0-855">855</a></span>
-<span class="normal"><a href="#__codelineno-0-856">856</a></span>
-<span class="normal"><a href="#__codelineno-0-857">857</a></span>
-<span class="normal"><a href="#__codelineno-0-858">858</a></span>
-<span class="normal"><a href="#__codelineno-0-859">859</a></span>
-<span class="normal"><a href="#__codelineno-0-860">860</a></span>
-<span class="normal"><a href="#__codelineno-0-861">861</a></span>
-<span class="normal"><a href="#__codelineno-0-862">862</a></span>
-<span class="normal"><a href="#__codelineno-0-863">863</a></span>
-<span class="normal"><a href="#__codelineno-0-864">864</a></span>
-<span class="normal"><a href="#__codelineno-0-865">865</a></span>
-<span class="normal"><a href="#__codelineno-0-866">866</a></span>
-<span class="normal"><a href="#__codelineno-0-867">867</a></span>
-<span class="normal"><a href="#__codelineno-0-868">868</a></span>
-<span class="normal"><a href="#__codelineno-0-869">869</a></span>
-<span class="normal"><a href="#__codelineno-0-870">870</a></span>
-<span class="normal"><a href="#__codelineno-0-871">871</a></span>
-<span class="normal"><a href="#__codelineno-0-872">872</a></span>
-<span class="normal"><a href="#__codelineno-0-873">873</a></span>
-<span class="normal"><a href="#__codelineno-0-874">874</a></span>
-<span class="normal"><a href="#__codelineno-0-875">875</a></span>
-<span class="normal"><a href="#__codelineno-0-876">876</a></span>
-<span class="normal"><a href="#__codelineno-0-877">877</a></span>
-<span class="normal"><a href="#__codelineno-0-878">878</a></span>
-<span class="normal"><a href="#__codelineno-0-879">879</a></span>
-<span class="normal"><a href="#__codelineno-0-880">880</a></span>
-<span class="normal"><a href="#__codelineno-0-881">881</a></span>
-<span class="normal"><a href="#__codelineno-0-882">882</a></span>
-<span class="normal"><a href="#__codelineno-0-883">883</a></span>
-<span class="normal"><a href="#__codelineno-0-884">884</a></span>
-<span class="normal"><a href="#__codelineno-0-885">885</a></span>
-<span class="normal"><a href="#__codelineno-0-886">886</a></span>
-<span class="normal"><a href="#__codelineno-0-887">887</a></span>
-<span class="normal"><a href="#__codelineno-0-888">888</a></span>
-<span class="normal"><a href="#__codelineno-0-889">889</a></span>
-<span class="normal"><a href="#__codelineno-0-890">890</a></span>
-<span class="normal"><a href="#__codelineno-0-891">891</a></span>
-<span class="normal"><a href="#__codelineno-0-892">892</a></span>
-<span class="normal"><a href="#__codelineno-0-893">893</a></span>
-<span class="normal"><a href="#__codelineno-0-894">894</a></span>
-<span class="normal"><a href="#__codelineno-0-895">895</a></span>
-<span class="normal"><a href="#__codelineno-0-896">896</a></span>
-<span class="normal"><a href="#__codelineno-0-897">897</a></span>
-<span class="normal"><a href="#__codelineno-0-898">898</a></span>
-<span class="normal"><a href="#__codelineno-0-899">899</a></span>
-<span class="normal"><a href="#__codelineno-0-900">900</a></span>
-<span class="normal"><a href="#__codelineno-0-901">901</a></span>
-<span class="normal"><a href="#__codelineno-0-902">902</a></span>
-<span class="normal"><a href="#__codelineno-0-903">903</a></span>
-<span class="normal"><a href="#__codelineno-0-904">904</a></span>
-<span class="normal"><a href="#__codelineno-0-905">905</a></span>
-<span class="normal"><a href="#__codelineno-0-906">906</a></span>
-<span class="normal"><a href="#__codelineno-0-907">907</a></span>
-<span class="normal"><a href="#__codelineno-0-908">908</a></span>
-<span class="normal"><a href="#__codelineno-0-909">909</a></span>
-<span class="normal"><a href="#__codelineno-0-910">910</a></span>
-<span class="normal"><a href="#__codelineno-0-911">911</a></span>
-<span class="normal"><a href="#__codelineno-0-912">912</a></span>
-<span class="normal"><a href="#__codelineno-0-913">913</a></span>
-<span class="normal"><a href="#__codelineno-0-914">914</a></span>
-<span class="normal"><a href="#__codelineno-0-915">915</a></span>
-<span class="normal"><a href="#__codelineno-0-916">916</a></span>
-<span class="normal"><a href="#__codelineno-0-917">917</a></span>
-<span class="normal"><a href="#__codelineno-0-918">918</a></span>
-<span class="normal"><a href="#__codelineno-0-919">919</a></span>
-<span class="normal"><a href="#__codelineno-0-920">920</a></span>
-<span class="normal"><a href="#__codelineno-0-921">921</a></span>
-<span class="normal"><a href="#__codelineno-0-922">922</a></span>
-<span class="normal"><a href="#__codelineno-0-923">923</a></span>
-<span class="normal"><a href="#__codelineno-0-924">924</a></span>
-<span class="normal"><a href="#__codelineno-0-925">925</a></span>
-<span class="normal"><a href="#__codelineno-0-926">926</a></span>
-<span class="normal"><a href="#__codelineno-0-927">927</a></span>
-<span class="normal"><a href="#__codelineno-0-928">928</a></span>
-<span class="normal"><a href="#__codelineno-0-929">929</a></span>
-<span class="normal"><a href="#__codelineno-0-930">930</a></span>
-<span class="normal"><a href="#__codelineno-0-931">931</a></span>
-<span class="normal"><a href="#__codelineno-0-932">932</a></span>
-<span class="normal"><a href="#__codelineno-0-933">933</a></span>
-<span class="normal"><a href="#__codelineno-0-934">934</a></span>
-<span class="normal"><a href="#__codelineno-0-935">935</a></span>
-<span class="normal"><a href="#__codelineno-0-936">936</a></span>
-<span class="normal"><a href="#__codelineno-0-937">937</a></span>
-<span class="normal"><a href="#__codelineno-0-938">938</a></span>
-<span class="normal"><a href="#__codelineno-0-939">939</a></span>
-<span class="normal"><a href="#__codelineno-0-940">940</a></span>
-<span class="normal"><a href="#__codelineno-0-941">941</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-825"><a id="__codelineno-0-825" name="__codelineno-0-825"></a><span class="k">def</span><span class="w"> </span><span class="nf">tail_index_confidence_interval</span><span class="p">(</span>
-</span><span id="__span-0-826"><a id="__codelineno-0-826" name="__codelineno-0-826"></a>    <span class="n">data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
-</span><span id="__span-0-827"><a id="__codelineno-0-827" name="__codelineno-0-827"></a>    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="__span-0-828"><a id="__codelineno-0-828" name="__codelineno-0-828"></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-829"><a id="__codelineno-0-829" name="__codelineno-0-829"></a>    <span class="n">estimator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hill"</span><span class="p">,</span>
-</span><span id="__span-0-830"><a id="__codelineno-0-830" name="__codelineno-0-830"></a>    <span class="n">level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
-</span><span id="__span-0-831"><a id="__codelineno-0-831" name="__codelineno-0-831"></a>    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"asymptotic"</span><span class="p">,</span>
-</span><span id="__span-0-832"><a id="__codelineno-0-832" name="__codelineno-0-832"></a>    <span class="n">n_bootstrap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
-</span><span id="__span-0-833"><a id="__codelineno-0-833" name="__codelineno-0-833"></a>    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-834"><a id="__codelineno-0-834" name="__codelineno-0-834"></a>    <span class="n">estimator_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-835"><a id="__codelineno-0-835" name="__codelineno-0-835"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-</span><span id="__span-0-836"><a id="__codelineno-0-836" name="__codelineno-0-836"></a><span class="w">    </span><span class="sd">"""</span>
-</span><span id="__span-0-837"><a id="__codelineno-0-837" name="__codelineno-0-837"></a><span class="sd">    Point estimate and confidence interval for the extreme-value index.</span>
-</span><span id="__span-0-838"><a id="__codelineno-0-838" name="__codelineno-0-838"></a>
-</span><span id="__span-0-839"><a id="__codelineno-0-839" name="__codelineno-0-839"></a><span class="sd">    A tail index without an interval is not usable: the estimate depends on a</span>
-</span><span id="__span-0-840"><a id="__codelineno-0-840" name="__codelineno-0-840"></a><span class="sd">    choice of k that no rule fixes, and the sampling variability at realistic</span>
-</span><span id="__span-0-841"><a id="__codelineno-0-841" name="__codelineno-0-841"></a><span class="sd">    sample sizes is large.</span>
-</span><span id="__span-0-842"><a id="__codelineno-0-842" name="__codelineno-0-842"></a>
-</span><span id="__span-0-843"><a id="__codelineno-0-843" name="__codelineno-0-843"></a><span class="sd">    Two methods are offered:</span>
-</span><span id="__span-0-844"><a id="__codelineno-0-844" name="__codelineno-0-844"></a>
-</span><span id="__span-0-845"><a id="__codelineno-0-845" name="__codelineno-0-845"></a><span class="sd">    ``asymptotic``</span>
-</span><span id="__span-0-846"><a id="__codelineno-0-846" name="__codelineno-0-846"></a><span class="sd">        Only available for the Hill estimator, whose limiting distribution is</span>
-</span><span id="__span-0-847"><a id="__codelineno-0-847" name="__codelineno-0-847"></a><span class="sd">        ``sqrt(k) (gamma_hat - gamma) -&gt; N(0, gamma^2)``, giving the interval</span>
-</span><span id="__span-0-848"><a id="__codelineno-0-848" name="__codelineno-0-848"></a><span class="sd">        ``gamma_hat * (1 +/- z / sqrt(k))``. It assumes k is in the range where</span>
-</span><span id="__span-0-849"><a id="__codelineno-0-849" name="__codelineno-0-849"></a><span class="sd">        the estimator is unbiased, so it understates the true uncertainty when</span>
-</span><span id="__span-0-850"><a id="__codelineno-0-850" name="__codelineno-0-850"></a><span class="sd">        the threshold is chosen badly.</span>
-</span><span id="__span-0-851"><a id="__codelineno-0-851" name="__codelineno-0-851"></a>
-</span><span id="__span-0-852"><a id="__codelineno-0-852" name="__codelineno-0-852"></a><span class="sd">    ``bootstrap``</span>
-</span><span id="__span-0-853"><a id="__codelineno-0-853" name="__codelineno-0-853"></a><span class="sd">        Resamples the data with replacement and takes percentiles of the</span>
-</span><span id="__span-0-854"><a id="__codelineno-0-854" name="__codelineno-0-854"></a><span class="sd">        resulting estimates. Available for every estimator and free of</span>
-</span><span id="__span-0-855"><a id="__codelineno-0-855" name="__codelineno-0-855"></a><span class="sd">        distributional assumptions, at the cost of ``n_bootstrap`` refits. Note</span>
-</span><span id="__span-0-856"><a id="__codelineno-0-856" name="__codelineno-0-856"></a><span class="sd">        that resampling does not capture the bias from the choice of k, only</span>
-</span><span id="__span-0-857"><a id="__codelineno-0-857" name="__codelineno-0-857"></a><span class="sd">        the variance.</span>
-</span><span id="__span-0-858"><a id="__codelineno-0-858" name="__codelineno-0-858"></a>
-</span><span id="__span-0-859"><a id="__codelineno-0-859" name="__codelineno-0-859"></a><span class="sd">    Parameters</span>
-</span><span id="__span-0-860"><a id="__codelineno-0-860" name="__codelineno-0-860"></a><span class="sd">    ----------</span>
-</span><span id="__span-0-861"><a id="__codelineno-0-861" name="__codelineno-0-861"></a><span class="sd">    data : sequence of floats</span>
-</span><span id="__span-0-862"><a id="__codelineno-0-862" name="__codelineno-0-862"></a><span class="sd">        Sample values.</span>
-</span><span id="__span-0-863"><a id="__codelineno-0-863" name="__codelineno-0-863"></a><span class="sd">    k : int</span>
-</span><span id="__span-0-864"><a id="__codelineno-0-864" name="__codelineno-0-864"></a><span class="sd">        Number of top order statistics.</span>
-</span><span id="__span-0-865"><a id="__codelineno-0-865" name="__codelineno-0-865"></a><span class="sd">    estimator : str, optional</span>
-</span><span id="__span-0-866"><a id="__codelineno-0-866" name="__codelineno-0-866"></a><span class="sd">        One of ``hill``, ``generalized_hill``, ``moment`` or ``pickands``.</span>
-</span><span id="__span-0-867"><a id="__codelineno-0-867" name="__codelineno-0-867"></a><span class="sd">    level : float, optional</span>
-</span><span id="__span-0-868"><a id="__codelineno-0-868" name="__codelineno-0-868"></a><span class="sd">        Confidence level in (0, 1).</span>
-</span><span id="__span-0-869"><a id="__codelineno-0-869" name="__codelineno-0-869"></a><span class="sd">    method : str, optional</span>
-</span><span id="__span-0-870"><a id="__codelineno-0-870" name="__codelineno-0-870"></a><span class="sd">        ``asymptotic`` or ``bootstrap``.</span>
-</span><span id="__span-0-871"><a id="__codelineno-0-871" name="__codelineno-0-871"></a><span class="sd">    n_bootstrap : int, optional</span>
-</span><span id="__span-0-872"><a id="__codelineno-0-872" name="__codelineno-0-872"></a><span class="sd">        Number of bootstrap resamples.</span>
-</span><span id="__span-0-873"><a id="__codelineno-0-873" name="__codelineno-0-873"></a><span class="sd">    seed : int, optional</span>
-</span><span id="__span-0-874"><a id="__codelineno-0-874" name="__codelineno-0-874"></a><span class="sd">        Seed for reproducible bootstrap resampling.</span>
-</span><span id="__span-0-875"><a id="__codelineno-0-875" name="__codelineno-0-875"></a><span class="sd">    estimator_kwargs : dict, optional</span>
-</span><span id="__span-0-876"><a id="__codelineno-0-876" name="__codelineno-0-876"></a><span class="sd">        Extra keyword arguments for the estimator, such as ``{"r": 5}`` for the</span>
-</span><span id="__span-0-877"><a id="__codelineno-0-877" name="__codelineno-0-877"></a><span class="sd">        trimmed Hill estimator or ``{"u": 3.0}`` for the smoothed one. Without</span>
-</span><span id="__span-0-878"><a id="__codelineno-0-878" name="__codelineno-0-878"></a><span class="sd">        this the estimators run at their defaults, which for ``trimmed_hill``</span>
-</span><span id="__span-0-879"><a id="__codelineno-0-879" name="__codelineno-0-879"></a><span class="sd">        means no trimming at all and therefore no robustness.</span>
-</span><span id="__span-0-880"><a id="__codelineno-0-880" name="__codelineno-0-880"></a>
-</span><span id="__span-0-881"><a id="__codelineno-0-881" name="__codelineno-0-881"></a><span class="sd">    Returns</span>
-</span><span id="__span-0-882"><a id="__codelineno-0-882" name="__codelineno-0-882"></a><span class="sd">    -------</span>
-</span><span id="__span-0-883"><a id="__codelineno-0-883" name="__codelineno-0-883"></a><span class="sd">    dict</span>
-</span><span id="__span-0-884"><a id="__codelineno-0-884" name="__codelineno-0-884"></a><span class="sd">        ``gamma``, ``alpha``, ``lower``, ``upper``, ``level``, ``method``,</span>
-</span><span id="__span-0-885"><a id="__codelineno-0-885" name="__codelineno-0-885"></a><span class="sd">        ``estimator`` and ``k``. ``alpha`` is ``1/gamma``, or None when the</span>
-</span><span id="__span-0-886"><a id="__codelineno-0-886" name="__codelineno-0-886"></a><span class="sd">        estimate is not positive and the reciprocal is meaningless.</span>
-</span><span id="__span-0-887"><a id="__codelineno-0-887" name="__codelineno-0-887"></a>
-</span><span id="__span-0-888"><a id="__codelineno-0-888" name="__codelineno-0-888"></a><span class="sd">    Raises</span>
-</span><span id="__span-0-889"><a id="__codelineno-0-889" name="__codelineno-0-889"></a><span class="sd">    ------</span>
-</span><span id="__span-0-890"><a id="__codelineno-0-890" name="__codelineno-0-890"></a><span class="sd">    ValueError</span>
-</span><span id="__span-0-891"><a id="__codelineno-0-891" name="__codelineno-0-891"></a><span class="sd">        For an unknown estimator or method, or an out-of-range level.</span>
-</span><span id="__span-0-892"><a id="__codelineno-0-892" name="__codelineno-0-892"></a>
-</span><span id="__span-0-893"><a id="__codelineno-0-893" name="__codelineno-0-893"></a><span class="sd">    Examples</span>
-</span><span id="__span-0-894"><a id="__codelineno-0-894" name="__codelineno-0-894"></a><span class="sd">    --------</span>
-</span><span id="__span-0-895"><a id="__codelineno-0-895" name="__codelineno-0-895"></a><span class="sd">    &gt;&gt;&gt; from heavytails import Pareto</span>
-</span><span id="__span-0-896"><a id="__codelineno-0-896" name="__codelineno-0-896"></a><span class="sd">    &gt;&gt;&gt; data = Pareto(alpha=2.0, xm=1.0).rvs(2000, seed=7)</span>
-</span><span id="__span-0-897"><a id="__codelineno-0-897" name="__codelineno-0-897"></a><span class="sd">    &gt;&gt;&gt; result = tail_index_confidence_interval(data, k=200)</span>
-</span><span id="__span-0-898"><a id="__codelineno-0-898" name="__codelineno-0-898"></a><span class="sd">    &gt;&gt;&gt; result["lower"] &lt; result["gamma"] &lt; result["upper"]</span>
-</span><span id="__span-0-899"><a id="__codelineno-0-899" name="__codelineno-0-899"></a><span class="sd">    True</span>
-</span><span id="__span-0-900"><a id="__codelineno-0-900" name="__codelineno-0-900"></a><span class="sd">    """</span>
-</span><span id="__span-0-901"><a id="__codelineno-0-901" name="__codelineno-0-901"></a>    <span class="k">if</span> <span class="n">estimator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_POINT_ESTIMATORS</span><span class="p">:</span>
-</span><span id="__span-0-902"><a id="__codelineno-0-902" name="__codelineno-0-902"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="__span-0-903"><a id="__codelineno-0-903" name="__codelineno-0-903"></a>            <span class="sa">f</span><span class="s2">"Unknown estimator </span><span class="si">{</span><span class="n">estimator</span><span class="si">!r}</span><span class="s2">. "</span>
-</span><span id="__span-0-904"><a id="__codelineno-0-904" name="__codelineno-0-904"></a>            <span class="sa">f</span><span class="s2">"Available: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_POINT_ESTIMATORS</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span>
-</span><span id="__span-0-905"><a id="__codelineno-0-905" name="__codelineno-0-905"></a>        <span class="p">)</span>
-</span><span id="__span-0-906"><a id="__codelineno-0-906" name="__codelineno-0-906"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
-</span><span id="__span-0-907"><a id="__codelineno-0-907" name="__codelineno-0-907"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"level must be in (0,1)."</span><span class="p">)</span>
-</span><span id="__span-0-908"><a id="__codelineno-0-908" name="__codelineno-0-908"></a>
-</span><span id="__span-0-909"><a id="__codelineno-0-909" name="__codelineno-0-909"></a>    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">estimator_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
-</span><span id="__span-0-910"><a id="__codelineno-0-910" name="__codelineno-0-910"></a>
-</span><span id="__span-0-911"><a id="__codelineno-0-911" name="__codelineno-0-911"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">estimate</span><span class="p">(</span><span class="n">sample</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span><span id="__span-0-912"><a id="__codelineno-0-912" name="__codelineno-0-912"></a>        <span class="k">return</span> <span class="n">_POINT_ESTIMATORS</span><span class="p">[</span><span class="n">estimator</span><span class="p">](</span><span class="n">sample</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="__span-0-913"><a id="__codelineno-0-913" name="__codelineno-0-913"></a>
-</span><span id="__span-0-914"><a id="__codelineno-0-914" name="__codelineno-0-914"></a>    <span class="n">point</span> <span class="o">=</span> <span class="n">estimate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-</span><span id="__span-0-915"><a id="__codelineno-0-915" name="__codelineno-0-915"></a>
-</span><span id="__span-0-916"><a id="__codelineno-0-916" name="__codelineno-0-916"></a>    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"asymptotic"</span><span class="p">:</span>
-</span><span id="__span-0-917"><a id="__codelineno-0-917" name="__codelineno-0-917"></a>        <span class="k">if</span> <span class="n">estimator</span> <span class="o">!=</span> <span class="s2">"hill"</span><span class="p">:</span>
-</span><span id="__span-0-918"><a id="__codelineno-0-918" name="__codelineno-0-918"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-</span><span id="__span-0-919"><a id="__codelineno-0-919" name="__codelineno-0-919"></a>                <span class="s2">"The asymptotic interval is only established for the Hill "</span>
-</span><span id="__span-0-920"><a id="__codelineno-0-920" name="__codelineno-0-920"></a>                <span class="sa">f</span><span class="s2">"estimator; use method='bootstrap' for </span><span class="si">{</span><span class="n">estimator</span><span class="si">!r}</span><span class="s2">."</span>
-</span><span id="__span-0-921"><a id="__codelineno-0-921" name="__codelineno-0-921"></a>            <span class="p">)</span>
-</span><span id="__span-0-922"><a id="__codelineno-0-922" name="__codelineno-0-922"></a>        <span class="c1"># sqrt(k) (gamma_hat - gamma) -&gt; N(0, gamma^2)</span>
-</span><span id="__span-0-923"><a id="__codelineno-0-923" name="__codelineno-0-923"></a>        <span class="n">z</span> <span class="o">=</span> <span class="n">_phi_inverse</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">level</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
-</span><span id="__span-0-924"><a id="__codelineno-0-924" name="__codelineno-0-924"></a>        <span class="n">half_width</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">point</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-</span><span id="__span-0-925"><a id="__codelineno-0-925" name="__codelineno-0-925"></a>        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">point</span> <span class="o">-</span> <span class="n">half_width</span><span class="p">,</span> <span class="n">point</span> <span class="o">+</span> <span class="n">half_width</span>
-</span><span id="__span-0-926"><a id="__codelineno-0-926" name="__codelineno-0-926"></a>    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"bootstrap"</span><span class="p">:</span>
-</span><span id="__span-0-927"><a id="__codelineno-0-927" name="__codelineno-0-927"></a>        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">_bootstrap_interval</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">estimate</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">n_bootstrap</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
-</span><span id="__span-0-928"><a id="__codelineno-0-928" name="__codelineno-0-928"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-929"><a id="__codelineno-0-929" name="__codelineno-0-929"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown method </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">. Available: asymptotic, bootstrap"</span><span class="p">)</span>
-</span><span id="__span-0-930"><a id="__codelineno-0-930" name="__codelineno-0-930"></a>
-</span><span id="__span-0-931"><a id="__codelineno-0-931" name="__codelineno-0-931"></a>    <span class="k">return</span> <span class="p">{</span>
-</span><span id="__span-0-932"><a id="__codelineno-0-932" name="__codelineno-0-932"></a>        <span class="s2">"estimator"</span><span class="p">:</span> <span class="n">estimator</span><span class="p">,</span>
-</span><span id="__span-0-933"><a id="__codelineno-0-933" name="__codelineno-0-933"></a>        <span class="s2">"k"</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span>
-</span><span id="__span-0-934"><a id="__codelineno-0-934" name="__codelineno-0-934"></a>        <span class="s2">"gamma"</span><span class="p">:</span> <span class="n">point</span><span class="p">,</span>
-</span><span id="__span-0-935"><a id="__codelineno-0-935" name="__codelineno-0-935"></a>        <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">point</span> <span class="k">if</span> <span class="n">point</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-936"><a id="__codelineno-0-936" name="__codelineno-0-936"></a>        <span class="s2">"lower"</span><span class="p">:</span> <span class="n">lower</span><span class="p">,</span>
-</span><span id="__span-0-937"><a id="__codelineno-0-937" name="__codelineno-0-937"></a>        <span class="s2">"upper"</span><span class="p">:</span> <span class="n">upper</span><span class="p">,</span>
-</span><span id="__span-0-938"><a id="__codelineno-0-938" name="__codelineno-0-938"></a>        <span class="s2">"level"</span><span class="p">:</span> <span class="n">level</span><span class="p">,</span>
-</span><span id="__span-0-939"><a id="__codelineno-0-939" name="__codelineno-0-939"></a>        <span class="s2">"method"</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
-</span><span id="__span-0-940"><a id="__codelineno-0-940" name="__codelineno-0-940"></a>        <span class="s2">"estimator_kwargs"</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span>
-</span><span id="__span-0-941"><a id="__codelineno-0-941" name="__codelineno-0-941"></a>    <span class="p">}</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1062">1062</a></span>
+<span class="normal"><a href="#__codelineno-0-1063">1063</a></span>
+<span class="normal"><a href="#__codelineno-0-1064">1064</a></span>
+<span class="normal"><a href="#__codelineno-0-1065">1065</a></span>
+<span class="normal"><a href="#__codelineno-0-1066">1066</a></span>
+<span class="normal"><a href="#__codelineno-0-1067">1067</a></span>
+<span class="normal"><a href="#__codelineno-0-1068">1068</a></span>
+<span class="normal"><a href="#__codelineno-0-1069">1069</a></span>
+<span class="normal"><a href="#__codelineno-0-1070">1070</a></span>
+<span class="normal"><a href="#__codelineno-0-1071">1071</a></span>
+<span class="normal"><a href="#__codelineno-0-1072">1072</a></span>
+<span class="normal"><a href="#__codelineno-0-1073">1073</a></span>
+<span class="normal"><a href="#__codelineno-0-1074">1074</a></span>
+<span class="normal"><a href="#__codelineno-0-1075">1075</a></span>
+<span class="normal"><a href="#__codelineno-0-1076">1076</a></span>
+<span class="normal"><a href="#__codelineno-0-1077">1077</a></span>
+<span class="normal"><a href="#__codelineno-0-1078">1078</a></span>
+<span class="normal"><a href="#__codelineno-0-1079">1079</a></span>
+<span class="normal"><a href="#__codelineno-0-1080">1080</a></span>
+<span class="normal"><a href="#__codelineno-0-1081">1081</a></span>
+<span class="normal"><a href="#__codelineno-0-1082">1082</a></span>
+<span class="normal"><a href="#__codelineno-0-1083">1083</a></span>
+<span class="normal"><a href="#__codelineno-0-1084">1084</a></span>
+<span class="normal"><a href="#__codelineno-0-1085">1085</a></span>
+<span class="normal"><a href="#__codelineno-0-1086">1086</a></span>
+<span class="normal"><a href="#__codelineno-0-1087">1087</a></span>
+<span class="normal"><a href="#__codelineno-0-1088">1088</a></span>
+<span class="normal"><a href="#__codelineno-0-1089">1089</a></span>
+<span class="normal"><a href="#__codelineno-0-1090">1090</a></span>
+<span class="normal"><a href="#__codelineno-0-1091">1091</a></span>
+<span class="normal"><a href="#__codelineno-0-1092">1092</a></span>
+<span class="normal"><a href="#__codelineno-0-1093">1093</a></span>
+<span class="normal"><a href="#__codelineno-0-1094">1094</a></span>
+<span class="normal"><a href="#__codelineno-0-1095">1095</a></span>
+<span class="normal"><a href="#__codelineno-0-1096">1096</a></span>
+<span class="normal"><a href="#__codelineno-0-1097">1097</a></span>
+<span class="normal"><a href="#__codelineno-0-1098">1098</a></span>
+<span class="normal"><a href="#__codelineno-0-1099">1099</a></span>
+<span class="normal"><a href="#__codelineno-0-1100">1100</a></span>
+<span class="normal"><a href="#__codelineno-0-1101">1101</a></span>
+<span class="normal"><a href="#__codelineno-0-1102">1102</a></span>
+<span class="normal"><a href="#__codelineno-0-1103">1103</a></span>
+<span class="normal"><a href="#__codelineno-0-1104">1104</a></span>
+<span class="normal"><a href="#__codelineno-0-1105">1105</a></span>
+<span class="normal"><a href="#__codelineno-0-1106">1106</a></span>
+<span class="normal"><a href="#__codelineno-0-1107">1107</a></span>
+<span class="normal"><a href="#__codelineno-0-1108">1108</a></span>
+<span class="normal"><a href="#__codelineno-0-1109">1109</a></span>
+<span class="normal"><a href="#__codelineno-0-1110">1110</a></span>
+<span class="normal"><a href="#__codelineno-0-1111">1111</a></span>
+<span class="normal"><a href="#__codelineno-0-1112">1112</a></span>
+<span class="normal"><a href="#__codelineno-0-1113">1113</a></span>
+<span class="normal"><a href="#__codelineno-0-1114">1114</a></span>
+<span class="normal"><a href="#__codelineno-0-1115">1115</a></span>
+<span class="normal"><a href="#__codelineno-0-1116">1116</a></span>
+<span class="normal"><a href="#__codelineno-0-1117">1117</a></span>
+<span class="normal"><a href="#__codelineno-0-1118">1118</a></span>
+<span class="normal"><a href="#__codelineno-0-1119">1119</a></span>
+<span class="normal"><a href="#__codelineno-0-1120">1120</a></span>
+<span class="normal"><a href="#__codelineno-0-1121">1121</a></span>
+<span class="normal"><a href="#__codelineno-0-1122">1122</a></span>
+<span class="normal"><a href="#__codelineno-0-1123">1123</a></span>
+<span class="normal"><a href="#__codelineno-0-1124">1124</a></span>
+<span class="normal"><a href="#__codelineno-0-1125">1125</a></span>
+<span class="normal"><a href="#__codelineno-0-1126">1126</a></span>
+<span class="normal"><a href="#__codelineno-0-1127">1127</a></span>
+<span class="normal"><a href="#__codelineno-0-1128">1128</a></span>
+<span class="normal"><a href="#__codelineno-0-1129">1129</a></span>
+<span class="normal"><a href="#__codelineno-0-1130">1130</a></span>
+<span class="normal"><a href="#__codelineno-0-1131">1131</a></span>
+<span class="normal"><a href="#__codelineno-0-1132">1132</a></span>
+<span class="normal"><a href="#__codelineno-0-1133">1133</a></span>
+<span class="normal"><a href="#__codelineno-0-1134">1134</a></span>
+<span class="normal"><a href="#__codelineno-0-1135">1135</a></span>
+<span class="normal"><a href="#__codelineno-0-1136">1136</a></span>
+<span class="normal"><a href="#__codelineno-0-1137">1137</a></span>
+<span class="normal"><a href="#__codelineno-0-1138">1138</a></span>
+<span class="normal"><a href="#__codelineno-0-1139">1139</a></span>
+<span class="normal"><a href="#__codelineno-0-1140">1140</a></span>
+<span class="normal"><a href="#__codelineno-0-1141">1141</a></span>
+<span class="normal"><a href="#__codelineno-0-1142">1142</a></span>
+<span class="normal"><a href="#__codelineno-0-1143">1143</a></span>
+<span class="normal"><a href="#__codelineno-0-1144">1144</a></span>
+<span class="normal"><a href="#__codelineno-0-1145">1145</a></span>
+<span class="normal"><a href="#__codelineno-0-1146">1146</a></span>
+<span class="normal"><a href="#__codelineno-0-1147">1147</a></span>
+<span class="normal"><a href="#__codelineno-0-1148">1148</a></span>
+<span class="normal"><a href="#__codelineno-0-1149">1149</a></span>
+<span class="normal"><a href="#__codelineno-0-1150">1150</a></span>
+<span class="normal"><a href="#__codelineno-0-1151">1151</a></span>
+<span class="normal"><a href="#__codelineno-0-1152">1152</a></span>
+<span class="normal"><a href="#__codelineno-0-1153">1153</a></span>
+<span class="normal"><a href="#__codelineno-0-1154">1154</a></span>
+<span class="normal"><a href="#__codelineno-0-1155">1155</a></span>
+<span class="normal"><a href="#__codelineno-0-1156">1156</a></span>
+<span class="normal"><a href="#__codelineno-0-1157">1157</a></span>
+<span class="normal"><a href="#__codelineno-0-1158">1158</a></span>
+<span class="normal"><a href="#__codelineno-0-1159">1159</a></span>
+<span class="normal"><a href="#__codelineno-0-1160">1160</a></span>
+<span class="normal"><a href="#__codelineno-0-1161">1161</a></span>
+<span class="normal"><a href="#__codelineno-0-1162">1162</a></span>
+<span class="normal"><a href="#__codelineno-0-1163">1163</a></span>
+<span class="normal"><a href="#__codelineno-0-1164">1164</a></span>
+<span class="normal"><a href="#__codelineno-0-1165">1165</a></span>
+<span class="normal"><a href="#__codelineno-0-1166">1166</a></span>
+<span class="normal"><a href="#__codelineno-0-1167">1167</a></span>
+<span class="normal"><a href="#__codelineno-0-1168">1168</a></span>
+<span class="normal"><a href="#__codelineno-0-1169">1169</a></span>
+<span class="normal"><a href="#__codelineno-0-1170">1170</a></span>
+<span class="normal"><a href="#__codelineno-0-1171">1171</a></span>
+<span class="normal"><a href="#__codelineno-0-1172">1172</a></span>
+<span class="normal"><a href="#__codelineno-0-1173">1173</a></span>
+<span class="normal"><a href="#__codelineno-0-1174">1174</a></span>
+<span class="normal"><a href="#__codelineno-0-1175">1175</a></span>
+<span class="normal"><a href="#__codelineno-0-1176">1176</a></span>
+<span class="normal"><a href="#__codelineno-0-1177">1177</a></span>
+<span class="normal"><a href="#__codelineno-0-1178">1178</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1062"><a id="__codelineno-0-1062" name="__codelineno-0-1062"></a><span class="k">def</span><span class="w"> </span><span class="nf">tail_index_confidence_interval</span><span class="p">(</span>
+</span><span id="__span-0-1063"><a id="__codelineno-0-1063" name="__codelineno-0-1063"></a>    <span class="n">data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+</span><span id="__span-0-1064"><a id="__codelineno-0-1064" name="__codelineno-0-1064"></a>    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="__span-0-1065"><a id="__codelineno-0-1065" name="__codelineno-0-1065"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-1066"><a id="__codelineno-0-1066" name="__codelineno-0-1066"></a>    <span class="n">estimator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hill"</span><span class="p">,</span>
+</span><span id="__span-0-1067"><a id="__codelineno-0-1067" name="__codelineno-0-1067"></a>    <span class="n">level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+</span><span id="__span-0-1068"><a id="__codelineno-0-1068" name="__codelineno-0-1068"></a>    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"asymptotic"</span><span class="p">,</span>
+</span><span id="__span-0-1069"><a id="__codelineno-0-1069" name="__codelineno-0-1069"></a>    <span class="n">n_bootstrap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+</span><span id="__span-0-1070"><a id="__codelineno-0-1070" name="__codelineno-0-1070"></a>    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-1071"><a id="__codelineno-0-1071" name="__codelineno-0-1071"></a>    <span class="n">estimator_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-1072"><a id="__codelineno-0-1072" name="__codelineno-0-1072"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+</span><span id="__span-0-1073"><a id="__codelineno-0-1073" name="__codelineno-0-1073"></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="__span-0-1074"><a id="__codelineno-0-1074" name="__codelineno-0-1074"></a><span class="sd">    Point estimate and confidence interval for the extreme-value index.</span>
+</span><span id="__span-0-1075"><a id="__codelineno-0-1075" name="__codelineno-0-1075"></a>
+</span><span id="__span-0-1076"><a id="__codelineno-0-1076" name="__codelineno-0-1076"></a><span class="sd">    A tail index without an interval is not usable: the estimate depends on a</span>
+</span><span id="__span-0-1077"><a id="__codelineno-0-1077" name="__codelineno-0-1077"></a><span class="sd">    choice of k that no rule fixes, and the sampling variability at realistic</span>
+</span><span id="__span-0-1078"><a id="__codelineno-0-1078" name="__codelineno-0-1078"></a><span class="sd">    sample sizes is large.</span>
+</span><span id="__span-0-1079"><a id="__codelineno-0-1079" name="__codelineno-0-1079"></a>
+</span><span id="__span-0-1080"><a id="__codelineno-0-1080" name="__codelineno-0-1080"></a><span class="sd">    Two methods are offered:</span>
+</span><span id="__span-0-1081"><a id="__codelineno-0-1081" name="__codelineno-0-1081"></a>
+</span><span id="__span-0-1082"><a id="__codelineno-0-1082" name="__codelineno-0-1082"></a><span class="sd">    ``asymptotic``</span>
+</span><span id="__span-0-1083"><a id="__codelineno-0-1083" name="__codelineno-0-1083"></a><span class="sd">        Only available for the Hill estimator, whose limiting distribution is</span>
+</span><span id="__span-0-1084"><a id="__codelineno-0-1084" name="__codelineno-0-1084"></a><span class="sd">        ``sqrt(k) (gamma_hat - gamma) -&gt; N(0, gamma^2)``, giving the interval</span>
+</span><span id="__span-0-1085"><a id="__codelineno-0-1085" name="__codelineno-0-1085"></a><span class="sd">        ``gamma_hat * (1 +/- z / sqrt(k))``. It assumes k is in the range where</span>
+</span><span id="__span-0-1086"><a id="__codelineno-0-1086" name="__codelineno-0-1086"></a><span class="sd">        the estimator is unbiased, so it understates the true uncertainty when</span>
+</span><span id="__span-0-1087"><a id="__codelineno-0-1087" name="__codelineno-0-1087"></a><span class="sd">        the threshold is chosen badly.</span>
+</span><span id="__span-0-1088"><a id="__codelineno-0-1088" name="__codelineno-0-1088"></a>
+</span><span id="__span-0-1089"><a id="__codelineno-0-1089" name="__codelineno-0-1089"></a><span class="sd">    ``bootstrap``</span>
+</span><span id="__span-0-1090"><a id="__codelineno-0-1090" name="__codelineno-0-1090"></a><span class="sd">        Resamples the data with replacement and takes percentiles of the</span>
+</span><span id="__span-0-1091"><a id="__codelineno-0-1091" name="__codelineno-0-1091"></a><span class="sd">        resulting estimates. Available for every estimator and free of</span>
+</span><span id="__span-0-1092"><a id="__codelineno-0-1092" name="__codelineno-0-1092"></a><span class="sd">        distributional assumptions, at the cost of ``n_bootstrap`` refits. Note</span>
+</span><span id="__span-0-1093"><a id="__codelineno-0-1093" name="__codelineno-0-1093"></a><span class="sd">        that resampling does not capture the bias from the choice of k, only</span>
+</span><span id="__span-0-1094"><a id="__codelineno-0-1094" name="__codelineno-0-1094"></a><span class="sd">        the variance.</span>
+</span><span id="__span-0-1095"><a id="__codelineno-0-1095" name="__codelineno-0-1095"></a>
+</span><span id="__span-0-1096"><a id="__codelineno-0-1096" name="__codelineno-0-1096"></a><span class="sd">    Parameters</span>
+</span><span id="__span-0-1097"><a id="__codelineno-0-1097" name="__codelineno-0-1097"></a><span class="sd">    ----------</span>
+</span><span id="__span-0-1098"><a id="__codelineno-0-1098" name="__codelineno-0-1098"></a><span class="sd">    data : sequence of floats</span>
+</span><span id="__span-0-1099"><a id="__codelineno-0-1099" name="__codelineno-0-1099"></a><span class="sd">        Sample values.</span>
+</span><span id="__span-0-1100"><a id="__codelineno-0-1100" name="__codelineno-0-1100"></a><span class="sd">    k : int</span>
+</span><span id="__span-0-1101"><a id="__codelineno-0-1101" name="__codelineno-0-1101"></a><span class="sd">        Number of top order statistics.</span>
+</span><span id="__span-0-1102"><a id="__codelineno-0-1102" name="__codelineno-0-1102"></a><span class="sd">    estimator : str, optional</span>
+</span><span id="__span-0-1103"><a id="__codelineno-0-1103" name="__codelineno-0-1103"></a><span class="sd">        One of ``hill``, ``generalized_hill``, ``moment`` or ``pickands``.</span>
+</span><span id="__span-0-1104"><a id="__codelineno-0-1104" name="__codelineno-0-1104"></a><span class="sd">    level : float, optional</span>
+</span><span id="__span-0-1105"><a id="__codelineno-0-1105" name="__codelineno-0-1105"></a><span class="sd">        Confidence level in (0, 1).</span>
+</span><span id="__span-0-1106"><a id="__codelineno-0-1106" name="__codelineno-0-1106"></a><span class="sd">    method : str, optional</span>
+</span><span id="__span-0-1107"><a id="__codelineno-0-1107" name="__codelineno-0-1107"></a><span class="sd">        ``asymptotic`` or ``bootstrap``.</span>
+</span><span id="__span-0-1108"><a id="__codelineno-0-1108" name="__codelineno-0-1108"></a><span class="sd">    n_bootstrap : int, optional</span>
+</span><span id="__span-0-1109"><a id="__codelineno-0-1109" name="__codelineno-0-1109"></a><span class="sd">        Number of bootstrap resamples.</span>
+</span><span id="__span-0-1110"><a id="__codelineno-0-1110" name="__codelineno-0-1110"></a><span class="sd">    seed : int, optional</span>
+</span><span id="__span-0-1111"><a id="__codelineno-0-1111" name="__codelineno-0-1111"></a><span class="sd">        Seed for reproducible bootstrap resampling.</span>
+</span><span id="__span-0-1112"><a id="__codelineno-0-1112" name="__codelineno-0-1112"></a><span class="sd">    estimator_kwargs : dict, optional</span>
+</span><span id="__span-0-1113"><a id="__codelineno-0-1113" name="__codelineno-0-1113"></a><span class="sd">        Extra keyword arguments for the estimator, such as ``{"r": 5}`` for the</span>
+</span><span id="__span-0-1114"><a id="__codelineno-0-1114" name="__codelineno-0-1114"></a><span class="sd">        trimmed Hill estimator or ``{"u": 3.0}`` for the smoothed one. Without</span>
+</span><span id="__span-0-1115"><a id="__codelineno-0-1115" name="__codelineno-0-1115"></a><span class="sd">        this the estimators run at their defaults, which for ``trimmed_hill``</span>
+</span><span id="__span-0-1116"><a id="__codelineno-0-1116" name="__codelineno-0-1116"></a><span class="sd">        means no trimming at all and therefore no robustness.</span>
+</span><span id="__span-0-1117"><a id="__codelineno-0-1117" name="__codelineno-0-1117"></a>
+</span><span id="__span-0-1118"><a id="__codelineno-0-1118" name="__codelineno-0-1118"></a><span class="sd">    Returns</span>
+</span><span id="__span-0-1119"><a id="__codelineno-0-1119" name="__codelineno-0-1119"></a><span class="sd">    -------</span>
+</span><span id="__span-0-1120"><a id="__codelineno-0-1120" name="__codelineno-0-1120"></a><span class="sd">    dict</span>
+</span><span id="__span-0-1121"><a id="__codelineno-0-1121" name="__codelineno-0-1121"></a><span class="sd">        ``gamma``, ``alpha``, ``lower``, ``upper``, ``level``, ``method``,</span>
+</span><span id="__span-0-1122"><a id="__codelineno-0-1122" name="__codelineno-0-1122"></a><span class="sd">        ``estimator`` and ``k``. ``alpha`` is ``1/gamma``, or None when the</span>
+</span><span id="__span-0-1123"><a id="__codelineno-0-1123" name="__codelineno-0-1123"></a><span class="sd">        estimate is not positive and the reciprocal is meaningless.</span>
+</span><span id="__span-0-1124"><a id="__codelineno-0-1124" name="__codelineno-0-1124"></a>
+</span><span id="__span-0-1125"><a id="__codelineno-0-1125" name="__codelineno-0-1125"></a><span class="sd">    Raises</span>
+</span><span id="__span-0-1126"><a id="__codelineno-0-1126" name="__codelineno-0-1126"></a><span class="sd">    ------</span>
+</span><span id="__span-0-1127"><a id="__codelineno-0-1127" name="__codelineno-0-1127"></a><span class="sd">    ValueError</span>
+</span><span id="__span-0-1128"><a id="__codelineno-0-1128" name="__codelineno-0-1128"></a><span class="sd">        For an unknown estimator or method, or an out-of-range level.</span>
+</span><span id="__span-0-1129"><a id="__codelineno-0-1129" name="__codelineno-0-1129"></a>
+</span><span id="__span-0-1130"><a id="__codelineno-0-1130" name="__codelineno-0-1130"></a><span class="sd">    Examples</span>
+</span><span id="__span-0-1131"><a id="__codelineno-0-1131" name="__codelineno-0-1131"></a><span class="sd">    --------</span>
+</span><span id="__span-0-1132"><a id="__codelineno-0-1132" name="__codelineno-0-1132"></a><span class="sd">    &gt;&gt;&gt; from heavytails import Pareto</span>
+</span><span id="__span-0-1133"><a id="__codelineno-0-1133" name="__codelineno-0-1133"></a><span class="sd">    &gt;&gt;&gt; data = Pareto(alpha=2.0, xm=1.0).rvs(2000, seed=7)</span>
+</span><span id="__span-0-1134"><a id="__codelineno-0-1134" name="__codelineno-0-1134"></a><span class="sd">    &gt;&gt;&gt; result = tail_index_confidence_interval(data, k=200)</span>
+</span><span id="__span-0-1135"><a id="__codelineno-0-1135" name="__codelineno-0-1135"></a><span class="sd">    &gt;&gt;&gt; result["lower"] &lt; result["gamma"] &lt; result["upper"]</span>
+</span><span id="__span-0-1136"><a id="__codelineno-0-1136" name="__codelineno-0-1136"></a><span class="sd">    True</span>
+</span><span id="__span-0-1137"><a id="__codelineno-0-1137" name="__codelineno-0-1137"></a><span class="sd">    """</span>
+</span><span id="__span-0-1138"><a id="__codelineno-0-1138" name="__codelineno-0-1138"></a>    <span class="k">if</span> <span class="n">estimator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_POINT_ESTIMATORS</span><span class="p">:</span>
+</span><span id="__span-0-1139"><a id="__codelineno-0-1139" name="__codelineno-0-1139"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="__span-0-1140"><a id="__codelineno-0-1140" name="__codelineno-0-1140"></a>            <span class="sa">f</span><span class="s2">"Unknown estimator </span><span class="si">{</span><span class="n">estimator</span><span class="si">!r}</span><span class="s2">. "</span>
+</span><span id="__span-0-1141"><a id="__codelineno-0-1141" name="__codelineno-0-1141"></a>            <span class="sa">f</span><span class="s2">"Available: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_POINT_ESTIMATORS</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-0-1142"><a id="__codelineno-0-1142" name="__codelineno-0-1142"></a>        <span class="p">)</span>
+</span><span id="__span-0-1143"><a id="__codelineno-0-1143" name="__codelineno-0-1143"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">level</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+</span><span id="__span-0-1144"><a id="__codelineno-0-1144" name="__codelineno-0-1144"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"level must be in (0,1)."</span><span class="p">)</span>
+</span><span id="__span-0-1145"><a id="__codelineno-0-1145" name="__codelineno-0-1145"></a>
+</span><span id="__span-0-1146"><a id="__codelineno-0-1146" name="__codelineno-0-1146"></a>    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">estimator_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
+</span><span id="__span-0-1147"><a id="__codelineno-0-1147" name="__codelineno-0-1147"></a>
+</span><span id="__span-0-1148"><a id="__codelineno-0-1148" name="__codelineno-0-1148"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">estimate</span><span class="p">(</span><span class="n">sample</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="__span-0-1149"><a id="__codelineno-0-1149" name="__codelineno-0-1149"></a>        <span class="k">return</span> <span class="n">_POINT_ESTIMATORS</span><span class="p">[</span><span class="n">estimator</span><span class="p">](</span><span class="n">sample</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="__span-0-1150"><a id="__codelineno-0-1150" name="__codelineno-0-1150"></a>
+</span><span id="__span-0-1151"><a id="__codelineno-0-1151" name="__codelineno-0-1151"></a>    <span class="n">point</span> <span class="o">=</span> <span class="n">estimate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</span><span id="__span-0-1152"><a id="__codelineno-0-1152" name="__codelineno-0-1152"></a>
+</span><span id="__span-0-1153"><a id="__codelineno-0-1153" name="__codelineno-0-1153"></a>    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"asymptotic"</span><span class="p">:</span>
+</span><span id="__span-0-1154"><a id="__codelineno-0-1154" name="__codelineno-0-1154"></a>        <span class="k">if</span> <span class="n">estimator</span> <span class="o">!=</span> <span class="s2">"hill"</span><span class="p">:</span>
+</span><span id="__span-0-1155"><a id="__codelineno-0-1155" name="__codelineno-0-1155"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="__span-0-1156"><a id="__codelineno-0-1156" name="__codelineno-0-1156"></a>                <span class="s2">"The asymptotic interval is only established for the Hill "</span>
+</span><span id="__span-0-1157"><a id="__codelineno-0-1157" name="__codelineno-0-1157"></a>                <span class="sa">f</span><span class="s2">"estimator; use method='bootstrap' for </span><span class="si">{</span><span class="n">estimator</span><span class="si">!r}</span><span class="s2">."</span>
+</span><span id="__span-0-1158"><a id="__codelineno-0-1158" name="__codelineno-0-1158"></a>            <span class="p">)</span>
+</span><span id="__span-0-1159"><a id="__codelineno-0-1159" name="__codelineno-0-1159"></a>        <span class="c1"># sqrt(k) (gamma_hat - gamma) -&gt; N(0, gamma^2)</span>
+</span><span id="__span-0-1160"><a id="__codelineno-0-1160" name="__codelineno-0-1160"></a>        <span class="n">z</span> <span class="o">=</span> <span class="n">_phi_inverse</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">level</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+</span><span id="__span-0-1161"><a id="__codelineno-0-1161" name="__codelineno-0-1161"></a>        <span class="n">half_width</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">point</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+</span><span id="__span-0-1162"><a id="__codelineno-0-1162" name="__codelineno-0-1162"></a>        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">point</span> <span class="o">-</span> <span class="n">half_width</span><span class="p">,</span> <span class="n">point</span> <span class="o">+</span> <span class="n">half_width</span>
+</span><span id="__span-0-1163"><a id="__codelineno-0-1163" name="__codelineno-0-1163"></a>    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"bootstrap"</span><span class="p">:</span>
+</span><span id="__span-0-1164"><a id="__codelineno-0-1164" name="__codelineno-0-1164"></a>        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">_bootstrap_interval</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">estimate</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">n_bootstrap</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+</span><span id="__span-0-1165"><a id="__codelineno-0-1165" name="__codelineno-0-1165"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-1166"><a id="__codelineno-0-1166" name="__codelineno-0-1166"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown method </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">. Available: asymptotic, bootstrap"</span><span class="p">)</span>
+</span><span id="__span-0-1167"><a id="__codelineno-0-1167" name="__codelineno-0-1167"></a>
+</span><span id="__span-0-1168"><a id="__codelineno-0-1168" name="__codelineno-0-1168"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-0-1169"><a id="__codelineno-0-1169" name="__codelineno-0-1169"></a>        <span class="s2">"estimator"</span><span class="p">:</span> <span class="n">estimator</span><span class="p">,</span>
+</span><span id="__span-0-1170"><a id="__codelineno-0-1170" name="__codelineno-0-1170"></a>        <span class="s2">"k"</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span>
+</span><span id="__span-0-1171"><a id="__codelineno-0-1171" name="__codelineno-0-1171"></a>        <span class="s2">"gamma"</span><span class="p">:</span> <span class="n">point</span><span class="p">,</span>
+</span><span id="__span-0-1172"><a id="__codelineno-0-1172" name="__codelineno-0-1172"></a>        <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">point</span> <span class="k">if</span> <span class="n">point</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-1173"><a id="__codelineno-0-1173" name="__codelineno-0-1173"></a>        <span class="s2">"lower"</span><span class="p">:</span> <span class="n">lower</span><span class="p">,</span>
+</span><span id="__span-0-1174"><a id="__codelineno-0-1174" name="__codelineno-0-1174"></a>        <span class="s2">"upper"</span><span class="p">:</span> <span class="n">upper</span><span class="p">,</span>
+</span><span id="__span-0-1175"><a id="__codelineno-0-1175" name="__codelineno-0-1175"></a>        <span class="s2">"level"</span><span class="p">:</span> <span class="n">level</span><span class="p">,</span>
+</span><span id="__span-0-1176"><a id="__codelineno-0-1176" name="__codelineno-0-1176"></a>        <span class="s2">"method"</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+</span><span id="__span-0-1177"><a id="__codelineno-0-1177" name="__codelineno-0-1177"></a>        <span class="s2">"estimator_kwargs"</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span>
+</span><span id="__span-0-1178"><a id="__codelineno-0-1178" name="__codelineno-0-1178"></a>    <span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>

@@ -1425,6 +1425,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bias-correction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bias correction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bias correction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rho-is-the-hard-part" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rho is the hard part
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3176,6 +3204,12 @@ represent and in how efficiently they use the data.</p>
 <td>Parametric peaks-over-threshold</td>
 </tr>
 <tr>
+<td><code>bias_reduced_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>Near-Hill</td>
+<td>The Hill plot has a visible slope</td>
+</tr>
+<tr>
 <td><code>hill_estimator</code></td>
 <td><code>gamma &gt; 0</code></td>
 <td>High</td>
@@ -3562,6 +3596,105 @@ closed-form estimators, because it optimises. That is irrelevant for one
 estimate and significant for bootstrapping, so reduce <code>n_bootstrap</code>
 accordingly.</p>
 </div>
+<h2 id="bias-correction">Bias correction<a class="headerlink" href="#bias-correction" title="Permanent link">&para;</a></h2>
+<p>The Hill plot slopes rather than plateaus when the tail approaches its Pareto
+limit slowly. That bias is systematic, not random, so it can be estimated and
+subtracted. Under second-order regular variation</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>P(X &gt; x) = C x**(-1/gamma) [1 + D x**(rho/gamma) + ...],   rho &lt; 0
+</span></code></pre></div>
+<p>and the estimator of Caeiro, Gomes and Pestana (2005) removes the leading term:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">bias_reduced_hill_estimator</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="n">bias_reduced_hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">rho</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Bias over 30 samples at <code>n = 20000</code>, with <code>rho</code> supplied:</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>k</th>
+<th>Hill</th>
+<th>corrected</th>
+<th>factor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fréchet(2)</td>
+<td>500</td>
+<td>0.0064</td>
+<td>0.0002</td>
+<td>36x</td>
+</tr>
+<tr>
+<td>Fréchet(2)</td>
+<td>2000</td>
+<td>0.0162</td>
+<td>0.0046</td>
+<td>3.5x</td>
+</tr>
+<tr>
+<td>BurrXII(c=2,k=1)</td>
+<td>2000</td>
+<td>0.0298</td>
+<td>0.0050</td>
+<td>6x</td>
+</tr>
+<tr>
+<td>BurrXII(c=1,k=2)</td>
+<td>2000</td>
+<td>0.1422</td>
+<td>0.0081</td>
+<td><strong>18x</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The correction buys bias at some cost in variance, which is the usual trade:
+on Fréchet(2) at <code>k = 500</code> the standard deviation roughly doubles.</p>
+<h3 id="rho-is-the-hard-part">rho is the hard part<a class="headerlink" href="#rho-is-the-hard-part" title="Permanent link">&para;</a></h3>
+<p><code>second_order_rho</code> implements the Fraga Alves-Gomes-de Haan (2003) estimator.
+<strong>It is unstable, and that is a property of the estimator rather than of this
+implementation.</strong> Sweeping <code>k</code> on a Fréchet(2) sample of 100000, whose true
+<code>rho</code> is -1:</p>
+<table>
+<thead>
+<tr>
+<th>k/n</th>
+<th>0.02</th>
+<th>0.05</th>
+<th>0.10</th>
+<th>0.20</th>
+<th>0.40</th>
+<th>0.60</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rho_hat</code></td>
+<td>-0.07</td>
+<td>-1.48</td>
+<td><strong>-20.48</strong></td>
+<td>-1.69</td>
+<td>-1.05</td>
+<td>-1.09</td>
+</tr>
+</tbody>
+</table>
+<p>The value at <code>k/n = 0.10</code> is a pole, where the estimator's denominator crosses
+zero. Its published recommendation is a very large <code>k</code>, around 85% of the
+sample, which <code>recommended_rho_k</code> implements.</p>
+<div class="admonition tip">
+<p class="admonition-title">Supply rho if you can</p>
+<p>On the worst case above, supplying <code>rho</code> gives a bias of 0.0081 while
+estimating it gives 0.0354 — still four times better than not correcting,
+but most of the benefit is lost. Practitioners commonly fix <code>rho</code> at a
+canonical value such as -1 rather than estimate it, and that is usually the
+better choice.</p>
+</div>
+<p><code>rho</code> is a property of the distribution, not of the sample size, so it is
+sometimes known analytically: Fréchet has <code>rho = -1</code> for every shape parameter,
+Student-t with <code>nu</code> degrees of freedom has <code>rho = -2/nu</code>, and
+<code>BurrXII(c, k, s)</code> has <code>rho = -1/k</code>.</p>
 
 
 

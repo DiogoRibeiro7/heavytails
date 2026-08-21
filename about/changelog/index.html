@@ -2226,6 +2226,17 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
+<p><code>bias_reduced_hill_estimator</code>, with <code>second_order_rho</code>, <code>second_order_beta</code>
+  and <code>recommended_rho_k</code>
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/329">#329</a>). The Hill
+  estimator's bias at large <code>k</code> is systematic rather than random, so it can be
+  estimated and subtracted; with <code>rho</code> supplied the measured bias falls by a
+  factor of four to eighty. <code>second_order_rho</code> is documented as unstable,
+  because it is: sweeping <code>k</code> on a sample whose true <code>rho</code> is -1 gives
+  estimates from -0.07 to -20.5, the latter at a pole. Supplying <code>rho</code> is
+  strongly preferred, and the correction still helps when it is estimated.</p>
+</li>
+<li>
 <p><code>gpd_mle_estimator</code> and <code>fit_generalized_pareto</code>
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/327">#327</a>), the
   parametric peaks-over-threshold counterpart to the semiparametric estimators.
