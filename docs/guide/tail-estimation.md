@@ -522,6 +522,7 @@ represent and in how efficiently they use the data.
 | `t_hill_estimator` | `gamma > 0` | Near-Hill | Contamination of unknown extremity |
 | `harmonic_moment_estimator` | `gamma > 0` | Tunable | As above, with a robustness dial |
 | `gpd_mle_estimator` | any `gamma` | Lower | Parametric peaks-over-threshold |
+| `bias_reduced_hill_estimator` | `gamma > 0` | Near-Hill | The Hill plot has a visible slope |
 | `hill_estimator` | `gamma > 0` | High | The classical baseline |
 | `generalized_hill_estimator` | any `gamma` | Near-Hill | You are not certain the tail is heavy |
 | `moment_estimator` | any `gamma` | Near-Hill | As above; a useful cross-check |
@@ -823,3 +824,60 @@ estimates one.
     closed-form estimators, because it optimises. That is irrelevant for one
     estimate and significant for bootstrapping, so reduce `n_bootstrap`
     accordingly.
+
+## Bias correction
+
+The Hill plot slopes rather than plateaus when the tail approaches its Pareto
+limit slowly. That bias is systematic, not random, so it can be estimated and
+subtracted. Under second-order regular variation
+
+```
+P(X > x) = C x**(-1/gamma) [1 + D x**(rho/gamma) + ...],   rho < 0
+```
+
+and the estimator of Caeiro, Gomes and Pestana (2005) removes the leading term:
+
+```python
+from heavytails import bias_reduced_hill_estimator
+
+bias_reduced_hill_estimator(data, k=2000, rho=-1.0)
+```
+
+Bias over 30 samples at `n = 20000`, with `rho` supplied:
+
+| Case | k | Hill | corrected | factor |
+| --- | --- | --- | --- | --- |
+| Fréchet(2) | 500 | 0.0064 | 0.0002 | 36x |
+| Fréchet(2) | 2000 | 0.0162 | 0.0046 | 3.5x |
+| BurrXII(c=2,k=1) | 2000 | 0.0298 | 0.0050 | 6x |
+| BurrXII(c=1,k=2) | 2000 | 0.1422 | 0.0081 | **18x** |
+
+The correction buys bias at some cost in variance, which is the usual trade:
+on Fréchet(2) at `k = 500` the standard deviation roughly doubles.
+
+### rho is the hard part
+
+`second_order_rho` implements the Fraga Alves-Gomes-de Haan (2003) estimator.
+**It is unstable, and that is a property of the estimator rather than of this
+implementation.** Sweeping `k` on a Fréchet(2) sample of 100000, whose true
+`rho` is -1:
+
+| k/n | 0.02 | 0.05 | 0.10 | 0.20 | 0.40 | 0.60 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `rho_hat` | -0.07 | -1.48 | **-20.48** | -1.69 | -1.05 | -1.09 |
+
+The value at `k/n = 0.10` is a pole, where the estimator's denominator crosses
+zero. Its published recommendation is a very large `k`, around 85% of the
+sample, which `recommended_rho_k` implements.
+
+!!! tip "Supply rho if you can"
+    On the worst case above, supplying `rho` gives a bias of 0.0081 while
+    estimating it gives 0.0354 — still four times better than not correcting,
+    but most of the benefit is lost. Practitioners commonly fix `rho` at a
+    canonical value such as -1 rather than estimate it, and that is usually the
+    better choice.
+
+`rho` is a property of the distribution, not of the sample size, so it is
+sometimes known analytically: Fréchet has `rho = -1` for every shape parameter,
+Student-t with `nu` degrees of freedom has `rho = -2/nu`, and
+`BurrXII(c, k, s)` has `rho = -1/k`.
