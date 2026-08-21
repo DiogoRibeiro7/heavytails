@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-21
+
 ### Added
 
 - `bias_reduced_hill_estimator`, with `second_order_rho`, `second_order_beta`
@@ -36,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `1e30` moves the Hill estimate from 0.502 to 0.631 and moves these not at
   all. `beta` trades robustness against efficiency, and the estimator tends to
   the Hill estimator as `beta` tends to zero.
+
 - `scripts/tail_index_study.py` records the `heavytails` version, the git
   commit, the Python version and the run configuration in its JSON output, so
   a results file can be traced back to the code that produced it. The commit
@@ -48,10 +51,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   three observations out of ten thousand with outliers moves the Hill estimate
   from 0.50 to 0.60; trimming five recovers 0.50. On clean data trimming ten
   raises the standard deviation only from 0.0296 to 0.0302.
+
 - `estimator_kwargs` on `tail_index_confidence_interval`, so tuning parameters
   such as the trimming level `r` and the smoothing parameter `u` reach the
   estimator. Without it `trimmed_hill` silently ran at `r = 0`, which is the
   ordinary Hill estimator and gives no robustness at all.
+
 - Contaminated scenarios in `scripts/tail_index_study.py`, since robustness is
   invisible on clean data.
 
@@ -79,18 +84,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   positive ones. On a Uniform(0,1) sample, whose index is -1, Hill can only
   ever return a positive number and reports about +0.026; the generalized Hill
   estimator recovers -0.99.
+
 - `hill_plot`, which sweeps k on a logarithmic grid and returns the
   `(k, gamma)` series. The documentation already told readers to find a
   plateau; they now have something that produces one.
+
 - `tail_index_confidence_interval`, with an asymptotic interval for the Hill
   estimator and a percentile bootstrap for all four. Requesting the asymptotic
   interval for an estimator that has no established closed form raises rather
   than reporting a number with no basis.
+
 - `scripts/tail_index_study.py`, a simulation study reporting bias, standard
   deviation and RMSE for every estimator across known indices and sample sizes.
   Its results are summarised in the tail estimation guide.
-
-### Changed
 
 - `_phi_inverse` moved from `heavy_tails` to `_special`, alongside the other
   numeric helpers, so `tail_index` can use it without importing the
@@ -309,6 +315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `heavytails` command-line interface.
 - Documentation site built with MkDocs Material.
 
-[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0

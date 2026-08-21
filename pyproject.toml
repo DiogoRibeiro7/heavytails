@@ -1,6 +1,6 @@
 [project]
 name = "heavytails"
-version = "0.2.0"
+version = "0.3.0"
 description = "Pure-Python heavy-tailed probability distributions for research, teaching, and simulation."
 readme = "README.md"
 license = "MIT"
