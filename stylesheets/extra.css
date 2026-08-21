@@ -1,0 +1,74 @@
+/* Custom styles for HeavyTails documentation */
+
+:root {
+  --md-primary-fg-color: #1976d2;
+  --md-accent-fg-color: #ff6f00;
+}
+
+/* Mathematical notation styling */
+.arithmatex {
+  font-size: 1.05em;
+}
+
+/* Code block enhancements */
+.highlight {
+  border-radius: 4px;
+}
+
+/* Admonition styling */
+.admonition {
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Table styling */
+table {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Distribution comparison tables */
+.distribution-table {
+  width: 100%;
+  margin: 1em 0;
+}
+
+.distribution-table th {
+  background-color: var(--md-primary-fg-color);
+  color: white;
+  padding: 0.6em;
+}
+
+.distribution-table td {
+  padding: 0.5em;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Parameter boxes */
+.param-box {
+  background-color: #f5f5f5;
+  border-left: 4px solid var(--md-accent-fg-color);
+  padding: 1em;
+  margin: 1em 0;
+  border-radius: 4px;
+}
+
+/* Citation styling */
+.citation {
+  background-color: #fff9e6;
+  border-left: 4px solid #ff6f00;
+  padding: 1em;
+  margin: 1em 0;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+/* Example output styling */
+.example-output {
+  background-color: #f0f4f8;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 0.8em;
+  margin: 0.5em 0;
+  font-family: monospace;
+}
