@@ -1282,6 +1282,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#smoothing-the-hill-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smoothing the Hill estimator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#confidence-intervals_1" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3024,10 +3035,16 @@ represent and in how efficiently they use the data.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>hill_estimator</code></td>
+<td><code>smoothed_hill_estimator</code></td>
 <td><code>gamma &gt; 0</code></td>
 <td>Highest</td>
 <td>You are confident the tail is heavy</td>
+</tr>
+<tr>
+<td><code>hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>High</td>
+<td>The classical baseline</td>
 </tr>
 <tr>
 <td><code>generalized_hill_estimator</code></td>
@@ -3057,7 +3074,9 @@ squared error over 120 samples, using <code>k = n/20</code>:</p>
 <th>Scenario</th>
 <th>n</th>
 <th>hill</th>
-<th>generalized_hill</th>
+<th>smoo u=2</th>
+<th>smoo u=3</th>
+<th>gen_hill</th>
 <th>moment</th>
 <th>pickands</th>
 </tr>
@@ -3066,49 +3085,67 @@ squared error over 120 samples, using <code>k = n/20</code>:</p>
 <tr>
 <td>Pareto(alpha=2), gamma=0.5</td>
 <td>10000</td>
-<td><strong>0.024</strong></td>
-<td>0.051</td>
-<td>0.051</td>
-<td>0.082</td>
-</tr>
-<tr>
-<td>Pareto(alpha=4), gamma=0.25</td>
-<td>10000</td>
-<td><strong>0.012</strong></td>
-<td>0.046</td>
-<td>0.047</td>
-<td>0.079</td>
+<td>0.023</td>
+<td>0.018</td>
+<td><strong>0.015</strong></td>
+<td>0.050</td>
+<td>0.050</td>
+<td>0.083</td>
 </tr>
 <tr>
 <td>Uniform(0,1), gamma=-1</td>
 <td>10000</td>
 <td>1.026</td>
-<td><strong>0.055</strong></td>
-<td>0.110</td>
-<td>0.078</td>
+<td>1.040</td>
+<td>1.054</td>
+<td><strong>0.053</strong></td>
+<td>0.108</td>
+<td>0.081</td>
 </tr>
 </tbody>
 </table>
 <p>Two things to read from that table.</p>
-<p>Where the tail really is heavy, <strong>Hill is the most efficient by a factor of
-two or more</strong>, which is why it remains the default despite its narrower
-validity.</p>
+<p>Where the tail really is heavy, the <strong>Hill family is the most efficient by a
+factor of two or more</strong>, and the smoothed variant beats plain Hill outright.</p>
 <p>On the Uniform sample, whose upper endpoint is finite and whose <code>gamma</code> is
 <code>-1</code>, <strong>Hill is not merely inaccurate but structurally incapable</strong>: it averages
 log-excesses and can only ever return a positive number, so it reports about
 <code>+0.026</code> for a true <code>-1</code>. No choice of <code>k</code> fixes that. The generalized Hill
 estimator recovers <code>-0.99</code>.</p>
+<p>The smoothed estimators inherit that limitation exactly, because they average
+Hill estimates. Smoothing addresses variance in <code>k</code>, not the range of <code>gamma</code>.</p>
 <p>If you do not already know the sign of <code>gamma</code>, do not start with Hill.</p>
+<h2 id="smoothing-the-hill-estimator">Smoothing the Hill estimator<a class="headerlink" href="#smoothing-the-hill-estimator" title="Permanent link">&para;</a></h2>
+<p>The ordinary Hill estimate varies substantially with <code>k</code>, which is the reason
+the Hill plot exists. Resnick and Stărică (1997) average it over a range of <code>k</code>
+instead:</p>
+<div class="arithmatex">\[\hat{\gamma}^{\text{smooHill}}_{k}(u) = \frac{1}{(u-1)k}\sum_{j=k+1}^{\lfloor uk \rfloor} \hat{\gamma}^{H}(j)$$
+floor} \hat{\gamma}^{H}(j)\]</div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">smoothed_hill_estimator</span><span class="p">,</span> <span class="n">smoothed_hill_variance_ratio</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">smoothed_hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">smoothed_hill_variance_ratio</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>   <span class="c1"># 0.6137</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="n">smoothed_hill_variance_ratio</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>   <span class="c1"># 0.4507</span>
+</span></code></pre></div>
+<p>The asymptotic variance falls from <code>gamma**2</code> to
+<code>gamma**2 * 2*(u - 1 - ln u) / (u - 1)**2</code>, a reduction of 39% at <code>u = 2</code> and
+55% at <code>u = 3</code>. Measured over 250 samples at <code>n = 20000, k = 500</code>, the observed
+ratio is 0.61 at <code>u = 2</code> against a predicted 0.6137.</p>
+<p><code>u</code> is a bias/variance dial, not a free win: a larger <code>u</code> averages over a wider
+range of <code>k</code> and so reaches further into the body of the distribution. Values
+between 2 and 3 are the usual compromise.</p>
 <h2 id="confidence-intervals_1">Confidence intervals<a class="headerlink" href="#confidence-intervals_1" title="Permanent link">&para;</a></h2>
 <p>A tail index without an interval is not usable. The estimate depends on a
 choice of <code>k</code> that no rule fixes, and the sampling variability at realistic
 sample sizes is large.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">tail_index_confidence_interval</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">tail_index_confidence_interval</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1"># {'gamma': 0.49, 'alpha': 2.04, 'lower': 0.429, 'upper': 0.551, ...}</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">tail_index_confidence_interval</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">tail_index_confidence_interval</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1"># {'gamma': 0.49, 'alpha': 2.04, 'lower': 0.429, 'upper': 0.551, ...}</span>
 </span></code></pre></div>
 <p>Two methods are available:</p>
 <ul>
@@ -3128,10 +3165,10 @@ degrades further as <code>k</code> moves away from the plateau.</p>
 <p>An interval is not a substitute for looking at the Hill plot.</p>
 </div>
 <h2 id="the-hill-plot">The Hill plot<a class="headerlink" href="#the-hill-plot" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">hill_plot</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">points</span> <span class="o">=</span> <span class="n">hill_plot</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>   <span class="c1"># [(k, gamma_hat), ...]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">hill_plot</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="n">points</span> <span class="o">=</span> <span class="n">hill_plot</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>   <span class="c1"># [(k, gamma_hat), ...]</span>
 </span></code></pre></div>
 <p><code>hill_plot</code> sweeps <code>k</code> on a logarithmic grid, because the interesting structure
 is at small <code>k</code>. Read the estimate off a stable plateau. If there is no

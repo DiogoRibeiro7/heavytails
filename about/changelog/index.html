@@ -2214,13 +2214,25 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>generalized_hill_estimator</code>, the UH estimator of Beirlant, Vynckier and
+<li>
+<p><code>smoothed_hill_estimator</code>, the smoothed Hill estimator of Resnick and
+  Stărică (1997), and <code>smoothed_hill_variance_ratio</code>, which reports the
+  asymptotic variance reduction it achieves
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/319">#319</a>). Averaging
+  the Hill estimate over <code>j</code> in <code>(k, u*k]</code> reduces its asymptotic variance by
+  39% at <code>u = 2</code> and 55% at <code>u = 3</code>, and in the simulation study it has the
+  lowest RMSE of any estimator here on a heavy tail. It inherits Hill's
+  restriction to positive <code>gamma</code>.</p>
+</li>
+<li>
+<p><code>generalized_hill_estimator</code>, the UH estimator of Beirlant, Vynckier and
   Teugels (1996)
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/299">#299</a>). Unlike the
   Hill estimator it is consistent for every extreme-value index, not only
   positive ones. On a Uniform(0,1) sample, whose index is -1, Hill can only
   ever return a positive number and reports about +0.026; the generalized Hill
-  estimator recovers -0.99.</li>
+  estimator recovers -0.99.</p>
+</li>
 <li><code>hill_plot</code>, which sweeps k on a logarithmic grid and returns the
   <code>(k, gamma)</code> series. The documentation already told readers to find a
   plateau; they now have something that produces one.</li>
