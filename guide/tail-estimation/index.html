@@ -1314,6 +1314,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#which-quantity-is-returned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which quantity is returned
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contamination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contamination
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contamination">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trimming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trimming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choosing-r" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing r
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#passing-the-tuning-parameter-to-the-interval-helper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Passing the tuning parameter to the interval helper
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3038,7 +3099,13 @@ represent and in how efficiently they use the data.</p>
 <td><code>smoothed_hill_estimator</code></td>
 <td><code>gamma &gt; 0</code></td>
 <td>Highest</td>
-<td>You are confident the tail is heavy</td>
+<td>Clean data, tail known to be heavy</td>
+</tr>
+<tr>
+<td><code>trimmed_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>Near-Hill</td>
+<td>The data may be contaminated</td>
 </tr>
 <tr>
 <td><code>hill_estimator</code></td>
@@ -3174,6 +3241,111 @@ degrades further as <code>k</code> moves away from the plateau.</p>
 is at small <code>k</code>. Read the estimate off a stable plateau. If there is no
 plateau, the data does not support a tail index estimate, and forcing one
 produces a confident wrong answer.</p>
+<h2 id="which-quantity-is-returned">Which quantity is returned<a class="headerlink" href="#which-quantity-is-returned" title="Permanent link">&para;</a></h2>
+<p>Two conventions are in circulation and they are reciprocals of each other:</p>
+<ul>
+<li>the <strong>tail index</strong> <code>alpha</code>, from <code>P(X &gt; x) ~ L(x) * x**-alpha</code>, common in
+  economics and network science;</li>
+<li>the <strong>extreme-value index</strong> <code>xi</code>, also written <code>gamma</code>, the EVT convention,
+  with <code>gamma = 1/alpha</code>.</li>
+</ul>
+<p><strong>Every estimator here returns <code>gamma</code>.</strong> Larger <code>gamma</code> means a heavier tail.
+<code>tail_index_confidence_interval</code> reports both, and <code>moment_estimator</code> returns
+the pair <code>(gamma, alpha)</code>.</p>
+<p>This is worth checking before comparing against another implementation or a
+published figure: a reciprocal-shaped discrepancy is almost always this.</p>
+<h2 id="contamination">Contamination<a class="headerlink" href="#contamination" title="Permanent link">&para;</a></h2>
+<p>Hill gives enormous leverage to the largest order statistics, because they
+enter through unbounded logarithms of ratios. A handful of bad observations is
+enough to destroy the estimate.</p>
+<p>Replacing three observations out of ten thousand <code>Pareto(alpha=2)</code> draws with
+outliers, at <code>k = 500</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Estimator</th>
+<th>Mean over 120 samples</th>
+<th>True</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hill</code></td>
+<td>0.597</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td><code>smoothed_hill</code> (u=3)</td>
+<td>0.554</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td><code>moment</code></td>
+<td>1.015</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td><code>generalized_hill</code></td>
+<td>0.880</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td><strong><code>trimmed_hill</code></strong> (r=5)</td>
+<td><strong>0.503</strong></td>
+<td>0.5</td>
+</tr>
+<tr>
+<td><code>pickands</code></td>
+<td>0.518</td>
+<td>0.5</td>
+</tr>
+</tbody>
+</table>
+<p>Note that <code>pickands</code> also survives, which is not usually why anyone reaches for
+it: it uses only three order statistics, at positions <code>k</code>, <code>2k</code> and <code>4k</code>, so
+contamination confined to the very top misses it entirely. That is robustness
+by accident rather than by design, and it comes at the cost of by far the
+highest variance of any estimator here.</p>
+<h3 id="trimming">Trimming<a class="headerlink" href="#trimming" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">trimmed_hill_estimator</span><span class="p">,</span> <span class="n">trimmed_hill_plot</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">trimmed_hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>   <span class="c1"># discard the 5 largest</span>
+</span></code></pre></div>
+<p><code>r = 0</code> reproduces the ordinary Hill estimator exactly.</p>
+<div class="admonition warning">
+<p class="admonition-title">r must exceed the number of contaminated observations</p>
+<p>Trimming five when ten are contaminated is barely better than trimming
+none: the remaining bad values still enter through their spacings. In the
+table above, <code>trimmed_hill</code> with <code>r = 5</code> against <strong>ten</strong> outliers reports
+0.808 rather than 0.5.</p>
+</div>
+<p>On clean data trimming is close to free. Discarding ten observations from a
+sample of ten thousand raises the standard deviation from 0.0296 to 0.0302, so
+trimming a few by default is a cheap insurance policy.</p>
+<h3 id="choosing-r">Choosing r<a class="headerlink" href="#choosing-r" title="Permanent link">&para;</a></h3>
+<p><code>trimmed_hill_plot</code> sweeps <code>r</code> the way the Hill plot sweeps <code>k</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">gamma</span> <span class="ow">in</span> <span class="n">trimmed_hill_plot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">max_trim</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+</span></code></pre></div>
+<p>On a sample with three contaminated observations the elbow is unmistakable:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>r=0  gamma=0.6369
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>r=1  gamma=0.6367
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>r=2  gamma=0.6327
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>r=3  gamma=0.4789   &lt;- contamination exhausted
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>r=4  gamma=0.4796
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>r=5  gamma=0.4801
+</span></code></pre></div>
+<p>The estimate moves while <code>r</code> is below the contamination count and flattens once
+the bad values are gone, so the elbow tells you how many there were. A plot
+that is flat from <code>r = 0</code> says there is no contamination to remove.</p>
+<h3 id="passing-the-tuning-parameter-to-the-interval-helper">Passing the tuning parameter to the interval helper<a class="headerlink" href="#passing-the-tuning-parameter-to-the-interval-helper" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">tail_index_confidence_interval</span><span class="p">(</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="s2">"trimmed_hill"</span><span class="p">,</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    <span class="n">method</span><span class="o">=</span><span class="s2">"bootstrap"</span><span class="p">,</span> <span class="n">estimator_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"r"</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>Without <code>estimator_kwargs</code> the trimmed estimator runs at its default <code>r = 0</code>,
+which is the ordinary Hill estimator and gives no robustness at all.</p>
 
 
 

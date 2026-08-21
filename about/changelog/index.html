@@ -1932,6 +1932,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1961,7 +1972,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2214,6 +2225,28 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
+<li><code>trimmed_hill_estimator</code> and <code>trimmed_hill_plot</code>, following Bhattacharya,
+  Kallitsis and Stoev (2019)
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/323">#323</a>). Replacing
+  three observations out of ten thousand with outliers moves the Hill estimate
+  from 0.50 to 0.60; trimming five recovers 0.50. On clean data trimming ten
+  raises the standard deviation only from 0.0296 to 0.0302.</li>
+<li><code>estimator_kwargs</code> on <code>tail_index_confidence_interval</code>, so tuning parameters
+  such as the trimming level <code>r</code> and the smoothing parameter <code>u</code> reach the
+  estimator. Without it <code>trimmed_hill</code> silently ran at <code>r = 0</code>, which is the
+  ordinary Hill estimator and gives no robustness at all.</li>
+<li>Contaminated scenarios in <code>scripts/tail_index_study.py</code>, since robustness is
+  invisible on clean data.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>The <code>tail_index</code> module docstring now states that every estimator returns the
+  extreme-value index <code>gamma = 1/alpha</code>, not the tail index <code>alpha</code>
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/322">#322</a>). The module
+  name refers to the quantity estimated, not the parameterisation returned, and
+  the two conventions are reciprocals.</p>
+</li>
 <li>
 <p><code>smoothed_hill_estimator</code>, the smoothed Hill estimator of Resnick and
   Stărică (1997), and <code>smoothed_hill_variance_ratio</code>, which reports the
@@ -2244,7 +2277,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   deviation and RMSE for every estimator across known indices and sample sizes.
   Its results are summarised in the tail estimation guide.</li>
 </ul>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>_phi_inverse</code> moved from <code>heavy_tails</code> to <code>_special</code>, alongside the other
   numeric helpers, so <code>tail_index</code> can use it without importing the
@@ -2345,7 +2378,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   review, and an executable <code>basic_usage</code> notebook.</p>
 </li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Migrated project metadata to the PEP 621 <code>[project]</code> table.</p>
