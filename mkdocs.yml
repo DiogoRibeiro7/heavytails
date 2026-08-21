@@ -164,6 +164,7 @@ nav:
     - Discrete Distributions: reference/discrete.md
     - Tail Estimators: reference/tail_index.md
     - Plotting Utilities: reference/plotting.md
+    - Tail-Risk Metrics: reference/risk.md
     - Utilities: reference/utilities.md
     - Validation: reference/validation.md
     - Performance: reference/performance.md
