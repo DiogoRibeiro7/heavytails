@@ -509,3 +509,84 @@ print(f"Tail index of large claims: {alpha_hat:.2f}")
 - **[Parameter Fitting](fitting.md)** - Fit parametric distributions
 - **[Diagnostic Tools](diagnostics.md)** - Goodness-of-fit tests
 - **[Examples](../examples/basic_usage.ipynb)** - Practical applications
+
+## Choosing an estimator
+
+`heavytails` provides four. They differ in the range of `gamma` they can
+represent and in how efficiently they use the data.
+
+| Estimator | Valid range | Efficiency | Use when |
+| --- | --- | --- | --- |
+| `hill_estimator` | `gamma > 0` | Highest | You are confident the tail is heavy |
+| `generalized_hill_estimator` | any `gamma` | Near-Hill | You are not certain the tail is heavy |
+| `moment_estimator` | any `gamma` | Near-Hill | As above; a useful cross-check |
+| `pickands_estimator` | any `gamma` | Lowest | Cross-checking, not as a primary estimate |
+
+`scripts/tail_index_study.py` measures this rather than asserting it. Root mean
+squared error over 120 samples, using `k = n/20`:
+
+| Scenario | n | hill | generalized_hill | moment | pickands |
+| --- | --- | --- | --- | --- | --- |
+| Pareto(alpha=2), gamma=0.5 | 10000 | **0.024** | 0.051 | 0.051 | 0.082 |
+| Pareto(alpha=4), gamma=0.25 | 10000 | **0.012** | 0.046 | 0.047 | 0.079 |
+| Uniform(0,1), gamma=-1 | 10000 | 1.026 | **0.055** | 0.110 | 0.078 |
+
+Two things to read from that table.
+
+Where the tail really is heavy, **Hill is the most efficient by a factor of
+two or more**, which is why it remains the default despite its narrower
+validity.
+
+On the Uniform sample, whose upper endpoint is finite and whose `gamma` is
+`-1`, **Hill is not merely inaccurate but structurally incapable**: it averages
+log-excesses and can only ever return a positive number, so it reports about
+`+0.026` for a true `-1`. No choice of `k` fixes that. The generalized Hill
+estimator recovers `-0.99`.
+
+If you do not already know the sign of `gamma`, do not start with Hill.
+
+## Confidence intervals
+
+A tail index without an interval is not usable. The estimate depends on a
+choice of `k` that no rule fixes, and the sampling variability at realistic
+sample sizes is large.
+
+```python
+from heavytails import Pareto, tail_index_confidence_interval
+
+data = Pareto(alpha=2.0, xm=1.0).rvs(5000, seed=7)
+
+tail_index_confidence_interval(data, k=250)
+# {'gamma': 0.49, 'alpha': 2.04, 'lower': 0.429, 'upper': 0.551, ...}
+```
+
+Two methods are available:
+
+- `asymptotic` uses `sqrt(k)(gamma_hat - gamma) -> N(0, gamma^2)`, giving
+  `gamma_hat * (1 +/- z/sqrt(k))`. It is only established for the Hill
+  estimator, and requesting it for another raises rather than reporting a
+  number with no basis.
+- `bootstrap` resamples the data and takes percentiles. It works for every
+  estimator and makes no distributional assumption, at the cost of refitting.
+
+!!! warning "What the interval does not cover"
+    Both methods capture **sampling variance only**. Neither captures the bias
+    introduced by the choice of `k`. Measured coverage of a nominal 95%
+    interval is about 92% at `n = 20000, k = 1000` for a Pareto tail, and it
+    degrades further as `k` moves away from the plateau.
+
+    An interval is not a substitute for looking at the Hill plot.
+
+## The Hill plot
+
+```python
+from heavytails import Pareto, hill_plot
+
+data = Pareto(alpha=2.0, xm=1.0).rvs(5000, seed=2)
+points = hill_plot(data)   # [(k, gamma_hat), ...]
+```
+
+`hill_plot` sweeps `k` on a logarithmic grid, because the interesting structure
+is at small `k`. Read the estimate off a stable plateau. If there is no
+plateau, the data does not support a tail index estimate, and forcing one
+produces a confident wrong answer.

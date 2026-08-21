@@ -46,7 +46,14 @@ from .heavy_tails import (
     StudentT,
     Weibull,
 )
-from .tail_index import hill_estimator, moment_estimator, pickands_estimator
+from .tail_index import (
+    generalized_hill_estimator,
+    hill_estimator,
+    hill_plot,
+    moment_estimator,
+    pickands_estimator,
+    tail_index_confidence_interval,
+)
 
 try:
     __version__ = _version("heavytails")
@@ -71,7 +78,10 @@ __all__ = [
     "YuleSimon",
     "Zipf",
     "__version__",
+    "generalized_hill_estimator",
     "hill_estimator",
+    "hill_plot",
     "moment_estimator",
     "pickands_estimator",
+    "tail_index_confidence_interval",
 ]
