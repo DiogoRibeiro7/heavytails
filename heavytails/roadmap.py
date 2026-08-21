@@ -10,7 +10,6 @@ import math
 from typing import Any
 import warnings
 
-from heavytails import LogNormal
 from heavytails.extra_distributions import _betainc_reg
 from heavytails.tail_index import hill_estimator
 
@@ -971,26 +970,6 @@ def adaptive_threshold_selection(data: list[float], method: str = "dupuis") -> f
     - Mean Residual Life plots
     """
     raise NotImplementedError("Adaptive threshold selection not implemented")
-
-
-# BUG: LogNormal PPF may overflow for extreme parameter combinations
-def safe_lognormal_ppf(mu: float, sigma: float, u: float) -> float:
-    """
-    Numerically stable LogNormal quantile function.
-
-    Current implementation can overflow when:
-    - mu is very large (> 100)
-    - sigma is very large (> 10)
-    - u is very close to 1
-
-    Need to implement overflow protection and scaling.
-    """
-    # Temporary fix - full solution needed
-    try:
-        return LogNormal(mu=mu, sigma=sigma).ppf(u)
-    except OverflowError:
-        # Need proper handling
-        return float("inf")
 
 
 # TODO: Add survival analysis extensions

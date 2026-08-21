@@ -312,16 +312,34 @@ class LogNormal(Samplable):
         return 0.5 * (1.0 + math.erf(z))
 
     def sf(self, x: float) -> float:
-        """Survival function: 1 - CDF(x)."""
-        return 1.0 - self.cdf(x)
+        """Survival function 1 - CDF, computed with ``erfc`` for tail accuracy.
+
+        ``1 - cdf(x)`` collapses to exactly zero once ``cdf(x)`` rounds to 1.0,
+        which happens well inside the range of interest. ``erfc`` is accurate
+        for large arguments and keeps the true decay.
+        """
+        if x <= 0.0:
+            return 1.0
+        z = (math.log(x) - self.mu) / (self.sigma * math.sqrt(2.0))
+        return 0.5 * math.erfc(z)
 
     def ppf(self, u: float) -> float:
+        """Quantile function.
+
+        Returns ``inf`` when the quantile exceeds the float range rather than
+        raising. For large ``mu`` the answer is genuinely not representable --
+        the median of ``LogNormal(mu=1000)`` is ``exp(1000)`` -- and ``inf`` is
+        the correct value to report for it.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
         # Inverse via normal quantile needs erfinv; not in stdlib.
         # Use rational approximation to Φ^{-1}(u) (Acklam's method).
         z = _phi_inverse(u)
-        return math.exp(self.mu + self.sigma * z)
+        try:
+            return math.exp(self.mu + self.sigma * z)
+        except OverflowError:
+            return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
         z = rng.standard_normal()
