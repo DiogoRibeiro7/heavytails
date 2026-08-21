@@ -857,6 +857,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guide/actuarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aggregate Loss and Reinsurance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guide/cli/" class="md-nav__link">
         
   
@@ -1348,6 +1376,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/viz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic Plots
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/actuarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Actuarial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/risk/" class="md-nav__link">
         
   
@@ -1356,6 +1440,34 @@
     
   
     Tail-Risk Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/threshold/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Threshold Selection
   
 
     
@@ -2270,7 +2382,47 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>heavytails.risk</code>, with <code>value_at_risk</code>, <code>expected_shortfall</code>,
+<li>
+<p><code>heavytails.actuarial</code>, building the aggregate loss distribution from a
+  frequency model and a severity, and pricing the reinsurance written on it
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/304">#304</a>). Frequency
+  models <code>Poisson</code>, <code>NegativeBinomial</code> and <code>Binomial</code> -- the <code>(a,b,0)</code> class the
+  Panjer recursion is defined on. <code>PolicyTerms</code> and <code>LayeredSeverity</code> apply
+  deductibles, limits and coinsurance on either a per-loss or a per-payment
+  basis. <code>panjer_recursion</code> gives the whole aggregate distribution;
+  <code>simulate_aggregate_loss</code> and <code>EmpiricalAggregate</code> give the same interface
+  from a sample, for the cases the recursion cannot reach. <code>compound_moments</code>
+  reports the exact mean and variance, including <code>inf</code> when the severity is
+  heavy enough that they do not exist. <code>limited_expected_value</code>,
+  <code>excess_of_loss_premium</code> and <code>AggregateLoss.stop_loss_premium</code> price layers.
+  Completes the actuarial item of roadmap Phase 4.</p>
+</li>
+<li>
+<p><code>heavytails.viz</code>, rendering the diagnostics with matplotlib behind a new
+  <code>plot</code> extra (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/302">#302</a>):
+  <code>plot_tail</code>, <code>plot_qq</code>, <code>plot_hill</code>, <code>plot_trimmed_hill</code>,
+  <code>plot_mean_residual_life</code> and <code>plot_parameter_stability</code>. Each takes an
+  optional <code>ax</code> and returns it, so a panel of diagnostics composes normally,
+  and <code>plot_tail</code> can overlay a fitted distribution against the empirical
+  curve. <code>heavytails.plotting</code> keeps returning coordinates and stays free of
+  third-party imports, so the library itself still never requires matplotlib.
+  Install with <code>pip install "heavytails[plot]"</code>.</p>
+</li>
+<li>
+<p><code>heavytails.threshold</code>, with <code>mean_residual_life</code>, <code>parameter_stability</code>,
+  <code>select_threshold</code> and <code>return_level</code>
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/300">#300</a>). Choosing
+  the threshold dominates a peaks-over-threshold analysis and no rule settles
+  it, so the two diagnostics come first and the automatic rule is documented
+  as a starting point. <code>select_threshold</code> uses a goodness-of-fit test whose
+  p-values are conservative, which biases it towards thresholds that are too
+  low. <code>return_level</code> reports a bootstrap interval whose measured coverage is
+  about 0.88 against a nominal 0.95, falling to 0.76 on smaller samples,
+  because it captures sampling variability but not the error in choosing the
+  threshold.</p>
+</li>
+<li>
+<p><code>heavytails.risk</code>, with <code>value_at_risk</code>, <code>expected_shortfall</code>,
   <code>tail_conditional_expectation</code>, <code>monte_carlo_tail_risk</code> and <code>mean_exists</code>
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/303">#303</a>). Expected
   shortfall has closed forms for the Pareto, log-normal, generalized Pareto and
@@ -2278,7 +2430,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   otherwise; the two paths share no code and agree to four decimal places.
   Expected shortfall returns <code>inf</code> whenever the distribution has no finite
   mean, rather than a large number that would look like a result, and the
-  Monte Carlo estimator always reports standard errors.</li>
+  Monte Carlo estimator always reports standard errors.</p>
+</li>
 </ul>
 <h2 id="030-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...v0.3.0">0.3.0</a> - 2026-08-21<a class="headerlink" href="#030-2026-08-21" title="Permanent link">&para;</a></h2>
 <h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>

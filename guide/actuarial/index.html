@@ -12,13 +12,13 @@
         <meta name="author" content="Diogo Ribeiro">
       
       
-        <link rel="canonical" href="https://diogoribeiro7.github.io/heavytails/about/license/">
+        <link rel="canonical" href="https://diogoribeiro7.github.io/heavytails/guide/actuarial/">
       
       
-        <link rel="prev" href="../changelog/">
+        <link rel="prev" href="../diagnostics/">
       
       
-        <link rel="next" href="../citation/">
+        <link rel="next" href="../cli/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>License - HeavyTails Documentation</title>
+        <title>Aggregate Loss and Reinsurance - HeavyTails Documentation</title>
       
     
     
@@ -96,7 +96,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#license" class="md-skip">
+        <a href="#aggregate-loss-and-reinsurance" class="md-skip">
           Skip to content
         </a>
       
@@ -136,7 +136,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              License
+              Aggregate Loss and Reinsurance
             
           </span>
         </div>
@@ -285,11 +285,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../guide/distributions/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../distributions/" class="md-tabs__link">
           
   
   
@@ -385,13 +387,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../changelog/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../about/changelog/" class="md-tabs__link">
           
   
   
@@ -632,28 +632,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -671,7 +674,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -689,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/distributions/" class="md-nav__link">
+      <a href="../distributions/" class="md-nav__link">
         
   
   
@@ -717,7 +720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/pdf-cdf/" class="md-nav__link">
+      <a href="../pdf-cdf/" class="md-nav__link">
         
   
   
@@ -745,7 +748,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/sampling/" class="md-nav__link">
+      <a href="../sampling/" class="md-nav__link">
         
   
   
@@ -773,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/tail-estimation/" class="md-nav__link">
+      <a href="../tail-estimation/" class="md-nav__link">
         
   
   
@@ -801,7 +804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/fitting/" class="md-nav__link">
+      <a href="../fitting/" class="md-nav__link">
         
   
   
@@ -829,7 +832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/diagnostics/" class="md-nav__link">
+      <a href="../diagnostics/" class="md-nav__link">
         
   
   
@@ -854,10 +857,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../guide/actuarial/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aggregate Loss and Reinsurance
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -873,6 +903,178 @@
   
 
       </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-worked-portfolio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A worked portfolio
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="A worked portfolio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-severity-has-a-mean-the-portfolio-has-no-variance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The severity has a mean; the portfolio has no variance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pricing-the-retained-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pricing the retained layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-loss-or-per-payment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-loss or per-payment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-routes-to-the-aggregate-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two routes to the aggregate distribution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Two routes to the aggregate distribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#panjer-recursion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Panjer recursion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reinsurance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reinsurance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reinsurance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-risk-excess-of-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-risk excess of loss
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate-stop-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aggregate stop loss
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-a-frequency-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing a frequency model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discretisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discretisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -885,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -1917,31 +2119,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
             
   
   
@@ -1959,7 +2158,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1977,7 +2176,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
+      <a href="../../about/changelog/" class="md-nav__link">
         
   
   
@@ -2002,37 +2201,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    License
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../about/license/" class="md-nav__link">
         
   
   
@@ -2048,122 +2220,6 @@
   
 
       </a>
-      
-        
-
-  
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#mit-license" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MIT License
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-this-means" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What This Means
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="What This Means">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#you-can" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        You CAN:
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#you-must" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        You MUST:
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#you-cannot" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        You CANNOT:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#third-party-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Third-Party Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#academic-use" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Academic Use
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#questions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Questions?
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2176,7 +2232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../citation/" class="md-nav__link">
+      <a href="../../about/citation/" class="md-nav__link">
         
   
   
@@ -2204,7 +2260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../authors/" class="md-nav__link">
+      <a href="../../about/authors/" class="md-nav__link">
         
   
   
@@ -2275,10 +2331,10 @@
     
     
       <li class="md-path__item">
-        <a href="../changelog/" class="md-path__link">
+        <a href="../distributions/" class="md-path__link">
           
   <span class="md-ellipsis">
-    About
+    User Guide
   </span>
 
         </a>
@@ -2297,7 +2353,7 @@
 
 
   
-    <a href="https://github.com/diogoribeiro7/heavytails/edit/main/docs/about/license.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/diogoribeiro7/heavytails/edit/main/docs/guide/actuarial.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
     </a>
@@ -2306,70 +2362,208 @@
     
       
     
-    <a href="https://github.com/diogoribeiro7/heavytails/raw/main/docs/about/license.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/diogoribeiro7/heavytails/raw/main/docs/guide/actuarial.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"/></svg>
     </a>
   
 
 
-<h1 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h1>
-<p>HeavyTails is released under the MIT License.</p>
-<hr />
-<h2 id="mit-license">MIT License<a class="headerlink" href="#mit-license" title="Permanent link">&para;</a></h2>
-<p>Copyright &copy; 2025 Diogo F. Ribeiro</p>
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
-<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
-<hr />
-<h2 id="what-this-means">What This Means<a class="headerlink" href="#what-this-means" title="Permanent link">&para;</a></h2>
-<h3 id="you-can">You CAN:<a class="headerlink" href="#you-can" title="Permanent link">&para;</a></h3>
-<ul>
-<li>✅ Use HeavyTails for commercial purposes</li>
-<li>✅ Modify the source code</li>
-<li>✅ Distribute the software</li>
-<li>✅ Use it in proprietary software</li>
-<li>✅ Sublicense the software</li>
-</ul>
-<h3 id="you-must">You MUST:<a class="headerlink" href="#you-must" title="Permanent link">&para;</a></h3>
-<ul>
-<li>⚠️ Include the original copyright notice</li>
-<li>⚠️ Include a copy of the MIT License</li>
-</ul>
-<h3 id="you-cannot">You CANNOT:<a class="headerlink" href="#you-cannot" title="Permanent link">&para;</a></h3>
-<ul>
-<li>❌ Hold the authors liable for damages</li>
-<li>❌ Expect warranty or guarantees</li>
-</ul>
-<hr />
-<h2 id="third-party-dependencies">Third-Party Dependencies<a class="headerlink" href="#third-party-dependencies" title="Permanent link">&para;</a></h2>
-<p>HeavyTails has <strong>zero external dependencies</strong> in the core library. It uses only the Python standard library, which is distributed under the <a href="https://docs.python.org/3/license.html">Python Software Foundation License</a>.</p>
-<p>Optional development dependencies have their own licenses:</p>
-<ul>
-<li><strong>pytest</strong> - MIT License</li>
-<li><strong>mkdocs</strong> - BSD License</li>
-<li><strong>mkdocs-material</strong> - MIT License</li>
-<li><strong>ruff</strong> - MIT License</li>
-</ul>
-<hr />
-<h2 id="academic-use">Academic Use<a class="headerlink" href="#academic-use" title="Permanent link">&para;</a></h2>
-<p>When using HeavyTails in academic research or publications, please cite:</p>
-<div class="language-bibtex highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nc">@software</span><span class="p">{</span><span class="nl">ribeiro2025heavytails</span><span class="p">,</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Ribeiro, Diogo F.}</span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{HeavyTails: A Pure-Python Library for Heavy-Tailed Probability Distributions}</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2025}</span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://github.com/diogoribeiro7/heavytails}</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="na">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{0.1.0}</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+<h1 id="aggregate-loss-and-reinsurance">Aggregate Loss and Reinsurance<a class="headerlink" href="#aggregate-loss-and-reinsurance" title="Permanent link">&para;</a></h1>
+<p>An insurance portfolio produces a random number of claims of random size. What
+matters is the total:</p>
+<div class="arithmatex">\[S = X_1 + X_2 + \dots + X_N\]</div>
+<p><code>heavytails.actuarial</code> builds the distribution of <span class="arithmatex">\(S\)</span> from a frequency model and
+a severity distribution, and prices the reinsurance written on top of it.</p>
+<h2 id="a-worked-portfolio">A worked portfolio<a class="headerlink" href="#a-worked-portfolio" title="Permanent link">&para;</a></h2>
+<p>Take a commercial property book: about ten claims a year, over-dispersed, with a
+Pareto severity attaching at 10,000 and a tail index of 1.9. Policies carry a
+25,000 deductible and a 500,000 limit.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.actuarial</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">LayeredSeverity</span><span class="p">,</span> <span class="n">NegativeBinomial</span><span class="p">,</span> <span class="n">PolicyTerms</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">compound_moments</span><span class="p">,</span> <span class="n">panjer_recursion</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">frequency</span> <span class="o">=</span> <span class="n">NegativeBinomial</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>      <span class="c1"># mean 10, variance 35</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">severity</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.9</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">10_000.0</span><span class="p">)</span>          <span class="c1"># mean 21,111</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">terms</span> <span class="o">=</span> <span class="n">PolicyTerms</span><span class="p">(</span><span class="n">deductible</span><span class="o">=</span><span class="mf">25_000.0</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mf">500_000.0</span><span class="p">)</span>
 </span></code></pre></div>
-<p>See <a href="../citation/">Citation</a> for more details.</p>
-<hr />
-<h2 id="questions">Questions?<a class="headerlink" href="#questions" title="Permanent link">&para;</a></h2>
-<p>If you have questions about licensing or usage rights, please contact:</p>
+<h3 id="the-severity-has-a-mean-the-portfolio-has-no-variance">The severity has a mean; the portfolio has no variance<a class="headerlink" href="#the-severity-has-a-mean-the-portfolio-has-no-variance" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">compound_moments</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">severity</span><span class="p">)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># (211111.11, inf)</span>
+</span></code></pre></div>
+<p>With <code>alpha = 1.9</code> the severity has a mean but no second moment, so <strong>the
+aggregate variance does not exist</strong>. That is not a numerical inconvenience. Every
+normal and translated-gamma approximation in the actuarial literature works by
+matching two moments, and there is no second moment here to match. Reporting a
+large finite number instead would let someone reach for one of them.</p>
+<p>The policy limit changes this. A capped severity is bounded, so it has moments of
+every order:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">layer</span> <span class="o">=</span> <span class="n">LayeredSeverity</span><span class="p">(</span><span class="n">severity</span><span class="p">,</span> <span class="n">terms</span><span class="p">)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">compound_moments</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">layer</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>   <span class="c1"># finite</span>
+</span></code></pre></div>
+<p>Capping is what makes the arithmetic possible, and it is worth noticing that this
+is the same reason catastrophe reinsurance is always written with a limit.</p>
+<h3 id="pricing-the-retained-layer">Pricing the retained layer<a class="headerlink" href="#pricing-the-retained-layer" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">layer</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>   <span class="c1"># 0.8246 -- most losses never reach the deductible</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">layer</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>     <span class="c1"># 4,556.43 expected payment per loss</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">frequency</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>   <span class="c1"># 45,564.30 expected annual cost</span>
+</span></code></pre></div>
+<p>The layer mean is a difference of limited expected values,
+<span class="arithmatex">\(E[X \wedge 525{,}000] - E[X \wedge 25{,}000]\)</span>, which stays exact even when the
+underlying severity is heavy enough to make direct integration awkward.</p>
+<h3 id="per-loss-or-per-payment">Per-loss or per-payment<a class="headerlink" href="#per-loss-or-per-payment" title="Permanent link">&para;</a></h3>
+<p><code>LayeredSeverity</code> has two bases, and choosing the wrong one is the classic error
+in this calculation.</p>
+<table>
+<thead>
+<tr>
+<th>Basis</th>
+<th>Atom at zero</th>
+<th>Pairs with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>per-loss</code></td>
+<td>yes, <span class="arithmatex">\(F(d)\)</span></td>
+<td>the original frequency</td>
+</tr>
+<tr>
+<td><code>per-payment</code></td>
+<td>no</td>
+<td>the frequency <strong>thinned</strong> by <span class="arithmatex">\(S(d)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Both describe the same portfolio and give the same aggregate distribution:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">per_payment</span> <span class="o">=</span> <span class="n">LayeredSeverity</span><span class="p">(</span><span class="n">severity</span><span class="p">,</span> <span class="n">terms</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">"per-payment"</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">thinned</span> <span class="o">=</span> <span class="n">frequency</span><span class="o">.</span><span class="n">thin</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">exceedance_probability</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">panjer_recursion</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">2_000.0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4_000</span><span class="p">)</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">panjer_recursion</span><span class="p">(</span><span class="n">thinned</span><span class="p">,</span> <span class="n">per_payment</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">2_000.0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4_000</span><span class="p">)</span>   <span class="c1"># identical</span>
+</span></code></pre></div>
+<p>Mixing them — a per-payment severity with an unthinned frequency — overstates the
+expected aggregate by <span class="arithmatex">\(1/S(d)\)</span>, here a factor of 5.7. It produces a number that
+looks entirely plausible.</p>
+<h2 id="two-routes-to-the-aggregate-distribution">Two routes to the aggregate distribution<a class="headerlink" href="#two-routes-to-the-aggregate-distribution" title="Permanent link">&para;</a></h2>
+<h3 id="panjer-recursion">Panjer recursion<a class="headerlink" href="#panjer-recursion" title="Permanent link">&para;</a></h3>
+<p>Exact given a discretised severity, and it returns the whole distribution rather
+than a sample:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">aggregate</span> <span class="o">=</span> <span class="n">panjer_recursion</span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">frequency</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">2_000.0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4_000</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"mean-preserving"</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">aggregate</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>                    <span class="c1"># 45,564.30, matching the closed form</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">aggregate</span><span class="o">.</span><span class="n">value_at_risk</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span>       <span class="c1"># 418,000</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">aggregate</span><span class="o">.</span><span class="n">expected_shortfall</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span>  <span class="c1"># 527,068</span>
+</span></code></pre></div>
+<p>Two things go wrong with it, and both are reported rather than returned:</p>
+<p><strong>The recursion can start at zero.</strong> It begins from <span class="arithmatex">\(g_0 = P_N(f_0)\)</span>, which for a
+Poisson is <span class="arithmatex">\(e^{\lambda(f_0-1)}\)</span>. For a large expected claim count that underflows
+to exactly zero, and since every later probability is a multiple of it, the whole
+output becomes zeros — a result that is not a distribution and not obviously
+wrong. <code>panjer_recursion</code> raises instead.</p>
+<p><strong>The grid can be too short.</strong> A heavy-tailed severity puts real mass beyond any
+finite grid. <code>AggregateLoss</code> carries <code>truncated_mass</code> and <code>severity_tail_mass</code>,
+and <code>ppf</code> returns <code>inf</code> above <code>1 - truncated_mass</code> rather than the last grid
+point, which would look like an answer.</p>
+<p>A policy limit removes the problem entirely: the capped severity fits inside the
+grid, and <code>truncated_mass</code> here is <span class="arithmatex">\(3 \times 10^{-16}\)</span>.</p>
+<h3 id="simulation">Simulation<a class="headerlink" href="#simulation" title="Permanent link">&para;</a></h3>
+<p>No grid to truncate and no <span class="arithmatex">\(g_0\)</span> to underflow, at the cost of slower convergence:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.actuarial</span><span class="w"> </span><span class="kn">import</span> <span class="n">EmpiricalAggregate</span><span class="p">,</span> <span class="n">simulate_aggregate_loss</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">sample</span> <span class="o">=</span> <span class="n">EmpiricalAggregate</span><span class="p">(</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">simulate_aggregate_loss</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="mi">100_000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">sample</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>                  <span class="c1"># 45,623</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">sample</span><span class="o">.</span><span class="n">value_at_risk</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span>     <span class="c1"># 182,201  (Panjer: 182,000)</span>
+</span></code></pre></div>
+<p><code>EmpiricalAggregate</code> exposes the same interface, so the two routes are
+interchangeable and both work with <a href="../../reference/risk/"><code>heavytails.risk</code></a>.</p>
+<p>For a severity with no mean at all — <code>alpha</code> below 1 — simulation is the only
+route that runs.</p>
+<h2 id="reinsurance">Reinsurance<a class="headerlink" href="#reinsurance" title="Permanent link">&para;</a></h2>
+<h3 id="per-risk-excess-of-loss">Per-risk excess of loss<a class="headerlink" href="#per-risk-excess-of-loss" title="Permanent link">&para;</a></h3>
+<p>The reinsurer pays <span class="arithmatex">\(\min(\max(X - r, 0), \ell)\)</span> on each individual claim, so the
+expected annual cost is a difference of limited expected values. No grid, no
+simulation:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.actuarial</span><span class="w"> </span><span class="kn">import</span> <span class="n">excess_of_loss_premium</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">excess_of_loss_premium</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">retention</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">500_000</span><span class="p">)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># 11,199.23</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">excess_of_loss_premium</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">retention</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># 13,988.06</span>
+</span></code></pre></div>
+<p>Layers are additive: pricing 5 to 20 and 20 to 50 gives exactly the same total as
+pricing 5 to 50.</p>
+<p>On a severity with no mean the unlimited layer costs <code>inf</code> and the limited one
+does not, which is the whole reason those covers carry limits.</p>
+<div class="admonition warning">
+<p class="admonition-title">This is the expected loss cost, not a premium</p>
+<p>It carries no loading for expenses, risk margin or cost of capital. For a
+heavy-tailed layer the risk margin is usually the larger part of the price,
+precisely because the variance that would ordinarily size it does not exist.</p>
+</div>
+<h3 id="aggregate-stop-loss">Aggregate stop loss<a class="headerlink" href="#aggregate-stop-loss" title="Permanent link">&para;</a></h3>
+<p>The reinsurer pays whatever the <em>total</em> exceeds a retention:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">aggregate</span><span class="o">.</span><span class="n">stop_loss_premium</span><span class="p">(</span><span class="mf">1_000_000.0</span><span class="p">)</span>   <span class="c1"># 2.45</span>
+</span></code></pre></div>
+<p>Because the truncated mass sits entirely above the retention, the gridded value is
+a lower bound. <code>stop_loss_premium</code> returns <code>inf</code> when what fell off the end would
+move the answer by more than the tolerance, which defaults to 1%. A heavy tail
+always truncates something, so the check is relative rather than absolute — an
+absolute one would make the function useless on exactly the distributions it is
+for.</p>
+<h2 id="choosing-a-frequency-model">Choosing a frequency model<a class="headerlink" href="#choosing-a-frequency-model" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Dispersion</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Binomial</code></td>
+<td>variance below mean</td>
+<td>a closed group, at most one claim per policy</td>
+</tr>
+<tr>
+<td><code>Poisson</code></td>
+<td>variance equals mean</td>
+<td>the default</td>
+</tr>
+<tr>
+<td><code>NegativeBinomial</code></td>
+<td>variance above mean</td>
+<td>the claim rate is itself uncertain</td>
+</tr>
+</tbody>
+</table>
+<p>All three are the <span class="arithmatex">\((a,b,0)\)</span> class, where <span class="arithmatex">\(p_k/p_{k-1} = a + b/k\)</span> — which is
+exactly the property that makes Panjer's recursion possible, so the selection is
+not a matter of convenience.</p>
+<p>The choice matters more than it appears. A Poisson with the same mean as the
+negative binomial above matches the expected aggregate to within a rounding error
+while understating the 99<sup>th</sup> percentile, so checking the mean will not catch it.
+Over-dispersion is the usual case: a gamma-mixed Poisson <em>is</em> negative binomial,
+so uncertainty about the rate produces it automatically.</p>
+<h2 id="discretisation">Discretisation<a class="headerlink" href="#discretisation" title="Permanent link">&para;</a></h2>
+<p>Panjer needs the severity on an arithmetic grid, and <code>h</code> is the whole accuracy
+story.</p>
 <ul>
-<li><strong>Email:</strong> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#100;&#102;&#114;&#64;&#101;&#115;&#109;&#97;&#100;&#46;&#105;&#112;&#112;&#46;&#112;&#116;">&#100;&#102;&#114;&#64;&#101;&#115;&#109;&#97;&#100;&#46;&#105;&#112;&#112;&#46;&#112;&#116;</a></li>
-<li><strong>GitHub:</strong> <a href="https://github.com/diogoribeiro7/heavytails/issues">Issues</a></li>
+<li><code>"mass"</code> assigns each point the probability of the interval around it. Simple,
+  fast, and slightly biased in the mean.</li>
+<li><code>"mean-preserving"</code> matches local moments, so the discretised mean is exact.
+  Prefer it for pricing, where an error in the mean is an error in the premium.</li>
 </ul>
+<p>Mean-preserving takes a <em>second difference</em> of limited expected values, which
+amplifies any error in them by <span class="arithmatex">\(1/h\)</span> and can push a weight negative. Clipping a
+material amount would leave a biased grid that still sums to something plausible,
+so <code>discretise_severity</code> raises instead.</p>
 
 
 
@@ -2425,7 +2619,7 @@
                 
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/diogoribeiro7/heavytails/issues/new/?title=[Feedback]+License+-+/about/license/" target="_blank" rel="noopener">telling us what you found unclear</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/diogoribeiro7/heavytails/issues/new/?title=[Feedback]+Aggregate%20Loss%20and%20Reinsurance+-+/guide/actuarial/" target="_blank" rel="noopener">telling us what you found unclear</a>.
             </div>
           
         </div>
