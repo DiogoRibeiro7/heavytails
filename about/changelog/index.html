@@ -2225,14 +2225,26 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>harmonic_moment_estimator</code> and <code>t_hill_estimator</code>
+<li>
+<p><code>gpd_mle_estimator</code> and <code>fit_generalized_pareto</code>
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/327">#327</a>), the
+  parametric peaks-over-threshold counterpart to the semiparametric estimators.
+  Fitting uses the reduction of Grimshaw (1993), which turns the two-parameter
+  likelihood into a one-dimensional search, so no third-party optimiser is
+  needed; the fit matches <code>scipy.stats.genpareto.fit</code> to four decimal places
+  for positive, near-zero and negative shape. Being a general-EVI estimator it
+  handles a bounded tail, where the whole Hill family cannot.</p>
+</li>
+<li>
+<p><code>harmonic_moment_estimator</code> and <code>t_hill_estimator</code>
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/325">#325</a>). Hill's
   contributions grow without limit, so one extreme observation moves the
   estimate arbitrarily far; these use the bounded reciprocal ratios
   <code>u / X_(i)</code> instead. Sending a single observation of ten thousand from <code>1e2</code>
   to <code>1e30</code> moves the Hill estimate from 0.502 to 0.631 and moves these not at
   all. <code>beta</code> trades robustness against efficiency, and the estimator tends to
-  the Hill estimator as <code>beta</code> tends to zero.</li>
+  the Hill estimator as <code>beta</code> tends to zero.</p>
+</li>
 <li>
 <p><code>scripts/tail_index_study.py</code> records the <code>heavytails</code> version, the git
   commit, the Python version and the run configuration in its JSON output, so

@@ -1414,6 +1414,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#peaks-over-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peaks over threshold
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3159,6 +3170,12 @@ represent and in how efficiently they use the data.</p>
 <td>As above, with a robustness dial</td>
 </tr>
 <tr>
+<td><code>gpd_mle_estimator</code></td>
+<td>any <code>gamma</code></td>
+<td>Lower</td>
+<td>Parametric peaks-over-threshold</td>
+</tr>
+<tr>
 <td><code>hill_estimator</code></td>
 <td><code>gamma &gt; 0</code></td>
 <td>High</td>
@@ -3482,6 +3499,68 @@ are bad, for instance from <code>trimmed_hill_plot</code>. Use <code>t_hill_esti
 <code>harmonic_moment_estimator</code> when you cannot, or when the contamination may
 be arbitrarily extreme. They address different problems: trimming removes
 bad values, bounded influence limits what any one of them can do.</p>
+</div>
+<h2 id="peaks-over-threshold">Peaks over threshold<a class="headerlink" href="#peaks-over-threshold" title="Permanent link">&para;</a></h2>
+<p>Every estimator above is semiparametric: it averages some functional of the
+upper order statistics and assumes nothing about their distribution beyond
+regular variation. The parametric alternative fits a generalized Pareto
+distribution to the exceedances, which is what the Pickands-Balkema-de Haan
+theorem licenses, and estimates shape and scale jointly.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">gpd_mle_estimator</span><span class="p">,</span> <span class="n">fit_generalized_pareto</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="n">gpd_mle_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>          <span class="c1"># the shape parameter, i.e. gamma</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="n">threshold</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">500</span><span class="p">]</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="n">excesses</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="n">threshold</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">]</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="n">fit_generalized_pareto</span><span class="p">(</span><span class="n">excesses</span><span class="p">)</span>        <span class="c1"># {'xi': ..., 'sigma': ..., ...}</span>
+</span></code></pre></div>
+<p>Fitting is done by maximum likelihood, using the reduction of Grimshaw (1993):
+substituting <code>theta = xi/sigma</code> turns the two-parameter problem into a
+one-dimensional search, so no third-party optimiser is needed. The fit agrees
+with <code>scipy.stats.genpareto.fit</code> to four decimal places for positive, near-zero
+and negative shape.</p>
+<p>It is a general-EVI estimator, so unlike the whole Hill family it handles a
+bounded tail. On a Uniform(0,1) sample, where the true index is -1:</p>
+<table>
+<thead>
+<tr>
+<th>Estimator</th>
+<th>Mean</th>
+<th>RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hill</code></td>
+<td>+0.026</td>
+<td>1.026</td>
+</tr>
+<tr>
+<td><code>t_hill</code></td>
+<td>+0.026</td>
+<td>1.026</td>
+</tr>
+<tr>
+<td><code>gpd_mle</code></td>
+<td><strong>-1.056</strong></td>
+<td>0.078</td>
+</tr>
+<tr>
+<td><code>generalized_hill</code></td>
+<td>-0.998</td>
+<td>0.049</td>
+</tr>
+</tbody>
+</table>
+<p>The cost is variance. On <code>Pareto(alpha=2)</code> at <code>n = 10000, k = 500</code> its RMSE is
+0.072 against 0.023 for Hill, because it estimates two parameters where Hill
+estimates one.</p>
+<div class="admonition note">
+<p class="admonition-title">It is much slower</p>
+<p>A single fit at <code>k = 1000</code> takes about 25 ms, against microseconds for the
+closed-form estimators, because it optimises. That is irrelevant for one
+estimate and significant for bootstrapping, so reduce <code>n_bootstrap</code>
+accordingly.</p>
 </div>
 
 
