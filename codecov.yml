@@ -1,0 +1,32 @@
+# Codecov configuration.
+#
+# Without this file Codecov applies its defaults, which require patch coverage
+# to match the project's overall level exactly. That is stricter than the bar
+# the project sets for itself in CI (--cov-fail-under=80) and fails pull
+# requests over a handful of defensive branches.
+
+coverage:
+  status:
+    project:
+      default:
+        # Matches the --cov-fail-under threshold enforced in CI.
+        target: 80%
+        # Allow small fluctuations without failing the build.
+        threshold: 1%
+    patch:
+      default:
+        target: 80%
+        threshold: 5%
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: true
+
+ignore:
+  # Not part of the distributed package.
+  - "tests/**"
+  - "benchmarks/**"
+  - "scripts/**"
+  - "examples/**"
+  - "docs/**"
