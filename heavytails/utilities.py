@@ -440,9 +440,51 @@ class AutoFit:
                 )
 
         try:
-            return model_comparison(data, distributions)
+            results = model_comparison(data, distributions)
         except Exception as e:
             raise ValueError(f"Distribution comparison failed: {e}") from e
+
+        return self._attach_goodness_of_fit(data, results)
+
+    @staticmethod
+    def _attach_goodness_of_fit(
+        data: list[float], results: dict[str, dict[str, Any]]
+    ) -> dict[str, dict[str, Any]]:
+        """Add Anderson-Darling and Kolmogorov-Smirnov results to each entry.
+
+        AIC and BIC rank the candidates against each other, so the best of a
+        set of poor models still ranks first. The goodness-of-fit statistics
+        answer the separate question of whether the winner is compatible with
+        the data at all.
+
+        The parameters were estimated from this same sample, so the p-values
+        are conservative and each entry carries the corresponding caveat.
+
+        Args:
+            data: The sample the models were fitted to.
+            results: Output of ``model_comparison``.
+
+        Returns:
+            The same mapping, with ``anderson_darling`` and
+            ``kolmogorov_smirnov`` added wherever the test could be run.
+        """
+        from heavytails.validation import GoodnessOfFitTests  # noqa: PLC0415
+
+        tests = GoodnessOfFitTests()
+        for name, entry in results.items():
+            params = entry.get("params") or {}
+            for key, method in (
+                ("anderson_darling", tests.anderson_darling_test),
+                ("kolmogorov_smirnov", tests.kolmogorov_smirnov_test),
+            ):
+                try:
+                    entry[key] = method(data, name, parameters_estimated=True, **params)
+                except (ValueError, OverflowError) as exc:
+                    # A family the resolver does not know, or parameters the
+                    # constructor rejects. Report it rather than failing the
+                    # whole comparison, which is still useful without it.
+                    entry[key] = {"error": str(exc)}
+        return results
 
     def _auto_select_distribution(self, data: list[float]) -> dict[str, Any]:
         """

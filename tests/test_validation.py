@@ -1,5 +1,7 @@
 """Tests for validation.py module."""
 
+import math
+
 import pytest
 
 import heavytails.validation as validation_module
@@ -563,16 +565,18 @@ class TestUnimplementedFeatures:
     """Test that unimplemented features raise appropriate errors."""
 
     def test_goodness_of_fit_ks_test(self):
-        """Test that KS test raises NotImplementedError."""
+        """The KS test is implemented; see tests/test_goodness_of_fit.py."""
         gof = GoodnessOfFitTests()
-        with pytest.raises(NotImplementedError):
-            gof.kolmogorov_smirnov_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
+        result = gof.kolmogorov_smirnov_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
+        assert 0.0 <= result["p_value"] <= 1.0
+        assert result["statistic"] >= 0.0
 
     def test_goodness_of_fit_ad_test(self):
-        """Test that AD test raises NotImplementedError."""
+        """The Anderson-Darling test is implemented."""
         gof = GoodnessOfFitTests()
-        with pytest.raises(NotImplementedError):
-            gof.anderson_darling_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
+        result = gof.anderson_darling_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
+        assert 0.0 <= result["p_value"] <= 1.0
+        assert math.isfinite(result["statistic"])
 
     def test_regression_testing_add_reference_value(self):
         """Test that regression testing raises NotImplementedError."""

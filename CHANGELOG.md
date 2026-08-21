@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Kolmogorov-Smirnov and Anderson-Darling goodness-of-fit tests in
+  `heavytails.validation.GoodnessOfFitTests`, which previously raised
+  `NotImplementedError`
+  ([#301](https://github.com/DiogoRibeiro7/heavytails/issues/301)). Both are
+  reported by `AutoFit.compare_distributions` and by the `heavytails compare`
+  command, so a comparison now says whether the winning family fits, not only
+  how it ranks.
+
 ### Fixed
 
 - Quantile functions now behave the same way across every family
