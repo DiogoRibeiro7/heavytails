@@ -1251,6 +1251,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#goodness-of-fit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goodness-of-fit tests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Goodness-of-fit tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#which-one-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which one to use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-is-not-the-same-as-aic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this is not the same as AIC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estimated-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimated parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#numerical-accuracy-of-the-special-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2309,6 +2359,54 @@ them, which is how boundary cases get found.</p>
 </span></code></pre></div>
 <p>Failing cases are automatically shrunk to a minimal reproducer and recorded in
 <code>.hypothesis/</code>, so a failure found once becomes a regression test.</p>
+<h2 id="goodness-of-fit-tests">Goodness-of-fit tests<a class="headerlink" href="#goodness-of-fit-tests" title="Permanent link">&para;</a></h2>
+<p>Validation above establishes that the implementations match the mathematics.
+Goodness of fit asks the different question of whether a <em>model</em> matches your
+<em>data</em>.</p>
+<p><code>heavytails.validation.GoodnessOfFitTests</code> provides two:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">GoodnessOfFitTests</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">tests</span> <span class="o">=</span> <span class="n">GoodnessOfFitTests</span><span class="p">()</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">tests</span><span class="o">.</span><span class="n">anderson_darling_test</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"pareto"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">tests</span><span class="o">.</span><span class="n">kolmogorov_smirnov_test</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"pareto"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Each returns the statistic, a p-value, and a <code>reject</code> flag at the configured
+significance level.</p>
+<h3 id="which-one-to-use">Which one to use<a class="headerlink" href="#which-one-to-use" title="Permanent link">&para;</a></h3>
+<p><strong>Prefer Anderson-Darling here.</strong> Its statistic weights the tails of the
+distribution, which is where heavy-tailed families differ from each other. The
+Kolmogorov-Smirnov statistic is driven by the centre, which is exactly where
+they agree, so it is least sensitive where you most need sensitivity.</p>
+<div class="arithmatex">\[
+A^2 = -n - \frac{1}{n}\sum_{i=1}^{n}(2i-1)\left[\ln F(x_{(i)}) + \ln(1 - F(x_{(n+1-i)}))\right]
+ight]
+\]</div>
+<div class="arithmatex">\[
+D = \max_i \max\left(\frac{i}{n} - F(x_{(i)}),\; F(x_{(i)}) - \frac{i-1}{n}\right)
+ight)
+\]</div>
+<h3 id="why-this-is-not-the-same-as-aic">Why this is not the same as AIC<a class="headerlink" href="#why-this-is-not-the-same-as-aic" title="Permanent link">&para;</a></h3>
+<p>AIC and BIC rank candidates against one another. The best of a set of poor
+models still ranks first, and nothing in the ranking says whether it fits. A
+goodness-of-fit test answers that separately, so
+<a href="../../reference/utilities/"><code>AutoFit.compare_distributions</code></a> reports both.</p>
+<h3 id="estimated-parameters">Estimated parameters<a class="headerlink" href="#estimated-parameters" title="Permanent link">&para;</a></h3>
+<p>The p-values above assume the distribution was <strong>fully specified</strong> before
+seeing the data. When the parameters were estimated from the same sample, the
+fitted distribution is closer to the data than the null assumes, so the p-value
+is conservative: the test rejects less often than its nominal level.</p>
+<p>Passing <code>parameters_estimated=True</code> adds a <code>caveat</code> field saying so. For a
+calibrated p-value in that case, use a parametric bootstrap: refit on many
+samples drawn from the fitted model, and compare your statistic to that
+distribution.</p>
+<p>The asymptotic critical values used here are those for the fully specified
+case: 1.933 at 10%, 2.492 at 5% and 3.857 at 1%. They are not the
+D'Agostino-Stephens values quoted for the normality test with estimated mean
+and variance, whose 5% critical value is 0.787 -- using those would reject a
+correctly specified distribution about half the time.</p>
 <h2 id="numerical-accuracy-of-the-special-functions">Numerical accuracy of the special functions<a class="headerlink" href="#numerical-accuracy-of-the-special-functions" title="Permanent link">&para;</a></h2>
 <p>Two special functions are implemented from scratch, because depending on SciPy
 would break the no-dependency promise:</p>
@@ -2347,15 +2445,15 @@ both converge well, so accuracy does not degrade at the crossover.</p>
 <li><strong>Parameter stability.</strong> <code>parameter_stability_check</code> sweeps a family across its
   parameter range and looks for discontinuities, overflow and loss of precision.</li>
 </ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameter_stability_check</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">parameter_stability_check</span><span class="p">(</span><span class="s2">"pareto"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">parameter_stability_check</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">parameter_stability_check</span><span class="p">(</span><span class="s2">"pareto"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="reproducing-the-results">Reproducing the results<a class="headerlink" href="#reproducing-the-results" title="Permanent link">&para;</a></h2>
 <p>Everything on this page runs from a checkout:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>dev,benchmarks
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">                    </span><span class="c1"># the full suite, including property tests</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>property<span class="w">        </span><span class="c1"># property-based tests only</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>dev,benchmarks
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">                    </span><span class="c1"># the full suite, including property tests</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>property<span class="w">        </span><span class="c1"># property-based tests only</span>
 </span></code></pre></div>
 <p>Sampling is seeded through the library's deterministic RNG wrapper, so validation
 runs are reproducible: the same seed gives the same sample and therefore the same

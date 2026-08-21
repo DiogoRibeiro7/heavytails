@@ -1911,6 +1911,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1922,7 +1933,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1944,7 +1955,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2005,7 +2016,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2206,6 +2217,16 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Kolmogorov-Smirnov and Anderson-Darling goodness-of-fit tests in
+  <code>heavytails.validation.GoodnessOfFitTests</code>, which previously raised
+  <code>NotImplementedError</code>
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/301">#301</a>). Both are
+  reported by <code>AutoFit.compare_distributions</code> and by the <code>heavytails compare</code>
+  command, so a comparison now says whether the winning family fits, not only
+  how it ranks.</li>
+</ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Quantile functions now behave the same way across every family
@@ -2224,7 +2245,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   budget with the bracket as wide as it started. It now narrows on every
   iteration, which also fixed a non-monotonicity in <code>InverseGamma.ppf</code>.</li>
 </ul>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>ConvergenceError</code>, raised when a solver cannot reach its tolerance. It
@@ -2247,7 +2268,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>roadmap.safe_lognormal_ppf</code>, a workaround that caught the overflow above. It
   is redundant now that <code>LogNormal.ppf</code> handles the case itself.</li>
 </ul>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Python 3.13 support, covered by the CI test matrix and declared in the package
   classifiers.</li>
@@ -2347,7 +2368,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   Ruff's <code>I</code> rules.</li>
 </ul>
 <h2 id="010-2025-10-25"><a href="https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0">0.1.0</a> - 2025-10-25<a class="headerlink" href="#010-2025-10-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Continuous heavy-tailed distributions implemented from first principles:
   Pareto, Cauchy, Student-t, Log-Normal, Weibull, Fréchet and GEV (ξ &gt; 0).</li>
