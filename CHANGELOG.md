@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.threshold`, with `mean_residual_life`, `parameter_stability`,
+  `select_threshold` and `return_level`
+  ([#300](https://github.com/DiogoRibeiro7/heavytails/issues/300)). Choosing
+  the threshold dominates a peaks-over-threshold analysis and no rule settles
+  it, so the two diagnostics come first and the automatic rule is documented
+  as a starting point. `select_threshold` uses a goodness-of-fit test whose
+  p-values are conservative, which biases it towards thresholds that are too
+  low. `return_level` reports a bootstrap interval whose measured coverage is
+  about 0.88 against a nominal 0.95, falling to 0.76 on smaller samples,
+  because it captures sampling variability but not the error in choosing the
+  threshold.
+
 - `heavytails.risk`, with `value_at_risk`, `expected_shortfall`,
   `tail_conditional_expectation`, `monte_carlo_tail_risk` and `mean_exists`
   ([#303](https://github.com/DiogoRibeiro7/heavytails/issues/303)). Expected

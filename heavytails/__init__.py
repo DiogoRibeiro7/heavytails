@@ -73,6 +73,12 @@ from .tail_index import (
     trimmed_hill_estimator,
     trimmed_hill_plot,
 )
+from .threshold import (
+    mean_residual_life,
+    parameter_stability,
+    return_level,
+    select_threshold,
+)
 
 try:
     __version__ = _version("heavytails")
@@ -106,12 +112,16 @@ __all__ = [
     "hill_estimator",
     "hill_plot",
     "mean_exists",
+    "mean_residual_life",
     "moment_estimator",
     "monte_carlo_tail_risk",
+    "parameter_stability",
     "pickands_estimator",
     "recommended_rho_k",
+    "return_level",
     "second_order_beta",
     "second_order_rho",
+    "select_threshold",
     "smoothed_hill_estimator",
     "smoothed_hill_variance_ratio",
     "t_hill_estimator",
