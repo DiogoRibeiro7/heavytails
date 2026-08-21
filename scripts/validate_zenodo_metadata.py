@@ -281,7 +281,11 @@ def _validate_creator_against_citation(
 ) -> None:
     creators = metadata.get("creators")
     cff_author = citation.get("first_author")
-    if not isinstance(creators, list) or not creators or not isinstance(cff_author, dict):
+    if (
+        not isinstance(creators, list)
+        or not creators
+        or not isinstance(cff_author, dict)
+    ):
         return
 
     creator = creators[0]
@@ -294,7 +298,9 @@ def _validate_creator_against_citation(
 
     expected_orcid = _bare_orcid(cff_author.get("orcid"))
     if creator.get("orcid") != expected_orcid:
-        errors.append("Zenodo first creator ORCID must match CITATION.cff first author.")
+        errors.append(
+            "Zenodo first creator ORCID must match CITATION.cff first author."
+        )
 
     affiliation = cff_author.get("affiliation")
     creator_affiliation = creator.get("affiliation")
@@ -444,8 +450,7 @@ def _validate_references_against_citation(
     ]
     if missing_titles:
         errors.append(
-            "Zenodo references must include CITATION.cff references: "
-            f"{missing_titles}"
+            f"Zenodo references must include CITATION.cff references: {missing_titles}"
         )
 
 
