@@ -40,7 +40,7 @@ This roadmap outlines the planned development phases for the **heavytails** proj
 
 **Goal:** Move from modeling to inference and diagnostics.
 
-* [ ] Implement additional tail-index estimators (Hill–Stacy, Generalized Hill)
+* [x] Implement additional tail-index estimators (Generalized Hill, Resnick–Stărică smoothed Hill)
 * [ ] Add bias-correction and variance estimation tools
 * [ ] Develop tail QQ and Hill plot visual diagnostics (optional matplotlib support)
 * [ ] Implement EVT-based threshold selection and excess fitting

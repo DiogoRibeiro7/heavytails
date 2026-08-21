@@ -52,6 +52,8 @@ from .tail_index import (
     hill_plot,
     moment_estimator,
     pickands_estimator,
+    smoothed_hill_estimator,
+    smoothed_hill_variance_ratio,
     tail_index_confidence_interval,
 )
 
@@ -83,5 +85,7 @@ __all__ = [
     "hill_plot",
     "moment_estimator",
     "pickands_estimator",
+    "smoothed_hill_estimator",
+    "smoothed_hill_variance_ratio",
     "tail_index_confidence_interval",
 ]

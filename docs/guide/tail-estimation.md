@@ -517,7 +517,8 @@ represent and in how efficiently they use the data.
 
 | Estimator | Valid range | Efficiency | Use when |
 | --- | --- | --- | --- |
-| `hill_estimator` | `gamma > 0` | Highest | You are confident the tail is heavy |
+| `smoothed_hill_estimator` | `gamma > 0` | Highest | You are confident the tail is heavy |
+| `hill_estimator` | `gamma > 0` | High | The classical baseline |
 | `generalized_hill_estimator` | any `gamma` | Near-Hill | You are not certain the tail is heavy |
 | `moment_estimator` | any `gamma` | Near-Hill | As above; a useful cross-check |
 | `pickands_estimator` | any `gamma` | Lowest | Cross-checking, not as a primary estimate |
@@ -525,17 +526,15 @@ represent and in how efficiently they use the data.
 `scripts/tail_index_study.py` measures this rather than asserting it. Root mean
 squared error over 120 samples, using `k = n/20`:
 
-| Scenario | n | hill | generalized_hill | moment | pickands |
-| --- | --- | --- | --- | --- | --- |
-| Pareto(alpha=2), gamma=0.5 | 10000 | **0.024** | 0.051 | 0.051 | 0.082 |
-| Pareto(alpha=4), gamma=0.25 | 10000 | **0.012** | 0.046 | 0.047 | 0.079 |
-| Uniform(0,1), gamma=-1 | 10000 | 1.026 | **0.055** | 0.110 | 0.078 |
+| Scenario | n | hill | smoo u=2 | smoo u=3 | gen_hill | moment | pickands |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Pareto(alpha=2), gamma=0.5 | 10000 | 0.023 | 0.018 | **0.015** | 0.050 | 0.050 | 0.083 |
+| Uniform(0,1), gamma=-1 | 10000 | 1.026 | 1.040 | 1.054 | **0.053** | 0.108 | 0.081 |
 
 Two things to read from that table.
 
-Where the tail really is heavy, **Hill is the most efficient by a factor of
-two or more**, which is why it remains the default despite its narrower
-validity.
+Where the tail really is heavy, the **Hill family is the most efficient by a
+factor of two or more**, and the smoothed variant beats plain Hill outright.
 
 On the Uniform sample, whose upper endpoint is finite and whose `gamma` is
 `-1`, **Hill is not merely inaccurate but structurally incapable**: it averages
@@ -543,7 +542,38 @@ log-excesses and can only ever return a positive number, so it reports about
 `+0.026` for a true `-1`. No choice of `k` fixes that. The generalized Hill
 estimator recovers `-0.99`.
 
+The smoothed estimators inherit that limitation exactly, because they average
+Hill estimates. Smoothing addresses variance in `k`, not the range of `gamma`.
+
 If you do not already know the sign of `gamma`, do not start with Hill.
+
+## Smoothing the Hill estimator
+
+The ordinary Hill estimate varies substantially with `k`, which is the reason
+the Hill plot exists. Resnick and Stărică (1997) average it over a range of `k`
+instead:
+
+$$\hat{\gamma}^{\text{smooHill}}_{k}(u) = \frac{1}{(u-1)k}\sum_{j=k+1}^{\lfloor uk \rfloor} \hat{\gamma}^{H}(j)$$
+floor} \hat{\gamma}^{H}(j)$$
+
+```python
+from heavytails import Pareto, smoothed_hill_estimator, smoothed_hill_variance_ratio
+
+data = Pareto(alpha=2.0, xm=1.0).rvs(20000, seed=11)
+smoothed_hill_estimator(data, k=1000, u=2.0)
+
+smoothed_hill_variance_ratio(2.0)   # 0.6137
+smoothed_hill_variance_ratio(3.0)   # 0.4507
+```
+
+The asymptotic variance falls from `gamma**2` to
+`gamma**2 * 2*(u - 1 - ln u) / (u - 1)**2`, a reduction of 39% at `u = 2` and
+55% at `u = 3`. Measured over 250 samples at `n = 20000, k = 500`, the observed
+ratio is 0.61 at `u = 2` against a predicted 0.6137.
+
+`u` is a bias/variance dial, not a free win: a larger `u` averages over a wider
+range of `k` and so reaches further into the body of the distribution. Values
+between 2 and 3 are the usual compromise.
 
 ## Confidence intervals
 

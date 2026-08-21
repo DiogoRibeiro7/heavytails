@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `smoothed_hill_estimator`, the smoothed Hill estimator of Resnick and
+  Stărică (1997), and `smoothed_hill_variance_ratio`, which reports the
+  asymptotic variance reduction it achieves
+  ([#319](https://github.com/DiogoRibeiro7/heavytails/issues/319)). Averaging
+  the Hill estimate over `j` in `(k, u*k]` reduces its asymptotic variance by
+  39% at `u = 2` and 55% at `u = 3`, and in the simulation study it has the
+  lowest RMSE of any estimator here on a heavy tail. It inherits Hill's
+  restriction to positive `gamma`.
+
 - `generalized_hill_estimator`, the UH estimator of Beirlant, Vynckier and
   Teugels (1996)
   ([#299](https://github.com/DiogoRibeiro7/heavytails/issues/299)). Unlike the
