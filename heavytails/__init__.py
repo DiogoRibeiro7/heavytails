@@ -26,6 +26,8 @@ Modules
     Threshold selection for peaks-over-threshold analysis
 - heavytails.risk
     Tail-risk metrics (VaR, expected shortfall)
+- heavytails.actuarial
+    Compound distributions, aggregate losses and reinsurance pricing
 
 Author: Diogo Ribeiro
 License: MIT

@@ -150,6 +150,7 @@ nav:
     - Tail Index Estimation: guide/tail-estimation.md
     - Parameter Fitting: guide/fitting.md
     - Tail Diagnostics: guide/diagnostics.md
+    - Aggregate Loss and Reinsurance: guide/actuarial.md
     - CLI Reference: guide/cli.md
   - Examples:
     - Basic Usage: examples/basic_usage.ipynb
@@ -165,6 +166,7 @@ nav:
     - Tail Estimators: reference/tail_index.md
     - Plotting Utilities: reference/plotting.md
     - Diagnostic Plots: reference/viz.md
+    - Actuarial: reference/actuarial.md
     - Tail-Risk Metrics: reference/risk.md
     - Threshold Selection: reference/threshold.md
     - Utilities: reference/utilities.md
