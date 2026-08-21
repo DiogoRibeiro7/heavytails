@@ -543,12 +543,13 @@ class TestPerformanceDetailed:
 
         for dist_name, dist in distributions:
             for n in sample_sizes:
-                start_time = time.time()
+                start_time = time.perf_counter()
                 samples = dist.rvs(n, seed=42)
-                elapsed = time.time() - start_time
+                elapsed = time.perf_counter() - start_time
 
-                # Performance targets (samples per second)
-                samples_per_sec = n / elapsed
+                # Performance targets (samples per second). Guard against a
+                # zero-length measurement on low-resolution clocks.
+                samples_per_sec = n / max(elapsed, 1e-9)
 
                 # Should generate at least 50K samples per second
                 assert samples_per_sec > 50000, (
@@ -568,14 +569,14 @@ class TestPerformanceDetailed:
         x_values = [1.0 + i * 0.01 for i in range(10000)]
 
         # PDF performance test
-        start_time = time.time()
+        start_time = time.perf_counter()
         pdf_values = [pareto.pdf(x) for x in x_values]
-        pdf_time = time.time() - start_time
+        pdf_time = time.perf_counter() - start_time
 
         # CDF performance test
-        start_time = time.time()
+        start_time = time.perf_counter()
         cdf_values = [pareto.cdf(x) for x in x_values]
-        cdf_time = time.time() - start_time
+        cdf_time = time.perf_counter() - start_time
 
         # Performance targets: should evaluate 10K points in < 0.1 seconds
         assert pdf_time < 0.1, (
