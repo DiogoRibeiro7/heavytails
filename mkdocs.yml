@@ -165,6 +165,7 @@ nav:
     - Tail Estimators: reference/tail_index.md
     - Plotting Utilities: reference/plotting.md
     - Tail-Risk Metrics: reference/risk.md
+    - Threshold Selection: reference/threshold.md
     - Utilities: reference/utilities.md
     - Validation: reference/validation.md
     - Performance: reference/performance.md
