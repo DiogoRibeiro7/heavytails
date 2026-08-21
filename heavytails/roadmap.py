@@ -10,7 +10,6 @@ import math
 from typing import Any
 import warnings
 
-from heavytails.extra_distributions import _betainc_reg
 from heavytails.tail_index import hill_estimator
 
 try:
@@ -923,21 +922,6 @@ class HeavyTailGARCH:
         # TODO: Implement GARCH with heavy-tailed errors
         # LABELS: enhancement, time-series
         raise NotImplementedError("GARCH models not implemented")
-
-
-# HACK: Using simple approximation for incomplete beta - should use proper implementation
-def improved_incomplete_beta(a: float, b: float, x: float) -> float:
-    """
-    More accurate incomplete beta function implementation.
-
-    Current implementation in extra_distributions.py uses continued fractions
-    but could be improved with:
-    - Better convergence criteria
-    - Asymptotic expansions for extreme parameters
-    - Error bounds and accuracy guarantees
-    """
-    # Current workaround - needs proper implementation
-    return _betainc_reg(a, b, x)
 
 
 # TODO: Add GPU acceleration for large-scale simulations

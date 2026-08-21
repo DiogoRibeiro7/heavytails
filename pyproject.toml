@@ -92,6 +92,7 @@ packaging = "^25.0"
 # Needed to exercise the CLI in the test suite
 rich = "^14.2.0"
 typer = "^0.20.0"
+mpmath = "^1.3.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
@@ -228,6 +229,12 @@ check_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = "scipy.*"
+ignore_missing_imports = true
+
+# mpmath ships no type information. It is a development-only dependency,
+# used by the special-function accuracy study.
+[[tool.mypy.overrides]]
+module = "mpmath.*"
 ignore_missing_imports = true
 
 # numpy ships stubs that use `type` statement syntax, which mypy rejects while

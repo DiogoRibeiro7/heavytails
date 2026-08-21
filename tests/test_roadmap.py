@@ -9,7 +9,6 @@ from heavytails import Cauchy, LogNormal, Pareto
 from heavytails.roadmap import (
     bootstrap_confidence_intervals,
     fit_mle,
-    improved_incomplete_beta,
     model_comparison,
     robust_hill_estimator,
 )
@@ -644,13 +643,6 @@ class TestIntegration:
 
 class TestHelperFunctions:
     """Test helper functions in roadmap module."""
-
-    def test_improved_incomplete_beta(self):
-        """Test improved incomplete beta function."""
-        # Test basic functionality
-        result = improved_incomplete_beta(2.0, 3.0, 0.5)
-        assert 0 <= result <= 1
-        assert math.isfinite(result)
 
 
 if __name__ == "__main__":
