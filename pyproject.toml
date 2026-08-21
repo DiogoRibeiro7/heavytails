@@ -87,7 +87,7 @@ ipython = "^8.37.0"
 
 # Required by scripts/pyproject_updater.py
 tomlkit = "^0.13.2"
-packaging = "^25.0"
+packaging = "^26.3"
 
 # Needed to exercise the CLI in the test suite
 rich = "^14.2.0"
