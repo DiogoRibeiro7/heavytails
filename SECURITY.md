@@ -145,7 +145,7 @@ We follow responsible disclosure practices:
 
 We will recognize security researchers who responsibly report vulnerabilities:
 
-_No security vulnerabilities have been reported yet._ 
+_No security vulnerabilities have been reported yet._
 
 <!-- Template for future entries: - **[Researcher Name]** - [Date] - [Brief description of vulnerability type] -->
 

@@ -74,7 +74,7 @@ jobs:
             echo "mode=bot" >> "$GITHUB_OUTPUT"
           fi
           echo "Selected mode: $(cat $GITHUB_OUTPUT || true)"
-      
+
       # Inspect token (App identity & scopes)
       - name: Inspect token (App identity & scopes)
         run: |

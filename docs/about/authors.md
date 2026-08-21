@@ -80,7 +80,7 @@ Development of HeavyTails has been supported by:
 
 ## Code Contributors
 
-Thank you to all who have contributed code, documentation, or bug fixes: 
+Thank you to all who have contributed code, documentation, or bug fixes:
 
 <!-- This section will be automatically generated from Git history -->
 
