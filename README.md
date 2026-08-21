@@ -185,8 +185,9 @@ MIT License © 2025 Diogo Ribeiro. See [LICENSE](LICENSE).
 If you use this package in research or teaching, please cite it. GitHub's
 "Cite this repository" button reads [CITATION.cff](CITATION.cff), or use:
 
-> Ribeiro, D. (2025). *heavytails: Pure-Python heavy-tailed distribution library*.
+> Ribeiro, D. (2025). *heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions*.
 > <https://github.com/DiogoRibeiro7/heavytails>
 
-Zenodo metadata is maintained in `.zenodo.json`; the DOI will be added after
+Shared citation metadata is maintained in `CITATION.cff`; Zenodo-specific
+archive metadata is maintained in `.zenodo.json`. The DOI will be added after
 the first archived GitHub release.

@@ -5,7 +5,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from scripts.validate_zenodo_metadata import validate_metadata
+from scripts.validate_zenodo_metadata import (
+    validate_against_citation,
+    validate_metadata,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ZENODO_METADATA = REPO_ROOT / ".zenodo.json"
@@ -18,6 +21,7 @@ def test_zenodo_metadata_is_valid() -> None:
         metadata = json.load(metadata_file)
 
     assert validate_metadata(metadata) == []
+    assert validate_against_citation(metadata) == []
 
 
 def test_zenodo_metadata_matches_citation_cff_core_fields() -> None:
@@ -27,9 +31,28 @@ def test_zenodo_metadata_matches_citation_cff_core_fields() -> None:
 
     citation = CITATION_METADATA.read_text(encoding="utf-8")
 
-    assert "title: heavytails" in citation
+    assert (
+        'title: "heavytails: A Pure-Python Library for Heavy-Tailed Probability '
+        'Distributions"'
+    ) in citation
+    assert (
+        zenodo["title"]
+        == "heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions"
+    )
     assert zenodo["creators"][0]["name"] == "Ribeiro, Diogo"
     assert zenodo["creators"][0]["orcid"] in citation
     assert zenodo["publication_date"] in citation
     assert zenodo["license"] == "mit"
     assert "license: MIT" in citation
+
+
+def test_zenodo_metadata_rejects_citation_drift() -> None:
+    """Zenodo validation should fail when citation metadata drifts."""
+    with ZENODO_METADATA.open(encoding="utf-8") as metadata_file:
+        zenodo = json.load(metadata_file)
+
+    zenodo["publication_date"] = "2025-01-01"
+
+    errors = validate_against_citation(zenodo)
+
+    assert "Zenodo publication_date must match CITATION.cff date-released." in errors

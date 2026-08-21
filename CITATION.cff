@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: heavytails
+title: "heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions"
 message: "If you use this library, please cite as below."
 type: software
 authors:
@@ -18,15 +18,19 @@ abstract: >
   utilities for extreme value analysis, risk management, and financial modeling.
 keywords:
   - heavy tails
+  - heavy-tailed distributions
   - probability distributions
   - statistics
   - data science
   - machine learning
   - extreme value theory
+  - tail index estimation
   - risk management
   - finance
   - tail risk
   - python
+  - simulation
+  - teaching
 license: MIT
 version: 0.1.0
 date-released: 2025-10-25

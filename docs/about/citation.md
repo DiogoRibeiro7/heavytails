@@ -174,6 +174,9 @@ default release metadata. It records the software title, author ORCID, MIT
 license, keywords, scholarly references, source repository, and documentation
 URL.
 
+Shared citation fields are kept in sync with `CITATION.cff` by the repository
+validator.
+
 Maintainers should validate it before releases:
 
 ```bash
@@ -213,21 +216,21 @@ HeavyTails includes a `CITATION.cff` file for automatic citation generation:
 
 ```yaml
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+message: "If you use this library, please cite as below."
+title: "heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions"
 authors:
   - family-names: Ribeiro
-    given-names: Diogo F.
-    orcid: https://orcid.org/0009-0001-2022-7072
-title: "HeavyTails: A Pure-Python Library for Heavy-Tailed Probability Distributions"
+    given-names: Diogo
+    orcid: "https://orcid.org/0009-0001-2022-7072"
 version: 0.1.0
-date-released: 2025-01-15
-url: https://github.com/diogoribeiro7/heavytails
+date-released: 2025-10-25
+url: https://diogoribeiro7.github.io/heavytails
 license: MIT
-repository-code: https://github.com/diogoribeiro7/heavytails
+repository-code: https://github.com/DiogoRibeiro7/heavytails
 keywords:
+  - heavy tails
   - heavy-tailed distributions
   - extreme value theory
-  - pure Python
   - tail index estimation
 ```
 

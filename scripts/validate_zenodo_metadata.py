@@ -12,6 +12,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_METADATA_PATH = REPO_ROOT / ".zenodo.json"
+DEFAULT_CITATION_PATH = REPO_ROOT / "CITATION.cff"
 
 ALLOWED_TOP_LEVEL_FIELDS = {
     "$schema",
@@ -203,6 +204,36 @@ def validate_metadata(metadata: dict[str, Any]) -> list[str]:
     return errors
 
 
+def validate_against_citation(
+    metadata: dict[str, Any], citation_path: Path = DEFAULT_CITATION_PATH
+) -> list[str]:
+    """Return errors for mismatches between Zenodo metadata and CITATION.cff."""
+    citation = _parse_citation_cff(citation_path.read_text(encoding="utf-8"))
+    errors: list[str] = []
+
+    if metadata.get("title") != citation.get("title"):
+        errors.append("Zenodo title must match CITATION.cff title.")
+
+    citation_abstract = citation.get("abstract")
+    if isinstance(citation_abstract, str) and _normalized_text(
+        metadata.get("description")
+    ) != _normalized_text(citation_abstract):
+        errors.append("Zenodo description must match CITATION.cff abstract.")
+
+    if metadata.get("publication_date") != citation.get("date-released"):
+        errors.append("Zenodo publication_date must match CITATION.cff date-released.")
+
+    if metadata.get("license") != _zenodo_license_id(citation.get("license")):
+        errors.append("Zenodo license must match CITATION.cff license.")
+
+    _validate_creator_against_citation(metadata, citation, errors)
+    _validate_keywords_against_citation(metadata, citation, errors)
+    _validate_related_identifiers_against_citation(metadata, citation, errors)
+    _validate_references_against_citation(metadata, citation, errors)
+
+    return errors
+
+
 def _validate_string(
     metadata: dict[str, Any], field: str, errors: list[str], *, min_length: int = 1
 ) -> None:
@@ -245,6 +276,38 @@ def _validate_creators(value: object, errors: list[str]) -> None:
             errors.append(f"creators[{index}].orcid must be a bare ORCID iD.")
 
 
+def _validate_creator_against_citation(
+    metadata: dict[str, Any], citation: dict[str, Any], errors: list[str]
+) -> None:
+    creators = metadata.get("creators")
+    cff_author = citation.get("first_author")
+    if not isinstance(creators, list) or not creators or not isinstance(cff_author, dict):
+        return
+
+    creator = creators[0]
+    if not isinstance(creator, dict):
+        return
+
+    expected_name = f"{cff_author.get('family-names')}, {cff_author.get('given-names')}"
+    if creator.get("name") != expected_name:
+        errors.append("Zenodo first creator must match CITATION.cff first author.")
+
+    expected_orcid = _bare_orcid(cff_author.get("orcid"))
+    if creator.get("orcid") != expected_orcid:
+        errors.append("Zenodo first creator ORCID must match CITATION.cff first author.")
+
+    affiliation = cff_author.get("affiliation")
+    creator_affiliation = creator.get("affiliation")
+    if (
+        isinstance(affiliation, str)
+        and isinstance(creator_affiliation, str)
+        and _ascii_fold(creator_affiliation) != _ascii_fold(affiliation)
+    ):
+        errors.append(
+            "Zenodo first creator affiliation must match CITATION.cff first author."
+        )
+
+
 def _validate_keywords(value: object, errors: list[str]) -> None:
     if not isinstance(value, list) or len(value) < 8:
         errors.append("keywords must contain at least eight terms.")
@@ -264,6 +327,25 @@ def _validate_keywords(value: object, errors: list[str]) -> None:
     missing = sorted(required_keywords - normalized)
     if missing:
         errors.append(f"Missing core Zenodo keywords: {missing}")
+
+
+def _validate_keywords_against_citation(
+    metadata: dict[str, Any], citation: dict[str, Any], errors: list[str]
+) -> None:
+    zenodo_keywords = metadata.get("keywords")
+    cff_keywords = citation.get("keywords")
+    if not isinstance(zenodo_keywords, list) or not isinstance(cff_keywords, list):
+        return
+
+    zenodo_normalized = {
+        keyword.casefold() for keyword in zenodo_keywords if isinstance(keyword, str)
+    }
+    cff_normalized = {
+        keyword.casefold() for keyword in cff_keywords if isinstance(keyword, str)
+    }
+    missing = sorted(cff_normalized - zenodo_normalized)
+    if missing:
+        errors.append(f"Zenodo keywords must include CITATION.cff keywords: {missing}")
 
 
 def _validate_related_identifiers(value: object, errors: list[str]) -> None:
@@ -298,6 +380,37 @@ def _validate_related_identifiers(value: object, errors: list[str]) -> None:
         errors.append("Documentation URL must be related with isDocumentedBy.")
 
 
+def _validate_related_identifiers_against_citation(
+    metadata: dict[str, Any], citation: dict[str, Any], errors: list[str]
+) -> None:
+    related_identifiers = metadata.get("related_identifiers")
+    if not isinstance(related_identifiers, list):
+        return
+
+    relations_by_identifier: dict[str, set[str]] = {}
+    for related_identifier in related_identifiers:
+        if not isinstance(related_identifier, dict):
+            continue
+        identifier = related_identifier.get("identifier")
+        relation = related_identifier.get("relation")
+        if isinstance(identifier, str) and isinstance(relation, str):
+            relations_by_identifier.setdefault(identifier, set()).add(relation)
+
+    repository_code = citation.get("repository-code")
+    if isinstance(repository_code, str) and "isDerivedFrom" not in (
+        relations_by_identifier.get(repository_code, set())
+    ):
+        errors.append(
+            "Zenodo related_identifiers must include CITATION.cff repository-code."
+        )
+
+    documentation_url = citation.get("url")
+    if isinstance(documentation_url, str) and "isDocumentedBy" not in (
+        relations_by_identifier.get(documentation_url, set())
+    ):
+        errors.append("Zenodo related_identifiers must include CITATION.cff url.")
+
+
 def _validate_references(value: object, errors: list[str]) -> None:
     if not isinstance(value, list) or len(value) < 3:
         errors.append("references must contain at least three scholarly references.")
@@ -311,6 +424,31 @@ def _validate_references(value: object, errors: list[str]) -> None:
         errors.append("references must include the Hill estimator DOI.")
 
 
+def _validate_references_against_citation(
+    metadata: dict[str, Any], citation: dict[str, Any], errors: list[str]
+) -> None:
+    zenodo_references = metadata.get("references")
+    cff_reference_titles = citation.get("reference_titles")
+    if not isinstance(zenodo_references, list) or not isinstance(
+        cff_reference_titles, list
+    ):
+        return
+
+    joined_references = "\n".join(
+        reference for reference in zenodo_references if isinstance(reference, str)
+    ).casefold()
+    missing_titles = [
+        title
+        for title in cff_reference_titles
+        if isinstance(title, str) and title.casefold() not in joined_references
+    ]
+    if missing_titles:
+        errors.append(
+            "Zenodo references must include CITATION.cff references: "
+            f"{missing_titles}"
+        )
+
+
 def _validate_no_placeholders(
     value: object, errors: list[str], path: str = "$"
 ) -> None:
@@ -322,6 +460,157 @@ def _validate_no_placeholders(
             _validate_no_placeholders(child, errors, f"{path}[{index}]")
     elif isinstance(value, str) and PLACEHOLDER_PATTERN.search(value):
         errors.append(f"Placeholder value found at {path}.")
+
+
+def _parse_citation_cff(text: str) -> dict[str, Any]:
+    citation: dict[str, Any] = {
+        "keywords": _parse_list_block(text, "keywords"),
+        "reference_titles": _parse_reference_titles(text),
+    }
+
+    for field in ("title", "date-released", "license", "repository-code", "url"):
+        value = _parse_scalar(text, field)
+        if value is not None:
+            citation[field] = value
+
+    abstract = _parse_folded_block(text, "abstract")
+    if abstract is not None:
+        citation["abstract"] = abstract
+
+    first_author = _parse_first_author(text)
+    if first_author:
+        citation["first_author"] = first_author
+
+    return citation
+
+
+def _parse_scalar(text: str, field: str) -> str | None:
+    match = re.search(rf"^{re.escape(field)}:\s*(.+?)\s*$", text, re.MULTILINE)
+    if match is None:
+        return None
+    return _strip_yaml_quotes(match.group(1).strip())
+
+
+def _parse_folded_block(text: str, field: str) -> str | None:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith(f"{field}:"):
+            block_lines: list[str] = []
+            for block_line in lines[index + 1 :]:
+                if block_line and not block_line.startswith((" ", "\t")):
+                    break
+                stripped = block_line.strip()
+                if stripped:
+                    block_lines.append(stripped)
+            return " ".join(block_lines)
+    return None
+
+
+def _parse_list_block(text: str, field: str) -> list[str]:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line == f"{field}:":
+            values: list[str] = []
+            for item_line in lines[index + 1 :]:
+                if item_line.startswith("  - "):
+                    values.append(_strip_yaml_quotes(item_line[4:].strip()))
+                    continue
+                if item_line and not item_line.startswith((" ", "\t")):
+                    break
+            return values
+    return []
+
+
+def _parse_first_author(text: str) -> dict[str, str]:
+    author_block = _parse_first_list_item_block(text, "authors")
+    if author_block is None:
+        return {}
+
+    author: dict[str, str] = {}
+    for field in ("family-names", "given-names", "orcid", "affiliation"):
+        value = _parse_scalar(author_block, field)
+        if value is not None:
+            author[field] = value
+    return author
+
+
+def _parse_first_list_item_block(text: str, field: str) -> str | None:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line == f"{field}:":
+            block_lines: list[str] = []
+            in_first_item = False
+            for item_line in lines[index + 1 :]:
+                if item_line.startswith("  - "):
+                    if in_first_item:
+                        break
+                    in_first_item = True
+                    block_lines.append(item_line[4:])
+                    continue
+                if in_first_item:
+                    if item_line.startswith("    "):
+                        block_lines.append(item_line[4:])
+                        continue
+                    if item_line and not item_line.startswith((" ", "\t")):
+                        break
+            return "\n".join(block_lines)
+    return None
+
+
+def _parse_reference_titles(text: str) -> list[str]:
+    references_block = _parse_section_block(text, "references")
+    if references_block is None:
+        return []
+
+    titles: list[str] = []
+    for line in references_block.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("title: "):
+            titles.append(_strip_yaml_quotes(stripped.removeprefix("title: ").strip()))
+    return titles
+
+
+def _parse_section_block(text: str, field: str) -> str | None:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line == f"{field}:":
+            block_lines: list[str] = []
+            for block_line in lines[index + 1 :]:
+                if block_line and not block_line.startswith((" ", "\t")):
+                    break
+                block_lines.append(block_line)
+            return "\n".join(block_lines)
+    return None
+
+
+def _strip_yaml_quotes(value: str) -> str:
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    return value
+
+
+def _normalized_text(value: object) -> str:
+    if not isinstance(value, str):
+        return ""
+    return " ".join(value.split())
+
+
+def _zenodo_license_id(value: object) -> str:
+    if not isinstance(value, str):
+        return ""
+    if value == "MIT":
+        return "mit"
+    return value.casefold()
+
+
+def _bare_orcid(value: object) -> str:
+    if not isinstance(value, str):
+        return ""
+    return value.removeprefix("https://orcid.org/")
+
+
+def _ascii_fold(value: str) -> str:
+    return value.replace("Média", "Media")
 
 
 def main() -> int:
@@ -338,6 +627,8 @@ def main() -> int:
 
     metadata = load_metadata(args.path)
     errors = validate_metadata(metadata)
+    if DEFAULT_CITATION_PATH.exists():
+        errors.extend(validate_against_citation(metadata, DEFAULT_CITATION_PATH))
     if errors:
         for error in errors:
             print(f"- {error}", file=sys.stderr)

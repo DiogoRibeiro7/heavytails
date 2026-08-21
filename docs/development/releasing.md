@@ -9,15 +9,17 @@ aligned for each public release.
 
 1. Update the package version in `pyproject.toml`.
 2. Update `CITATION.cff` with the same version and release date.
-3. Update `.zenodo.json` when the title, authors, affiliations, keywords,
+3. Update `CITATION.cff` when the title, authors, affiliations, keywords,
    references, license, or release date change.
-4. Run the metadata validator:
+4. Update `.zenodo.json` only when Zenodo-specific fields change. The validator
+   checks that shared citation fields stay aligned with `CITATION.cff`.
+5. Run the metadata validator:
 
 ```bash
 python scripts/validate_zenodo_metadata.py
 ```
 
-5. Run the regular quality checks:
+6. Run the regular quality checks:
 
 ```bash
 poetry run ruff check .
@@ -33,7 +35,8 @@ poetry run mkdocs build --strict
 
 Zenodo archives GitHub releases after the repository is connected in Zenodo's
 GitHub integration. The repository-level `.zenodo.json` file overrides the
-metadata Zenodo would otherwise infer from GitHub.
+metadata Zenodo would otherwise infer from GitHub, while `CITATION.cff` remains
+the source of truth for shared citation fields.
 
 For the first archived release:
 
