@@ -6,19 +6,37 @@ If you use HeavyTails in your research, teaching, or professional work, please c
 
 ## BibTeX Entry
 
+Use this entry until the first Zenodo archive DOI has been minted:
+
 ```bibtex
 @software{ribeiro2025heavytails,
-  author = {Ribeiro, Diogo F.},
-  title = {HeavyTails: A Pure-Python Library for Heavy-Tailed Probability Distributions},
+  author = {Ribeiro, Diogo},
+  title = {heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions},
   year = {2025},
   publisher = {GitHub},
   url = {https://github.com/diogoribeiro7/heavytails},
-  version = {0.1.0},
-  doi = {10.5281/zenodo.XXXXXXX}
+  version = {0.1.0}
 }
 ```
 
-!!! note "DOI" A DOI will be assigned upon first stable release via Zenodo.
+After the first GitHub release is archived by Zenodo, cite the version DOI for
+the exact release used:
+
+```bibtex
+@software{ribeiro2025heavytails,
+  author = {Ribeiro, Diogo},
+  title = {heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions},
+  year = {2025},
+  publisher = {Zenodo},
+  url = {https://github.com/diogoribeiro7/heavytails},
+  version = {0.1.0},
+  doi = {ZENODO_VERSION_DOI}
+}
+```
+
+!!! note "Zenodo DOI"
+    Do not cite a placeholder DOI. The Zenodo DOI will be added here after the
+    first archived GitHub release.
 
 --------------------------------------------------------------------------------
 
@@ -146,6 +164,24 @@ If citing is not appropriate (e.g., in acknowledgments), you can use:
 Or:
 
 > "Computational analyses were performed using HeavyTails, a pure-Python library for heavy-tailed distributions."
+
+--------------------------------------------------------------------------------
+
+## Zenodo Metadata
+
+The repository includes `.zenodo.json`, which Zenodo uses to override GitHub's
+default release metadata. It records the software title, author ORCID, MIT
+license, keywords, scholarly references, source repository, and documentation
+URL.
+
+Maintainers should validate it before releases:
+
+```bash
+python scripts/validate_zenodo_metadata.py
+```
+
+The full release workflow is documented in
+[Releasing](../development/releasing.md).
 
 --------------------------------------------------------------------------------
 

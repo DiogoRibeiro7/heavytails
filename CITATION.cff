@@ -30,19 +30,6 @@ keywords:
 license: MIT
 version: 0.1.0
 date-released: 2025-10-25
-preferred-citation:
-  type: article
-  authors:
-    - family-names: Ribeiro
-      given-names: Diogo
-      orcid: "https://orcid.org/0009-0001-2022-7072"
-  title: "heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions"
-  journal: "Journal of Open Source Software"
-  year: 2025
-  volume: 10
-  issue: 108
-  doi: "10.21105/joss.XXXXX"  # To be updated when published
-  url: "https://doi.org/10.21105/joss.XXXXX"
 references:
   - type: book
     title: "Extreme Value Theory: An Introduction"
