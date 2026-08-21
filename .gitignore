@@ -257,6 +257,7 @@ benchmark_results/
 # Data files (examples, tests)
 *.csv
 *.json
+!.zenodo.json
 *.xlsx
 *.h5
 *.hdf5

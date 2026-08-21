@@ -665,9 +665,7 @@ class PropertyBasedTests:
         return test_cases
 
 
-def convergence_validation(
-    distribution: str, method: str = "ppf", _max_iter: int = 1000
-) -> dict[str, Any]:
+def convergence_validation(distribution: str, method: str = "ppf") -> dict[str, Any]:
     """
     Validate convergence of numerical algorithms.
 
@@ -677,7 +675,6 @@ def convergence_validation(
     Args:
         distribution: Distribution name to test
         method: Method to test ("ppf", "cdf", or "pdf")
-        max_iter: Maximum iterations to test
 
     Returns:
         Dictionary with convergence diagnostics

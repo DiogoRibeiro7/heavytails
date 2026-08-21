@@ -116,7 +116,9 @@ def _fetch_pypi_versions(name: str, timeout: float) -> dict[str, bool]:
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"}:
             raise ValueError(f"Unsupported URL scheme: {parsed.scheme}")
-        with urllib.request.urlopen(url, timeout=timeout) as resp:
+        # The scheme is validated immediately above and the URL is built from a
+        # literal https:// prefix, so no file:/ or custom scheme can reach here.
+        with urllib.request.urlopen(url, timeout=timeout) as resp:  # nosec B310
             data = json.loads(resp.read().decode("utf-8"))
     except (
         urllib.error.HTTPError,

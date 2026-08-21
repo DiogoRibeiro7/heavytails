@@ -1,0 +1,40 @@
+# Normalise line endings so the repository is byte-identical on every platform.
+* text=auto eol=lf
+
+# Explicit rules for the file types this project actually contains.
+*.py      text eol=lf diff=python
+*.pyi     text eol=lf diff=python
+*.md      text eol=lf
+*.rst     text eol=lf
+*.txt     text eol=lf
+*.toml    text eol=lf
+*.cfg     text eol=lf
+*.ini     text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.json    text eol=lf
+*.cff     text eol=lf
+*.css     text eol=lf
+*.js      text eol=lf
+Makefile  text eol=lf
+
+# Jupyter notebooks are JSON but noisy in diffs; keep them out of language stats.
+*.ipynb   text eol=lf linguist-documentation
+
+# Binary files must never be converted.
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.pdf     binary
+*.ico     binary
+*.woff    binary
+*.woff2   binary
+
+# The lock file is generated: keep it out of diffs and language statistics.
+poetry.lock  text eol=lf -diff linguist-generated
+
+# Keep GitHub's language detection focused on the library itself.
+docs/**      linguist-documentation
+examples/**  linguist-documentation
+site/**      linguist-generated

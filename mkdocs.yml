@@ -24,7 +24,7 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-  
+
   features:
     - navigation.tabs
     - navigation.tabs.sticky
@@ -82,6 +82,11 @@ markdown_extensions:
       repo: heavytails
   - pymdownx.mark
   - pymdownx.smartsymbols
+  # Lets docs/about/changelog.md include the repository-root CHANGELOG.md,
+  # so the changelog has a single source of truth.
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -102,7 +107,8 @@ plugins:
         python:
           paths: [.]
           options:
-            docstring_style: numpy
+            # The package uses Google-style sections (Args/Returns/Raises).
+            docstring_style: google
             docstring_options:
               ignore_init_summary: true
             merge_init_into_class: true
@@ -113,11 +119,6 @@ plugins:
             show_symbol_type_toc: true
             signature_crossrefs: true
             separate_signature: true
-  - gen-files:
-      scripts:
-        - docs/gen_ref_pages.py
-  - literate-nav:
-      nav_file: SUMMARY.md
   - section-index
   - mkdocs-jupyter:
       include_source: true
@@ -148,18 +149,37 @@ nav:
     - Random Sampling: guide/sampling.md
     - Tail Index Estimation: guide/tail-estimation.md
     - Parameter Fitting: guide/fitting.md
+    - Tail Diagnostics: guide/diagnostics.md
+    - CLI Reference: guide/cli.md
+  - Examples:
+    - Basic Usage: examples/basic_usage.ipynb
   - Mathematical Background:
     - Heavy-Tail Theory: theory/heavy-tails.md
+    - Extreme Value Theory: theory/evt.md
+    - Tail Index Estimation Theory: theory/tail-estimation.md
+    - Validation Studies: theory/validation.md
   - API Reference:
-    - Core Distributions: reference/
-    - Extra Distributions: reference/
-    - Discrete Distributions: reference/
-    - Tail Estimators: reference/
-    - Utilities: reference/
+    - Core Distributions: reference/heavy_tails.md
+    - Extra Distributions: reference/extra_distributions.md
+    - Discrete Distributions: reference/discrete.md
+    - Tail Estimators: reference/tail_index.md
+    - Plotting Utilities: reference/plotting.md
+    - Utilities: reference/utilities.md
+    - Validation: reference/validation.md
+    - Performance: reference/performance.md
+    - Extensions: reference/extensions.md
+    - Fitting and Roadmap: reference/roadmap.md
+    - Command-Line Interface: reference/cli.md
   - Development:
     - Contributing: development/contributing.md
+    - Architecture: development/architecture.md
     - Testing: development/testing.md
+    - Benchmarking: development/benchmarks.md
+    - Code Review: development/code-review.md
+    - Releasing: development/releasing.md
+    - Documentation Overview: DOCUMENTATION_OVERVIEW.md
   - About:
+    - Changelog: about/changelog.md
     - License: about/license.md
     - Citation: about/citation.md
     - Authors: about/authors.md
@@ -173,7 +193,7 @@ extra:
       link: https://orcid.org/0009-0001-2022-7072
     - icon: fontawesome/solid/envelope
       link: mailto:dfr@esmad.ipp.pt
-  
+
   version:
     provider: mike
     default: stable
@@ -192,7 +212,7 @@ extra:
         - icon: material/emoticon-sad-outline
           name: This page could be improved
           data: 0
-          note: >- 
+          note: >-
             Thanks for your feedback! Help us improve this page by
             <a href="https://github.com/diogoribeiro7/heavytails/issues/new/?title=[Feedback]+{title}+-+{url}" target="_blank" rel="noopener">telling us what you found unclear</a>.
 

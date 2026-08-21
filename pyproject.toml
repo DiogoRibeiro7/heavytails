@@ -1,57 +1,64 @@
-[tool.poetry]
+[project]
 name = "heavytails"
 version = "0.1.0"
 description = "Pure-Python heavy-tailed probability distributions for research, teaching, and simulation."
-authors = ["Diogo Ribeiro <dfr@esmad.ipp.pt>"]
-maintainers = ["Diogo Ribeiro <dfr@esmad.ipp.pt>"]
-license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/diogoribeiro7/heavytails"
-repository = "https://github.com/diogoribeiro7/heavytails"
-documentation = "https://diogoribeiro7.github.io/heavytails"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10,<3.14"
+authors = [{ name = "Diogo Ribeiro", email = "dfr@esmad.ipp.pt" }]
+maintainers = [{ name = "Diogo Ribeiro", email = "dfr@esmad.ipp.pt" }]
 keywords = [
-    "heavy-tailed", 
-    "statistics", 
-    "probability", 
-    "extreme-values", 
+    "heavy-tailed",
+    "statistics",
+    "probability",
+    "extreme-values",
     "distributions",
     "finance",
     "risk-management",
     "tail-risk",
-    "extreme-value-theory"
+    "extreme-value-theory",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Financial and Insurance Industry",
     "Intended Audience :: Education",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Mathematics",
-    "Topic :: Scientific/Engineering :: Statistics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Office/Business :: Financial",
-    "Typing :: Typed"
+    "Typing :: Typed",
 ]
+dependencies = []
+
+[project.optional-dependencies]
+# The `heavytails` console script needs these; the library itself does not.
+cli = ["typer>=0.20,<1.0", "rich>=14.0,<15.0"]
+
+[project.urls]
+Homepage = "https://github.com/DiogoRibeiro7/heavytails"
+Documentation = "https://diogoribeiro7.github.io/heavytails"
+Repository = "https://github.com/DiogoRibeiro7/heavytails"
+Issues = "https://github.com/DiogoRibeiro7/heavytails/issues"
+Discussions = "https://github.com/DiogoRibeiro7/heavytails/discussions"
+Changelog = "https://github.com/DiogoRibeiro7/heavytails/blob/main/CHANGELOG.md"
+
+[project.scripts]
+heavytails = "heavytails.cli:main"
+
+[tool.poetry]
 packages = [{ include = "heavytails" }]
 include = [
-    "CITATION.cff",
-    "CHANGELOG.md",
-    "docs/**/*",
-    "tests/**/*",
-    "examples/**/*"
+    { path = "CHANGELOG.md", format = "sdist" },
+    { path = "CITATION.cff", format = "sdist" },
+    { path = "tests", format = "sdist" },
 ]
-
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/diogoribeiro7/heavytails/issues"
-"Discussions" = "https://github.com/diogoribeiro7/heavytails/discussions"
-"Changelog" = "https://github.com/diogoribeiro7/heavytails/blob/main/CHANGELOG.md"
-
-[tool.poetry.dependencies]
-python = ">=3.10,<3.13"
 
 [tool.poetry.group.dev.dependencies]
 # Testing
@@ -66,11 +73,10 @@ hypothesis = "^6.148.4"
 ruff = "^0.14.7"
 mypy = "^1.19.0"
 pre-commit = "^4.5.0"
-isort = "^7.0.0"
 
 # Security
 bandit = "^1.9.2"
-safety = "^3.7.0"
+pip-audit = "^2.9.0"
 
 # Type stubs
 types-PyYAML = "^6.0.12.20250915"
@@ -78,6 +84,12 @@ types-requests = "^2.32.4.20250913"
 
 # Development utilities
 ipython = "^8.37.0"
+
+# Required by scripts/pyproject_updater.py
+tomlkit = "^0.13.2"
+packaging = "^25.0"
+
+# Needed to exercise the CLI in the test suite
 rich = "^14.2.0"
 typer = "^0.20.0"
 
@@ -90,6 +102,8 @@ mkdocs-gen-files = "^0.6.0"
 mkdocs-literate-nav = "^0.6.1"
 mkdocs-section-index = "^0.3.9"
 mkdocs-gallery = "^0.10.3"
+# Required by mkdocs-jupyter to execute notebooks during the docs build
+ipykernel = "^6.29.5"
 
 [tool.poetry.group.examples.dependencies]
 matplotlib = "^3.9.2"
@@ -104,11 +118,8 @@ numpy = "^2.1.3"
 memory-profiler = "^0.61.0"
 line-profiler = "^5.0.0"
 
-[tool.poetry.scripts]
-heavytails = "heavytails.cli:main"
-
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0"]
 build-backend = "poetry.core.masonry.api"
 
 # Tool configurations
@@ -194,15 +205,6 @@ exclude = [
 ]
 
 [[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-disallow_any_generics = false
-disallow_untyped_decorators = false
-warn_return_any = false
-check_untyped_defs = false
-
-[[tool.mypy.overrides]]
 module = "heavytails.cli"
 disallow_untyped_defs = false
 disallow_untyped_decorators = false
@@ -228,15 +230,14 @@ check_untyped_defs = false
 module = "scipy.*"
 ignore_missing_imports = true
 
+# numpy ships stubs that use `type` statement syntax, which mypy rejects while
+# python_version is pinned to the lowest supported interpreter. numpy is an
+# optional benchmark-only import, so skip analysing its stubs entirely.
 [[tool.mypy.overrides]]
-module = "examples.*"
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-
-[[tool.mypy.overrides]]
-module = "benchmarks.*"
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
+module = "numpy.*"
+ignore_missing_imports = true
+follow_imports = "skip"
+follow_imports_for_stubs = true
 
 [[tool.mypy.overrides]]
 module = "heavytails.performance"
@@ -313,10 +314,15 @@ directory = "htmlcov"
 
 [tool.bandit]
 exclude_dirs = ["tests", "build", "dist"]
-skips = ["B101", "B601"]
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 88
-known_first_party = ["heavytails"]
+# Each skip below is a rule that is structurally a false positive for this
+# project, not a finding that has been waved through:
+#   B101 - asserts, which are used in tests only.
+#   B105 - triggered by the result dictionaries keyed "pass" (as in "did this
+#          check pass"), which bandit reads as a hardcoded password.
+#   B110 - try/except/pass, used to skip an optional import or a probe point.
+#   B112 - try/except/continue, used to skip a bad sample inside a validation
+#          loop and carry on with the rest.
+#   B311 - the standard `random` module. Generating pseudo-random variates is
+#          the purpose of this library; it makes no cryptographic claims.
+#   B601 - shell injection in paramiko, which this project does not use.
+skips = ["B101", "B105", "B110", "B112", "B311", "B601"]

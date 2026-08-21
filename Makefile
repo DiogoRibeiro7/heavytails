@@ -1,37 +1,64 @@
-.PHONY: help install install-dev test lint format type-check clean build upload docs
+.DEFAULT_GOAL := help
+
+POETRY ?= poetry
+RUN    := $(POETRY) run
+
+.PHONY: help install install-dev hooks test test-fast coverage lint format \
+        format-check type-check security audit check docs docs-serve \
+        build clean
 
 help:  ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-install:  ## Install package
-	pip install -e .
+install:  ## Install the package only
+	$(POETRY) install --only main
 
-install-dev:  ## Install package with development dependencies
-	pip install -e ".[dev]"
+install-dev:  ## Install the package with all development dependency groups
+	$(POETRY) install --with dev,docs,examples,benchmarks
 
-test:  ## Run tests
-	pytest tests/ --cov=scripts --cov-report=term-missing --cov-report=html
+hooks:  ## Install the pre-commit git hooks
+	$(RUN) pre-commit install
 
-lint:  ## Run linting
-	ruff check .
+test:  ## Run the test suite with coverage
+	$(RUN) pytest tests/ --cov=heavytails --cov-report=term-missing --cov-report=html
 
-format:  ## Format code
-	ruff format .
+test-fast:  ## Run the test suite in parallel, skipping slow tests
+	$(RUN) pytest tests/ -m "not slow" -n auto --no-cov
 
-type-check:  ## Run type checking
-	mypy scripts/
+coverage:  ## Run the test suite and enforce the minimum coverage threshold
+	$(RUN) pytest tests/ --cov=heavytails --cov-report=term-missing --cov-fail-under=80
 
-clean:  ## Clean build artifacts
-	rm -rf build/ dist/ *.egg-info/ htmlcov/ .coverage .pytest_cache/ .ruff_cache/
+lint:  ## Run the linter
+	$(RUN) ruff check .
 
-build:  ## Build package
-	python -m build
+format:  ## Format the code in place
+	$(RUN) ruff format .
+	$(RUN) ruff check --fix .
 
-upload:  ## Upload to PyPI
-	python -m twine upload dist/*
+format-check:  ## Verify formatting without modifying files
+	$(RUN) ruff format --check .
 
-docs:  ## Build documentation
-	mkdocs build
+type-check:  ## Run static type checking
+	$(RUN) mypy heavytails/ scripts/
 
-docs-serve:  ## Serve documentation locally
-	mkdocs serve
+security:  ## Run the static security linter
+	$(RUN) bandit -c pyproject.toml -r heavytails/ scripts/
+
+audit:  ## Check installed dependencies for known vulnerabilities
+	$(RUN) pip-audit --skip-editable
+
+check: lint format-check type-check test security  ## Run every check that CI runs
+
+docs:  ## Build the documentation (fails on broken links)
+	$(RUN) mkdocs build --strict
+
+docs-serve:  ## Serve the documentation with live reload
+	$(RUN) mkdocs serve
+
+build:  ## Build the sdist and wheel
+	$(POETRY) build
+
+clean:  ## Remove build, test and cache artifacts
+	rm -rf build/ dist/ site/ htmlcov/ .coverage coverage.xml coverage.json \
+	       .pytest_cache/ .ruff_cache/ .mypy_cache/ .hypothesis/ .benchmarks/
+	find . -type d -name __pycache__ -prune -exec rm -rf {} +

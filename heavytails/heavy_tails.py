@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import math
 import random
 
+from heavytails._special import _betainc_reg, _betaincinv_reg
+
 # ----------------------------- Utilities ------------------------------------ #
 
 
@@ -172,6 +174,19 @@ class Cauchy(Samplable):
         z = (x - self.x0) / self.gamma
         return 0.5 + math.atan(z) / math.pi
 
+    def sf(self, x: float) -> float:
+        """Survival function 1 - CDF.
+
+        Computed as ``atan(1/z)/pi`` in the upper tail rather than as
+        ``1 - cdf(x)``. For large z the latter subtracts two numbers that agree
+        to every displayed digit and collapses to exactly zero, whereas
+        ``atan(1/z) -> 1/z`` keeps full relative precision.
+        """
+        z = (x - self.x0) / self.gamma
+        if z > 0.0:
+            return math.atan(1.0 / z) / math.pi
+        return 0.5 - math.atan(z) / math.pi
+
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
@@ -188,7 +203,10 @@ class StudentT(Samplable):
     Student's t with degrees of freedom nu>0.
     PDF: f(x) = Gamma((nu+1)/2) / [ sqrt(nuπ) Gamma(nu/2) ] * (1 + x^2/nu)^(-(nu+1)/2)
     Sampling: X = Z / sqrt(Y/nu) with Z~N(0,1), Y~χ²(nu)
-    NOTE: CDF/PPF require special functions not in stdlib; omitted.
+
+    The CDF, survival function and quantile function are expressed through the
+    regularized incomplete beta function in ``heavytails._special``, so no
+    third-party dependency is required.
     """
 
     nu: float
@@ -203,6 +221,62 @@ class StudentT(Samplable):
             math.sqrt(nu * math.pi) * math.gamma(nu / 2.0)
         )
         return float(c * (1.0 + (x * x) / nu) ** (-(nu + 1.0) / 2.0))
+
+    def _tail_half(self, x: float) -> float:
+        """Return P(|X| > |x|) / 2 = I_{nu/(nu+x^2)}(nu/2, 1/2) / 2.
+
+        This is the building block for both the CDF and the survival function.
+        Working with it directly keeps the far tail accurate, because it never
+        forms the difference of two nearly equal numbers.
+        """
+        nu = self.nu
+        # x**2 can overflow for very large |x|; nu / (nu + x*x) -> 0 there, and
+        # the incomplete beta is continuous at 0, so clamping is exact enough.
+        try:
+            y = nu / (nu + x * x)
+        except OverflowError:  # pragma: no cover - only for |x| near the float limit
+            y = 0.0
+        return 0.5 * _betainc_reg(nu / 2.0, 0.5, y)
+
+    def cdf(self, x: float) -> float:
+        """CDF via the regularized incomplete beta function."""
+        half = self._tail_half(x)
+        return float(1.0 - half) if x >= 0.0 else float(half)
+
+    def sf(self, x: float) -> float:
+        """Survival function 1 - CDF, computed directly for tail accuracy."""
+        half = self._tail_half(x)
+        return float(half) if x >= 0.0 else float(1.0 - half)
+
+    def ppf(self, u: float) -> float:
+        """Quantile function, obtained by inverting the incomplete beta.
+
+        Uses the symmetry of the Student-t about zero so that only the upper
+        half is solved, then inverts ``I_y(nu/2, 1/2) = 2(1-u)`` directly.
+        Inverting in ``y`` rather than in ``x`` is what keeps the far tail
+        accurate: a quantile solver working to an absolute tolerance on the CDF
+        loses most of its digits where the density is vanishingly small.
+        """
+        if not (0.0 < u < 1.0):
+            raise ValueError("u must be in (0,1).")
+        if u == 0.5:
+            return 0.0
+
+        nu = self.nu
+        # Both halves reduce to the same inversion because the density is
+        # symmetric: the tail probability beyond |x| is I_y(nu/2, 1/2) / 2 with
+        # y = nu / (nu + x^2). Reflecting the lower half as `ppf(1 - u)` would
+        # be wrong for tiny u, where `1 - u` rounds to exactly 1.0 and the
+        # quantile information is lost entirely.
+        if u < 0.5:
+            tail, sign = 2.0 * u, -1.0
+        else:
+            tail, sign = 2.0 * (1.0 - u), 1.0
+
+        y = _betaincinv_reg(nu / 2.0, 0.5, tail)
+        if y <= 0.0:  # pragma: no cover - u indistinguishable from 0.0 or 1.0
+            return sign * math.inf
+        return float(sign * math.sqrt(nu * (1.0 / y - 1.0)))
 
     def _rvs_one(self, rng: RNG) -> float:
         z = rng.standard_normal()
@@ -331,6 +405,18 @@ class Frechet(Samplable):
         z = (x - self.m) / self.s
         return math.exp(-(z ** (-self.alpha)))
 
+    def sf(self, x: float) -> float:
+        """Survival function 1 - CDF, via ``-expm1`` for tail accuracy.
+
+        In the upper tail the exponent tends to zero and ``exp`` of it rounds to
+        exactly 1.0, so ``1 - cdf(x)`` would yield 0. ``-expm1(t)`` is accurate
+        for small t and preserves the true decay.
+        """
+        if x <= self.m:
+            return 1.0
+        z = (x - self.m) / self.s
+        return float(-math.expm1(-(z ** (-self.alpha))))
+
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
@@ -382,6 +468,18 @@ class GEV_Frechet(Samplable):
         z = (x - self.mu) / self.sigma
         t = 1.0 + self.xi * z
         return math.exp(-(t ** (-1.0 / self.xi)))
+
+    def sf(self, x: float) -> float:
+        """Survival function 1 - CDF, via ``-expm1`` for tail accuracy.
+
+        See :meth:`Frechet.sf`: forming ``1 - exp(-t)`` for small t loses every
+        significant digit, while ``-expm1(-t)`` does not.
+        """
+        if not self._valid(x):
+            return 1.0
+        z = (x - self.mu) / self.sigma
+        t = 1.0 + self.xi * z
+        return float(-math.expm1(-(t ** (-1.0 / self.xi))))
 
     def ppf(self, u: float) -> float:
         if not (0.0 < u < 1.0):

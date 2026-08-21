@@ -1,0 +1,42 @@
+{
+  "title": "heavytails: Pure-Python heavy-tailed probability distributions",
+  "description": "heavytails is a pure-Python library implementing heavy-tailed probability distributions from first principles, without third-party runtime dependencies. It provides continuous and discrete heavy-tailed families, tail index estimators, and diagnostic utilities for extreme value analysis, risk management, and financial modelling.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "mit",
+  "publication_date": "2025-10-25",
+  "creators": [
+    {
+      "name": "Ribeiro, Diogo",
+      "affiliation": "ESMAD - Escola Superior de Media Arte e Design",
+      "orcid": "0009-0001-2022-7072"
+    }
+  ],
+  "keywords": [
+    "heavy tails",
+    "probability distributions",
+    "statistics",
+    "extreme value theory",
+    "risk management",
+    "tail risk",
+    "python",
+    "simulation"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/DiogoRibeiro7/heavytails",
+      "relation": "isDerivedFrom",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://diogoribeiro7.github.io/heavytails",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    }
+  ],
+  "references": [
+    "de Haan, L., & Ferreira, A. (2006). Extreme Value Theory: An Introduction. Springer. ISBN 978-0-387-23946-0.",
+    "Rachev, S. T., & Mittnik, S. (2000). Heavy-Tailed Distributions in Finance. Academic Press. ISBN 978-0-12-574340-4.",
+    "Hill, B. M. (1975). A Simple General Approach to Inference About the Tail of a Distribution. The Annals of Statistics, 3(5), 1163-1174. doi:10.1214/aos/1176343247"
+  ]
+}

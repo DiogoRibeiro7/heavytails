@@ -139,7 +139,7 @@ In addition to the general code of conduct, we encourage:
 ### Academic and Professional Courtesy
 
 - **Respectful discourse**: Engage in constructive discussions about mathematical and statistical concepts
-- **Citation practices**: Properly attribute ideas, implementations, and academic contributions  
+- **Citation practices**: Properly attribute ideas, implementations, and academic contributions
 - **Collaborative spirit**: Share knowledge and help others learn
 - **Constructive criticism**: Provide helpful feedback on mathematical accuracy and implementation quality
 

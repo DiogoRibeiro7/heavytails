@@ -25,6 +25,9 @@ Author: Diogo Ribeiro
 License: MIT
 """
 
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _version
+
 from .discrete import DiscretePareto, YuleSimon, Zipf
 from .extra_distributions import (
     BetaPrime,
@@ -44,6 +47,11 @@ from .heavy_tails import (
 )
 from .tail_index import hill_estimator, moment_estimator, pickands_estimator
 
+try:
+    __version__ = _version("heavytails")
+except PackageNotFoundError:  # pragma: no cover - running from a source tree
+    __version__ = "0.0.0.dev0"
+
 __all__ = [
     "BetaPrime",
     "BurrXII",
@@ -60,6 +68,7 @@ __all__ = [
     "Weibull",
     "YuleSimon",
     "Zipf",
+    "__version__",
     "hill_estimator",
     "moment_estimator",
     "pickands_estimator",

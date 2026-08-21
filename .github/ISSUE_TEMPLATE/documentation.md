@@ -86,7 +86,7 @@ Provide the corrected or improved content
 
 **Your background:**
 - [ ] Academic researcher
-- [ ] Industry practitioner  
+- [ ] Industry practitioner
 - [ ] Student (undergraduate/graduate)
 - [ ] Data scientist
 - [ ] Software developer
