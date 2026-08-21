@@ -27,6 +27,7 @@ from typing import Any
 import heavytails
 from heavytails import Frechet, Pareto
 from heavytails.tail_index import (
+    bias_reduced_hill_estimator,
     generalized_hill_estimator,
     gpd_mle_estimator,
     harmonic_moment_estimator,
@@ -51,6 +52,9 @@ ESTIMATORS: dict[str, Estimator] = {
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
     "gpd_mle": gpd_mle_estimator,
+    # rho = -1 is the canonical choice; estimating it per sample is both
+    # slow and unstable, and the study is about the tail index itself.
+    "bias_reduced_hill": lambda d, k: bias_reduced_hill_estimator(d, k, rho=-1.0),
 }
 
 

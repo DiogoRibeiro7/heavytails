@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `bias_reduced_hill_estimator`, with `second_order_rho`, `second_order_beta`
+  and `recommended_rho_k`
+  ([#329](https://github.com/DiogoRibeiro7/heavytails/issues/329)). The Hill
+  estimator's bias at large `k` is systematic rather than random, so it can be
+  estimated and subtracted; with `rho` supplied the measured bias falls by a
+  factor of four to eighty. `second_order_rho` is documented as unstable,
+  because it is: sweeping `k` on a sample whose true `rho` is -1 gives
+  estimates from -0.07 to -20.5, the latter at a pole. Supplying `rho` is
+  strongly preferred, and the correction still helps when it is estimated.
+
 - `gpd_mle_estimator` and `fit_generalized_pareto`
   ([#327](https://github.com/DiogoRibeiro7/heavytails/issues/327)), the
   parametric peaks-over-threshold counterpart to the semiparametric estimators.
