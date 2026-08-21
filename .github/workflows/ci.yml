@@ -19,6 +19,13 @@ concurrency:
 env:
   POETRY_VERSION: "2.2.1"
 
+# snok/install-poetry only exports Poetry onto PATH for bash. Under the Windows
+# runner's default pwsh shell every `poetry` call fails with "The term 'poetry'
+# is not recognized", so pin bash everywhere and keep the steps OS-agnostic.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test:
     name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})

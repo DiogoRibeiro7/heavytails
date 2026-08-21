@@ -21,6 +21,10 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      # The final step posts the benchmark comparison as a pull request comment.
+      pull-requests: write
 
     strategy:
       matrix:
