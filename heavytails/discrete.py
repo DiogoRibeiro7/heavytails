@@ -72,26 +72,68 @@ class YuleSimon(Samplable):
             raise ParameterError("rho>0 required.")
 
     def pmf(self, k: int) -> float:
+        """Probability mass function.
+
+        Evaluated through ``lgamma`` rather than ``gamma``. The individual
+        gamma factors overflow for k around 170 even though their ratio stays
+        far below one, and k that large is entirely ordinary for a heavy tail.
+        """
         if k < 1:
             return 0.0
-        return (
-            self.rho
-            * math.gamma(k)
-            * math.gamma(self.rho + 1)
-            / math.gamma(k + self.rho + 1)
+        log_pmf = (
+            math.log(self.rho)
+            + math.lgamma(k)
+            + math.lgamma(self.rho + 1.0)
+            - math.lgamma(k + self.rho + 1.0)
         )
+        return float(math.exp(log_pmf))
+
+    def sf(self, k: int) -> float:
+        """Survival function P(X > k), in closed form.
+
+        For the Yule-Simon law ``P(X > k) = k * B(k, rho + 1)``, which is
+        ``k * pmf(k) / rho``. Using it avoids both the O(k) summation and the
+        cancellation that ``1 - cdf(k)`` suffers in the tail.
+        """
+        if k < 1:
+            return 1.0
+        return float(k * self.pmf(k) / self.rho)
 
     def cdf(self, k: int) -> float:
-        return sum(self.pmf(i) for i in range(1, k + 1))
+        """Cumulative distribution function P(X <= k)."""
+        if k < 1:
+            return 0.0
+        return float(1.0 - self.sf(k))
+
+    def ppf(self, u: float) -> int:
+        """Smallest k with ``cdf(k) >= u``.
+
+        Found by doubling to bracket the answer and then bisecting, so the cost
+        is logarithmic in k rather than linear. A linear scan is untenable here
+        because the tail reaches very large k for modest u.
+        """
+        if not (0.0 < u < 1.0):
+            raise ValueError("u must be in (0,1).")
+
+        # Double until the bracket contains the quantile.
+        hi = 1
+        while self.cdf(hi) < u:
+            hi *= 2
+            if hi > 2**62:  # pragma: no cover - u indistinguishable from 1.0
+                return hi
+        lo = hi // 2
+
+        # Bisect for the smallest k satisfying the condition.
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if self.cdf(mid) < u:
+                lo = mid + 1
+            else:
+                hi = mid
+        return int(max(lo, 1))
 
     def _rvs_one(self, rng: RNG) -> int:
-        u = rng.uniform_0_1()
-        # Inverse transform via cdf table
-        c, n = 0.0, 0
-        while c < u and n < 10000:
-            n += 1
-            c += self.pmf(n)
-        return n
+        return self.ppf(rng.uniform_0_1())
 
 
 @dataclass(frozen=True)

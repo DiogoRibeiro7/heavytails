@@ -284,21 +284,19 @@ class TestConvergenceValidation:
 
         assert result["converged"] is True
 
-    @pytest.mark.xfail(
-        reason="Student-t PPF has known numerical precision issues at extreme quantiles"
-    )
     def test_convergence_studentt_ppf(self):
-        """Test PPF convergence for Student-t."""
+        """Test PPF convergence for Student-t.
+
+        This was previously xfailed for precision loss at extreme quantiles.
+        StudentT.ppf now inverts the regularized incomplete beta directly
+        instead of running a solver against an absolute CDF tolerance, so the
+        convergence check passes.
+        """
         result = convergence_validation("studentt", method="ppf")
 
-        # Student-t PPF can have numerical precision issues at extreme quantiles
-        # due to the complexity of the inverse CDF computation
-        # Just verify the function runs and returns reasonable results
         assert "converged" in result
         assert "convergence_info" in result
         assert len(result["convergence_info"]) > 0
-
-        # This may fail due to numerical issues - marked as expected failure
         assert result["converged"] is True
 
     def test_convergence_weibull_ppf(self):
