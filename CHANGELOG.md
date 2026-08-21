@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `heavytails.risk`, with `value_at_risk`, `expected_shortfall`,
+  `tail_conditional_expectation`, `monte_carlo_tail_risk` and `mean_exists`
+  ([#303](https://github.com/DiogoRibeiro7/heavytails/issues/303)). Expected
+  shortfall has closed forms for the Pareto, log-normal, generalized Pareto and
+  Weibull families and falls back to quadrature on the quantile function
+  otherwise; the two paths share no code and agree to four decimal places.
+  Expected shortfall returns `inf` whenever the distribution has no finite
+  mean, rather than a large number that would look like a result, and the
+  Monte Carlo estimator always reports standard errors.
+
 ## [0.3.0] - 2026-08-21
 
 ### Added

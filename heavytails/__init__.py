@@ -46,6 +46,13 @@ from .heavy_tails import (
     StudentT,
     Weibull,
 )
+from .risk import (
+    expected_shortfall,
+    mean_exists,
+    monte_carlo_tail_risk,
+    tail_conditional_expectation,
+    value_at_risk,
+)
 from .tail_index import (
     bias_reduced_hill_estimator,
     fit_generalized_pareto,
@@ -91,13 +98,16 @@ __all__ = [
     "Zipf",
     "__version__",
     "bias_reduced_hill_estimator",
+    "expected_shortfall",
     "fit_generalized_pareto",
     "generalized_hill_estimator",
     "gpd_mle_estimator",
     "harmonic_moment_estimator",
     "hill_estimator",
     "hill_plot",
+    "mean_exists",
     "moment_estimator",
+    "monte_carlo_tail_risk",
     "pickands_estimator",
     "recommended_rho_k",
     "second_order_beta",
@@ -105,7 +115,9 @@ __all__ = [
     "smoothed_hill_estimator",
     "smoothed_hill_variance_ratio",
     "t_hill_estimator",
+    "tail_conditional_expectation",
     "tail_index_confidence_interval",
     "trimmed_hill_estimator",
     "trimmed_hill_plot",
+    "value_at_risk",
 ]
