@@ -19,7 +19,13 @@ Modules
 - heavytails.tail_index
     Tail index estimators (Hill, Pickands, Moment)
 - heavytails.plotting
-    Diagnostic utilities (log-log tails, QQ plots)
+    Diagnostic coordinates (log-log tails, QQ plots), with no third-party imports
+- heavytails.viz
+    Rendering of those diagnostics, needing the optional ``plot`` extra
+- heavytails.threshold
+    Threshold selection for peaks-over-threshold analysis
+- heavytails.risk
+    Tail-risk metrics (VaR, expected shortfall)
 
 Author: Diogo Ribeiro
 License: MIT
