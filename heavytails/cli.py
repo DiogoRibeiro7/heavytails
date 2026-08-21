@@ -46,6 +46,7 @@ from heavytails import (
 )
 from heavytails.roadmap import fit_mle, model_comparison
 from heavytails.tail_index import hill_estimator, moment_estimator, pickands_estimator
+from heavytails.utilities import AutoFit
 
 app = typer.Typer(
     name="heavytails",
@@ -401,6 +402,10 @@ def compare(
         # Perform model comparison
         results = model_comparison(data, roadmap_dist_list)
 
+        # AIC and BIC only rank the candidates against each other; the
+        # goodness-of-fit statistic says whether the winner fits at all.
+        results = AutoFit._attach_goodness_of_fit(data, results)
+
         # Create comparison table
         table = Table(title="Distribution Comparison Results")
         table.add_column("Distribution", style="cyan")
@@ -408,7 +413,8 @@ def compare(
         table.add_column("AIC", style="yellow", justify="right")
         table.add_column("BIC", style="green", justify="right")
         table.add_column("Rank (AIC)", style="red", justify="center")
-        table.add_column("Rank (BIC)", style="magenta", justify="center")
+        table.add_column("A²", style="blue", justify="right")
+        table.add_column("A² p", style="blue", justify="right")
 
         # Sort by AIC for display
         sorted_items = sorted(
@@ -420,18 +426,32 @@ def compare(
             result = results[roadmap_name]
 
             if "error" in result:
-                table.add_row(cli_name, "[red]Failed[/red]", "-", "-", "-", "-")
+                table.add_row(cli_name, "[red]Failed[/red]", "-", "-", "-", "-", "-")
             else:
+                ad = result.get("anderson_darling", {})
+                if "statistic" in ad:
+                    a2 = f"{ad['statistic']:.3f}"
+                    p_value = f"{ad['p_value']:.3g}"
+                    if ad.get("reject"):
+                        p_value = f"[red]{p_value}[/red]"
+                else:
+                    a2 = p_value = "-"
                 table.add_row(
                     cli_name,
                     f"{result['log_likelihood']:.2f}",
                     f"{result['AIC']:.2f}",
                     f"{result['BIC']:.2f}",
                     str(result.get("rank_AIC", "-")),
-                    str(result.get("rank_BIC", "-")),
+                    a2,
+                    p_value,
                 )
 
         console.print(table)
+        console.print(
+            "\n[dim]A² is the Anderson-Darling statistic. A small p-value means "
+            "the family does not fit, however it ranks by AIC. Parameters were "
+            "estimated from this sample, so the p-values are conservative.[/dim]"
+        )
 
         # Show best model parameters
         valid_results = [

@@ -830,34 +830,334 @@ def ppf_edge_case_handler(distribution: str, u: float, **params: Any) -> float:
 
 
 # TODO: Implement statistical goodness-of-fit tests
+def _resolve_distribution(name: str, params: dict[str, Any]) -> Any:
+    """Build a distribution instance from its name and keyword parameters.
+
+    Accepts the same spellings the CLI does, so ``student-t`` and ``studentt``
+    both work.
+
+    Args:
+        name: Distribution name, case-insensitive.
+        params: Constructor keyword arguments.
+
+    Returns:
+        The constructed distribution.
+
+    Raises:
+        ValueError: If the name is unknown or the parameters are invalid.
+    """
+    import heavytails  # noqa: PLC0415
+
+    registry = {
+        "pareto": heavytails.Pareto,
+        "cauchy": heavytails.Cauchy,
+        "studentt": heavytails.StudentT,
+        "student-t": heavytails.StudentT,
+        "lognormal": heavytails.LogNormal,
+        "weibull": heavytails.Weibull,
+        "frechet": heavytails.Frechet,
+        "gev": heavytails.GEV_Frechet,
+        "gev_frechet": heavytails.GEV_Frechet,
+        "gpd": heavytails.GeneralizedPareto,
+        "generalizedpareto": heavytails.GeneralizedPareto,
+        "burr": heavytails.BurrXII,
+        "burrxii": heavytails.BurrXII,
+        "loglogistic": heavytails.LogLogistic,
+        "invgamma": heavytails.InverseGamma,
+        "inversegamma": heavytails.InverseGamma,
+        "betaprime": heavytails.BetaPrime,
+    }
+
+    key = name.lower().replace(" ", "")
+    if key not in registry:
+        raise ValueError(
+            f"Unknown distribution {name!r}. "
+            f"Available: {', '.join(sorted(set(registry)))}"
+        )
+    try:
+        return registry[key](**params)
+    except TypeError as exc:
+        raise ValueError(f"Invalid parameters for {name!r}: {exc}") from exc
+
+
+def _kolmogorov_p_value(statistic: float, n: int) -> float:
+    """Asymptotic p-value for the Kolmogorov-Smirnov statistic.
+
+    Uses the Kolmogorov distribution
+    ``Q(lam) = 2 * sum_{j>=1} (-1)^(j-1) exp(-2 j^2 lam^2)`` evaluated at the
+    finite-sample corrected ``lam = (sqrt(n) + 0.12 + 0.11/sqrt(n)) * D``.
+
+    Parameters
+    ----------
+    statistic : float
+        The KS statistic D.
+    n : int
+        Sample size.
+
+    Returns
+    -------
+    float
+        Probability of a statistic at least this large under the null.
+    """
+    if statistic <= 0.0:
+        return 1.0
+    root_n = math.sqrt(n)
+    lam = (root_n + 0.12 + 0.11 / root_n) * statistic
+    if lam < 0.05:
+        return 1.0
+
+    total = 0.0
+    for j in range(1, 101):
+        term = 2.0 * ((-1.0) ** (j - 1)) * math.exp(-2.0 * (j * lam) ** 2)
+        total += term
+        if abs(term) < 1e-15:
+            break
+    return min(max(total, 0.0), 1.0)
+
+
+def _anderson_darling_cdf(z: float) -> float:
+    """Asymptotic distribution function of the Anderson-Darling statistic.
+
+    Implements ``adinf`` from Marsaglia and Marsaglia (2004), "Evaluating the
+    Anderson-Darling Distribution", which approximates ``P(A^2 < z)`` in the
+    limit of large n to about six decimal places.
+
+    This is the *fully specified* null distribution, the one that applies when
+    the parameters were not estimated from the sample being tested. Its
+    critical values are 1.933 at 10%, 2.492 at 5% and 3.857 at 1%.
+
+    The widely quoted piecewise formulas of D'Agostino and Stephens are a
+    different thing: they apply to the normality test with estimated mean and
+    variance, where the 5% critical value is 0.787. Using those here would
+    reject a correctly specified distribution roughly half the time.
+
+    Parameters
+    ----------
+    z : float
+        Value of the A-squared statistic.
+
+    Returns
+    -------
+    float
+        ``P(A^2 < z)``.
+    """
+    if z <= 0.0:
+        return 0.0
+    if z < 2.0:
+        return (
+            z**-0.5
+            * math.exp(-1.2337141 / z)
+            * (
+                2.00012
+                + (
+                    0.247105
+                    - (0.0649821 - (0.0347962 - (0.011672 - 0.00168691 * z) * z) * z)
+                    * z
+                )
+                * z
+            )
+        )
+    return math.exp(
+        -math.exp(
+            1.0776
+            - (
+                2.30695
+                - (0.43424 - (0.082433 - (0.008056 - 0.0003146 * z) * z) * z) * z
+            )
+            * z
+        )
+    )
+
+
+def _anderson_darling_p_value(statistic: float) -> float:
+    """Asymptotic p-value for the Anderson-Darling statistic.
+
+    Parameters
+    ----------
+    statistic : float
+        The A-squared statistic.
+
+    Returns
+    -------
+    float
+        Probability of a statistic at least this large under the null.
+    """
+    return min(max(1.0 - _anderson_darling_cdf(statistic), 0.0), 1.0)
+
+
 class GoodnessOfFitTests:
-    """
-    Statistical tests for distribution goodness-of-fit.
+    """Statistical tests for distribution goodness-of-fit.
 
-    Tests to implement:
-    - Kolmogorov-Smirnov test
-    - Anderson-Darling test
-    - Cramér-von Mises test
-    - Kuiper's test
-    - Specialized tests for heavy-tailed distributions
+    Both tests answer a question that AIC and BIC cannot. Information criteria
+    rank candidate models against each other, so the best of a bad set still
+    ranks first. A goodness-of-fit test asks whether the winner is compatible
+    with the data at all.
+
+    For heavy tails the Anderson-Darling test is the more informative of the
+    two, because it weights the tails of the distribution. The
+    Kolmogorov-Smirnov statistic is driven by the centre, which is exactly
+    where these families agree with each other.
+
+    Examples
+    --------
+    >>> from heavytails import Pareto
+    >>> data = Pareto(alpha=2.5, xm=1.0).rvs(500, seed=42)
+    >>> tests = GoodnessOfFitTests()
+    >>> result = tests.kolmogorov_smirnov_test(
+    ...     data, "pareto", alpha=2.5, xm=1.0
+    ... )
+    >>> result["reject"]
+    False
     """
 
-    def __init__(self) -> None:
-        pass
+    #: Significance level used to populate the ``reject`` field.
+    alpha_level: float = 0.05
+
+    def __init__(self, alpha_level: float = 0.05) -> None:
+        """Initialise the test suite.
+
+        Args:
+            alpha_level: Significance level for the ``reject`` field.
+        """
+        if not (0.0 < alpha_level < 1.0):
+            raise ValueError("alpha_level must be in (0,1).")
+        self.alpha_level = alpha_level
 
     def kolmogorov_smirnov_test(
-        self, data: list[float], distribution: str, **params: Any
+        self,
+        data: list[float],
+        distribution: str,
+        *,
+        parameters_estimated: bool = False,
+        **params: Any,
     ) -> dict[str, Any]:
-        # TODO: Implement KS test for distribution fitting
-        # LABELS: goodness-of-fit, ks-test
-        raise NotImplementedError("KS test not implemented")
+        """Kolmogorov-Smirnov test against a named distribution.
+
+        The statistic is the largest vertical distance between the empirical
+        distribution function and the fitted one,
+        ``D = max_i max(i/n - F(x_i), F(x_i) - (i-1)/n)``.
+
+        Args:
+            data: Sample values.
+            distribution: Distribution name, as accepted by the fitting helpers.
+            parameters_estimated: Set when the parameters came from this same
+                sample. The reported p-value is then conservative, because the
+                fitted distribution is closer to the data than the null
+                assumes, and the result carries a ``caveat``.
+            **params: Distribution parameters.
+
+        Returns:
+            Dictionary with ``statistic``, ``p_value``, ``reject``, ``n``,
+            ``distribution``, ``parameters`` and ``method``, plus ``caveat``
+            when the p-value should not be read at face value.
+
+        Raises:
+            ValueError: If the sample is empty or the distribution is unknown.
+        """
+        values = sorted(float(x) for x in data)
+        n = len(values)
+        if n == 0:
+            raise ValueError("data must not be empty.")
+
+        dist = _resolve_distribution(distribution, params)
+
+        d_plus = 0.0
+        d_minus = 0.0
+        for i, x in enumerate(values, start=1):
+            cdf = dist.cdf(x)
+            d_plus = max(d_plus, i / n - cdf)
+            d_minus = max(d_minus, cdf - (i - 1) / n)
+        statistic = max(d_plus, d_minus)
+
+        p_value = _kolmogorov_p_value(statistic, n)
+        result: dict[str, Any] = {
+            "test": "kolmogorov-smirnov",
+            "statistic": statistic,
+            "p_value": p_value,
+            "reject": p_value < self.alpha_level,
+            "alpha_level": self.alpha_level,
+            "n": n,
+            "distribution": distribution,
+            "parameters": dict(params),
+            "method": "asymptotic",
+        }
+        if parameters_estimated:
+            result["caveat"] = (
+                "Parameters were estimated from this sample, so the asymptotic "
+                "null distribution does not apply and the p-value is "
+                "conservative: the test rejects less often than its nominal "
+                "level. Use a parametric bootstrap for a calibrated p-value."
+            )
+        return result
 
     def anderson_darling_test(
-        self, data: list[float], distribution: str, **params: Any
+        self,
+        data: list[float],
+        distribution: str,
+        *,
+        parameters_estimated: bool = False,
+        **params: Any,
     ) -> dict[str, Any]:
-        # TODO: Implement Anderson-Darling test
-        # LABELS: goodness-of-fit, ad-test
-        raise NotImplementedError("AD test not implemented")
+        """Anderson-Darling test against a named distribution.
+
+        The statistic is
+        ``A^2 = -n - (1/n) sum_i (2i-1) [ln F(x_i) + ln(1 - F(x_{n+1-i}))]``.
+
+        Unlike the Kolmogorov-Smirnov statistic this weights the tails, which
+        is what makes it the more useful of the two here: heavy-tailed families
+        differ from one another in the tail and agree in the middle.
+
+        Args:
+            data: Sample values.
+            distribution: Distribution name, as accepted by the fitting helpers.
+            parameters_estimated: Set when the parameters came from this same
+                sample; see :meth:`kolmogorov_smirnov_test`.
+            **params: Distribution parameters.
+
+        Returns:
+            Dictionary with the same shape as
+            :meth:`kolmogorov_smirnov_test`.
+
+        Raises:
+            ValueError: If the sample is empty or the distribution is unknown.
+        """
+        values = sorted(float(x) for x in data)
+        n = len(values)
+        if n == 0:
+            raise ValueError("data must not be empty.")
+
+        dist = _resolve_distribution(distribution, params)
+
+        # Clamp away from 0 and 1: the statistic takes logs of both F and 1-F,
+        # and a single saturated value would send the whole sum to infinity.
+        eps = 1e-15
+        cdfs = [min(max(dist.cdf(x), eps), 1.0 - eps) for x in values]
+
+        total = 0.0
+        for i in range(1, n + 1):
+            total += (2 * i - 1) * (math.log(cdfs[i - 1]) + math.log(1.0 - cdfs[n - i]))
+        statistic = -n - total / n
+
+        p_value = _anderson_darling_p_value(statistic)
+        result: dict[str, Any] = {
+            "test": "anderson-darling",
+            "statistic": statistic,
+            "p_value": p_value,
+            "reject": p_value < self.alpha_level,
+            "alpha_level": self.alpha_level,
+            "n": n,
+            "distribution": distribution,
+            "parameters": dict(params),
+            "method": "asymptotic",
+        }
+        if parameters_estimated:
+            result["caveat"] = (
+                "Parameters were estimated from this sample, so the asymptotic "
+                "null distribution does not apply and the p-value is "
+                "conservative: the test rejects less often than its nominal "
+                "level. Use a parametric bootstrap for a calibrated p-value."
+            )
+        return result
 
 
 # TODO: Add automated regression testing for mathematical accuracy

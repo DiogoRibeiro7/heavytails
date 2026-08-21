@@ -107,6 +107,70 @@ poetry run pytest -m property
 Failing cases are automatically shrunk to a minimal reproducer and recorded in
 `.hypothesis/`, so a failure found once becomes a regression test.
 
+## Goodness-of-fit tests
+
+Validation above establishes that the implementations match the mathematics.
+Goodness of fit asks the different question of whether a *model* matches your
+*data*.
+
+`heavytails.validation.GoodnessOfFitTests` provides two:
+
+```python
+from heavytails import Pareto
+from heavytails.validation import GoodnessOfFitTests
+
+data = Pareto(alpha=2.5, xm=1.0).rvs(500, seed=42)
+tests = GoodnessOfFitTests()
+
+tests.anderson_darling_test(data, "pareto", alpha=2.5, xm=1.0)
+tests.kolmogorov_smirnov_test(data, "pareto", alpha=2.5, xm=1.0)
+```
+
+Each returns the statistic, a p-value, and a `reject` flag at the configured
+significance level.
+
+### Which one to use
+
+**Prefer Anderson-Darling here.** Its statistic weights the tails of the
+distribution, which is where heavy-tailed families differ from each other. The
+Kolmogorov-Smirnov statistic is driven by the centre, which is exactly where
+they agree, so it is least sensitive where you most need sensitivity.
+
+$$
+A^2 = -n - \frac{1}{n}\sum_{i=1}^{n}(2i-1)\left[\ln F(x_{(i)}) + \ln(1 - F(x_{(n+1-i)}))\right]
+ight]
+$$
+
+$$
+D = \max_i \max\left(\frac{i}{n} - F(x_{(i)}),\; F(x_{(i)}) - \frac{i-1}{n}\right)
+ight)
+$$
+
+### Why this is not the same as AIC
+
+AIC and BIC rank candidates against one another. The best of a set of poor
+models still ranks first, and nothing in the ranking says whether it fits. A
+goodness-of-fit test answers that separately, so
+[`AutoFit.compare_distributions`](../reference/utilities.md) reports both.
+
+### Estimated parameters
+
+The p-values above assume the distribution was **fully specified** before
+seeing the data. When the parameters were estimated from the same sample, the
+fitted distribution is closer to the data than the null assumes, so the p-value
+is conservative: the test rejects less often than its nominal level.
+
+Passing `parameters_estimated=True` adds a `caveat` field saying so. For a
+calibrated p-value in that case, use a parametric bootstrap: refit on many
+samples drawn from the fitted model, and compare your statistic to that
+distribution.
+
+The asymptotic critical values used here are those for the fully specified
+case: 1.933 at 10%, 2.492 at 5% and 3.857 at 1%. They are not the
+D'Agostino-Stephens values quoted for the normality test with estimated mean
+and variance, whose 5% critical value is 0.787 -- using those would reject a
+correctly specified distribution about half the time.
+
 ## Numerical accuracy of the special functions
 
 Two special functions are implemented from scratch, because depending on SciPy
