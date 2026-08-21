@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `harmonic_moment_estimator` and `t_hill_estimator`
+  ([#325](https://github.com/DiogoRibeiro7/heavytails/issues/325)). Hill's
+  contributions grow without limit, so one extreme observation moves the
+  estimate arbitrarily far; these use the bounded reciprocal ratios
+  `u / X_(i)` instead. Sending a single observation of ten thousand from `1e2`
+  to `1e30` moves the Hill estimate from 0.502 to 0.631 and moves these not at
+  all. `beta` trades robustness against efficiency, and the estimator tends to
+  the Hill estimator as `beta` tends to zero.
+- `scripts/tail_index_study.py` records the `heavytails` version, the git
+  commit, the Python version and the run configuration in its JSON output, so
+  a results file can be traced back to the code that produced it. The commit
+  is recorded as well as the version because `importlib.metadata` reports what
+  is installed, which lags a working tree after a version bump.
+
 - `trimmed_hill_estimator` and `trimmed_hill_plot`, following Bhattacharya,
   Kallitsis and Stoev (2019)
   ([#323](https://github.com/DiogoRibeiro7/heavytails/issues/323)). Replacing
