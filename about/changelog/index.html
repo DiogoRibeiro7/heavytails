@@ -2061,6 +2061,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2140,7 +2151,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2382,6 +2393,27 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
+<li><code>adaptive_trimmed_hill_estimator</code> and <code>adaptive_trim_selection</code>, choosing the
+  trimming parameter for the trimmed Hill estimator from the data
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/321">#321</a>). Each
+  normalised log-spacing is tested against the mean of the deeper ones, with an
+  exactly computable null distribution, and the scan trims past the deepest
+  anomaly. The median trimming chosen equals the number of planted outliers at
+  0, 1, 2, 3, 5 and 8 of them, and on clean data the standard deviation is
+  0.0295 against 0.0292 for the plain Hill estimator. Completes the eleven
+  estimator benchmark suite; <code>scripts/tail_index_study.py</code> now runs twelve.</li>
+<li><code>tests/test_doctests.py</code>, checking that the docstring examples in the
+  numerical modules actually reproduce. The main suite does not collect
+  doctests, so four had stopped working unnoticed.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Four docstring examples reported values their code never produced. Two claimed
+  a tail index estimate of 0.5 on samples too small for the estimator's own
+  sampling variability, so the figure shown had been transcribed from what the
+  estimator should give rather than measured; both produced 0.4.</p>
+</li>
 <li>
 <p><code>heavytails.actuarial</code>, building the aggregate loss distribution from a
   frequency model and a severity, and pricing the reinsurance written on it
@@ -2683,7 +2715,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   that was never generated.</p>
 </li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The continued-fraction branch of the regularized lower incomplete gamma was
