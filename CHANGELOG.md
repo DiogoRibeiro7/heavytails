@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `_gammainc_upper_reg`, the regularized upper incomplete gamma computed as
+  itself rather than as `1 - P`
+  ([#309](https://github.com/DiogoRibeiro7/heavytails/issues/309)). The
+  subtraction cannot express a result below about 1e-16, so at `a=2, x=50` it
+  returned exactly zero where the true value is 9.8e-21.
+- `_gammaincinv_reg`, the inverse of the regularized incomplete gamma in both
+  the lower and upper senses, so a caller can go through whichever of the two
+  is its small quantity.
+
+### Changed
+
+- `InverseGamma.ppf` and `BetaPrime.ppf` invert the incomplete gamma and beta
+  directly instead of bracketing and solving against their own distribution
+  functions. Round-trip accuracy across the quantile range improves from
+  2.2e-05 to 9.7e-15 and from 5.6e-04 to 3.5e-15 respectively.
+- `_betaincinv_reg` starts from the small-`y` asymptote rather than bisecting
+  the whole exponent range, cutting `StudentT.ppf` from 127 to 35 microseconds
+  with identical accuracy.
+
+### Fixed
+
+- The safeguarded Newton iteration in `_betaincinv_reg` narrowed its bracket
+  *after* computing the midpoint to fall back to, so on the first iteration --
+  where the starting point is the midpoint by construction -- the fallback
+  returned that same point and the no-progress check declared convergence.
+  `I_y(50, 0.3) = 1e-3` came back with a relative error of 0.18. The fixed
+  bisection to 1e-13 that preceded it had hidden this.
+- `InverseGamma.cdf` computed `1 - P` and returned exactly zero throughout the
+  lower tail; `cdf(0.02)` at `alpha=2, beta=1` is 9.8e-21, not 0.
+- `BetaPrime.sf` computed `1 - cdf`, which is exactly zero above about `x=1e17`
+  because `x/(x+s)` rounds to 1 there. It now uses the mirrored incomplete
+  beta, whose argument `s/(x+s)` is computed rather than subtracted.
+
 - `adaptive_trimmed_hill_estimator` and `adaptive_trim_selection`, choosing the
   trimming parameter for the trimmed Hill estimator from the data
   ([#321](https://github.com/DiogoRibeiro7/heavytails/issues/321)). Each
