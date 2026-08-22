@@ -27,6 +27,7 @@ from typing import Any
 import heavytails
 from heavytails import Frechet, Pareto
 from heavytails.tail_index import (
+    adaptive_trimmed_hill_estimator,
     bias_reduced_hill_estimator,
     generalized_hill_estimator,
     gpd_mle_estimator,
@@ -47,6 +48,7 @@ ESTIMATORS: dict[str, Estimator] = {
     "smoothed_hill_u2": lambda d, k: smoothed_hill_estimator(d, k, u=2.0),
     "smoothed_hill_u3": lambda d, k: smoothed_hill_estimator(d, k, u=3.0),
     "trimmed_hill_r5": lambda d, k: trimmed_hill_estimator(d, k, r=5),
+    "adaptive_trimmed_hill": adaptive_trimmed_hill_estimator,
     "t_hill": t_hill_estimator,
     "harmonic_beta2": lambda d, k: harmonic_moment_estimator(d, k, beta=2.0),
     "moment": lambda d, k: moment_estimator(d, k)[0],
