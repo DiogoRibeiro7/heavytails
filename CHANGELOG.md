@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.streaming`, tail index estimation over a stream without holding
+  the sample ([#310](https://github.com/DiogoRibeiro7/heavytails/issues/310)).
+  `TopK` maintains the largest values in `O(k)` memory with a min-heap;
+  `StreamingTailIndex` builds the Hill and moment estimators on it and returns
+  **bit-for-bit the batch result**, since both depend on the sample only
+  through its top `k + 1` values. `WindowedTailIndex` does the same over the
+  most recent observations, in `O(window)` memory, which is inherent rather
+  than a gap: when the largest value in a window expires the new largest can
+  be any of the survivors.
+
 - `tests/reference_values.json` and `scripts/generate_reference_values.py`, a
   database of 209 values computed by mpmath at 50 decimal digits from the
   mathematical definitions, covering all twelve continuous families

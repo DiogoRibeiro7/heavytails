@@ -151,6 +151,7 @@ nav:
     - Parameter Fitting: guide/fitting.md
     - Tail Diagnostics: guide/diagnostics.md
     - Aggregate Loss and Reinsurance: guide/actuarial.md
+    - Streaming Estimation: guide/streaming.md
     - CLI Reference: guide/cli.md
   - Examples:
     - Basic Usage: examples/basic_usage.ipynb
@@ -167,6 +168,7 @@ nav:
     - Plotting Utilities: reference/plotting.md
     - Diagnostic Plots: reference/viz.md
     - Actuarial: reference/actuarial.md
+    - Streaming: reference/streaming.md
     - Tail-Risk Metrics: reference/risk.md
     - Threshold Selection: reference/threshold.md
     - Utilities: reference/utilities.md

@@ -993,6 +993,12 @@ class OnlineEstimation:
     """
     Online/streaming parameter estimation algorithms.
 
+    .. deprecated::
+        Superseded by :mod:`heavytails.streaming`, which implements streaming
+        Hill and moment estimation over both the whole stream and a moving
+        window. This class has never done anything but raise; it is left in
+        place only because what happens to this module is still open (#312).
+
     For applications with:
     - Continuous data streams
     - Memory constraints
