@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.multivariate`, the elliptical family and joint tail dependence
+  ([#305](https://github.com/DiogoRibeiro7/heavytails/issues/305)).
+  `MultivariateStudentT` and `MultivariateNormal` are normal scale mixtures
+  sharing one construction, with density, sampling, Mahalanobis distance,
+  marginals and EM fitting. `tail_dependence_coefficient` gives the bivariate
+  coefficient in closed form, validated against simulation.
+
+  There is deliberately no distribution function: the multivariate t has none
+  in closed form above one dimension, so `cdf_monte_carlo` estimates it and
+  reports a standard error rather than presenting a simulation as exact. The
+  linear algebra is pure Python, which is right at the dimensions tail
+  dependence is asked about and would be wrong at hundreds.
+
+### Added
+
 - Runnable examples in the five core modules that had none
   ([#337](https://github.com/DiogoRibeiro7/heavytails/issues/337)): 86 across
   `heavy_tails`, `extra_distributions`, `discrete`, `plotting` and `_special`.

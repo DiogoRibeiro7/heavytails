@@ -55,6 +55,12 @@ class StudentTCopula(HeavyTailCopula):
     """
     Student-t copula for modeling tail dependence.
 
+    .. note::
+        The multivariate Student-t this needs now exists, in
+        :mod:`heavytails.multivariate`, along with the closed-form coefficient
+        of tail dependence. The copula itself is still open (#306); what
+        happens to this module is open separately (#312).
+
     Particularly useful for:
     - Financial asset correlations during crises
     - Insurance claims with common shocks
