@@ -26,6 +26,7 @@ from heavytails.tail_index import (
 )
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import tail_index_study as study
 from tail_index_study import _provenance as _study_provenance
 
 
@@ -233,3 +234,37 @@ class TestStudyProvenance:
         assert commit is None or (
             len(commit) == 40 and all(c in "0123456789abcdef" for c in commit)
         )
+
+
+class TestStudyDomainContract:
+    """The generic benchmark must not compare estimators outside their domain."""
+
+    def test_positive_only_estimators_are_reported_as_na_for_bounded_tails(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def bounded_sample(n: int, seed: int) -> list[float]:
+            return [(i + 1) / (n + 1) for i in range(n)]
+
+        monkeypatch.setattr(study, "SAMPLE_SIZES", [40])
+        monkeypatch.setattr(
+            study,
+            "SCENARIOS",
+            [study.Scenario("bounded", -1.0, bounded_sample)],
+        )
+        monkeypatch.setattr(
+            study,
+            "ESTIMATORS",
+            {
+                "hill": study.ESTIMATORS["hill"],
+                "generalized_hill": study.ESTIMATORS["generalized_hill"],
+            },
+        )
+
+        rows = study.run_study(trials=1)
+        by_estimator = {row["estimator"]: row for row in rows}
+
+        assert by_estimator["hill"]["skipped"] is True
+        assert by_estimator["hill"]["reason"] == "requires gamma > 0"
+        assert "mean" not in by_estimator["hill"]
+        assert "rmse" in by_estimator["generalized_hill"]
+        assert "skipped" not in by_estimator["generalized_hill"]

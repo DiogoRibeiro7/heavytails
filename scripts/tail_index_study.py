@@ -22,7 +22,7 @@ import math
 from pathlib import Path
 import random
 import sys
-from typing import Any
+from typing import Any, Literal
 
 import heavytails
 from heavytails import Frechet, Pareto
@@ -43,34 +43,51 @@ from heavytails.tail_index import (
 )
 
 Estimator = Callable[[list[float], int], float]
+GammaDomain = Literal["positive", "any"]
 
-ESTIMATORS: dict[str, Estimator] = {
-    "hill": hill_estimator,
-    "generalized_hill": generalized_hill_estimator,
-    "smoothed_hill_u2": lambda d, k: smoothed_hill_estimator(d, k, u=2.0),
-    "smoothed_hill_u3": lambda d, k: smoothed_hill_estimator(d, k, u=3.0),
-    "trimmed_hill_r5": lambda d, k: trimmed_hill_estimator(d, k, r=5),
-    "adaptive_trimmed_hill": adaptive_trimmed_hill_estimator,
-    "t_hill": t_hill_estimator,
-    "harmonic_beta2": lambda d, k: harmonic_moment_estimator(d, k, beta=2.0),
-    "moment": lambda d, k: moment_estimator(d, k)[0],
-    "pickands": pickands_estimator,
-    "gpd_mle": gpd_mle_estimator,
+
+@dataclass(frozen=True)
+class EstimatorSpec:
+    """Estimator plus the extreme-value-index range it is meant to estimate."""
+
+    estimate: Estimator
+    gamma_domain: GammaDomain
+
+
+ESTIMATORS: dict[str, EstimatorSpec] = {
+    "hill": EstimatorSpec(hill_estimator, "positive"),
+    "generalized_hill": EstimatorSpec(generalized_hill_estimator, "any"),
+    "smoothed_hill_u2": EstimatorSpec(
+        lambda d, k: smoothed_hill_estimator(d, k, u=2.0), "positive"
+    ),
+    "smoothed_hill_u3": EstimatorSpec(
+        lambda d, k: smoothed_hill_estimator(d, k, u=3.0), "positive"
+    ),
+    "trimmed_hill_r5": EstimatorSpec(
+        lambda d, k: trimmed_hill_estimator(d, k, r=5), "positive"
+    ),
+    "adaptive_trimmed_hill": EstimatorSpec(adaptive_trimmed_hill_estimator, "positive"),
+    "t_hill": EstimatorSpec(t_hill_estimator, "positive"),
+    "harmonic_beta2": EstimatorSpec(
+        lambda d, k: harmonic_moment_estimator(d, k, beta=2.0), "positive"
+    ),
+    "moment": EstimatorSpec(lambda d, k: moment_estimator(d, k)[0], "any"),
+    "pickands": EstimatorSpec(pickands_estimator, "any"),
+    "gpd_mle": EstimatorSpec(gpd_mle_estimator, "any"),
     # rho = -1 is the canonical choice; estimating it per sample is both
     # slow and unstable, and the study is about the tail index itself.
-    "bias_reduced_hill": lambda d, k: bias_reduced_hill_estimator(d, k, rho=-1.0),
-    "orthogonalized_br_hill": lambda d, k: (
-        orthogonalized_bias_reduced_hill_estimator(d, k, rho=-1.0)
+    "bias_reduced_hill": EstimatorSpec(
+        lambda d, k: bias_reduced_hill_estimator(d, k, rho=-1.0), "positive"
     ),
-    "threshold_avg_orthogonalized": lambda d, k: (
-        threshold_averaged_orthogonalized_hill_estimator(
-            d,
-            k,
-            min_k=max(10, k // 4),
-            grid_size=6,
-            rho=-1.0,
-            adaptive_trim=True,
-        )
+    "orthogonalized_br_hill": EstimatorSpec(
+        lambda d, k: orthogonalized_bias_reduced_hill_estimator(d, k, rho=-1.0),
+        "positive",
+    ),
+    "threshold_avg_orthogonalized": EstimatorSpec(
+        lambda d, k: threshold_averaged_orthogonalized_hill_estimator(
+            d, k, min_k=max(10, k // 4), grid_size=6, rho=-1.0, adaptive_trim=True
+        ),
+        "positive",
     ),
 }
 
@@ -160,6 +177,11 @@ def _summarise(values: list[float], truth: float) -> dict[str, float]:
     }
 
 
+def _supports_scenario(estimator: EstimatorSpec, scenario: Scenario) -> bool:
+    """Return whether an estimator is meaningful for a scenario's tail index."""
+    return estimator.gamma_domain == "any" or scenario.gamma > 0.0
+
+
 def _git_commit() -> str | None:
     """Return the checked-out commit, or None if this is not a git checkout.
 
@@ -226,12 +248,26 @@ def run_study(trials: int) -> list[dict[str, Any]]:
             # and keeps the comparison fair across sizes.
             k = max(10, n // 20)
             samples = [scenario.sample(n, seed) for seed in range(trials)]
-            for name, estimate in ESTIMATORS.items():
+            for name, estimator in ESTIMATORS.items():
+                if not _supports_scenario(estimator, scenario):
+                    rows.append(
+                        {
+                            "scenario": scenario.name,
+                            "gamma": scenario.gamma,
+                            "n": n,
+                            "k": k,
+                            "estimator": name,
+                            "failures": 0,
+                            "skipped": True,
+                            "reason": "requires gamma > 0",
+                        }
+                    )
+                    continue
                 values = []
                 failures = 0
                 for data in samples:
                     try:
-                        values.append(estimate(data, k))
+                        values.append(estimator.estimate(data, k))
                     except (ValueError, ZeroDivisionError, OverflowError):
                         failures += 1
                 if not values:
@@ -263,8 +299,10 @@ def run_study(trials: int) -> list[dict[str, Any]]:
 
 def _print_table(rows: list[dict[str, Any]]) -> None:
     """Print the study as a readable table, grouped by scenario."""
+    name_width = max(20, *(len(row["estimator"]) for row in rows))
     header = (
-        f"{'estimator':<20}{'mean':>10}{'bias':>10}{'std':>10}{'rmse':>10}{'fails':>7}"
+        f"{'estimator':<{name_width}}{'mean':>10}{'bias':>10}{'std':>10}"
+        f"{'rmse':>10}{'fails':>7}"
     )
     current = None
     for row in rows:
@@ -276,15 +314,22 @@ def _print_table(rows: list[dict[str, Any]]) -> None:
                 f"n = {row['n']}   k = {row['k']}"
             )
             print(header)
+        if row.get("skipped"):
+            print(
+                f"{row['estimator']:<{name_width}}{'N/A':>10}{'N/A':>10}"
+                f"{'N/A':>10}{'N/A':>10}{'N/A':>7}"
+            )
+            continue
         if "error" in row:
             print(
-                f"{row['estimator']:<20}{'-':>10}{'-':>10}{'-':>10}{'-':>10}"
-                f"{row['failures']:>7}"
+                f"{row['estimator']:<{name_width}}{'-':>10}{'-':>10}{'-':>10}"
+                f"{'-':>10}{row['failures']:>7}"
             )
             continue
         print(
-            f"{row['estimator']:<20}{row['mean']:>10.4f}{row['bias']:>+10.4f}"
-            f"{row['std']:>10.4f}{row['rmse']:>10.4f}{row['failures']:>7}"
+            f"{row['estimator']:<{name_width}}{row['mean']:>10.4f}"
+            f"{row['bias']:>+10.4f}{row['std']:>10.4f}"
+            f"{row['rmse']:>10.4f}{row['failures']:>7}"
         )
 
 
