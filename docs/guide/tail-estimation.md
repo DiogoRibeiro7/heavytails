@@ -524,6 +524,8 @@ represent and in how efficiently they use the data.
 | `harmonic_moment_estimator` | `gamma > 0` | Tunable | As above, with a robustness dial |
 | `gpd_mle_estimator` | any `gamma` | Lower | Parametric peaks-over-threshold |
 | `bias_reduced_hill_estimator` | `gamma > 0` | Near-Hill | The Hill plot has a visible slope |
+| `orthogonalized_bias_reduced_hill_estimator` | `gamma > 0` | Lower | Second-order bias plus top contamination |
+| `threshold_averaged_orthogonalized_hill_estimator` | `gamma > 0` | Lower | Bias correction with threshold uncertainty |
 | `hill_estimator` | `gamma > 0` | High | The classical baseline |
 | `generalized_hill_estimator` | any `gamma` | Near-Hill | You are not certain the tail is heavy |
 | `moment_estimator` | any `gamma` | Near-Hill | As above; a useful cross-check |
@@ -937,3 +939,111 @@ sample, which `recommended_rho_k` implements.
 sometimes known analytically: Fréchet has `rho = -1` for every shape parameter,
 Student-t with `nu` degrees of freedom has `rho = -2/nu`, and
 `BurrXII(c, k, s)` has `rho = -1/k`.
+
+## Orthogonalized bias reduction
+
+`bias_reduced_hill_estimator` estimates the leading bias and subtracts it after
+the fact. `orthogonalized_bias_reduced_hill_estimator` instead builds the
+cancellation into the log-spacing weights.
+
+!!! note "Novelty"
+    The weighted log-spacing formula is not presented here as a new estimator.
+    Bias-cancelling weighted Hill and exponential-regression estimators are
+    already part of the tail-index literature. In this package the local
+    formula is a transparent building block for adaptive procedures over
+    unknown contamination `r` and threshold `k`.
+
+For normalised log-spacings
+
+$$Z_j = j\{\log X_{(j)} - \log X_{(j+1)}\},$$
+
+the second-order approximation is
+
+$$E[Z_j] \approx \gamma + b\left(\frac{j}{k+1}\right)^{-\rho}.$$
+
+The estimator returns the intercept from this one-covariate regression. In
+weighted form,
+
+$$\hat{\gamma} = \sum_j w_j Z_j,$$
+
+where the weights satisfy
+
+$$\sum_j w_j = 1, \qquad
+\sum_j w_j\left(\frac{j}{k+1}\right)^{-\rho}=0.$$
+
+The first identity targets `gamma`; the second removes the leading second-order
+bias direction.
+
+```python
+from heavytails import Frechet, orthogonalized_bias_reduced_hill_estimator
+
+data = Frechet(alpha=2.0, s=1.0, m=0.0).rvs(20000, seed=1)
+orthogonalized_bias_reduced_hill_estimator(data, k=2000, rho=-1.0)
+```
+
+It can also reuse the adaptive trimming scan before fitting the intercept:
+
+```python
+orthogonalized_bias_reduced_hill_estimator(
+    data, k=500, rho=-1.0, adaptive_trim=True
+)
+```
+
+That combination is useful when the largest observations may be contaminated
+and the Hill plot also shows second-order drift. It is not free: on an exact
+Pareto tail the estimator has higher variance than Hill. Use it when the bias
+or contamination is more damaging than that variance cost.
+
+When `adaptive_trim=True`, the default trimming level is not a fixed 5% test.
+It is a conservative sequence that decreases with sample size. That matters for
+the oracle claim: a fixed false-alarm probability would not give
+`P(r_hat = r) -> 1`.
+
+### Threshold averaging
+
+`threshold_averaged_orthogonalized_hill_estimator` adds a threshold-uncertainty
+layer. It evaluates a logarithmic grid up to `k`, keeps thresholds whose
+orthogonalized estimates remain statistically compatible, and averages the
+stable set using the log-spacing covariance approximation.
+
+```python
+from heavytails import threshold_averaged_orthogonalized_hill_estimator
+
+gamma = threshold_averaged_orthogonalized_hill_estimator(
+    data,
+    k=2000,
+    min_k=500,
+    grid_size=10,
+    rho=-1.0,
+    adaptive_trim=True,
+)
+```
+
+The point estimator is cross-fitted by default: threshold, trimming and weight
+decisions are learned on one split of the sample and evaluated on the other,
+then the roles are swapped. This is slower and a little noisier than the
+full-sample diagnostic estimate, but it separates random selection decisions
+from the observations used for the final estimate.
+
+For diagnostics, use the selection function:
+
+```python
+from heavytails import threshold_averaged_orthogonalized_hill_selection
+
+details = threshold_averaged_orthogonalized_hill_selection(data, k=2000)
+details["candidate_pairs"]          # [(r, k), ...]
+details["stable_candidate_pairs"]   # admitted pairs
+details["stable_thresholds"]
+details["weights"]
+details["local_estimates"]
+details["variance_proxy"]           # sum(w_j**2) for each local candidate
+```
+
+The selector uses a compatibility cutoff that grows slowly with sample size.
+The default aggregation is convex: weights are constrained to be non-negative
+and to sum to one. Set `crossfit=False` on the point estimator when you want the
+same full-sample value reported by the diagnostic selection function.
+
+The research question is therefore not "is this weighted Hill formula new?" It
+is whether the adaptive procedure can achieve near-oracle risk when both `r`
+and `k` are unknown while second-order bias is present.
