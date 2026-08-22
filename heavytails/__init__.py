@@ -28,6 +28,8 @@ Modules
     Tail-risk metrics (VaR, expected shortfall)
 - heavytails.actuarial
     Compound distributions, aggregate losses and reinsurance pricing
+- heavytails.streaming
+    Tail index estimation over a stream, in bounded memory
 
 Author: Diogo Ribeiro
 License: MIT
