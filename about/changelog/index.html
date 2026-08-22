@@ -2215,7 +2215,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Unreleased">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#040-2026-08-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.4.0] - 2026-08-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.4.0] - 2026-08-22">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2223,72 +2234,6 @@
     <span class="md-ellipsis">
       
         Added
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Added
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Added
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#added_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Added
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#added_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Added
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fixed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fixed
       
     </span>
   </a>
@@ -2307,18 +2252,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fixed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fixed_3" class="md-nav__link">
+  <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2346,7 +2280,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_5" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2385,7 +2319,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_6" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2407,7 +2341,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_4" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2446,7 +2380,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_7" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2647,6 +2581,25 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="040-2026-08-22">[0.4.0] - 2026-08-22<a class="headerlink" href="#040-2026-08-22" title="Permanent link">&para;</a></h2>
+<p>Twelve new modules and estimators, and a dozen numerical corrections. The
+corrections are the reason to upgrade rather than the additions: several
+functions returned values that were wrong rather than merely imprecise, and one
+returned negative probabilities.</p>
+<p><strong>Some values change, because the old ones were wrong.</strong></p>
+<ul>
+<li><code>GeneralizedPareto.cdf</code>, <code>sf</code> and <code>pdf</code> return different values <strong>below</strong>
+  <code>mu</code>, where they previously reported probabilities outside [0, 1].</li>
+<li><code>Weibull.pdf(0.0)</code> returns <code>inf</code> for shape below one, where it previously
+  raised <code>ZeroDivisionError</code>.</li>
+<li><code>InverseGamma.cdf</code>, <code>BetaPrime.sf</code>, <code>Cauchy.cdf</code> and <code>LogNormal.cdf</code> return
+  different values in the tails, where they previously returned exactly zero or
+  kept only a handful of digits.</li>
+<li><code>cdf</code> and <code>sf</code> no longer sum to exactly one for several families. Each is now
+  computed from the branch where its own value is the small quantity, which is
+  what lets both tails be accurate; insisting on exact complementarity would
+  force back the subtraction that made the lower tail return zero.</li>
+</ul>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.timeseries</code>, separating heavy tails that come from volatility
@@ -2662,7 +2615,6 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   degrees of freedom produce 2.85. Estimating a tail index on raw returns
   measures the volatility process as much as the shocks, and the docstring
   says which of the two a given question needs.</p>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.copula</code>, dependence separated from the margins
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/306">#306</a>).
@@ -2681,7 +2633,6 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   tail dependence, and says so.</p>
 <p>Vine copulas are deliberately not included; they need pair-copula
   construction and structure selection and are a subsystem rather than a class.</p>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.multivariate</code>, the elliptical family and joint tail dependence
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/305">#305</a>).
@@ -2695,17 +2646,16 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   reports a standard error rather than presenting a simulation as exact. The
   linear algebra is pure Python, which is right at the dimensions tail
   dependence is asked about and would be wrong at hundreds.</p>
-<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Runnable examples in the five core modules that had none
+<li>
+<p>Runnable examples in the five core modules that had none
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/337">#337</a>): 86 across
   <code>heavy_tails</code>, <code>extra_distributions</code>, <code>discrete</code>, <code>plotting</code> and <code>_special</code>.
   Every value was computed rather than transcribed, and <code>tests/test_doctests.py</code>
-  now guards all nine modules rather than the four that previously had any.</li>
-</ul>
-<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>heavytails.vectorized</code>, evaluating <code>pdf</code>, <code>cdf</code>, <code>sf</code> and <code>ppf</code> over many
+  now guards all nine modules rather than the four that previously had any.</p>
+</li>
+<li>
+<p><code>heavytails.vectorized</code>, evaluating <code>pdf</code>, <code>cdf</code>, <code>sf</code> and <code>ppf</code> over many
   points at once using NumPy when it is installed
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/308">#308</a>). Measured on
   the public call at 100,000 points, the 32 accelerated calls run 2.1x to 6.4x
@@ -2714,18 +2664,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   function nor the incomplete beta and gamma, and <code>accelerated()</code> reports which
   is which rather than leaving a caller to guess. Without NumPy everything
   falls back to the loop. <code>scripts/vectorization_benchmark.py</code> produces the
-  table.</li>
-</ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>GeneralizedPareto</code> returned negative probabilities below <code>mu</code> for every sign
-  of <code>xi</code>: its validity check tested only <code>1 + xi z &gt; 0</code>, which is the <em>upper</em>
-  endpoint of a bounded distribution and is satisfied far below the support.
-  <code>cdf(mu - 1)</code> returned -2.586 at <code>xi=0.4, mu=1</code>. Found by the new
-  vectorisation tests, and now covered by a generic property over every family.</li>
-<li>
-<p><code>Weibull.pdf(0.0)</code> raised <code>ZeroDivisionError</code> for shape below one, where the
-  density diverges. It returns <code>inf</code>.</p>
+  table.</p>
 </li>
 <li>
 <p><code>heavytails.streaming</code>, tail index estimation over a stream without holding
@@ -2747,35 +2686,13 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   the quantity can be determined at that input rather than from a flat
   guess. Reading the table needs no mpmath and runs in about a second.</p>
 </li>
-<li><code>tests/test_distribution_properties.py</code>, applying the generic properties --
+<li>
+<p><code>tests/test_distribution_properties.py</code>, applying the generic properties --
   quantile inversion, survival complementarity, monotonicity, non-negative
   density, support, reproducibility -- to every family from one registry
   rather than to four families by hand. Adds checks of the documented family
   relationships, of the tail index each family is supposed to have, and of
-  moments existing exactly when the theory says.</li>
-</ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
-<p>Eight numerical defects, all found by the reference database on its first run
-and all the same mistake: computing a small quantity by subtracting from one.</p>
-<ul>
-<li><code>Cauchy.ppf</code> used <code>tan(pi(u - 1/2))</code>, whose argument sits next to <code>+-pi/2</code>
-  where the tangent is arbitrarily steep. At <code>u = 1e-9</code> it returned
-  -318309868.8 for a true -318309886.2, wrong in the eighth digit. Now uses
-  the cotangent form, accurate to 1.9e-16.</li>
-<li><code>_phi_inverse</code> refined its rational approximation using
-  <code>0.5*(1 + erf(x/sqrt(2)))</code>, which cancels once <code>x</code> is a few units negative,
-  so the correction was computed from noise. The relative error at <code>u = 1e-12</code>
-  was 4.4e-07 -- worse than the unrefined approximation. Now 4.2e-16 across
-  the range, which also improves every normal-quantile consumer, including
-  <code>LogNormal.ppf</code> and the confidence intervals in <code>tail_index</code> and <code>threshold</code>.</li>
-<li><code>GeneralizedPareto.ppf</code>, <code>BurrXII.ppf</code> and <code>Weibull.ppf</code> formed <code>1 - u</code>
-  before taking a power or a logarithm, losing the lower tail to about seven
-  digits. Now use <code>log1p</code>/<code>expm1</code>.</li>
-<li>
-<p><code>GeneralizedPareto.cdf</code>, <code>BurrXII.cdf</code>, <code>Weibull.cdf</code>, <code>Cauchy.cdf</code> and
-  <code>LogNormal.cdf</code> computed a small probability as <code>1 - g(x)</code> with <code>g</code>
-  approaching one. Each now takes the branch where its own value is the small
-  quantity.</p>
+  moments existing exactly when the theory says.</p>
 </li>
 <li>
 <p><code>_gammainc_upper_reg</code>, the regularized upper incomplete gamma computed as
@@ -2784,34 +2701,10 @@ and all the same mistake: computing a small quantity by subtracting from one.</p
   subtraction cannot express a result below about 1e-16, so at <code>a=2, x=50</code> it
   returned exactly zero where the true value is 9.8e-21.</p>
 </li>
-<li><code>_gammaincinv_reg</code>, the inverse of the regularized incomplete gamma in both
-  the lower and upper senses, so a caller can go through whichever of the two
-  is its small quantity.</li>
-</ul>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>InverseGamma.ppf</code> and <code>BetaPrime.ppf</code> invert the incomplete gamma and beta
-  directly instead of bracketing and solving against their own distribution
-  functions. Round-trip accuracy across the quantile range improves from
-  2.2e-05 to 9.7e-15 and from 5.6e-04 to 3.5e-15 respectively.</li>
-<li><code>_betaincinv_reg</code> starts from the small-<code>y</code> asymptote rather than bisecting
-  the whole exponent range, cutting <code>StudentT.ppf</code> from 127 to 35 microseconds
-  with identical accuracy.</li>
-</ul>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
-<ul>
-<li>The safeguarded Newton iteration in <code>_betaincinv_reg</code> narrowed its bracket
-  <em>after</em> computing the midpoint to fall back to, so on the first iteration --
-  where the starting point is the midpoint by construction -- the fallback
-  returned that same point and the no-progress check declared convergence.
-  <code>I_y(50, 0.3) = 1e-3</code> came back with a relative error of 0.18. The fixed
-  bisection to 1e-13 that preceded it had hidden this.</li>
-<li><code>InverseGamma.cdf</code> computed <code>1 - P</code> and returned exactly zero throughout the
-  lower tail; <code>cdf(0.02)</code> at <code>alpha=2, beta=1</code> is 9.8e-21, not 0.</li>
 <li>
-<p><code>BetaPrime.sf</code> computed <code>1 - cdf</code>, which is exactly zero above about <code>x=1e17</code>
-  because <code>x/(x+s)</code> rounds to 1 there. It now uses the mirrored incomplete
-  beta, whose argument <code>s/(x+s)</code> is computed rather than subtracted.</p>
+<p><code>_gammaincinv_reg</code>, the inverse of the regularized incomplete gamma in both
+  the lower and upper senses, so a caller can go through whichever of the two
+  is its small quantity.</p>
 </li>
 <li>
 <p><code>adaptive_trimmed_hill_estimator</code> and <code>adaptive_trim_selection</code>, choosing the
@@ -2824,17 +2717,10 @@ and all the same mistake: computing a small quantity by subtracting from one.</p
   0.0295 against 0.0292 for the plain Hill estimator. Completes the eleven
   estimator benchmark suite; <code>scripts/tail_index_study.py</code> now runs twelve.</p>
 </li>
-<li><code>tests/test_doctests.py</code>, checking that the docstring examples in the
-  numerical modules actually reproduce. The main suite does not collect
-  doctests, so four had stopped working unnoticed.</li>
-</ul>
-<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
-<ul>
 <li>
-<p>Four docstring examples reported values their code never produced. Two claimed
-  a tail index estimate of 0.5 on samples too small for the estimator's own
-  sampling variability, so the figure shown had been transcribed from what the
-  estimator should give rather than measured; both produced 0.4.</p>
+<p><code>tests/test_doctests.py</code>, checking that the docstring examples in the
+  numerical modules actually reproduce. The main suite does not collect
+  doctests, so four had stopped working unnoticed.</p>
 </li>
 <li>
 <p><code>heavytails.actuarial</code>, building the aggregate loss distribution from a
@@ -2887,8 +2773,84 @@ and all the same mistake: computing a small quantity by subtracting from one.</p
   Monte Carlo estimator always reports standard errors.</p>
 </li>
 </ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>InverseGamma.ppf</code> and <code>BetaPrime.ppf</code> invert the incomplete gamma and beta
+  directly instead of bracketing and solving against their own distribution
+  functions. Round-trip accuracy across the quantile range improves from
+  2.2e-05 to 9.7e-15 and from 5.6e-04 to 3.5e-15 respectively.</p>
+</li>
+<li>
+<p><code>_betaincinv_reg</code> starts from the small-<code>y</code> asymptote rather than bisecting
+  the whole exponent range, cutting <code>StudentT.ppf</code> from 127 to 35 microseconds
+  with identical accuracy.</p>
+</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><code>GeneralizedPareto</code> returned negative probabilities below <code>mu</code> for every sign
+  of <code>xi</code>: its validity check tested only <code>1 + xi z &gt; 0</code>, which is the <em>upper</em>
+  endpoint of a bounded distribution and is satisfied far below the support.
+  <code>cdf(mu - 1)</code> returned -2.586 at <code>xi=0.4, mu=1</code>. Found by the new
+  vectorisation tests, and now covered by a generic property over every family.</p>
+</li>
+<li>
+<p><code>Weibull.pdf(0.0)</code> raised <code>ZeroDivisionError</code> for shape below one, where the
+  density diverges. It returns <code>inf</code>.</p>
+</li>
+<li>
+<p><code>Cauchy.ppf</code> used <code>tan(pi(u - 1/2))</code>, whose argument sits next to <code>+-pi/2</code>
+  where the tangent is arbitrarily steep. At <code>u = 1e-9</code> it returned
+  -318309868.8 for a true -318309886.2, wrong in the eighth digit. Now uses
+  the cotangent form, accurate to 1.9e-16.</p>
+</li>
+<li>
+<p><code>_phi_inverse</code> refined its rational approximation using
+  <code>0.5*(1 + erf(x/sqrt(2)))</code>, which cancels once <code>x</code> is a few units negative,
+  so the correction was computed from noise. The relative error at <code>u = 1e-12</code>
+  was 4.4e-07 -- worse than the unrefined approximation. Now 4.2e-16 across
+  the range, which also improves every normal-quantile consumer, including
+  <code>LogNormal.ppf</code> and the confidence intervals in <code>tail_index</code> and <code>threshold</code>.</p>
+</li>
+<li>
+<p><code>GeneralizedPareto.ppf</code>, <code>BurrXII.ppf</code> and <code>Weibull.ppf</code> formed <code>1 - u</code>
+  before taking a power or a logarithm, losing the lower tail to about seven
+  digits. Now use <code>log1p</code>/<code>expm1</code>.</p>
+</li>
+<li>
+<p><code>GeneralizedPareto.cdf</code>, <code>BurrXII.cdf</code>, <code>Weibull.cdf</code>, <code>Cauchy.cdf</code> and
+  <code>LogNormal.cdf</code> computed a small probability as <code>1 - g(x)</code> with <code>g</code>
+  approaching one. Each now takes the branch where its own value is the small
+  quantity.</p>
+</li>
+<li>
+<p>The safeguarded Newton iteration in <code>_betaincinv_reg</code> narrowed its bracket
+  <em>after</em> computing the midpoint to fall back to, so on the first iteration --
+  where the starting point is the midpoint by construction -- the fallback
+  returned that same point and the no-progress check declared convergence.
+  <code>I_y(50, 0.3) = 1e-3</code> came back with a relative error of 0.18. The fixed
+  bisection to 1e-13 that preceded it had hidden this.</p>
+</li>
+<li>
+<p><code>InverseGamma.cdf</code> computed <code>1 - P</code> and returned exactly zero throughout the
+  lower tail; <code>cdf(0.02)</code> at <code>alpha=2, beta=1</code> is 9.8e-21, not 0.</p>
+</li>
+<li>
+<p><code>BetaPrime.sf</code> computed <code>1 - cdf</code>, which is exactly zero above about <code>x=1e17</code>
+  because <code>x/(x+s)</code> rounds to 1 there. It now uses the mirrored incomplete
+  beta, whose argument <code>s/(x+s)</code> is computed rather than subtracted.</p>
+</li>
+<li>
+<p>Four docstring examples reported values their code never produced. Two claimed
+  a tail index estimate of 0.5 on samples too small for the estimator's own
+  sampling variability, so the figure shown had been transcribed from what the
+  estimator should give rather than measured; both produced 0.4.</p>
+</li>
+</ul>
 <h2 id="030-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...v0.3.0">0.3.0</a> - 2026-08-21<a class="headerlink" href="#030-2026-08-21" title="Permanent link">&para;</a></h2>
-<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>bias_reduced_hill_estimator</code>, with <code>second_order_rho</code>, <code>second_order_beta</code>
@@ -2998,7 +2960,7 @@ and all the same mistake: computing a small quantity by subtracting from one.</p
 </li>
 </ul>
 <h2 id="020-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...v0.2.0">0.2.0</a> - 2026-08-21<a class="headerlink" href="#020-2026-08-21" title="Permanent link">&para;</a></h2>
-<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>scripts/special_function_accuracy.py</code>, which sweeps both special functions
@@ -3137,7 +3099,7 @@ and all the same mistake: computing a small quantity by subtracting from one.</p
   that was never generated.</p>
 </li>
 </ul>
-<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The continued-fraction branch of the regularized lower incomplete gamma was
@@ -3243,7 +3205,7 @@ and all the same mistake: computing a small quantity by subtracting from one.</p
 </li>
 </ul>
 <h2 id="010-2025-10-25"><a href="https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0">0.1.0</a> - 2025-10-25<a class="headerlink" href="#010-2025-10-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_7">Added<a class="headerlink" href="#added_7" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Continuous heavy-tailed distributions implemented from first principles:
   Pareto, Cauchy, Student-t, Log-Normal, Weibull, Fréchet and GEV (ξ &gt; 0).</li>
