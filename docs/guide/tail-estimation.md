@@ -1,16 +1,25 @@
 # Tail Index Estimation
 
-Estimating the tail index from empirical data is fundamental to heavy-tail analysis. This guide covers the main estimation methods available in HeavyTails.
+Estimating the tail index from empirical data is fundamental to heavy-tail
+analysis. This guide covers the classical estimators, the robust variants,
+bias-reduced estimators, peaks-over-threshold fits and the adaptive
+threshold-averaged estimator available in HeavyTails.
 
 --------------------------------------------------------------------------------
 
-## Overview
+## Notation
 
-For heavy-tailed distributions with power-law tails:
+Two tail-index conventions are common. In this guide:
 
-$$ P(X > x) \sim Cx^{-\alpha} \quad \text{as } x \to \infty $$
+- `alpha` is the power-law exponent in
+  $$ P(X > x) \sim Cx^{-\alpha} \quad \text{as } x \to \infty. $$
+- `gamma` is the extreme-value index, with `gamma = 1 / alpha` for
+  Pareto-type heavy tails.
 
-the **tail index** $\alpha$ determines the heaviness of the tail. Estimating $\alpha$ from data allows you to:
+Every estimator in `heavytails.tail_index` returns `gamma`. Functions that also
+report `alpha` say so explicitly.
+
+Estimating the tail index allows you to:
 
 - Assess the degree of tail heaviness
 - Determine which moments exist
@@ -21,11 +30,22 @@ the **tail index** $\alpha$ determines the heaviness of the tail. Estimating $\a
 
 ## Available Estimators
 
-Estimator    | Best For            | Pros                    | Cons
------------- | ------------------- | ----------------------- | ----------------
-**Hill**     | Pareto-type tails   | Efficient, well-studied | Sensitive to $k$
-**Pickands** | Extreme values      | Robust                  | Less efficient
-**Moment**   | General heavy tails | Reduced bias            | Higher variance
+| Family | Estimators | Valid range | Use when |
+| --- | --- | --- | --- |
+| Classical | `hill_estimator`, `smoothed_hill_estimator` | `gamma > 0` | The tail is known to be Pareto-type and the Hill plot is stable |
+| General EVI | `pickands_estimator`, `moment_estimator`, `generalized_hill_estimator` | any `gamma` | The sign of `gamma` is uncertain or a bounded tail is possible |
+| Robust | `trimmed_hill_estimator`, `adaptive_trimmed_hill_estimator`, `t_hill_estimator`, `harmonic_moment_estimator` | `gamma > 0` | The upper tail may contain contaminated observations |
+| Bias-reduced | `bias_reduced_hill_estimator`, `orthogonalized_bias_reduced_hill_estimator` | `gamma > 0` | The Hill plot slopes because the tail approaches its limit slowly |
+| Threshold-adaptive | `threshold_averaged_orthogonalized_hill_estimator` | `gamma > 0` | Bias, top contamination and threshold uncertainty are all present |
+| Peaks over threshold | `gpd_mle_estimator`, `fit_generalized_pareto` | any `gamma` | You want a parametric fit to exceedances above a chosen threshold |
+
+Pickands is useful as a low-efficiency cross-check and handles general
+extreme-value indices. It should not be read as a contamination-robust
+alternative to trimmed Hill or bounded-influence estimators.
+
+The rest of the guide follows that taxonomy: classical estimators first, then
+workflow and uncertainty, then robust estimators, peaks-over-threshold fitting,
+bias reduction and the adaptive estimator.
 
 --------------------------------------------------------------------------------
 
