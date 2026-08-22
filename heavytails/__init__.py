@@ -30,6 +30,8 @@ Modules
     Compound distributions, aggregate losses and reinsurance pricing
 - heavytails.streaming
     Tail index estimation over a stream, in bounded memory
+- heavytails.vectorized
+    Evaluation over many points at once, using NumPy when it is installed
 
 Author: Diogo Ribeiro
 License: MIT

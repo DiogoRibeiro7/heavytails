@@ -169,6 +169,7 @@ nav:
     - Diagnostic Plots: reference/viz.md
     - Actuarial: reference/actuarial.md
     - Streaming: reference/streaming.md
+    - Vectorized Evaluation: reference/vectorized.md
     - Tail-Risk Metrics: reference/risk.md
     - Threshold Selection: reference/threshold.md
     - Utilities: reference/utilities.md

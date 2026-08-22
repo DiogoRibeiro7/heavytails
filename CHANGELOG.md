@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.vectorized`, evaluating `pdf`, `cdf`, `sf` and `ppf` over many
+  points at once using NumPy when it is installed
+  ([#308](https://github.com/DiogoRibeiro7/heavytails/issues/308)). Measured on
+  the public call at 100,000 points, the 32 accelerated calls run 2.1x to 6.4x
+  faster, median 3.9x. Eight families have kernels; LogNormal, StudentT,
+  InverseGamma and BetaPrime cannot, because NumPy has neither the error
+  function nor the incomplete beta and gamma, and `accelerated()` reports which
+  is which rather than leaving a caller to guess. Without NumPy everything
+  falls back to the loop. `scripts/vectorization_benchmark.py` produces the
+  table.
+
+### Fixed
+
+- `GeneralizedPareto` returned negative probabilities below `mu` for every sign
+  of `xi`: its validity check tested only `1 + xi z > 0`, which is the *upper*
+  endpoint of a bounded distribution and is satisfied far below the support.
+  `cdf(mu - 1)` returned -2.586 at `xi=0.4, mu=1`. Found by the new
+  vectorisation tests, and now covered by a generic property over every family.
+- `Weibull.pdf(0.0)` raised `ZeroDivisionError` for shape below one, where the
+  density diverges. It returns `inf`.
+
 - `heavytails.streaming`, tail index estimation over a stream without holding
   the sample ([#310](https://github.com/DiogoRibeiro7/heavytails/issues/310)).
   `TopK` maintains the largest values in `O(k)` memory with a min-heap;

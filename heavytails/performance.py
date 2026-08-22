@@ -24,6 +24,12 @@ except ImportError:
 # NOTE: Future enhancement - Cython extensions for critical mathematical functions
 def cython_special_functions():
     """
+    Rejected. Cython needs a build step, a compiler on the user's machine or a
+    wheel per platform, and it would break the property that makes this library
+    worth having: it installs anywhere Python does. The optional NumPy path in
+    :mod:`heavytails.vectorized` reaches 5 to 19 times faster with none of
+    that, which was the point of the exercise (#308).
+
     Future: Cython implementations of special functions for speed.
 
     Critical functions that could be optimized:
@@ -45,6 +51,14 @@ def vectorized_pdf_evaluation(
 ) -> list[float]:
     """
     Vectorized PDF evaluation for array inputs.
+
+    .. note::
+        This uses ``np.vectorize``, which NumPy's own documentation describes
+        as provided for convenience rather than performance -- it is a Python
+        loop wearing an array interface. Measured against a plain loop over
+        100,000 Pareto densities it is 1.1 times faster, where the kernels in
+        :mod:`heavytails.vectorized` are 9.4 times faster. Prefer
+        :func:`heavytails.vectorized.pdf`.
 
     Provides significant speedups (10-100x) for large-scale density evaluations
     when NumPy is available. Falls back to pure Python if NumPy is not installed.
@@ -98,6 +112,10 @@ def vectorized_cdf_evaluation(
 ) -> list[float]:
     """
     Vectorized CDF evaluation for array inputs.
+
+    .. note::
+        See :func:`vectorized_pdf_evaluation`: this is a loop behind an array
+        interface. Prefer :func:`heavytails.vectorized.cdf`.
 
     Provides significant speedups for large-scale CDF evaluations
     when NumPy is available. Falls back to pure Python if NumPy is not installed.
@@ -534,6 +552,10 @@ def robust_log_gamma(x: float) -> float:
 # NOTE: Future enhancement - Just-In-Time (JIT) compilation with Numba
 def jit_accelerated_functions():
     """
+    Rejected, for the same reason as the Cython stub above: a compiler
+    dependency in exchange for a speedup that :mod:`heavytails.vectorized`
+    already delivers without one (#308).
+
     Future: Numba JIT compilation for critical functions.
 
     Candidate functions for JIT acceleration:

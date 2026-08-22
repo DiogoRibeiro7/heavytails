@@ -413,6 +413,11 @@ class Weibull(Samplable):
     def pdf(self, x: float) -> float:
         if x < 0.0:
             return 0.0
+        if x == 0.0 and self.k < 1.0:
+            # The density diverges at the origin for k below one, and the
+            # expression below raises ZeroDivisionError there rather than
+            # saying so: 0.0 ** negative. The limit is what it returns now.
+            return math.inf
         z = (x / self.lam) ** self.k
         return float(
             (self.k / self.lam) * (x / self.lam) ** (self.k - 1.0) * math.exp(-z)
