@@ -35,8 +35,9 @@ from __future__ import annotations
 import bisect
 from collections import deque
 import heapq
-import math
 from typing import TYPE_CHECKING
+
+from heavytails.tail_index import hill_estimator, moment_estimator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -117,23 +118,23 @@ class TopK:
 def _hill(descending: list[float], k: int) -> float:
     """Hill estimator from the top ``k + 1`` order statistics.
 
-    Written to match :func:`heavytails.tail_index.hill_estimator` operation for
-    operation, so the streaming and batch results agree exactly rather than
-    approximately. A different summation order would be just as correct and
-    would make the equality a matter of tolerance instead of identity.
+    Calls the batch estimator rather than reproducing it. It used to be a
+    transcription written to match that function operation for operation, so
+    that the two agreed exactly rather than approximately -- and the
+    transcription broke the moment the batch version changed its summation,
+    which is what a transcription does. Delegating makes the agreement
+    structural: there is one implementation, so there is nothing to match.
+
+    The estimator reads only the top ``k + 1`` order statistics, which is
+    exactly what this class retains, so handing it the buffer gives the number
+    the whole stream would have given.
     """
-    x_k = descending[k]
-    return sum(math.log(descending[i] / x_k) for i in range(k)) / k
+    return hill_estimator(descending, k)
 
 
 def _moment(descending: list[float], k: int) -> tuple[float, float]:
-    """Dekkers-Einmahl-de Haan moment estimator, matching the batch version."""
-    x_k = descending[k]
-    logs = [math.log(descending[i] / x_k) for i in range(k)]
-    m1 = sum(logs) / k
-    m2 = sum(value**2 for value in logs) / k
-    gamma = m1 + 1.0 - 0.5 * (1.0 - (m1**2) / m2) ** -1
-    return gamma, 1.0 / gamma
+    """Dekkers-Einmahl-de Haan moment estimator. See :func:`_hill`."""
+    return moment_estimator(descending, k)
 
 
 class StreamingTailIndex:
