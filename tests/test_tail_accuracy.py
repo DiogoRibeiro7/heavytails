@@ -73,7 +73,12 @@ class TestSurvivalFunctionTailAccuracy:
     @pytest.mark.parametrize(
         ("dist", "x"),
         [
-            (Cauchy(x0=0.0, gamma=1.0), 1e15),
+            # 1e16, not 1e15: Cauchy.cdf now uses arctan(1/z) in the
+            # upper tail, which is accurate enough that at 1e15 the naive
+            # 1 - cdf lands within 5% of the truth and the test stops
+            # demonstrating anything. At 1e16 it returns exactly zero,
+            # which is the failure this exists to document.
+            (Cauchy(x0=0.0, gamma=1.0), 1e16),
             (Frechet(alpha=2.0, s=1.0, m=0.0), 1e8),
             (GEV_Frechet(xi=0.5, mu=0.0, sigma=1.0), 1e8),
             (StudentT(nu=4.0), 1e8),

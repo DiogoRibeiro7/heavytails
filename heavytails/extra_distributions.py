@@ -81,9 +81,12 @@ class GeneralizedPareto(Samplable):
             return 0.0 if (self.xi >= 0 and x < self.mu) else 1.0
         z = (x - self.mu) / self.sigma
         if self.xi == 0.0:
-            return 1.0 - math.exp(-z)
-        t = 1.0 + self.xi * z
-        return float(1.0 - t ** (-1.0 / self.xi))
+            return -math.expm1(-z)
+        # -expm1(-log1p(xi z)/xi) rather than 1 - (1 + xi z)**(-1/xi). Both
+        # the power and the subtraction lose the small quantity: at x = 1e-9
+        # the naive form returns 1.0000000827e-09 for a true 1e-09, wrong in
+        # the eighth digit, and the lower tail of a GPD is a real part of it.
+        return float(-math.expm1(-math.log1p(self.xi * z) / self.xi))
 
     def sf(self, x: float) -> float:
         return 1.0 - self.cdf(x)
@@ -93,9 +96,14 @@ class GeneralizedPareto(Samplable):
             raise ValueError("u must be in (0,1).")
         try:
             if self.xi == 0.0:
-                return self.mu - self.sigma * math.log(1.0 - u)
+                return self.mu - self.sigma * math.log1p(-u)
+            # expm1(-xi log1p(-u)) rather than (1-u)**-xi - 1. Both the
+            # subtraction inside the power and the one after it cancel for
+            # small u: the textbook form returns 1.0000000827e-09 where the
+            # answer is 1.0000000007e-09, wrong in the eighth digit, and the
+            # lower tail of a GPD is not a corner case.
             return float(
-                self.mu + (self.sigma / self.xi) * ((1.0 - u) ** (-self.xi) - 1.0)
+                self.mu + (self.sigma / self.xi) * math.expm1(-self.xi * math.log1p(-u))
             )
         except OverflowError:
             return math.inf
@@ -137,7 +145,8 @@ class BurrXII(Samplable):
         if x <= 0.0:
             return 0.0
         z = (x / self.s) ** self.c
-        return float(1.0 - (1.0 + z) ** (-self.k))
+        # See GeneralizedPareto.cdf for why this is not 1 - (1+z)**-k.
+        return float(-math.expm1(-self.k * math.log1p(z)))
 
     def sf(self, x: float) -> float:
         if x <= 0.0:
@@ -149,8 +158,10 @@ class BurrXII(Samplable):
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
         try:
+            # See GeneralizedPareto.ppf: expm1 of a log1p keeps the lower tail,
+            # where (1-u)**(-1/k) - 1 loses all but about seven digits.
             return float(
-                self.s * (((1.0 - u) ** (-1.0 / self.k)) - 1.0) ** (1.0 / self.c)
+                self.s * math.expm1(-math.log1p(-u) / self.k) ** (1.0 / self.c)
             )
         except OverflowError:
             return math.inf
@@ -327,6 +338,13 @@ class BetaPrime(Samplable):
         """
         if x <= 0.0:
             return 1.0
+        if x <= self.s:
+            # Below the scale the survival probability is the large one, and
+            # the mirrored form would be the mistake: x + s rounds to s when x
+            # is small enough, so s/(x+s) becomes exactly 1 and the answer
+            # comes back as 1 with the interesting part gone. At x = 1e-16 with
+            # s = 1 that turned a survival of 0.999999 into 1.
+            return 1.0 - self.cdf(x)
         return _betainc_reg(self.b, self.a, self.s / (x + self.s))
 
     def ppf(self, u: float) -> float:

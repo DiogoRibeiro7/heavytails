@@ -639,6 +639,13 @@ def _phi_inverse(u: float) -> float:
     if not (0.0 < u < 1.0):
         raise ValueError("u must be in (0,1).")
 
+    # The standard normal quantile is antisymmetric, and the refinement below
+    # is accurate only where erfc has its argument positive. Mirroring the
+    # upper half onto the lower one keeps both sides at full precision instead
+    # of leaving the upper tail at about 5e-11.
+    if u > 0.5:
+        return -_phi_inverse(1.0 - u)
+
     # Coefficients
     a = [
         -3.969683028665376e01,
@@ -691,16 +698,21 @@ def _phi_inverse(u: float) -> float:
         den = ((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1.0
         x = num / den
 
-    # One Halley refinement for better accuracy
-    # φ(x) = standard normal pdf, Φ(x) = cdf
-    def phi(x: float) -> float:
-        return math.exp(-0.5 * x * x) / math.sqrt(2.0 * math.pi)
-
-    def Phi(x: float) -> float:
-        return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
-
-    x = x - (Phi(x) - u) / max(phi(x), 1e-300)
-    return x
+    # One Newton refinement, which takes the rational approximation from about
+    # nine digits to the full double.
+    #
+    # The distribution function here must come from erfc, not erf. Writing it
+    # as 0.5*(1 + erf(x/sqrt(2))) is a subtraction of two nearly equal numbers
+    # once x is a few units negative: at x = -7 the erf term is
+    # -0.999999999999, so the sum keeps about five digits and the correction is
+    # computed from noise. That is why the refinement left a relative error of
+    # 4.4e-07 at u = 1e-12 -- worse than the unrefined approximation's own
+    # documented accuracy -- rather than the 1e-16 it should reach.
+    density = math.exp(-0.5 * x * x) / math.sqrt(2.0 * math.pi)
+    if density <= 0.0:  # pragma: no cover - needs |x| above 38
+        return x
+    tail = 0.5 * math.erfc(-x / math.sqrt(2.0))
+    return x - (tail - u) / density
 
 
 # ----------------------------- Demo / Self-test ------------------------------ #

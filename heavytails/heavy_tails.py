@@ -181,7 +181,18 @@ class Cauchy(Samplable):
         return 1.0 / (math.pi * self.gamma * (1.0 + z * z))
 
     def cdf(self, x: float) -> float:
+        """Distribution function.
+
+        For very negative ``z`` the arctangent approaches ``-pi/2`` and adding
+        one half cancels it away, leaving about seven digits of a probability
+        that is the whole point of the left tail. ``arctan(-1/z)`` is the same
+        number with its argument near zero, where it is exact.
+        """
         z = (x - self.x0) / self.gamma
+        if z < -1.0:
+            return math.atan(-1.0 / z) / math.pi
+        if z > 1.0:
+            return 1.0 - math.atan(1.0 / z) / math.pi
         return 0.5 + math.atan(z) / math.pi
 
     def sf(self, x: float) -> float:
@@ -204,12 +215,25 @@ class Cauchy(Samplable):
         parameters the true value is genuinely not representable, and reporting
         it is more useful than raising, which aborts a parameter sweep at the
         first point that overflows.
+
+        Uses the cotangent form in the tails. The textbook
+        ``tan(pi (u - 1/2))`` puts its argument next to ``+-pi/2``, where the
+        tangent is arbitrarily steep, so a rounding error of one ulp in the
+        argument becomes an enormous error in the result: at ``u = 1e-9`` it
+        returns -318309868.8 where the answer is -318309886.2, wrong in the
+        eighth digit. ``cot(pi u)`` has its argument near zero instead, where
+        it is computed exactly, and the tail is the only part of a Cauchy
+        anyone cares about.
         """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
         try:
+            if u < 0.25:
+                return self.x0 - self.gamma / math.tan(math.pi * u)
+            if u > 0.75:
+                return self.x0 + self.gamma / math.tan(math.pi * (1.0 - u))
             return self.x0 + self.gamma * math.tan(math.pi * (u - 0.5))
-        except OverflowError:
+        except (OverflowError, ZeroDivisionError):
             return math.inf
 
     def _rvs_one(self, rng: RNG) -> float:
@@ -329,7 +353,10 @@ class LogNormal(Samplable):
         if x <= 0.0:
             return 0.0
         z = (math.log(x) - self.mu) / (self.sigma * math.sqrt(2.0))
-        return 0.5 * (1.0 + math.erf(z))
+        # 0.5*erfc(-z), not 0.5*(1 + erf(z)): for z a few units negative the
+        # erf term is -0.99999999999, and the sum keeps five digits of a
+        # probability whose leading digit is all anyone wanted.
+        return 0.5 * math.erfc(-z)
 
     def sf(self, x: float) -> float:
         """Survival function 1 - CDF, computed with ``erfc`` for tail accuracy.
@@ -392,9 +419,10 @@ class Weibull(Samplable):
         )
 
     def cdf(self, x: float) -> float:
+        """Distribution function, via ``-expm1`` so the lower tail survives."""
         if x < 0.0:
             return 0.0
-        return 1.0 - math.exp(-((x / self.lam) ** self.k))
+        return -math.expm1(-((x / self.lam) ** self.k))
 
     def sf(self, x: float) -> float:
         """Survival function: 1 - CDF(x)."""
@@ -413,7 +441,7 @@ class Weibull(Samplable):
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
         try:
-            return float(self.lam * (-math.log(1.0 - u)) ** (1.0 / self.k))
+            return float(self.lam * (-math.log1p(-u)) ** (1.0 / self.k))
         except OverflowError:
             return math.inf
 
