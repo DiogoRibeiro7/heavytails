@@ -18,10 +18,15 @@ Python 3.10 on three of the fourteen families -- the third time in this
 codebase that a bit-identity claim has been made and then disproved by a
 platform other than the one it was written on.
 
-So the budget below is 1e-13 relative, which is a few hundred units in the last
-place: far tighter than any tolerance that could hide a formula error, which
-would show up at 1e-8 or worse, and loose enough to survive whichever routines
-a platform picks.
+So the budget below has two arms, and it needs both. 1e-13 relative is a few
+hundred units in the last place -- far tighter than any tolerance that could
+hide a formula error, which would show up at 1e-8 or worse, and loose enough to
+survive whichever routines a platform picks. But a relative budget alone cannot
+hold for a value that came out of a cancellation: GEV_Frechet drew a variate of
+-0.00086 whose two computations differed by 2.2e-16, one unit in the last place
+of *one*, which against a result that small reads as 2.6e-13 relative. The
+absolute arm is what covers that, and it is the same correction this codebase
+needed the last time a relative-only budget was written.
 """
 
 from __future__ import annotations
@@ -46,6 +51,12 @@ from heavytails.heavy_tails import (
     StudentT,
     Weibull,
 )
+
+# Both arms, and each covers what the other cannot: the relative one for values
+# spanning many orders of magnitude, the absolute one for values near zero that
+# a subtraction produced.
+RELATIVE = 1e-13
+ABSOLUTE = 1e-15
 
 # Parameters chosen to sit inside each support with a real tail, and to cover
 # both signs of the GPD shape -- the bounded case has an upper endpoint, which
@@ -127,7 +138,9 @@ class TestTheInputKindIsMirrored:
         one_at_a_time = np.array([getattr(distribution, method)(v) for v in grid])
         # Not exact. See the module docstring: same expression, different NumPy
         # routines for a scalar and for an array.
-        np.testing.assert_allclose(vectorised, one_at_a_time, rtol=1e-13, atol=0.0)
+        np.testing.assert_allclose(
+            vectorised, one_at_a_time, rtol=RELATIVE, atol=ABSOLUTE
+        )
 
 
 class TestProbabilitiesAreChecked:
@@ -196,8 +209,10 @@ class TestSamplingInABatchMatchesSamplingOneAtATime:
     a handful; on Linux under Python 3.10 it was 27 of 2,000 for GEV_Frechet,
     which is what the first budget here was too tight to allow.
 
-    1e-13 relative is a few hundred units in the last place, far tighter than
-    anything that could hide a wrong quantile function.
+    The budget is the module's two-armed one. GEV_Frechet is why it needs the
+    absolute arm: one draw in 2,000 came out at -0.00086 from a cancellation,
+    and the two computations of it differ by a single unit in the last place of
+    one, which is 2.6e-13 relative against a number that small.
     """
 
     @pytest.mark.parametrize(
@@ -218,7 +233,7 @@ class TestSamplingInABatchMatchesSamplingOneAtATime:
         batched = np.array(distribution.rvs(2000, seed=42))
         rng = RNG(42)
         one_at_a_time = np.array([distribution._rvs_one(rng) for _ in range(2000)])
-        np.testing.assert_allclose(batched, one_at_a_time, rtol=1e-13, atol=0.0)
+        np.testing.assert_allclose(batched, one_at_a_time, rtol=RELATIVE, atol=ABSOLUTE)
 
     def test_the_seed_still_reproduces(self) -> None:
         assert Pareto(alpha=2.0).rvs(50, seed=7) == Pareto(alpha=2.0).rvs(50, seed=7)

@@ -618,8 +618,10 @@ class TestPerformanceDetailed:
 
         # The two routes must also agree, or the budget above is measuring
         # something other than the same work.
-        np.testing.assert_allclose(pdf_array, pdf_values, rtol=1e-13, atol=0.0)
-        np.testing.assert_allclose(cdf_array, cdf_values, rtol=1e-13, atol=0.0)
+        # Two arms; see tests/test_array_api.py for why a relative budget
+        # alone cannot hold for a value that came out of a cancellation.
+        np.testing.assert_allclose(pdf_array, pdf_values, rtol=1e-13, atol=1e-15)
+        np.testing.assert_allclose(cdf_array, cdf_values, rtol=1e-13, atol=1e-15)
 
         assert all(p >= 0 for p in pdf_values), "Negative PDF values found"
         assert all(0 <= c <= 1 for c in cdf_values), "CDF values out of range"
