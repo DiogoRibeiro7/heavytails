@@ -2062,17 +2062,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2084,7 +2073,29 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2173,7 +2184,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_2" class="md-nav__link">
+  <a href="#fixed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2415,11 +2426,50 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>_gammainc_upper_reg</code>, the regularized upper incomplete gamma computed as
+<li><code>tests/reference_values.json</code> and <code>scripts/generate_reference_values.py</code>, a
+  database of 209 values computed by mpmath at 50 decimal digits from the
+  mathematical definitions, covering all twelve continuous families
+  (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/311">#311</a>). Every
+  point carries its condition number, so the tolerance follows from how well
+  the quantity can be determined at that input rather than from a flat
+  guess. Reading the table needs no mpmath and runs in about a second.</li>
+<li><code>tests/test_distribution_properties.py</code>, applying the generic properties --
+  quantile inversion, survival complementarity, monotonicity, non-negative
+  density, support, reproducibility -- to every family from one registry
+  rather than to four families by hand. Adds checks of the documented family
+  relationships, of the tail index each family is supposed to have, and of
+  moments existing exactly when the theory says.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<p>Eight numerical defects, all found by the reference database on its first run
+and all the same mistake: computing a small quantity by subtracting from one.</p>
+<ul>
+<li><code>Cauchy.ppf</code> used <code>tan(pi(u - 1/2))</code>, whose argument sits next to <code>+-pi/2</code>
+  where the tangent is arbitrarily steep. At <code>u = 1e-9</code> it returned
+  -318309868.8 for a true -318309886.2, wrong in the eighth digit. Now uses
+  the cotangent form, accurate to 1.9e-16.</li>
+<li><code>_phi_inverse</code> refined its rational approximation using
+  <code>0.5*(1 + erf(x/sqrt(2)))</code>, which cancels once <code>x</code> is a few units negative,
+  so the correction was computed from noise. The relative error at <code>u = 1e-12</code>
+  was 4.4e-07 -- worse than the unrefined approximation. Now 4.2e-16 across
+  the range, which also improves every normal-quantile consumer, including
+  <code>LogNormal.ppf</code> and the confidence intervals in <code>tail_index</code> and <code>threshold</code>.</li>
+<li><code>GeneralizedPareto.ppf</code>, <code>BurrXII.ppf</code> and <code>Weibull.ppf</code> formed <code>1 - u</code>
+  before taking a power or a logarithm, losing the lower tail to about seven
+  digits. Now use <code>log1p</code>/<code>expm1</code>.</li>
+<li>
+<p><code>GeneralizedPareto.cdf</code>, <code>BurrXII.cdf</code>, <code>Weibull.cdf</code>, <code>Cauchy.cdf</code> and
+  <code>LogNormal.cdf</code> computed a small probability as <code>1 - g(x)</code> with <code>g</code>
+  approaching one. Each now takes the branch where its own value is the small
+  quantity.</p>
+</li>
+<li>
+<p><code>_gammainc_upper_reg</code>, the regularized upper incomplete gamma computed as
   itself rather than as <code>1 - P</code>
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/309">#309</a>). The
   subtraction cannot express a result below about 1e-16, so at <code>a=2, x=50</code> it
-  returned exactly zero where the true value is 9.8e-21.</li>
+  returned exactly zero where the true value is 9.8e-21.</p>
+</li>
 <li><code>_gammaincinv_reg</code>, the inverse of the regularized incomplete gamma in both
   the lower and upper senses, so a caller can go through whichever of the two
   is its small quantity.</li>
@@ -2434,7 +2484,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   the whole exponent range, cutting <code>StudentT.ppf</code> from 127 to 35 microseconds
   with identical accuracy.</li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>The safeguarded Newton iteration in <code>_betaincinv_reg</code> narrowed its bracket
   <em>after</em> computing the midpoint to fall back to, so on the first iteration --
@@ -2464,7 +2514,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   numerical modules actually reproduce. The main suite does not collect
   doctests, so four had stopped working unnoticed.</li>
 </ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Four docstring examples reported values their code never produced. Two claimed
@@ -2773,7 +2823,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   that was never generated.</p>
 </li>
 </ul>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The continued-fraction branch of the regularized lower incomplete gamma was
