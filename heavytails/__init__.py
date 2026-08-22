@@ -34,6 +34,8 @@ Modules
     Evaluation over many points at once, using NumPy when it is installed
 - heavytails.multivariate
     Elliptical families and tail dependence for joint heavy tails
+- heavytails.copula
+    Dependence separated from the margins, and joint-tail diagnostics
 
 Author: Diogo Ribeiro
 License: MIT

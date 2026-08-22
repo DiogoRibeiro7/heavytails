@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.copula`, dependence separated from the margins
+  ([#306](https://github.com/DiogoRibeiro7/heavytails/issues/306)).
+  `GaussianCopula`, `StudentTCopula`, `GumbelCopula` and `GalambosCopula`, with
+  densities, exact sampling and closed-form tail dependence, plus
+  `empirical_tail_dependence` for estimating it from data.
+
+  The Gaussian is included as the cautionary case: its tail dependence is zero
+  at every correlation short of one, so fitting it to data whose extremes do
+  arrive together reproduces the correlation faithfully and understates the
+  joint risk with no sign that it has.
+
+  `empirical_tail_dependence` documents its own bias with measurements rather
+  than a warning: on 400,000 draws from a Gaussian copula, whose true
+  coefficient is exactly zero, it reports 0.47 at the 0.90 level and still
+  0.145 at 0.9995. It cannot distinguish asymptotic independence from moderate
+  tail dependence, and says so.
+
+  Vine copulas are deliberately not included; they need pair-copula
+  construction and structure selection and are a subsystem rather than a class.
+
+### Added
+
 - `heavytails.multivariate`, the elliptical family and joint tail dependence
   ([#305](https://github.com/DiogoRibeiro7/heavytails/issues/305)).
   `MultivariateStudentT` and `MultivariateNormal` are normal scale mixtures
