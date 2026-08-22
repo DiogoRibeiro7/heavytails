@@ -1,7 +1,7 @@
 [project]
 name = "heavytails"
 version = "0.4.0"
-description = "Pure-Python heavy-tailed probability distributions for research, teaching, and simulation."
+description = "Heavy-tailed probability distributions for research, teaching, and simulation."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -35,7 +35,7 @@ classifiers = [
     "Topic :: Office/Business :: Financial",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = ["numpy>=1.24,<3.0"]
 
 [project.optional-dependencies]
 # The `heavytails` console script needs these; the library itself does not.

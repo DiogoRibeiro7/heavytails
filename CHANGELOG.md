@@ -9,6 +9,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+**NumPy is now a required dependency, and every distribution method takes a
+number or an array.**
+
+The library was pure Python by choice, and that choice stopped paying: a density
+over a hundred thousand points cost a hundred thousand interpreter round trips.
+Evaluating one over a million points now takes about 20 milliseconds.
+
+- `pdf`, `cdf`, `sf` and `ppf` on all twelve continuous families accept a
+  number, a sequence, or an array, and return the same kind of thing they were
+  given. A number in gives a `float` out; anything array-like in gives an
+  `ndarray` out with the same shape.
+- Each formula is written once, against NumPy, so the scalar and array results
+  come from the same expression and cannot disagree about what is computed.
+  They can still differ in the last bits, because NumPy evaluates an array
+  through vectorised routines and a scalar through libm, so the tests hold them
+  to 1e-13 relative rather than to equality.
+- `rvs` inverts its uniforms in a single call rather than one at a time, which
+  makes sampling 21x to 31x faster. The uniforms themselves are unchanged, so a
+  seeded sample is reproducible and its distribution is identical. A few
+  variates land one ULP away from what the previous version returned, because
+  NumPy's vectorised `log` and `pow` round differently from its scalar ones: for
+  Weibull(k=0.5) that is 14 values in 20,000, with the sample mean unchanged to
+  twelve digits.
+- `rvs` still returns a `list`. Returning an array would silently turn
+  `sample_a + sample_b` from concatenation into elementwise addition.
+- `ppf` checks its whole input before computing any of it, and names an
+  offending value: `u must be in (0,1); got 1.5`. The scalar version raised on
+  the value it happened to reach first.
+- **A scalar call costs more than it did.** `Pareto.pdf(0.5)` is about 2.6us
+  against roughly 0.2us of plain arithmetic before, because every call now goes
+  through the array dispatch. Evaluating the same ten thousand points in one
+  call takes 0.3ms, which is about eighty times less than the loop. Scalars are
+  carried as `numpy.float64` rather than 0-d arrays and guarded with an
+  ordinary conditional rather than `np.where`, which is what keeps it to 2.6us
+  instead of 5.3.
+
+**The tail index estimators too.**
+
 - The core tail index estimators compute through NumPy. `hill_estimator` is
   about 5x faster and `hill_plot` about 10x on a sample of 200,000; the plot
   now derives every threshold from one cumulative sum instead of re-summing the
@@ -24,8 +62,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `adaptive_trim_selection` returns a Python `float` for `gamma`, not a NumPy
   scalar.
 
+Four families keep a Python loop for their probabilities. `LogNormal`,
+`StudentT`, `InverseGamma` and `BetaPrime` need the error function or an
+incomplete beta or gamma, which NumPy does not provide; their `cdf`, `sf` and
+`ppf` cost what they always did. Their densities are elementary and are
+vectorised like everything else.
+
 ### Fixed
 
+- `GeneralizedPareto.sf` computes the survival probability directly instead of
+  as `1 - cdf`. The subtraction returned **exactly zero** in the far tail: at
+  `xi=0.5`, `sf(1e12)` gave `0.0` where the true value is `4.0e-24`. This is the
+  tail the distribution exists to describe.
 - `streaming.py` no longer keeps its own transcription of the Hill and moment
   formulas. It called them "written to match the batch version operation for
   operation", which held only until the batch version changed its summation

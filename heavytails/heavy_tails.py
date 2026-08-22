@@ -3,6 +3,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from typing import TYPE_CHECKING, Any
+
+import numpy as np
+
+from heavytails._array import as_array, check_probabilities, elementwise, restore
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 import random
 
 from heavytails._special import _betainc_reg, _betaincinv_reg, _phi_inverse
@@ -110,11 +118,22 @@ class Samplable:
 
     def rvs(self, n: int, seed: int | None = None) -> list[float]:
         """
-        Draw n IID variates. Subclasses must implement ._rvs_one(rng).
+        Draw n IID variates. Subclasses implement ._rvs_one(rng), or
+        ._rvs_many(rng, n) when the whole sample can be drawn at once.
         """
         if not isinstance(n, int) or n <= 0:
             raise ValueError("n must be a positive integer.")
         rng = RNG(seed)
+        return self._rvs_many(rng, n)
+
+    def _rvs_many(self, rng: RNG, n: int) -> list[float]:
+        """
+        Draw the whole sample.
+
+        The default calls ._rvs_one n times, which is correct for any family
+        and is what a family with no batched form should keep doing.
+        :class:`InverseTransformSampling` overrides it.
+        """
         return [self._rvs_one(rng) for _ in range(n)]
 
     def _rvs_one(self, rng: RNG) -> float:
@@ -122,11 +141,63 @@ class Samplable:
         raise NotImplementedError
 
 
+class InverseTransformSampling(Samplable):
+    """
+    Sampling by feeding uniforms through the quantile function.
+
+    Draws the uniforms in a loop -- the generator is Python's and each draw
+    depends on the one before, so there is nothing to vectorise there -- and
+    then inverts all of them in a single call.
+
+    That second half is where the time was going. Inverting 50,000 uniforms
+    one at a time costs about 0.30s, because it is 50,000 separate dispatches
+    through :func:`~heavytails._array.as_array` and back; inverting them in one
+    call costs about 0.8ms.
+
+    The uniforms are the same either way, so a seeded sample is reproducible
+    and its distribution is unchanged. The variates are *almost* the same:
+    NumPy's vectorised loops for ``log`` and ``pow`` round differently from its
+    scalar ones, so a few draws land one ULP away from what the scalar path
+    gave. For Weibull(k=0.5) that is 14 values in 20,000, worst case a relative
+    1.99e-16, with the sample mean unchanged to twelve digits. Tests that pin
+    seeded variates to the last bit will see it; nothing measuring a
+    distribution will.
+
+    Examples:
+        >>> Pareto(alpha=2.0, xm=1.0).rvs(3, seed=7) == Pareto(
+        ...     alpha=2.0, xm=1.0
+        ... ).rvs(3, seed=7)
+        True
+    """
+
+    def ppf(self, u: ArrayLike) -> Any:
+        """The quantile function, which every family mixing this in defines.
+
+        Declared here because the batched sampler below is written in terms of
+        it: the mixin is not merely a helper, it is a statement that the family
+        samples by inversion and therefore has a quantile function to invert.
+        """
+        raise NotImplementedError
+
+    def _rvs_many(self, rng: RNG, n: int) -> list[float]:
+        uniforms = np.fromiter(
+            (rng.uniform_0_1() for _ in range(n)), dtype=float, count=n
+        )
+        return [float(value) for value in np.asarray(self.ppf(uniforms))]
+
+    def _rvs_one(self, rng: RNG) -> float:
+        u = rng.uniform_0_1()
+        # ppf mirrors its input, so a scalar in gives a float out. The cast
+        # says so to the type checker, which only sees the array-or-scalar
+        # return type.
+        return float(self.ppf(u))
+
+
 # --------------------------- Distributions ----------------------------------- #
 
 
 @dataclass(frozen=True)
-class Pareto(Samplable):
+class Pareto(InverseTransformSampling):
     """
     Pareto Type I with scale xm>0 and shape alpha>0.
     PDF: f(x) = alpha x_m^alpha / x^{alpha+1},  x >= x_m
@@ -155,44 +226,53 @@ class Pareto(Samplable):
         if not (self.alpha > 0 and self.xm > 0):
             raise ParameterError("Pareto requires alpha>0 and xm>0.")
 
-    def pdf(self, x: float) -> float:
-        if x < self.xm:
-            return 0.0
-        return float(self.alpha * (self.xm**self.alpha) / (x ** (self.alpha + 1.0)))
+    def pdf(self, x: ArrayLike) -> Any:
+        """Density. A number in gives a number out, a sequence gives an array."""
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            density = self.alpha * self.xm**self.alpha / values ** (self.alpha + 1.0)
+        return restore(np.where(values < self.xm, 0.0, density), scalar)
 
-    def cdf(self, x: float) -> float:
-        if x < self.xm:
-            return 0.0
-        return float(1.0 - (self.xm / x) ** self.alpha)
+    def cdf(self, x: ArrayLike) -> Any:
+        """Distribution function."""
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            below = 1.0 - (self.xm / values) ** self.alpha
+        return restore(np.where(values < self.xm, 0.0, below), scalar)
 
-    def sf(self, x: float) -> float:
-        """Survival function 1 - CDF."""
-        if x < self.xm:
-            return 1.0
-        return float((self.xm / x) ** self.alpha)
+    def sf(self, x: ArrayLike) -> Any:
+        """Survival function.
 
-    def ppf(self, u: float) -> float:
+        Computed directly rather than as ``1 - cdf``, which returns exactly
+        zero once the survival probability drops below the spacing of one.
+        """
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            above = (self.xm / values) ** self.alpha
+        return restore(np.where(values < self.xm, 1.0, above), scalar)
+
+    def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
 
-        Returns ``inf`` when the quantile exceeds the float range. At extreme
+        Returns ``inf`` where the quantile exceeds the float range. At extreme
         parameters the true value is genuinely not representable, and reporting
         it is more useful than raising, which aborts a parameter sweep at the
         first point that overflows.
-        """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
-            return float(self.xm * (1.0 - u) ** (-1.0 / self.alpha))
-        except OverflowError:
-            return math.inf
 
-    def _rvs_one(self, rng: RNG) -> float:
-        u = rng.uniform_0_1()
-        return self.ppf(u)
+        Raises:
+            ValueError: If any probability is outside (0, 1). The whole input
+                is checked before any work starts, so the message can name the
+                offending value instead of failing part way through.
+        """
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(over="ignore"):
+            quantile = self.xm * (1.0 - values) ** (-1.0 / self.alpha)
+        return restore(quantile, scalar)
 
 
 @dataclass(frozen=True)
-class Cauchy(Samplable):
+class Cauchy(InverseTransformSampling):
     """
     Cauchy(location x0, scale gamma>0).
     PDF: f(x) = [1/πgamma] * [1 / (1 + ((x-x0)/gamma)^2)]
@@ -225,11 +305,13 @@ class Cauchy(Samplable):
         if not (self.gamma > 0):
             raise ParameterError("Cauchy requires scale gamma>0.")
 
-    def pdf(self, x: float) -> float:
-        z = (x - self.x0) / self.gamma
-        return 1.0 / (math.pi * self.gamma * (1.0 + z * z))
+    def pdf(self, x: ArrayLike) -> Any:
+        """Density."""
+        values, scalar = as_array(x)
+        z = (values - self.x0) / self.gamma
+        return restore(1.0 / (math.pi * self.gamma * (1.0 + z * z)), scalar)
 
-    def cdf(self, x: float) -> float:
+    def cdf(self, x: ArrayLike) -> Any:
         """Distribution function.
 
         For very negative ``z`` the arctangent approaches ``-pi/2`` and adding
@@ -237,14 +319,17 @@ class Cauchy(Samplable):
         that is the whole point of the left tail. ``arctan(-1/z)`` is the same
         number with its argument near zero, where it is exact.
         """
-        z = (x - self.x0) / self.gamma
-        if z < -1.0:
-            return math.atan(-1.0 / z) / math.pi
-        if z > 1.0:
-            return 1.0 - math.atan(1.0 / z) / math.pi
-        return 0.5 + math.atan(z) / math.pi
+        values, scalar = as_array(x)
+        z = (values - self.x0) / self.gamma
+        with np.errstate(divide="ignore", invalid="ignore"):
+            lower = np.arctan(-1.0 / z) / math.pi
+            upper = 1.0 - np.arctan(1.0 / z) / math.pi
+        middle = 0.5 + np.arctan(z) / math.pi
+        return restore(
+            np.where(z < -1.0, lower, np.where(z > 1.0, upper, middle)), scalar
+        )
 
-    def sf(self, x: float) -> float:
+    def sf(self, x: ArrayLike) -> Any:
         """Survival function 1 - CDF.
 
         Computed as ``atan(1/z)/pi`` in the upper tail rather than as
@@ -252,12 +337,15 @@ class Cauchy(Samplable):
         to every displayed digit and collapses to exactly zero, whereas
         ``atan(1/z) -> 1/z`` keeps full relative precision.
         """
-        z = (x - self.x0) / self.gamma
-        if z > 0.0:
-            return math.atan(1.0 / z) / math.pi
-        return 0.5 - math.atan(z) / math.pi
+        values, scalar = as_array(x)
+        z = (values - self.x0) / self.gamma
+        with np.errstate(divide="ignore", invalid="ignore"):
+            positive = np.arctan(1.0 / z) / math.pi
+        return restore(
+            np.where(z > 0.0, positive, 0.5 - np.arctan(z) / math.pi), scalar
+        )
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
 
         Returns ``inf`` when the quantile exceeds the float range. At extreme
@@ -274,20 +362,16 @@ class Cauchy(Samplable):
         it is computed exactly, and the tail is the only part of a Cauchy
         anyone cares about.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
-            if u < 0.25:
-                return self.x0 - self.gamma / math.tan(math.pi * u)
-            if u > 0.75:
-                return self.x0 + self.gamma / math.tan(math.pi * (1.0 - u))
-            return self.x0 + self.gamma * math.tan(math.pi * (u - 0.5))
-        except (OverflowError, ZeroDivisionError):
-            return math.inf
-
-    def _rvs_one(self, rng: RNG) -> float:
-        u = rng.uniform_0_1()
-        return self.ppf(u)
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            low = self.x0 - self.gamma / np.tan(math.pi * values)
+            high = self.x0 + self.gamma / np.tan(math.pi * (1.0 - values))
+        middle = self.x0 + self.gamma * np.tan(math.pi * (values - 0.5))
+        return restore(
+            np.where(values < 0.25, low, np.where(values > 0.75, high, middle)),
+            scalar,
+        )
 
 
 @dataclass(frozen=True)
@@ -324,12 +408,15 @@ class StudentT(Samplable):
         if not (self.nu > 0):
             raise ParameterError("Student-t requires nu>0.")
 
-    def pdf(self, x: float) -> float:
+    def pdf(self, x: ArrayLike) -> Any:
+        """Density. Elementary, so this one vectorises."""
+        values, scalar = as_array(x)
         nu = self.nu
-        c = math.gamma((nu + 1.0) / 2.0) / (
+        constant = math.gamma((nu + 1.0) / 2.0) / (
             math.sqrt(nu * math.pi) * math.gamma(nu / 2.0)
         )
-        return float(c * (1.0 + (x * x) / nu) ** (-(nu + 1.0) / 2.0))
+        density = constant * (1.0 + values * values / nu) ** (-(nu + 1.0) / 2.0)
+        return restore(density, scalar)
 
     def _tail_half(self, x: float) -> float:
         """Return P(|X| > |x|) / 2 = I_{nu/(nu+x^2)}(nu/2, 1/2) / 2.
@@ -347,17 +434,31 @@ class StudentT(Samplable):
             y = 0.0
         return 0.5 * _betainc_reg(nu / 2.0, 0.5, y)
 
-    def cdf(self, x: float) -> float:
-        """CDF via the regularized incomplete beta function."""
+    def cdf(self, x: ArrayLike) -> Any:
+        """Distribution function, via the regularized incomplete beta.
+
+        Evaluated one point at a time. NumPy has no incomplete beta, so there
+        is no expression to vectorise and the loop is the implementation
+        rather than a stand-in for one. :meth:`pdf` is elementary and does
+        vectorise.
+        """
+        values, scalar = as_array(x)
+        return restore(elementwise(self._cdf_one, values), scalar)
+
+    def _cdf_one(self, x: float) -> float:
         half = self._tail_half(x)
         return float(1.0 - half) if x >= 0.0 else float(half)
 
-    def sf(self, x: float) -> float:
-        """Survival function 1 - CDF, computed directly for tail accuracy."""
+    def sf(self, x: ArrayLike) -> Any:
+        """Survival function, computed directly for tail accuracy."""
+        values, scalar = as_array(x)
+        return restore(elementwise(self._sf_one, values), scalar)
+
+    def _sf_one(self, x: float) -> float:
         half = self._tail_half(x)
         return float(half) if x >= 0.0 else float(1.0 - half)
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
         """Quantile function, obtained by inverting the incomplete beta.
 
         Uses the symmetry of the Student-t about zero so that only the upper
@@ -366,8 +467,12 @@ class StudentT(Samplable):
         accurate: a quantile solver working to an absolute tolerance on the CDF
         loses most of its digits where the density is vanishingly small.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        return restore(elementwise(self._ppf_one, values), scalar)
+
+    def _ppf_one(self, u: float) -> float:
+        """One quantile, by inverting the incomplete beta."""
         if u == 0.5:
             return 0.0
 
@@ -424,13 +529,27 @@ class LogNormal(Samplable):
         if not (self.sigma > 0):
             raise ParameterError("LogNormal requires sigma>0.")
 
-    def pdf(self, x: float) -> float:
-        if x <= 0.0:
-            return 0.0
-        z = (math.log(x) - self.mu) / self.sigma
-        return math.exp(-0.5 * z * z) / (x * self.sigma * math.sqrt(2.0 * math.pi))
+    def pdf(self, x: ArrayLike) -> Any:
+        """Density. Elementary, so this one vectorises."""
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            z = (np.log(values) - self.mu) / self.sigma
+            density = np.exp(-0.5 * z * z) / (
+                values * self.sigma * math.sqrt(2.0 * math.pi)
+            )
+        return restore(np.where(values <= 0.0, 0.0, density), scalar)
 
-    def cdf(self, x: float) -> float:
+    def cdf(self, x: ArrayLike) -> Any:
+        """Distribution function.
+
+        Evaluated one point at a time: it needs the complementary error
+        function and NumPy has none, so the loop is the implementation rather
+        than a stand-in. :meth:`pdf` is elementary and does vectorise.
+        """
+        values, scalar = as_array(x)
+        return restore(elementwise(self._cdf_one, values), scalar)
+
+    def _cdf_one(self, x: float) -> float:
         if x <= 0.0:
             return 0.0
         z = (math.log(x) - self.mu) / (self.sigma * math.sqrt(2.0))
@@ -439,19 +558,23 @@ class LogNormal(Samplable):
         # probability whose leading digit is all anyone wanted.
         return 0.5 * math.erfc(-z)
 
-    def sf(self, x: float) -> float:
+    def sf(self, x: ArrayLike) -> Any:
         """Survival function 1 - CDF, computed with ``erfc`` for tail accuracy.
 
         ``1 - cdf(x)`` collapses to exactly zero once ``cdf(x)`` rounds to 1.0,
         which happens well inside the range of interest. ``erfc`` is accurate
         for large arguments and keeps the true decay.
         """
+        values, scalar = as_array(x)
+        return restore(elementwise(self._sf_one, values), scalar)
+
+    def _sf_one(self, x: float) -> float:
         if x <= 0.0:
             return 1.0
         z = (math.log(x) - self.mu) / (self.sigma * math.sqrt(2.0))
         return 0.5 * math.erfc(z)
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
 
         Returns ``inf`` when the quantile exceeds the float range rather than
@@ -459,10 +582,13 @@ class LogNormal(Samplable):
         the median of ``LogNormal(mu=1000)`` is ``exp(1000)`` -- and ``inf`` is
         the correct value to report for it.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        # Inverse via normal quantile needs erfinv; not in stdlib.
-        # Use rational approximation to Φ^{-1}(u) (Acklam's method).
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        return restore(elementwise(self._ppf_one, values), scalar)
+
+    def _ppf_one(self, u: float) -> float:
+        # The normal quantile needs erfinv, which is not in the standard
+        # library and not in NumPy either, so this stays a scalar routine.
         z = _phi_inverse(u)
         try:
             return math.exp(self.mu + self.sigma * z)
@@ -475,7 +601,7 @@ class LogNormal(Samplable):
 
 
 @dataclass(frozen=True)
-class Weibull(Samplable):
+class Weibull(InverseTransformSampling):
     """
     Weibull(k, lambda_) with shape k>0 and scale lambda_>0.
     PDF: f(x) = (k/lambda_) (x/lambda_)^{k-1} exp(-(x/lambda_)^k), x>=0
@@ -506,32 +632,36 @@ class Weibull(Samplable):
         if not (self.k > 0 and self.lam > 0):
             raise ParameterError("Weibull requires k>0 and lambda_>0.")
 
-    def pdf(self, x: float) -> float:
-        if x < 0.0:
-            return 0.0
-        if x == 0.0 and self.k < 1.0:
-            # The density diverges at the origin for k below one, and the
-            # expression below raises ZeroDivisionError there rather than
-            # saying so: 0.0 ** negative. The limit is what it returns now.
-            return math.inf
-        z = (x / self.lam) ** self.k
-        return float(
-            (self.k / self.lam) * (x / self.lam) ** (self.k - 1.0) * math.exp(-z)
-        )
+    def pdf(self, x: ArrayLike) -> Any:
+        """Density, which diverges at the origin for shape below one."""
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            z = (values / self.lam) ** self.k
+            density = (
+                (self.k / self.lam) * (values / self.lam) ** (self.k - 1.0) * np.exp(-z)
+            )
+        if self.k < 1.0:
+            # The limit at the origin. The expression above is 0 ** negative
+            # there, which is an error rather than a statement about the
+            # density.
+            density = np.where(values == 0.0, np.inf, density)
+        return restore(np.where(values < 0.0, 0.0, density), scalar)
 
-    def cdf(self, x: float) -> float:
+    def cdf(self, x: ArrayLike) -> Any:
         """Distribution function, via ``-expm1`` so the lower tail survives."""
-        if x < 0.0:
-            return 0.0
-        return -math.expm1(-((x / self.lam) ** self.k))
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            below = -np.expm1(-((values / self.lam) ** self.k))
+        return restore(np.where(values < 0.0, 0.0, below), scalar)
 
-    def sf(self, x: float) -> float:
+    def sf(self, x: ArrayLike) -> Any:
         """Survival function: 1 - CDF(x)."""
-        if x < 0.0:
-            return 1.0
-        return math.exp(-((x / self.lam) ** self.k))
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            above = np.exp(-((values / self.lam) ** self.k))
+        return restore(np.where(values < 0.0, 1.0, above), scalar)
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
 
         Returns ``inf`` when the quantile exceeds the float range. At extreme
@@ -539,20 +669,15 @@ class Weibull(Samplable):
         it is more useful than raising, which aborts a parameter sweep at the
         first point that overflows.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
-            return float(self.lam * (-math.log1p(-u)) ** (1.0 / self.k))
-        except OverflowError:
-            return math.inf
-
-    def _rvs_one(self, rng: RNG) -> float:
-        u = rng.uniform_0_1()
-        return self.ppf(u)
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(over="ignore"):
+            quantile = self.lam * (-np.log1p(-values)) ** (1.0 / self.k)
+        return restore(quantile, scalar)
 
 
 @dataclass(frozen=True)
-class Frechet(Samplable):
+class Frechet(InverseTransformSampling):
     """
     Fréchet(alpha, s, m): heavy-tailed extreme-value distribution.
     Support x > m. alpha>0 (shape), s>0 (scale), m (location).
@@ -580,32 +705,36 @@ class Frechet(Samplable):
         if not (self.alpha > 0 and self.s > 0):
             raise ParameterError("Frechet requires alpha>0 and s>0.")
 
-    def pdf(self, x: float) -> float:
-        if x <= self.m:
-            return 0.0
-        z = (x - self.m) / self.s
-        t = z ** (-self.alpha)
-        return float((self.alpha / self.s) * z ** (-(self.alpha + 1.0)) * math.exp(-t))
+    def pdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            z = (values - self.m) / self.s
+            density = (
+                (self.alpha / self.s)
+                * z ** (-(self.alpha + 1.0))
+                * np.exp(-(z ** (-self.alpha)))
+            )
+        return restore(np.where(values <= self.m, 0.0, density), scalar)
 
-    def cdf(self, x: float) -> float:
-        if x <= self.m:
-            return 0.0
-        z = (x - self.m) / self.s
-        return math.exp(-(z ** (-self.alpha)))
+    def cdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            below = np.exp(-(((values - self.m) / self.s) ** (-self.alpha)))
+        return restore(np.where(values <= self.m, 0.0, below), scalar)
 
-    def sf(self, x: float) -> float:
+    def sf(self, x: ArrayLike) -> Any:
         """Survival function 1 - CDF, via ``-expm1`` for tail accuracy.
 
         In the upper tail the exponent tends to zero and ``exp`` of it rounds to
         exactly 1.0, so ``1 - cdf(x)`` would yield 0. ``-expm1(t)`` is accurate
         for small t and preserves the true decay.
         """
-        if x <= self.m:
-            return 1.0
-        z = (x - self.m) / self.s
-        return float(-math.expm1(-(z ** (-self.alpha))))
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            above = -np.expm1(-(((values - self.m) / self.s) ** (-self.alpha)))
+        return restore(np.where(values <= self.m, 1.0, above), scalar)
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
 
         Returns ``inf`` when the quantile exceeds the float range. At extreme
@@ -613,20 +742,15 @@ class Frechet(Samplable):
         it is more useful than raising, which aborts a parameter sweep at the
         first point that overflows.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
-            return float(self.m + self.s * (-math.log(u)) ** (-1.0 / self.alpha))
-        except OverflowError:
-            return math.inf
-
-    def _rvs_one(self, rng: RNG) -> float:
-        u = rng.uniform_0_1()
-        return self.ppf(u)
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(over="ignore"):
+            quantile = self.m + self.s * (-np.log(values)) ** (-1.0 / self.alpha)
+        return restore(quantile, scalar)
 
 
 @dataclass(frozen=True)
-class GEV_Frechet(Samplable):
+class GEV_Frechet(InverseTransformSampling):
     """
     Generalized Extreme Value (Fréchet-type) with xi>0, mu (loc), sigma>0 (scale).
     Heavy-tailed when xi>0.
@@ -664,37 +788,37 @@ class GEV_Frechet(Samplable):
     def _valid(self, x: float) -> bool:
         return (1.0 + self.xi * ((x - self.mu) / self.sigma)) > 0.0
 
-    def pdf(self, x: float) -> float:
-        if not self._valid(x):
-            return 0.0
-        z = (x - self.mu) / self.sigma
-        t = 1.0 + self.xi * z
-        return float(
-            (1.0 / self.sigma)
-            * (t ** (-1.0 / self.xi - 1.0))
-            * math.exp(-(t ** (-1.0 / self.xi)))
-        )
+    def pdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            t = 1.0 + self.xi * (values - self.mu) / self.sigma
+            density = (
+                (1.0 / self.sigma)
+                * t ** (-1.0 / self.xi - 1.0)
+                * np.exp(-(t ** (-1.0 / self.xi)))
+            )
+        return restore(np.where(t > 0.0, density, 0.0), scalar)
 
-    def cdf(self, x: float) -> float:
-        if not self._valid(x):
-            return 0.0
-        z = (x - self.mu) / self.sigma
-        t = 1.0 + self.xi * z
-        return math.exp(-(t ** (-1.0 / self.xi)))
+    def cdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            t = 1.0 + self.xi * (values - self.mu) / self.sigma
+            below = np.exp(-(t ** (-1.0 / self.xi)))
+        return restore(np.where(t > 0.0, below, 0.0), scalar)
 
-    def sf(self, x: float) -> float:
+    def sf(self, x: ArrayLike) -> Any:
         """Survival function 1 - CDF, via ``-expm1`` for tail accuracy.
 
         See :meth:`Frechet.sf`: forming ``1 - exp(-t)`` for small t loses every
         significant digit, while ``-expm1(-t)`` does not.
         """
-        if not self._valid(x):
-            return 1.0
-        z = (x - self.mu) / self.sigma
-        t = 1.0 + self.xi * z
-        return float(-math.expm1(-(t ** (-1.0 / self.xi))))
+        values, scalar = as_array(x)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            t = 1.0 + self.xi * (values - self.mu) / self.sigma
+            above = -np.expm1(-(t ** (-1.0 / self.xi)))
+        return restore(np.where(t > 0.0, above, 1.0), scalar)
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
 
         Returns ``inf`` when the quantile exceeds the float range. At extreme
@@ -702,18 +826,13 @@ class GEV_Frechet(Samplable):
         it is more useful than raising, which aborts a parameter sweep at the
         first point that overflows.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
-            return float(
-                self.mu + (self.sigma / self.xi) * ((-math.log(u)) ** (-self.xi) - 1.0)
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(over="ignore"):
+            quantile = self.mu + (self.sigma / self.xi) * (
+                (-np.log(values)) ** (-self.xi) - 1.0
             )
-        except OverflowError:
-            return math.inf
-
-    def _rvs_one(self, rng: RNG) -> float:
-        u = rng.uniform_0_1()
-        return self.ppf(u)
+        return restore(quantile, scalar)
 
 
 def _demo() -> None:

@@ -3,6 +3,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from typing import TYPE_CHECKING, Any
+
+import numpy as np
+
+from heavytails._array import as_array, check_probabilities, elementwise, restore
 
 # The special functions live in heavytails._special so that heavy_tails.py can
 # use them too without creating an import cycle. They are re-exported here
@@ -16,7 +21,15 @@ from heavytails._special import (
     _log_beta,
     _ppf_monotone,
 )
-from heavytails.heavy_tails import RNG, ParameterError, Samplable
+from heavytails.heavy_tails import (
+    RNG,
+    InverseTransformSampling,
+    ParameterError,
+    Samplable,
+)
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __all__ = [
     "BetaPrime",
@@ -37,7 +50,7 @@ __all__ = [
 
 
 @dataclass(frozen=True)
-class GeneralizedPareto(Samplable):
+class GeneralizedPareto(InverseTransformSampling):
     """
     Generalized Pareto Distribution (GPD) with shape xi, scale sigma>0, location mu.
 
@@ -81,68 +94,102 @@ class GeneralizedPareto(Samplable):
         if not (self.sigma > 0):
             raise ParameterError("GPD requires sigma>0.")
 
-    def _valid(self, x: float) -> bool:
-        """Whether ``x`` is inside the support.
+    def _valid(self, x: Any) -> Any:
+        """Whether ``x`` is inside the support, elementwise.
 
         Both halves matter. The bracket condition alone is the *upper* endpoint
         for a bounded (negative xi) distribution, and it is satisfied well
         below ``mu`` for every sign of xi -- so on its own it let points below
         the support through and produced probabilities like -2.586.
         """
-        if x < self.mu:
-            return False
-        return (1.0 + self.xi * ((x - self.mu) / self.sigma)) > 0.0
+        values = np.asarray(x, dtype=float)
+        bracket = 1.0 + self.xi * ((values - self.mu) / self.sigma)
+        return (values >= self.mu) & (bracket > 0.0)
 
-    def pdf(self, x: float) -> float:
-        if not self._valid(x):
-            return 0.0
-        z = (x - self.mu) / self.sigma
-        t = 1.0 + self.xi * z
-        return (
-            (1.0 / self.sigma) * (t ** (-1.0 / self.xi - 1.0))
-            if self.xi != 0.0
-            else (1.0 / self.sigma) * math.exp(-z)
-        )
+    def _inner(self, z: Any) -> Any:
+        """``xi z``, held above -1 wherever ``1 + xi z`` is not positive.
 
-    def cdf(self, x: float) -> float:
-        if not self._valid(x):
-            return 0.0 if x < self.mu else 1.0
-        z = (x - self.mu) / self.sigma
-        if self.xi == 0.0:
-            return -math.expm1(-z)
-        # -expm1(-log1p(xi z)/xi) rather than 1 - (1 + xi z)**(-1/xi). Both
-        # the power and the subtraction lose the small quantity: at x = 1e-9
-        # the naive form returns 1.0000000827e-09 for a true 1e-09, wrong in
-        # the eighth digit, and the lower tail of a GPD is a real part of it.
-        return float(-math.expm1(-math.log1p(self.xi * z) / self.xi))
+        This returns the argument to ``log1p`` rather than ``1 + xi z``
+        itself, and that is the whole point of it. Forming the sum and taking
+        an ordinary logarithm throws away the small quantity exactly as
+        subtracting from one would: at x = 1e-9 the distribution function then
+        comes back as 1.0000000820e-09 for a true 1e-09, wrong in the eighth
+        digit, which is the same error this file already avoids twice by hand.
 
-    def sf(self, x: float) -> float:
-        return 1.0 - self.cdf(x)
+        The substitute value never reaches an answer -- every caller masks it
+        away -- but it has to be something ``log1p`` and a power will accept
+        quietly, because NumPy evaluates the whole array before the mask
+        selects from it. A scalar implementation could return early instead;
+        an array one computes the invalid entries and then discards them.
+        """
+        inner = self.xi * z
+        return np.where(inner > -1.0, inner, 0.0)
 
-    def ppf(self, u: float) -> float:
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
+    def pdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        z = (values - self.mu) / self.sigma
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             if self.xi == 0.0:
-                return self.mu - self.sigma * math.log1p(-u)
-            # expm1(-xi log1p(-u)) rather than (1-u)**-xi - 1. Both the
-            # subtraction inside the power and the one after it cancel for
-            # small u: the textbook form returns 1.0000000827e-09 where the
-            # answer is 1.0000000007e-09, wrong in the eighth digit, and the
-            # lower tail of a GPD is not a corner case.
-            return float(
-                self.mu + (self.sigma / self.xi) * math.expm1(-self.xi * math.log1p(-u))
-            )
-        except OverflowError:
-            return math.inf
+                density = np.exp(-z) / self.sigma
+            else:
+                density = (1.0 / self.sigma) * (1.0 + self._inner(z)) ** (
+                    -1.0 / self.xi - 1.0
+                )
+        return restore(np.where(self._valid(values), density, 0.0), scalar)
 
-    def _rvs_one(self, rng: RNG) -> float:
-        u = rng.uniform_0_1()
-        return self.ppf(u)
+    def cdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        z = (values - self.mu) / self.sigma
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            if self.xi == 0.0:
+                probability = -np.expm1(-z)
+            else:
+                # -expm1(-log1p(xi z)/xi) rather than 1 - (1 + xi z)**(-1/xi).
+                # Both the power and the subtraction lose the small quantity:
+                # at x = 1e-9 the naive form returns 1.0000000827e-09 for a
+                # true 1e-09, wrong in the eighth digit, and the lower tail of
+                # a GPD is a real part of it.
+                probability = -np.expm1(-np.log1p(self._inner(z)) / self.xi)
+        outside = np.where(values < self.mu, 0.0, 1.0)
+        return restore(np.where(self._valid(values), probability, outside), scalar)
+
+    def sf(self, x: ArrayLike) -> Any:
+        """Survival function, from the power itself rather than ``1 - cdf``.
+
+        The distribution function approaches 1 in the tail, so subtracting it
+        from 1 keeps only the digits the tail has already lost. This is the
+        tail the distribution exists to describe, so it is computed directly.
+        """
+        values, scalar = as_array(x)
+        z = (values - self.mu) / self.sigma
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            if self.xi == 0.0:
+                survival = np.exp(-z)
+            else:
+                survival = np.exp(-np.log1p(self._inner(z)) / self.xi)
+        outside = np.where(values < self.mu, 1.0, 0.0)
+        return restore(np.where(self._valid(values), survival, outside), scalar)
+
+    def ppf(self, u: ArrayLike) -> Any:
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(over="ignore"):
+            if self.xi == 0.0:
+                quantile = self.mu - self.sigma * np.log1p(-values)
+            else:
+                # expm1(-xi log1p(-u)) rather than (1-u)**-xi - 1. Both the
+                # subtraction inside the power and the one after it cancel for
+                # small u: the textbook form returns 1.0000000827e-09 where
+                # the answer is 1.0000000007e-09, wrong in the eighth digit,
+                # and the lower tail of a GPD is not a corner case.
+                quantile = self.mu + (self.sigma / self.xi) * np.expm1(
+                    -self.xi * np.log1p(-values)
+                )
+        return restore(quantile, scalar)
 
 
 @dataclass(frozen=True)
-class BurrXII(Samplable):
+class BurrXII(InverseTransformSampling):
     """
     Burr Type XII with shapes c>0, k>0 and scale s>0.
 
@@ -171,47 +218,54 @@ class BurrXII(Samplable):
         if not (self.c > 0 and self.k > 0 and self.s > 0):
             raise ParameterError("BurrXII requires c>0, k>0, s>0.")
 
-    def pdf(self, x: float) -> float:
-        if x <= 0.0:
-            return 0.0
-        z = (x / self.s) ** self.c
-        return float(
-            (self.c * self.k / self.s)
-            * (x / self.s) ** (self.c - 1.0)
-            * (1.0 + z) ** (-self.k - 1.0)
-        )
+    def _z(self, values: Any) -> Any:
+        """``(x/s)**c`` on the positive half line, zero elsewhere.
 
-    def cdf(self, x: float) -> float:
-        if x <= 0.0:
-            return 0.0
-        z = (x / self.s) ** self.c
+        The base is guarded rather than the result: a negative base under a
+        fractional power is a NaN, and a NaN does not stay in the entry that
+        produced it once it meets an addition.
+        """
+        positive = np.where(values > 0.0, values, 0.0)
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            return (positive / self.s) ** self.c
+
+    def pdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        z = self._z(values)
+        positive = np.where(values > 0.0, values, 1.0)
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            density = (
+                (self.c * self.k / self.s)
+                * (positive / self.s) ** (self.c - 1.0)
+                * (1.0 + z) ** (-self.k - 1.0)
+            )
+        return restore(np.where(values > 0.0, density, 0.0), scalar)
+
+    def cdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
         # See GeneralizedPareto.cdf for why this is not 1 - (1+z)**-k.
-        return float(-math.expm1(-self.k * math.log1p(z)))
+        with np.errstate(over="ignore", invalid="ignore"):
+            probability = -np.expm1(-self.k * np.log1p(self._z(values)))
+        return restore(np.where(values > 0.0, probability, 0.0), scalar)
 
-    def sf(self, x: float) -> float:
-        if x <= 0.0:
-            return 1.0
-        z = (x / self.s) ** self.c
-        return float((1.0 + z) ** (-self.k))
+    def sf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            survival = (1.0 + self._z(values)) ** (-self.k)
+        return restore(np.where(values > 0.0, survival, 1.0), scalar)
 
-    def ppf(self, u: float) -> float:
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
+    def ppf(self, u: ArrayLike) -> Any:
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(over="ignore", divide="ignore"):
             # See GeneralizedPareto.ppf: expm1 of a log1p keeps the lower tail,
             # where (1-u)**(-1/k) - 1 loses all but about seven digits.
-            return float(
-                self.s * math.expm1(-math.log1p(-u) / self.k) ** (1.0 / self.c)
-            )
-        except OverflowError:
-            return math.inf
-
-    def _rvs_one(self, rng: RNG) -> float:
-        return self.ppf(rng.uniform_0_1())
+            quantile = self.s * np.expm1(-np.log1p(-values) / self.k) ** (1.0 / self.c)
+        return restore(quantile, scalar)
 
 
 @dataclass(frozen=True)
-class LogLogistic(Samplable):
+class LogLogistic(InverseTransformSampling):
     """
     Log-Logistic (Fisk) with shape kappa>0 and scale lambda_>0 (support x>0).
     CDF: F(x) = 1 / (1 + (lambda_/x)^kappa) = (x^kappa) / (x^kappa + lambda_^kappa)
@@ -240,38 +294,43 @@ class LogLogistic(Samplable):
         if not (self.kappa > 0 and self.lam > 0):
             raise ParameterError("LogLogistic requires kappa>0 and lam>0.")
 
-    def pdf(self, x: float) -> float:
-        if x <= 0.0:
-            return 0.0
-        z = (x / self.lam) ** self.kappa
-        return float(
-            (self.kappa / self.lam)
-            * (x / self.lam) ** (self.kappa - 1.0)
-            / (1.0 + z) ** 2
-        )
+    def _z(self, values: Any) -> Any:
+        """``(x/lam)**kappa`` on the positive half line. See BurrXII._z."""
+        positive = np.where(values > 0.0, values, 0.0)
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            return (positive / self.lam) ** self.kappa
 
-    def cdf(self, x: float) -> float:
-        if x <= 0.0:
-            return 0.0
-        z = (x / self.lam) ** self.kappa
-        return float(z / (1.0 + z))
+    def pdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        z = self._z(values)
+        positive = np.where(values > 0.0, values, 1.0)
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            density = (
+                (self.kappa / self.lam)
+                * (positive / self.lam) ** (self.kappa - 1.0)
+                / (1.0 + z) ** 2
+            )
+        return restore(np.where(values > 0.0, density, 0.0), scalar)
 
-    def sf(self, x: float) -> float:
-        if x <= 0.0:
-            return 1.0
-        z = (x / self.lam) ** self.kappa
-        return float(1.0 / (1.0 + z))
+    def cdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        z = self._z(values)
+        with np.errstate(over="ignore", invalid="ignore"):
+            probability = z / (1.0 + z)
+        return restore(np.where(values > 0.0, probability, 0.0), scalar)
 
-    def ppf(self, u: float) -> float:
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        try:
-            return float(self.lam * (u / (1.0 - u)) ** (1.0 / self.kappa))
-        except OverflowError:
-            return math.inf
+    def sf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        with np.errstate(over="ignore", invalid="ignore"):
+            survival = 1.0 / (1.0 + self._z(values))
+        return restore(np.where(values > 0.0, survival, 1.0), scalar)
 
-    def _rvs_one(self, rng: RNG) -> float:
-        return self.ppf(rng.uniform_0_1())
+    def ppf(self, u: ArrayLike) -> Any:
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        with np.errstate(over="ignore", divide="ignore"):
+            quantile = self.lam * (values / (1.0 - values)) ** (1.0 / self.kappa)
+        return restore(quantile, scalar)
 
 
 @dataclass(frozen=True)
@@ -304,15 +363,30 @@ class InverseGamma(Samplable):
         if not (self.alpha > 0 and self.beta > 0):
             raise ParameterError("InverseGamma requires alpha>0 and beta>0.")
 
-    def pdf(self, x: float) -> float:
-        if x <= 0.0:
-            return 0.0
-        a, b = self.alpha, self.beta
-        return float(
-            (b**a / math.exp(math.lgamma(a))) * (x ** (-a - 1.0)) * math.exp(-b / x)
-        )
+    def pdf(self, x: ArrayLike) -> Any:
+        """Density.
 
-    def cdf(self, x: float) -> float:
+        Elementary, so it is a single NumPy expression. The probabilities
+        below are not -- they need the incomplete gamma, which NumPy does not
+        have -- and they go one element at a time through
+        :func:`~heavytails._array.elementwise`.
+        """
+        values, scalar = as_array(x)
+        a, b = self.alpha, self.beta
+        positive = np.where(values > 0.0, values, 1.0)
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            density = (
+                (b**a / math.exp(math.lgamma(a)))
+                * positive ** (-a - 1.0)
+                * np.exp(-b / positive)
+            )
+        return restore(np.where(values > 0.0, density, 0.0), scalar)
+
+    def cdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        return restore(elementwise(self._cdf_one, values), scalar)
+
+    def _cdf_one(self, x: float) -> float:
         if x <= 0.0:
             return 0.0
         a, b = self.alpha, self.beta
@@ -323,13 +397,22 @@ class InverseGamma(Samplable):
         # distribution is not the place to lose every digit.
         return _gammainc_upper_reg(a, b / x)
 
-    def sf(self, x: float) -> float:
+    def sf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        return restore(elementwise(self._sf_one, values), scalar)
+
+    def _sf_one(self, x: float) -> float:
         if x <= 0.0:
             return 1.0
         # The mirror of the above: here P is the small quantity.
         return _gammainc_lower_reg(self.alpha, self.beta / x)
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        return restore(elementwise(self._ppf_one, values), scalar)
+
+    def _ppf_one(self, u: float) -> float:
         """Quantile function, by inverting the incomplete gamma directly.
 
         ``F(x) = Q(alpha, beta/x)``, so the quantile is ``beta`` divided by the
@@ -342,8 +425,6 @@ class InverseGamma(Samplable):
         and going through the lower inverse would mean forming ``1 - u`` and
         throwing away exactly the precision the tail is being asked about.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
         if u <= 0.5:
             y = _gammaincinv_reg(self.alpha, u, upper=True)
         else:
@@ -391,24 +472,39 @@ class BetaPrime(Samplable):
         if not (self.a > 0 and self.b > 0 and self.s > 0):
             raise ParameterError("BetaPrime requires a>0, b>0, s>0.")
 
-    def pdf(self, x: float) -> float:
-        if x <= 0.0:
-            return 0.0
-        a, b, s = self.a, self.b, self.s
-        z = x / s
-        return float(
-            math.exp(-(math.log(s) + _log_beta(a, b)))
-            * (z ** (a - 1.0))
-            * (1.0 + z) ** (-(a + b))
-        )
+    def pdf(self, x: ArrayLike) -> Any:
+        """Density.
 
-    def cdf(self, x: float) -> float:
+        Elementary, so it is one NumPy expression. The probabilities below
+        need the incomplete beta, which NumPy does not have, and go one
+        element at a time through :func:`~heavytails._array.elementwise`.
+        """
+        values, scalar = as_array(x)
+        a, b, s = self.a, self.b, self.s
+        z = np.where(values > 0.0, values, 1.0) / s
+        with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
+            density = (
+                math.exp(-(math.log(s) + _log_beta(a, b)))
+                * z ** (a - 1.0)
+                * (1.0 + z) ** (-(a + b))
+            )
+        return restore(np.where(values > 0.0, density, 0.0), scalar)
+
+    def cdf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        return restore(elementwise(self._cdf_one, values), scalar)
+
+    def _cdf_one(self, x: float) -> float:
         if x <= 0.0:
             return 0.0
         y = x / (x + self.s)
         return _betainc_reg(self.a, self.b, y)
 
-    def sf(self, x: float) -> float:
+    def sf(self, x: ArrayLike) -> Any:
+        values, scalar = as_array(x)
+        return restore(elementwise(self._sf_one, values), scalar)
+
+    def _sf_one(self, x: float) -> float:
         """Survival function, from the mirrored incomplete beta.
 
         ``1 - I_z(a,b)`` is ``I_{1-z}(b,a)``, and ``1 - z`` is ``s/(x+s)``,
@@ -426,10 +522,15 @@ class BetaPrime(Samplable):
             # is small enough, so s/(x+s) becomes exactly 1 and the answer
             # comes back as 1 with the interesting part gone. At x = 1e-16 with
             # s = 1 that turned a survival of 0.999999 into 1.
-            return 1.0 - self.cdf(x)
+            return 1.0 - self._cdf_one(x)
         return _betainc_reg(self.b, self.a, self.s / (x + self.s))
 
-    def ppf(self, u: float) -> float:
+    def ppf(self, u: ArrayLike) -> Any:
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        return restore(elementwise(self._ppf_one, values), scalar)
+
+    def _ppf_one(self, u: float) -> float:
         """Quantile function, by inverting the incomplete beta directly.
 
         If ``Y`` is ``Beta(a, b)`` then ``s Y / (1 - Y)`` is this distribution,
@@ -442,8 +543,6 @@ class BetaPrime(Samplable):
         mirrored problem instead makes ``1 - z`` the quantity that is computed
         rather than the quantity that is cancelled.
         """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
         if u <= 0.5:
             z = _betaincinv_reg(self.a, self.b, u)
             if z >= 1.0:

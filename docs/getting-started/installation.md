@@ -6,18 +6,18 @@ This guide covers different methods for installing the HeavyTails library.
 
 ## Requirements
 
-HeavyTails has **zero external dependencies** and requires only:
+HeavyTails has **one dependency** and requires:
 
-- **Python 3.8 or higher**
-- Python standard library (`math`, `random`)
+- **Python 3.10 or higher**
+- **NumPy 1.24 or higher**
 
-!!! tip "Pure Python Advantage" Since HeavyTails uses only the Python standard library, there are no complex dependency chains to manage, making it ideal for:
+!!! tip "One dependency" NumPy became a requirement in 0.5.0. Before that the library was pure Python, which kept it inspectable but meant evaluating a density over a hundred thousand points cost a hundred thousand interpreter round trips. The trade was worth making:
 
 ```
-- **Educational environments** - students can inspect all code
-- **Restricted systems** - no external packages needed
-- **Reproducibility** - minimal version conflicts
-- **Understanding** - all algorithms are explicit
+- **Fast** - a density over a million points takes about 20 milliseconds
+- **Still inspectable** - the formulas are ordinary NumPy expressions
+- **Still few moving parts** - one dependency, and no compiler needed
+- **Reproducible** - a seeded sample is unchanged by the rewrite
 ```
 
 --------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 # heavytails
 
-**A pure-Python library of heavy-tailed probability distributions**
+**A library of heavy-tailed probability distributions, vectorised over NumPy**
 
 [![CI](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DiogoRibeiro7/heavytails/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/DiogoRibeiro7/heavytails/branch/main/graph/badge.svg)](https://codecov.io/gh/DiogoRibeiro7/heavytails)

@@ -133,9 +133,9 @@ started, so the method cannot tell whether it has converged.
 ### 4. Estimation and diagnostics
 
 `tail_index` and `plotting` are deliberately thin and free of state. They take
-sequences of floats and return numbers or coordinate lists. Keeping them
-dependency-free and side-effect-free is what lets them be used from a notebook, a
-script, or the CLI without adaptation.
+sequences of floats and return numbers or coordinate lists. Keeping them free of
+state and of any dependency beyond NumPy is what lets them be used from a
+notebook, a script, or the CLI without adaptation.
 
 ### 5. Interfaces
 
