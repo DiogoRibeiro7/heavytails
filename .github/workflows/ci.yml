@@ -28,21 +28,26 @@ defaults:
 
 jobs:
   test:
-    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
-    runs-on: ${{ matrix.os }}
+    name: Test (ubuntu-latest, Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
     timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        # Ubuntu only, across every supported interpreter.
+        #
+        # The Windows and macOS jobs were dropped because they never caught
+        # anything Ubuntu missed. Twice they did the opposite: NumPy and libm
+        # agree bit for bit on Windows and not on Linux, so a test asserting
+        # bit-identity and a ULP budget derived from Windows behaviour both
+        # passed there and failed on Ubuntu. The stricter platform is the one
+        # worth running, and it is the one the package is installed on.
+        #
+        # The library is pure Python with no compiled extension and no
+        # filesystem work beyond reading a file, so there is little for an
+        # operating system to break. If that changes -- a path-handling
+        # feature, a compiled dependency -- this is the decision to revisit.
         python-version: ["3.10", "3.11", "3.12", "3.13"]
-        include:
-          # Smoke-test the other platforms on a single interpreter to keep the
-          # matrix small while still catching OS-specific breakage.
-          - os: windows-latest
-            python-version: "3.12"
-          - os: macos-latest
-            python-version: "3.12"
 
     steps:
       - uses: actions/checkout@v7
@@ -90,7 +95,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v7
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        if: matrix.python-version == '3.12'
         with:
           files: ./coverage.xml
           flags: unittests
@@ -102,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: test-results-${{ matrix.os }}-py${{ matrix.python-version }}
+          name: test-results-py${{ matrix.python-version }}
           path: pytest.xml
 
   lint-and-type-check:
