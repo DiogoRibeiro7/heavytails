@@ -1019,11 +1019,14 @@ gamma = threshold_averaged_orthogonalized_hill_estimator(
 )
 ```
 
-The point estimator is cross-fitted by default: threshold, trimming and weight
-decisions are learned on one split of the sample and evaluated on the other,
-then the roles are swapped. This is slower and a little noisier than the
-full-sample diagnostic estimate, but it separates random selection decisions
-from the observations used for the final estimate.
+The point estimator is cross-fitted by default. Threshold sets, `rho` and
+aggregation weights are learned on one split of the sample and evaluated on the
+other, then the roles are swapped. The trimming count is deliberately
+re-estimated on the evaluation fold: a random split does not put the same number
+of contaminated extremes in both halves. This is slower and a little noisier
+than the full-sample diagnostic estimate, but it separates threshold selection
+from the observations used for the final estimate without transferring an
+absolute outlier count across folds.
 
 For diagnostics, use the selection function:
 
@@ -1047,3 +1050,18 @@ same full-sample value reported by the diagnostic selection function.
 The research question is therefore not "is this weighted Hill formula new?" It
 is whether the adaptive procedure can achieve near-oracle risk when both `r`
 and `k` are unknown while second-order bias is present.
+
+!!! warning "Current scope"
+    The estimator adapts within a user-supplied threshold window
+    `[min_k, k]`; it does not remove the need to choose a plausible envelope.
+    A theorem would need deterministic sequences `min_k_n` and `max_k_n` and an
+    assumption that the oracle threshold lies inside that range.
+
+    Exact recovery of arbitrary contamination is also impossible when the
+    outlier is statistically indistinguishable from a legitimate tail draw.
+    The adaptive trimming theory needs a separation condition: the anomalous
+    boundary spacing must be detectable at the vanishing test level.
+
+    Finally, the default `rho=-1` should be read as a tuning choice. A first
+    theorem should treat `rho` as known and bounded away from zero; plug-in
+    estimation of `rho` is a separate problem.
