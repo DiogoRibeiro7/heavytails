@@ -512,7 +512,7 @@ print(f"Tail index of large claims: {alpha_hat:.2f}")
 
 ## Choosing an estimator
 
-`heavytails` provides four. They differ in the range of `gamma` they can
+`heavytails` provides several. They differ in the range of `gamma` they can
 represent and in how efficiently they use the data.
 
 | Estimator | Valid range | Efficiency | Use when |
@@ -537,7 +537,7 @@ squared error over 120 samples, using `k = n/20`:
 | Scenario | n | hill | smoo u=2 | smoo u=3 | gen_hill | moment | pickands |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Pareto(alpha=2), gamma=0.5 | 10000 | 0.023 | 0.018 | **0.015** | 0.050 | 0.050 | 0.083 |
-| Uniform(0,1), gamma=-1 | 10000 | 1.026 | 1.040 | 1.054 | **0.053** | 0.108 | 0.081 |
+| Uniform(0,1), gamma=-1 | 10000 | N/A | N/A | N/A | **0.053** | 0.108 | 0.081 |
 
 Two things to read from that table.
 
@@ -546,9 +546,9 @@ factor of two or more**, and the smoothed variant beats plain Hill outright.
 
 On the Uniform sample, whose upper endpoint is finite and whose `gamma` is
 `-1`, **Hill is not merely inaccurate but structurally incapable**: it averages
-log-excesses and can only ever return a positive number, so it reports about
-`+0.026` for a true `-1`. No choice of `k` fixes that. The generalized Hill
-estimator recovers `-0.99`.
+log-excesses and can only ever return a positive number. No choice of `k` fixes
+that, so the study reports Hill-family estimators as `N/A` for bounded-tail
+scenarios. The generalized Hill estimator recovers `-0.99`.
 
 The smoothed estimators inherit that limitation exactly, because they average
 Hill estimates. Smoothing addresses variance in `k`, not the range of `gamma`.
@@ -868,8 +868,8 @@ bounded tail. On a Uniform(0,1) sample, where the true index is -1:
 
 | Estimator | Mean | RMSE |
 | --- | --- | --- |
-| `hill` | +0.026 | 1.026 |
-| `t_hill` | +0.026 | 1.026 |
+| `hill` | N/A | N/A |
+| `t_hill` | N/A | N/A |
 | `gpd_mle` | **-1.056** | 0.078 |
 | `generalized_hill` | -0.998 | 0.049 |
 
@@ -1019,14 +1019,15 @@ gamma = threshold_averaged_orthogonalized_hill_estimator(
 )
 ```
 
-The point estimator is cross-fitted by default. Threshold sets, `rho` and
-aggregation weights are learned on one split of the sample and evaluated on the
-other, then the roles are swapped. The trimming count is deliberately
-re-estimated on the evaluation fold: a random split does not put the same number
-of contaminated extremes in both halves. This is slower and a little noisier
-than the full-sample diagnostic estimate, but it separates threshold selection
-from the observations used for the final estimate without transferring an
-absolute outlier count across folds.
+The point estimator is cross-fitted by default. Stable thresholds and `rho` are
+learned on one split of the sample and evaluated on the other, then the roles
+are swapped. The trimming count and aggregation weights are deliberately
+recomputed on the evaluation fold: a random split does not put the same number
+of contaminated extremes in both halves, and the covariance weights should match
+the spacings that remain after target-fold trimming. This is slower and a little
+noisier than the full-sample diagnostic estimate, but it separates threshold
+selection from the observations used for the final estimate without transferring
+an absolute outlier count across folds.
 
 For diagnostics, use the selection function:
 
