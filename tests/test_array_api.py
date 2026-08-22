@@ -4,12 +4,24 @@ A number in gives a float out; anything array-like in gives an array out, with
 the same shape. That is the whole contract, and these tests hold all twelve
 continuous families to it at once rather than trusting each conversion.
 
-The agreement test is the one that matters. Each method is now written once,
-against NumPy, and evaluated the same way for one point as for a million --
-a 0-d array and an n-d array run the identical expression. So scalar and array
-results are compared for *exact* equality here, not to a tolerance. A tolerance
-is what the previous arrangement needed, when a hand-written kernel sat beside
-each scalar method and the two could drift; there is nothing left to drift.
+The agreement test is the one that matters. Each method is written once, against
+NumPy, so scalar and array results come from the same expression and cannot
+disagree about what is being computed. They can still disagree in the last bits,
+and the first version of this file asserted they could not.
+
+They cannot because NumPy does not evaluate a scalar and an array the same way:
+an array of any length goes through vectorised loops for ``exp``, ``log`` and
+``**``, and a scalar goes through the libm the interpreter was built against.
+Those round differently, and how differently depends on the NumPy build. This
+file asserted exact equality, passed on Windows, and failed on Linux under
+Python 3.10 on three of the fourteen families -- the third time in this
+codebase that a bit-identity claim has been made and then disproved by a
+platform other than the one it was written on.
+
+So the budget below is 1e-13 relative, which is a few hundred units in the last
+place: far tighter than any tolerance that could hide a formula error, which
+would show up at 1e-8 or worse, and loose enough to survive whichever routines
+a platform picks.
 """
 
 from __future__ import annotations
@@ -113,8 +125,9 @@ class TestTheInputKindIsMirrored:
         grid = _grid(method)
         vectorised = np.asarray(getattr(distribution, method)(grid))
         one_at_a_time = np.array([getattr(distribution, method)(v) for v in grid])
-        # Exact, not approximate: there is one implementation now.
-        np.testing.assert_array_equal(vectorised, one_at_a_time)
+        # Not exact. See the module docstring: same expression, different NumPy
+        # routines for a scalar and for an array.
+        np.testing.assert_allclose(vectorised, one_at_a_time, rtol=1e-13, atol=0.0)
 
 
 class TestProbabilitiesAreChecked:
@@ -177,11 +190,14 @@ class TestSamplingInABatchMatchesSamplingOneAtATime:
     """The batched sampler must draw the same variates as the loop it replaced.
 
     It draws the same uniforms -- the generator is untouched -- and inverts
-    them with the same expression, so the samples agree. Not always to the
-    last bit: NumPy's vectorised ``log`` and ``pow`` round differently from its
-    scalar ones, so a handful of draws land one ULP away. The budget below is
-    a few ULP, which is far tighter than anything that could hide a wrong
-    quantile function and loose enough to survive that.
+    them with the same expression, so the samples agree. Not to the last bit:
+    NumPy's vectorised ``log`` and ``pow`` round differently from its scalar
+    ones, and how many draws that moves depends on the build. On Windows it is
+    a handful; on Linux under Python 3.10 it was 27 of 2,000 for GEV_Frechet,
+    which is what the first budget here was too tight to allow.
+
+    1e-13 relative is a few hundred units in the last place, far tighter than
+    anything that could hide a wrong quantile function.
     """
 
     @pytest.mark.parametrize(
@@ -202,7 +218,7 @@ class TestSamplingInABatchMatchesSamplingOneAtATime:
         batched = np.array(distribution.rvs(2000, seed=42))
         rng = RNG(42)
         one_at_a_time = np.array([distribution._rvs_one(rng) for _ in range(2000)])
-        np.testing.assert_allclose(batched, one_at_a_time, rtol=8e-16, atol=0.0)
+        np.testing.assert_allclose(batched, one_at_a_time, rtol=1e-13, atol=0.0)
 
     def test_the_seed_still_reproduces(self) -> None:
         assert Pareto(alpha=2.0).rvs(50, seed=7) == Pareto(alpha=2.0).rvs(50, seed=7)

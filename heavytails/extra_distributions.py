@@ -7,7 +7,13 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from heavytails._array import as_array, check_probabilities, elementwise, restore
+from heavytails._array import (
+    as_array,
+    check_probabilities,
+    elementwise,
+    restore,
+    select,
+)
 
 # The special functions live in heavytails._special so that heavy_tails.py can
 # use them too without creating an import cycle. They are re-exported here
@@ -123,7 +129,7 @@ class GeneralizedPareto(InverseTransformSampling):
         an array one computes the invalid entries and then discards them.
         """
         inner = self.xi * z
-        return np.where(inner > -1.0, inner, 0.0)
+        return select(inner > -1.0, inner, 0.0)
 
     def pdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
@@ -135,7 +141,7 @@ class GeneralizedPareto(InverseTransformSampling):
                 density = (1.0 / self.sigma) * (1.0 + self._inner(z)) ** (
                     -1.0 / self.xi - 1.0
                 )
-        return restore(np.where(self._valid(values), density, 0.0), scalar)
+        return restore(select(self._valid(values), density, 0.0), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
@@ -150,8 +156,8 @@ class GeneralizedPareto(InverseTransformSampling):
                 # true 1e-09, wrong in the eighth digit, and the lower tail of
                 # a GPD is a real part of it.
                 probability = -np.expm1(-np.log1p(self._inner(z)) / self.xi)
-        outside = np.where(values < self.mu, 0.0, 1.0)
-        return restore(np.where(self._valid(values), probability, outside), scalar)
+        outside = select(values < self.mu, 0.0, 1.0)
+        return restore(select(self._valid(values), probability, outside), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         """Survival function, from the power itself rather than ``1 - cdf``.
@@ -167,8 +173,8 @@ class GeneralizedPareto(InverseTransformSampling):
                 survival = np.exp(-z)
             else:
                 survival = np.exp(-np.log1p(self._inner(z)) / self.xi)
-        outside = np.where(values < self.mu, 1.0, 0.0)
-        return restore(np.where(self._valid(values), survival, outside), scalar)
+        outside = select(values < self.mu, 1.0, 0.0)
+        return restore(select(self._valid(values), survival, outside), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         values, scalar = as_array(u)
@@ -225,34 +231,34 @@ class BurrXII(InverseTransformSampling):
         fractional power is a NaN, and a NaN does not stay in the entry that
         produced it once it meets an addition.
         """
-        positive = np.where(values > 0.0, values, 0.0)
+        positive = select(values > 0.0, values, 0.0)
         with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             return (positive / self.s) ** self.c
 
     def pdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         z = self._z(values)
-        positive = np.where(values > 0.0, values, 1.0)
+        positive = select(values > 0.0, values, 1.0)
         with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             density = (
                 (self.c * self.k / self.s)
                 * (positive / self.s) ** (self.c - 1.0)
                 * (1.0 + z) ** (-self.k - 1.0)
             )
-        return restore(np.where(values > 0.0, density, 0.0), scalar)
+        return restore(select(values > 0.0, density, 0.0), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         # See GeneralizedPareto.cdf for why this is not 1 - (1+z)**-k.
         with np.errstate(over="ignore", invalid="ignore"):
             probability = -np.expm1(-self.k * np.log1p(self._z(values)))
-        return restore(np.where(values > 0.0, probability, 0.0), scalar)
+        return restore(select(values > 0.0, probability, 0.0), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             survival = (1.0 + self._z(values)) ** (-self.k)
-        return restore(np.where(values > 0.0, survival, 1.0), scalar)
+        return restore(select(values > 0.0, survival, 1.0), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         values, scalar = as_array(u)
@@ -296,34 +302,34 @@ class LogLogistic(InverseTransformSampling):
 
     def _z(self, values: Any) -> Any:
         """``(x/lam)**kappa`` on the positive half line. See BurrXII._z."""
-        positive = np.where(values > 0.0, values, 0.0)
+        positive = select(values > 0.0, values, 0.0)
         with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             return (positive / self.lam) ** self.kappa
 
     def pdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         z = self._z(values)
-        positive = np.where(values > 0.0, values, 1.0)
+        positive = select(values > 0.0, values, 1.0)
         with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             density = (
                 (self.kappa / self.lam)
                 * (positive / self.lam) ** (self.kappa - 1.0)
                 / (1.0 + z) ** 2
             )
-        return restore(np.where(values > 0.0, density, 0.0), scalar)
+        return restore(select(values > 0.0, density, 0.0), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         z = self._z(values)
         with np.errstate(over="ignore", invalid="ignore"):
             probability = z / (1.0 + z)
-        return restore(np.where(values > 0.0, probability, 0.0), scalar)
+        return restore(select(values > 0.0, probability, 0.0), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         with np.errstate(over="ignore", invalid="ignore"):
             survival = 1.0 / (1.0 + self._z(values))
-        return restore(np.where(values > 0.0, survival, 1.0), scalar)
+        return restore(select(values > 0.0, survival, 1.0), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         values, scalar = as_array(u)
@@ -373,14 +379,14 @@ class InverseGamma(Samplable):
         """
         values, scalar = as_array(x)
         a, b = self.alpha, self.beta
-        positive = np.where(values > 0.0, values, 1.0)
+        positive = select(values > 0.0, values, 1.0)
         with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             density = (
                 (b**a / math.exp(math.lgamma(a)))
                 * positive ** (-a - 1.0)
                 * np.exp(-b / positive)
             )
-        return restore(np.where(values > 0.0, density, 0.0), scalar)
+        return restore(select(values > 0.0, density, 0.0), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
@@ -481,14 +487,14 @@ class BetaPrime(Samplable):
         """
         values, scalar = as_array(x)
         a, b, s = self.a, self.b, self.s
-        z = np.where(values > 0.0, values, 1.0) / s
+        z = select(values > 0.0, values, 1.0) / s
         with np.errstate(over="ignore", divide="ignore", invalid="ignore"):
             density = (
                 math.exp(-(math.log(s) + _log_beta(a, b)))
                 * z ** (a - 1.0)
                 * (1.0 + z) ** (-(a + b))
             )
-        return restore(np.where(values > 0.0, density, 0.0), scalar)
+        return restore(select(values > 0.0, density, 0.0), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)

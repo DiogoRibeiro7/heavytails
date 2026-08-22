@@ -7,7 +7,13 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from heavytails._array import as_array, check_probabilities, elementwise, restore
+from heavytails._array import (
+    as_array,
+    check_probabilities,
+    elementwise,
+    restore,
+    select,
+)
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
@@ -231,14 +237,14 @@ class Pareto(InverseTransformSampling):
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             density = self.alpha * self.xm**self.alpha / values ** (self.alpha + 1.0)
-        return restore(np.where(values < self.xm, 0.0, density), scalar)
+        return restore(select(values < self.xm, 0.0, density), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         """Distribution function."""
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             below = 1.0 - (self.xm / values) ** self.alpha
-        return restore(np.where(values < self.xm, 0.0, below), scalar)
+        return restore(select(values < self.xm, 0.0, below), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         """Survival function.
@@ -249,7 +255,7 @@ class Pareto(InverseTransformSampling):
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             above = (self.xm / values) ** self.alpha
-        return restore(np.where(values < self.xm, 1.0, above), scalar)
+        return restore(select(values < self.xm, 1.0, above), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
@@ -325,9 +331,7 @@ class Cauchy(InverseTransformSampling):
             lower = np.arctan(-1.0 / z) / math.pi
             upper = 1.0 - np.arctan(1.0 / z) / math.pi
         middle = 0.5 + np.arctan(z) / math.pi
-        return restore(
-            np.where(z < -1.0, lower, np.where(z > 1.0, upper, middle)), scalar
-        )
+        return restore(select(z < -1.0, lower, select(z > 1.0, upper, middle)), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         """Survival function 1 - CDF.
@@ -341,9 +345,7 @@ class Cauchy(InverseTransformSampling):
         z = (values - self.x0) / self.gamma
         with np.errstate(divide="ignore", invalid="ignore"):
             positive = np.arctan(1.0 / z) / math.pi
-        return restore(
-            np.where(z > 0.0, positive, 0.5 - np.arctan(z) / math.pi), scalar
-        )
+        return restore(select(z > 0.0, positive, 0.5 - np.arctan(z) / math.pi), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
@@ -369,7 +371,7 @@ class Cauchy(InverseTransformSampling):
             high = self.x0 + self.gamma / np.tan(math.pi * (1.0 - values))
         middle = self.x0 + self.gamma * np.tan(math.pi * (values - 0.5))
         return restore(
-            np.where(values < 0.25, low, np.where(values > 0.75, high, middle)),
+            select(values < 0.25, low, select(values > 0.75, high, middle)),
             scalar,
         )
 
@@ -537,7 +539,7 @@ class LogNormal(Samplable):
             density = np.exp(-0.5 * z * z) / (
                 values * self.sigma * math.sqrt(2.0 * math.pi)
             )
-        return restore(np.where(values <= 0.0, 0.0, density), scalar)
+        return restore(select(values <= 0.0, 0.0, density), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         """Distribution function.
@@ -644,22 +646,22 @@ class Weibull(InverseTransformSampling):
             # The limit at the origin. The expression above is 0 ** negative
             # there, which is an error rather than a statement about the
             # density.
-            density = np.where(values == 0.0, np.inf, density)
-        return restore(np.where(values < 0.0, 0.0, density), scalar)
+            density = select(values == 0.0, np.inf, density)
+        return restore(select(values < 0.0, 0.0, density), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         """Distribution function, via ``-expm1`` so the lower tail survives."""
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             below = -np.expm1(-((values / self.lam) ** self.k))
-        return restore(np.where(values < 0.0, 0.0, below), scalar)
+        return restore(select(values < 0.0, 0.0, below), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         """Survival function: 1 - CDF(x)."""
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             above = np.exp(-((values / self.lam) ** self.k))
-        return restore(np.where(values < 0.0, 1.0, above), scalar)
+        return restore(select(values < 0.0, 1.0, above), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
@@ -714,13 +716,13 @@ class Frechet(InverseTransformSampling):
                 * z ** (-(self.alpha + 1.0))
                 * np.exp(-(z ** (-self.alpha)))
             )
-        return restore(np.where(values <= self.m, 0.0, density), scalar)
+        return restore(select(values <= self.m, 0.0, density), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             below = np.exp(-(((values - self.m) / self.s) ** (-self.alpha)))
-        return restore(np.where(values <= self.m, 0.0, below), scalar)
+        return restore(select(values <= self.m, 0.0, below), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         """Survival function 1 - CDF, via ``-expm1`` for tail accuracy.
@@ -732,7 +734,7 @@ class Frechet(InverseTransformSampling):
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             above = -np.expm1(-(((values - self.m) / self.s) ** (-self.alpha)))
-        return restore(np.where(values <= self.m, 1.0, above), scalar)
+        return restore(select(values <= self.m, 1.0, above), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
@@ -797,14 +799,14 @@ class GEV_Frechet(InverseTransformSampling):
                 * t ** (-1.0 / self.xi - 1.0)
                 * np.exp(-(t ** (-1.0 / self.xi)))
             )
-        return restore(np.where(t > 0.0, density, 0.0), scalar)
+        return restore(select(t > 0.0, density, 0.0), scalar)
 
     def cdf(self, x: ArrayLike) -> Any:
         values, scalar = as_array(x)
         with np.errstate(divide="ignore", invalid="ignore"):
             t = 1.0 + self.xi * (values - self.mu) / self.sigma
             below = np.exp(-(t ** (-1.0 / self.xi)))
-        return restore(np.where(t > 0.0, below, 0.0), scalar)
+        return restore(select(t > 0.0, below, 0.0), scalar)
 
     def sf(self, x: ArrayLike) -> Any:
         """Survival function 1 - CDF, via ``-expm1`` for tail accuracy.
@@ -816,7 +818,7 @@ class GEV_Frechet(InverseTransformSampling):
         with np.errstate(divide="ignore", invalid="ignore"):
             t = 1.0 + self.xi * (values - self.mu) / self.sigma
             above = -np.expm1(-(t ** (-1.0 / self.xi)))
-        return restore(np.where(t > 0.0, above, 1.0), scalar)
+        return restore(select(t > 0.0, above, 1.0), scalar)
 
     def ppf(self, u: ArrayLike) -> Any:
         """Quantile function.
