@@ -9,7 +9,10 @@ import math
 # because they were public-by-convention at this location first.
 from heavytails._special import (
     _betainc_reg,
+    _betaincinv_reg,
     _gammainc_lower_reg,
+    _gammainc_upper_reg,
+    _gammaincinv_reg,
     _log_beta,
     _ppf_monotone,
 )
@@ -235,32 +238,41 @@ class InverseGamma(Samplable):
         if x <= 0.0:
             return 0.0
         a, b = self.alpha, self.beta
-        # F(x) = Q(a, b/x) = 1 - P(a, b/x)
-        P = _gammainc_lower_reg(a, b / x)
-        return 1.0 - P
+        # F(x) = Q(a, b/x), taken from the upper incomplete gamma rather than
+        # as 1 - P. For small x the probability is tiny and 1 - P returns
+        # exactly zero: at alpha=2, x=0.02 the true value is 9.8e-21 and the
+        # subtraction gives nothing at all. The lower tail of a heavy-tailed
+        # distribution is not the place to lose every digit.
+        return _gammainc_upper_reg(a, b / x)
 
     def sf(self, x: float) -> float:
-        return 1.0 - self.cdf(x)
+        if x <= 0.0:
+            return 1.0
+        # The mirror of the above: here P is the small quantity.
+        return _gammainc_lower_reg(self.alpha, self.beta / x)
 
     def ppf(self, u: float) -> float:
+        """Quantile function, by inverting the incomplete gamma directly.
+
+        ``F(x) = Q(alpha, beta/x)``, so the quantile is ``beta`` divided by the
+        inverse incomplete gamma. That replaces a bracket-and-solve against the
+        distribution function, which paid a continued fraction per iteration
+        and reached only about seven digits in the far tail.
+
+        Which of the two inverses is used depends on the side, and that choice
+        is the whole point: for small ``u`` the small quantity is ``u`` itself,
+        and going through the lower inverse would mean forming ``1 - u`` and
+        throwing away exactly the precision the tail is being asked about.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-
-        # Solve F(x) = u on x in (0, +inf). Monotone increasing.
-        def cdf_x(t: float) -> float:
-            return self.cdf(t)
-
-        # Choose a crude bracket using quantile heuristics:
-        # start around mode for alpha>1: beta/(alpha+1) and expand
-        a = 0.0
-        b = max(1.0, self.beta / max(self.alpha + 1.0, 2.0))  # initial right
-        while cdf_x(b) < u:
-            b *= 2.0
-            if b > 1e300:
-                # The bracket ran off the top of the float range before reaching
-                # u, so the quantile is not representable.
-                return math.inf
-        return _ppf_monotone(cdf_x, max(1e-300, a), b, u, pdf=self.pdf)
+        if u <= 0.5:
+            y = _gammaincinv_reg(self.alpha, u, upper=True)
+        else:
+            y = _gammaincinv_reg(self.alpha, 1.0 - u)
+        if y <= 0.0:
+            return math.inf
+        return float(self.beta / y)
 
     def _rvs_one(self, rng: RNG) -> float:
         g = rng.gamma(shape_k=self.alpha, scale_theta=1.0)
@@ -304,27 +316,43 @@ class BetaPrime(Samplable):
         return _betainc_reg(self.a, self.b, y)
 
     def sf(self, x: float) -> float:
-        return 1.0 - self.cdf(x)
+        """Survival function, from the mirrored incomplete beta.
+
+        ``1 - I_z(a,b)`` is ``I_{1-z}(b,a)``, and ``1 - z`` is ``s/(x+s)``,
+        which is computed rather than subtracted. It matters in the far upper
+        tail: ``z = x/(x+s)`` rounds to exactly 1 once ``x`` reaches about
+        1e17, so the complement of the distribution function is zero there
+        while the true probability is around 1e-9. That tail is the reason
+        anyone reaches for this distribution.
+        """
+        if x <= 0.0:
+            return 1.0
+        return _betainc_reg(self.b, self.a, self.s / (x + self.s))
 
     def ppf(self, u: float) -> float:
+        """Quantile function, by inverting the incomplete beta directly.
+
+        If ``Y`` is ``Beta(a, b)`` then ``s Y / (1 - Y)`` is this distribution,
+        so the quantile follows from the inverse incomplete beta with no
+        solver against the distribution function at all.
+
+        The side matters. Near ``u = 1`` the beta quantile approaches one, and
+        ``1 - z`` there is a subtraction of two nearly equal numbers, so the
+        upper tail would come back with a handful of digits. Solving the
+        mirrored problem instead makes ``1 - z`` the quantity that is computed
+        rather than the quantity that is cancelled.
+        """
         if not (0.0 < u < 1.0):
             raise ValueError("u must be in (0,1).")
-
-        # invert I_{x/(x+s)}(a,b) = u  -> y=u_inv, then x = s * y / (1 - y)
-        # We'll solve directly for x using monotone root finding.
-        def cdf_x(t: float) -> float:
-            return self.cdf(t)
-
-        # crude bracket: median is roughly s * a / b for symmetric-ish shapes.
-        a0 = 0.0
-        b0 = max(1e-6, self.s * (self.a / max(self.b, 1e-6)))
-        # expand until bracket contains u
-        while cdf_x(b0) < u:
-            b0 *= 2.0
-            if b0 > 1e300:
-                # See InverseGamma.ppf: the quantile is beyond the float range.
+        if u <= 0.5:
+            z = _betaincinv_reg(self.a, self.b, u)
+            if z >= 1.0:
                 return math.inf
-        return _ppf_monotone(cdf_x, max(1e-300, a0), b0, u, pdf=self.pdf)
+            return float(self.s * z / (1.0 - z))
+        w = _betaincinv_reg(self.b, self.a, 1.0 - u)
+        if w <= 0.0:
+            return math.inf
+        return float(self.s * (1.0 - w) / w)
 
     def _rvs_one(self, rng: RNG) -> float:
         u = rng.gamma(shape_k=self.a, scale_theta=1.0)

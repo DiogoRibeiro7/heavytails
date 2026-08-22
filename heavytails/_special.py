@@ -176,6 +176,223 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
     return min(max(P, 0.0), 1.0)
 
 
+def _gammainc_upper_reg(a: float, x: float) -> float:
+    """
+    Regularized upper incomplete gamma Q(a,x) = Gamma(a,x) / Gamma(a).
+
+    Not simply ``1 - _gammainc_lower_reg(a, x)``. The continued fraction that
+    branch uses computes Q first and returns ``1 - Q``, so for large ``x``,
+    where Q is the small quantity, every digit of it is lost to the
+    subtraction. Returning it directly keeps full relative precision in the far
+    upper tail, which is where a heavy-tailed distribution lives.
+
+    Parameters
+    ----------
+    a : float
+        Positive shape parameter.
+    x : float
+        Non-negative argument.
+
+    Returns
+    -------
+    float
+        Q(a, x), in [0, 1].
+
+    Raises
+    ------
+    ValueError
+        If ``a`` is not positive or ``x`` is negative.
+    """
+    if a <= 0 or x < 0:
+        raise ValueError("a must be >0 and x>=0.")
+    if x == 0.0:
+        return 1.0
+
+    if x < a + 1.0:
+        # Series branch: here P is the well-conditioned quantity, so Q comes
+        # from the subtraction. That is the right way round -- Q is O(1) here.
+        return 1.0 - _gammainc_lower_reg(a, x)
+
+    max_iter = 10_000
+    eps = 1e-14
+    tiny = 1e-300
+
+    b = x + 1.0 - a
+    c = 1.0 / tiny
+    d = 1.0 / b if abs(b) > tiny else 1.0 / tiny
+    h = d
+    for n in range(1, max_iter + 1):
+        an = -n * (n - a)
+        b += 2.0
+        d = an * d + b
+        if abs(d) < tiny:
+            d = tiny
+        c = b + an / c
+        if abs(c) < tiny:
+            c = tiny
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < eps:
+            break
+
+    log_q = -x + a * math.log(x) - math.lgamma(a) + math.log(h)
+    if log_q < -745.0:
+        return 0.0
+    return min(max(math.exp(log_q), 0.0), 1.0)
+
+
+def _gammaincinv_reg(
+    a: float,
+    p: float,
+    *,
+    upper: bool = False,
+    max_iter: int = 200,
+    tol: float = 1e-14,
+) -> float:
+    """Inverse of the regularized incomplete gamma: return x with P(a,x) = p.
+
+    With ``upper=True``, solves ``Q(a,x) = p`` instead. Both are provided
+    because the caller usually knows which of the two is its small quantity,
+    and going through the other one means forming ``1 - p`` and losing the
+    precision that made the tail worth computing.
+
+    Solved in ``t = log(x)`` for the same reason :func:`_betaincinv_reg` is:
+    bisecting ``x`` converges to a fixed absolute precision, which leaves a
+    target of 1e-15 with barely a digit, while bisecting its logarithm keeps
+    relative precision however small the root becomes.
+
+    The starting point is the small-``x`` asymptote ``P(a,x) -> x**a /
+    (a Gamma(a))``, inverted, which is exact to several digits wherever the
+    tail is small and never worse than a couple of log units elsewhere. That
+    matters more than the speed of the inner loop: blind bisection of the
+    exponent range spends sixty continued-fraction evaluations getting to
+    where this arrives in one.
+
+    Parameters
+    ----------
+    a : float
+        Positive shape parameter.
+    p : float
+        Target probability in [0, 1].
+    upper : bool, optional
+        Solve ``Q(a,x) = p`` rather than ``P(a,x) = p``.
+    max_iter : int, optional
+        Maximum Newton iterations after bracketing.
+    tol : float, optional
+        Relative convergence tolerance on the probability.
+
+    Returns
+    -------
+    float
+        The value ``x >= 0`` solving the requested equation. ``inf`` when the
+        root is beyond the float range.
+
+    Raises
+    ------
+    ValueError
+        If ``p`` is outside [0, 1] or ``a`` is not positive.
+    """
+    if not (0.0 <= p <= 1.0):
+        raise ValueError("p must be in [0,1].")
+    if a <= 0.0:
+        raise ValueError("a must be > 0.")
+
+    if upper:
+        if p == 1.0:
+            return 0.0
+        if p == 0.0:
+            return math.inf
+    else:
+        if p == 0.0:
+            return 0.0
+        if p == 1.0:
+            return math.inf
+
+    lgamma_a = math.lgamma(a)
+
+    def g(t: float) -> float:
+        """Residual, signed so that it increases with t in both modes."""
+        x = math.exp(t)
+        if upper:
+            return p - _gammainc_upper_reg(a, x)
+        return _gammainc_lower_reg(a, x) - p
+
+    # Invert the small-x asymptote P ~ x**a / (a Gamma(a)). In upper mode the
+    # equivalent small-x statement is Q ~ 1 - x**a/(a Gamma(a)), so the same
+    # expression applies to 1 - p there.
+    target = 1.0 - p if upper else p
+    guess = 700.0 if target <= 0.0 else (math.log(target) + math.log(a) + lgamma_a) / a
+    t0 = min(max(guess, -745.0), 700.0)
+
+    g0 = g(t0)
+    if g0 == 0.0:
+        return math.exp(t0)
+
+    lo, hi = t0, t0
+    step = 0.5
+    if g0 < 0.0:
+        hi = 709.0
+        while step <= 2048.0:
+            probe = min(t0 + step, 709.0)
+            if g(probe) >= 0.0:
+                hi = probe
+                break
+            lo = probe
+            if probe == 709.0:
+                return math.inf
+            step *= 2.0
+    else:
+        lo = -745.0
+        while step <= 2048.0:
+            probe = max(t0 - step, -745.0)
+            if g(probe) < 0.0:
+                lo = probe
+                break
+            hi = probe
+            if probe == -745.0:
+                return math.exp(probe)
+            step *= 2.0
+
+    while hi - lo > 1e-2:
+        mid = 0.5 * (lo + hi)
+        if g(mid) < 0.0:
+            lo = mid
+        else:
+            hi = mid
+
+    t = 0.5 * (lo + hi)
+
+    # Newton on t. With x = exp(t), d/dt P(a,x) = x**a e**-x / Gamma(a), and
+    # Q differs only in sign, which the residual already carries.
+    for _ in range(max_iter):
+        x = math.exp(t)
+        err = g(t)
+        if abs(err) <= tol * max(p, 1e-300):
+            break
+
+        # Narrow before falling back to the midpoint, so the fallback is a
+        # genuinely new point. See _betaincinv_reg for what the other order
+        # costs.
+        if err < 0.0:
+            lo = t
+        else:
+            hi = t
+
+        log_deriv = a * t - x - lgamma_a
+        if log_deriv < -745.0:
+            break
+        t_new = t - err / math.exp(log_deriv)
+        if not (lo < t_new < hi):
+            t_new = 0.5 * (lo + hi)
+        if abs(t_new - t) <= 1e-16 * abs(t):
+            t = t_new
+            break
+        t = t_new
+
+    return math.exp(t)
+
+
 def _ppf_monotone(
     cdf: Callable[[float], float],
     lo: float,
@@ -321,21 +538,57 @@ def _betaincinv_reg(
         """I_{exp(t)}(a,b) - p."""
         return _betainc_reg(a, b, math.exp(t)) - p
 
-    # Bracket the root in t = log(y). The lower bound is close to the smallest
-    # representable exponent; the upper bound is t = 0, i.e. y = 1.
-    lo, hi = -745.0, 0.0
-    if g(lo) > 0.0:
-        return math.exp(lo)
+    # Start from the small-y asymptote rather than bisecting the whole
+    # exponent range. As y -> 0, I_y(a,b) -> y**a / (a B(a,b)), so inverting
+    # that gives log y directly. It is exact to six decimals for p below 1e-6
+    # and within about half a log unit even at p = 0.4, against a range of 745
+    # that blind bisection would have to chew through one continued-fraction
+    # evaluation at a time.
+    guess = (math.log(p) + math.log(a) + log_b) / a
+    t0 = min(max(guess, -745.0), -1e-8)
 
-    # Bisection in log-space to get a tight, correctly-signed bracket.
-    for _ in range(200):
+    g0 = g(t0)
+    if g0 == 0.0:
+        return math.exp(t0)
+
+    # Walk outwards from the guess until the root is bracketed. g(0) is 1 - p,
+    # which is positive for every p reaching here, so t = 0 always closes the
+    # bracket from above.
+    lo, hi = t0, t0
+    step = 0.5
+    if g0 < 0.0:
+        hi = 0.0
+        while step <= 1024.0:
+            probe = min(t0 + step, 0.0)
+            if g(probe) >= 0.0:
+                hi = probe
+                break
+            lo = probe
+            if probe == 0.0:
+                break
+            step *= 2.0
+    else:
+        lo = -745.0
+        while step <= 1024.0:
+            probe = max(t0 - step, -745.0)
+            if g(probe) < 0.0:
+                lo = probe
+                break
+            hi = probe
+            if probe == -745.0:
+                return math.exp(probe)
+            step *= 2.0
+
+    # Bisect only far enough for Newton to take over. Newton converges
+    # quadratically from here, so bisecting to machine precision first would
+    # be paying continued-fraction evaluations for digits Newton produces in
+    # two steps.
+    while hi - lo > 1e-2:
         mid = 0.5 * (lo + hi)
         if g(mid) < 0.0:
             lo = mid
         else:
             hi = mid
-        if hi - lo < 1e-13:
-            break
 
     t = 0.5 * (lo + hi)
 
@@ -348,18 +601,26 @@ def _betaincinv_reg(
         err = _betainc_reg(a, b, y) - p
         if abs(err) <= tol * p:
             break
-        log_deriv = a * t + (b - 1.0) * math.log1p(-y) - log_b
-        if log_deriv < -745.0:
-            break
-        step = err / math.exp(log_deriv)
-        t_new = t - step
-        if not (lo < t_new < hi):
-            t_new = 0.5 * (lo + hi)
+
+        # Narrow the bracket from this residual *before* falling back to its
+        # midpoint. With the other order the midpoint is computed from the
+        # bracket that still contains t, so on the first iteration -- where t
+        # is the midpoint by construction -- the fallback returns t itself and
+        # the no-progress check below declares convergence on a point that has
+        # not converged. The old fixed bisection to 1e-13 hid this by making
+        # "converged at the midpoint" true anyway.
         if err < 0.0:
             lo = t
         else:
             hi = t
-        if abs(t_new - t) < 1e-16 * abs(t):
+
+        log_deriv = a * t + (b - 1.0) * math.log1p(-y) - log_b
+        if log_deriv < -745.0:
+            break
+        t_new = t - err / math.exp(log_deriv)
+        if not (lo < t_new < hi):
+            t_new = 0.5 * (lo + hi)
+        if abs(t_new - t) <= 1e-16 * abs(t):
             t = t_new
             break
         t = t_new

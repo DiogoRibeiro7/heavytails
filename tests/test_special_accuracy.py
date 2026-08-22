@@ -40,6 +40,17 @@ def _gamma_reference(a: float, x: float) -> float:
     return float(mpmath.gammainc(mpmath.mpf(a), 0, mpmath.mpf(x), regularized=True))
 
 
+def _gamma_upper_reference(a: float, x: float) -> float:
+    """Q(a, x) computed as itself, not as ``1 - P``.
+
+    The subtraction is done in double precision and cannot express a result
+    below about 1e-16, so for large ``x`` it quantises to multiples of 2**-48
+    and stops being a reference at all. mpmath evaluates the upper integral
+    directly and keeps every digit.
+    """
+    return float(mpmath.gammainc(mpmath.mpf(a), mpmath.mpf(x), regularized=True))
+
+
 def _relative_error(got: float, exact: float) -> float:
     if exact == 0.0:
         return abs(got)
@@ -163,10 +174,15 @@ class TestDistributionsThatDependOnThem:
         The CDF is P(alpha, beta/x), so every x below roughly beta/(alpha+1)
         landed in the broken continued-fraction branch.
         """
-        # F(x) = Q(alpha, beta/x) = 1 - P(alpha, beta/x).
+        # F(x) = Q(alpha, beta/x), and the reference must be the upper
+        # integral rather than 1 - P: in the far lower tail the subtraction
+        # quantises to multiples of 2**-48, so it would be comparing the
+        # implementation against a number with no digits left. At alpha=3,
+        # beta=2, x=0.05 that reference reads 3.5527e-15, which is exactly
+        # 2**-48, against a true 3.5729e-15.
         got = InverseGamma(alpha=alpha, beta=beta).cdf(x)
-        exact = 1.0 - _gamma_reference(alpha, beta / x)
-        assert _relative_error(got, exact) < 1e-10
+        exact = _gamma_upper_reference(alpha, beta / x)
+        assert _relative_error(got, exact) < 1e-12
 
     def test_inverse_gamma_cdf_is_monotone(self) -> None:
         dist = InverseGamma(alpha=2.0, beta=1.0)
