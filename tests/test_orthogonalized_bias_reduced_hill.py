@@ -216,6 +216,44 @@ class TestThresholdAggregation:
 
         assert robust == pytest.approx(reference, abs=0.04)
 
+    @pytest.mark.parametrize("count", [1, 3, 5])
+    def test_cross_fit_reestimates_trimming_on_the_evaluation_fold(
+        self, count: int
+    ) -> None:
+        """Odd contamination counts split unevenly, so trims cannot be transferred.
+
+        A cross-fit direction that learns zero contaminants on the clean split
+        and applies that zero to the contaminated split leaves an arbitrary
+        outlier in the final estimate. The estimator must transfer threshold
+        decisions, then re-estimate the trimming count on the evaluation fold.
+        """
+        errors = []
+        for seed in range(10):
+            clean = Pareto(alpha=2.0, xm=1.0).rvs(10_000, seed=seed)
+            contaminated = sorted(clean, reverse=True)
+            for j in range(count):
+                contaminated[j] = 1e6 * (j + 1)
+
+            reference = threshold_averaged_orthogonalized_hill_estimator(
+                clean,
+                k=500,
+                min_k=150,
+                grid_size=6,
+                rho=-1.0,
+                adaptive_trim=True,
+            )
+            robust = threshold_averaged_orthogonalized_hill_estimator(
+                sorted(contaminated, reverse=True),
+                k=500,
+                min_k=150,
+                grid_size=6,
+                rho=-1.0,
+                adaptive_trim=True,
+            )
+            errors.append(abs(robust - reference))
+
+        assert statistics.fmean(errors) < 0.025
+
 
 class TestValidationAndIntegration:
     @pytest.mark.parametrize("rho", [0.0, 0.5, 1.0])

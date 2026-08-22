@@ -482,14 +482,14 @@ def trimmed_hill_plot(
     return points
 
 
-# Family-wise false-alarm rate for the deep-scan interlock in
-# :func:`adaptive_trim_selection`. See there for why it is not `level`.
-_INTERLOCK_LEVEL = 1e-4
-
-
 def _vanishing_level(n: int) -> float:
     """Conservative default level for adaptive choices that must vanish."""
     return min(0.05, 1.0 / math.log(max(n, 90)) ** 2)
+
+
+def _vanishing_interlock_level(n: int) -> float:
+    """False-alarm level for the deep contamination interlock."""
+    return min(1e-4, 1.0 / max(n, 1) ** 2)
 
 
 def _growing_critical(n: int) -> float:
@@ -630,7 +630,9 @@ def adaptive_trim_selection(
     detect_to = max(max_trim, k // 2)
     deep_tests = detect_to - max_trim
     trim_threshold = level / max_trim
-    deep_threshold = _INTERLOCK_LEVEL / deep_tests if deep_tests > 0 else 0.0
+    deep_threshold = (
+        _vanishing_interlock_level(n) / deep_tests if deep_tests > 0 else 0.0
+    )
 
     p_values = [_spacing_p_value(spacings, j) for j in range(max_trim)]
     trim = 0
@@ -1125,6 +1127,8 @@ def threshold_averaged_orthogonalized_hill_selection(
         "critical": critical_value,
         "rho": rho,
         "level": trim_level,
+        "adaptive_trim": adaptive_trim,
+        "max_trim": max_trim,
         "convex_weights": convex_weights,
     }
 
@@ -1152,9 +1156,11 @@ def _scaled_order_count(count: int, part_n: int, full_n: int) -> int:
 def _apply_threshold_average(data: Sequence[float], selection: dict[str, Any]) -> float:
     """Evaluate threshold-averaging decisions on a fresh sample."""
     thresholds = selection["stable_thresholds"]
-    trims = selection["trims"][: len(thresholds)]
     averaging_weights = selection["weights"]
     rho = selection["rho"]
+    adaptive_trim = bool(selection["adaptive_trim"])
+    max_trim = selection["max_trim"]
+    level = selection["level"]
 
     x = sorted(data, reverse=True)
     if not thresholds:
@@ -1167,7 +1173,19 @@ def _apply_threshold_average(data: Sequence[float], selection: dict[str, Any]) -
 
     spacings = _normalised_log_spacings(x, max_k)
     local_estimates = []
-    for threshold, trim in zip(thresholds, trims, strict=True):
+    for threshold in thresholds:
+        trim = 0
+        if adaptive_trim:
+            trim_selection = adaptive_trim_selection(
+                x, threshold, max_trim=max_trim, level=level
+            )
+            if trim_selection["saturated"]:
+                raise ValueError(
+                    "Contamination reaches deeper than max_trim in the evaluation "
+                    f"fold at threshold {threshold}; raise max_trim above "
+                    f"{trim_selection['deepest_anomaly']}."
+                )
+            trim = int(trim_selection["trim"])
         weights = _orthogonalized_spacing_weights(threshold, trim, rho)
         local_estimates.append(
             sum(w * z for w, z in zip(weights, spacings[trim:threshold], strict=True))
