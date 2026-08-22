@@ -34,19 +34,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Ubuntu only, across every supported interpreter.
-        #
-        # The Windows and macOS jobs were dropped because they never caught
-        # anything Ubuntu missed. Twice they did the opposite: NumPy and libm
-        # agree bit for bit on Windows and not on Linux, so a test asserting
-        # bit-identity and a ULP budget derived from Windows behaviour both
-        # passed there and failed on Ubuntu. The stricter platform is the one
-        # worth running, and it is the one the package is installed on.
-        #
-        # The library is pure Python with no compiled extension and no
-        # filesystem work beyond reading a file, so there is little for an
-        # operating system to break. If that changes -- a path-handling
-        # feature, a compiled dependency -- this is the decision to revisit.
+        # Full coverage stays on Ubuntu across every supported interpreter.
+        # A separate cross-platform smoke job below keeps Windows and macOS
+        # portability visible without repeating the expensive Monte Carlo suite.
         python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
@@ -109,6 +99,47 @@ jobs:
         with:
           name: test-results-py${{ matrix.python-version }}
           path: pytest.xml
+
+  cross-platform-smoke:
+    name: Smoke (${{ matrix.os }}, Python 3.12)
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install smoke dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install . pytest numpy
+
+      - name: Import package and check metadata
+        run: |
+          python - <<'PY'
+          import importlib.metadata
+          import heavytails
+
+          assert importlib.metadata.version("heavytails")
+          assert hasattr(heavytails, "Pareto")
+          assert hasattr(heavytails, "threshold_averaged_orthogonalized_hill_estimator")
+          PY
+
+      - name: Run portability smoke tests
+        run: >-
+          python -m pytest
+          tests/test_doctests.py
+          tests/test_tail_index.py
+          tests/test_vectorized.py
+          -q
 
   lint-and-type-check:
     name: Lint and type check

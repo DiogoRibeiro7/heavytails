@@ -27,13 +27,14 @@ standardised residuals.
 a return picked at random from the next decade". That is the right one for
 long-horizon capital, and it is heavier.
 
-There is a second consequence, and it breaks something more basic. Classical
-extreme value theory assumes independent observations. Clustered extremes are
-not independent, so a return period computed as though they were is wrong by a
-factor: the **extremal index** measures it, and :func:`extremal_index`
-estimates it. A value of 0.5 means extremes arrive in pairs, so a "hundred-year
-event" happens half as often as its marginal probability suggests -- but when it
-does, it brings another with it.
+There is a second consequence, and it breaks the simplest return-period
+calculation. The simplest iid extreme value theory assumes independent
+observations; for stationary dependent sequences, clustering must be accounted
+for, for example through the **extremal index**. :func:`extremal_index`
+estimates that correction. Under the usual limiting cluster interpretation, a
+value of 0.5 corresponds to an effective mean cluster size near two, so a
+"hundred-year event" happens half as often as its marginal probability suggests
+-- but when it does, it often brings another with it.
 """
 
 from __future__ import annotations
@@ -398,11 +399,12 @@ def extremal_index(
     """
     Estimate the extremal index by the Ferro-Segers intervals method.
 
-    The extremal index is the reciprocal of the mean cluster size, and it is
-    what classical extreme value theory quietly assumes to be one. A value of
-    0.5 means extremes arrive in pairs: the **rate** of independent episodes is
-    half what counting exceedances suggests, so a "hundred-year event" happens
-    half as often -- and brings a companion when it does.
+    Under the usual limiting cluster interpretation, the extremal index is the
+    reciprocal of the effective mean cluster size. The simplest iid extreme
+    value theory quietly sets it to one. A value near 0.5 says the **rate** of
+    independent extreme episodes is about half what counting exceedances
+    suggests, so a "hundred-year event" happens half as often -- and often
+    brings a companion when it does.
 
     The intervals estimator works from the gaps between exceedances and needs
     **no declustering parameter**, which is its advantage over the runs method:
