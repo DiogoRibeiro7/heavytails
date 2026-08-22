@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tests/reference_values.json` and `scripts/generate_reference_values.py`, a
+  database of 209 values computed by mpmath at 50 decimal digits from the
+  mathematical definitions, covering all twelve continuous families
+  ([#311](https://github.com/DiogoRibeiro7/heavytails/issues/311)). Every
+  point carries its condition number, so the tolerance follows from how well
+  the quantity can be determined at that input rather than from a flat
+  guess. Reading the table needs no mpmath and runs in about a second.
+- `tests/test_distribution_properties.py`, applying the generic properties --
+  quantile inversion, survival complementarity, monotonicity, non-negative
+  density, support, reproducibility -- to every family from one registry
+  rather than to four families by hand. Adds checks of the documented family
+  relationships, of the tail index each family is supposed to have, and of
+  moments existing exactly when the theory says.
+
+### Fixed
+
+Eight numerical defects, all found by the reference database on its first run
+and all the same mistake: computing a small quantity by subtracting from one.
+
+- `Cauchy.ppf` used `tan(pi(u - 1/2))`, whose argument sits next to `+-pi/2`
+  where the tangent is arbitrarily steep. At `u = 1e-9` it returned
+  -318309868.8 for a true -318309886.2, wrong in the eighth digit. Now uses
+  the cotangent form, accurate to 1.9e-16.
+- `_phi_inverse` refined its rational approximation using
+  `0.5*(1 + erf(x/sqrt(2)))`, which cancels once `x` is a few units negative,
+  so the correction was computed from noise. The relative error at `u = 1e-12`
+  was 4.4e-07 -- worse than the unrefined approximation. Now 4.2e-16 across
+  the range, which also improves every normal-quantile consumer, including
+  `LogNormal.ppf` and the confidence intervals in `tail_index` and `threshold`.
+- `GeneralizedPareto.ppf`, `BurrXII.ppf` and `Weibull.ppf` formed `1 - u`
+  before taking a power or a logarithm, losing the lower tail to about seven
+  digits. Now use `log1p`/`expm1`.
+- `GeneralizedPareto.cdf`, `BurrXII.cdf`, `Weibull.cdf`, `Cauchy.cdf` and
+  `LogNormal.cdf` computed a small probability as `1 - g(x)` with `g`
+  approaching one. Each now takes the branch where its own value is the small
+  quantity.
+
 - `_gammainc_upper_reg`, the regularized upper incomplete gamma computed as
   itself rather than as `1 - P`
   ([#309](https://github.com/DiogoRibeiro7/heavytails/issues/309)). The

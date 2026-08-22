@@ -258,6 +258,10 @@ benchmark_results/
 *.csv
 *.json
 !.zenodo.json
+# The reference value database is source, not output: it is the only
+# independent check the suite has, and regenerating it locally to make a
+# test pass is exactly what must not happen silently.
+!tests/reference_values.json
 *.xlsx
 *.h5
 *.hdf5
