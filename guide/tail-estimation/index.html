@@ -3508,7 +3508,7 @@
 <li><strong><a href="../../examples/basic_usage/">Examples</a></strong> - Practical applications</li>
 </ul>
 <h2 id="choosing-an-estimator">Choosing an estimator<a class="headerlink" href="#choosing-an-estimator" title="Permanent link">&para;</a></h2>
-<p><code>heavytails</code> provides four. They differ in the range of <code>gamma</code> they can
+<p><code>heavytails</code> provides several. They differ in the range of <code>gamma</code> they can
 represent and in how efficiently they use the data.</p>
 <table>
 <thead>
@@ -3629,9 +3629,9 @@ squared error over 120 samples, using <code>k = n/20</code>:</p>
 <tr>
 <td>Uniform(0,1), gamma=-1</td>
 <td>10000</td>
-<td>1.026</td>
-<td>1.040</td>
-<td>1.054</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
 <td><strong>0.053</strong></td>
 <td>0.108</td>
 <td>0.081</td>
@@ -3643,9 +3643,9 @@ squared error over 120 samples, using <code>k = n/20</code>:</p>
 factor of two or more</strong>, and the smoothed variant beats plain Hill outright.</p>
 <p>On the Uniform sample, whose upper endpoint is finite and whose <code>gamma</code> is
 <code>-1</code>, <strong>Hill is not merely inaccurate but structurally incapable</strong>: it averages
-log-excesses and can only ever return a positive number, so it reports about
-<code>+0.026</code> for a true <code>-1</code>. No choice of <code>k</code> fixes that. The generalized Hill
-estimator recovers <code>-0.99</code>.</p>
+log-excesses and can only ever return a positive number. No choice of <code>k</code> fixes
+that, so the study reports Hill-family estimators as <code>N/A</code> for bounded-tail
+scenarios. The generalized Hill estimator recovers <code>-0.99</code>.</p>
 <p>The smoothed estimators inherit that limitation exactly, because they average
 Hill estimates. Smoothing addresses variance in <code>k</code>, not the range of <code>gamma</code>.</p>
 <p>If you do not already know the sign of <code>gamma</code>, do not start with Hill.</p>
@@ -3982,13 +3982,13 @@ bounded tail. On a Uniform(0,1) sample, where the true index is -1:</p>
 <tbody>
 <tr>
 <td><code>hill</code></td>
-<td>+0.026</td>
-<td>1.026</td>
+<td>N/A</td>
+<td>N/A</td>
 </tr>
 <tr>
 <td><code>t_hill</code></td>
-<td>+0.026</td>
-<td>1.026</td>
+<td>N/A</td>
+<td>N/A</td>
 </tr>
 <tr>
 <td><code>gpd_mle</code></td>
@@ -4169,14 +4169,15 @@ stable set using the log-spacing covariance approximation.</p>
 </span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>    <span class="n">adaptive_trim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>The point estimator is cross-fitted by default. Threshold sets, <code>rho</code> and
-aggregation weights are learned on one split of the sample and evaluated on the
-other, then the roles are swapped. The trimming count is deliberately
-re-estimated on the evaluation fold: a random split does not put the same number
-of contaminated extremes in both halves. This is slower and a little noisier
-than the full-sample diagnostic estimate, but it separates threshold selection
-from the observations used for the final estimate without transferring an
-absolute outlier count across folds.</p>
+<p>The point estimator is cross-fitted by default. Stable thresholds and <code>rho</code> are
+learned on one split of the sample and evaluated on the other, then the roles
+are swapped. The trimming count and aggregation weights are deliberately
+recomputed on the evaluation fold: a random split does not put the same number
+of contaminated extremes in both halves, and the covariance weights should match
+the spacings that remain after target-fold trimming. This is slower and a little
+noisier than the full-sample diagnostic estimate, but it separates threshold
+selection from the observations used for the final estimate without transferring
+an absolute outlier count across folds.</p>
 <p>For diagnostics, use the selection function:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">threshold_averaged_orthogonalized_hill_selection</span>
 </span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>
