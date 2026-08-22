@@ -13,12 +13,10 @@ doctests.
 The legacy modules are excluded rather than fixed: their examples are
 structurally broken, and what happens to those modules is still open (#312).
 
-Five of the core modules turn out to carry no runnable examples at all --
-``heavy_tails``, ``extra_distributions``, ``discrete``, ``plotting`` and
-``_special``. They are still checked, so an example added later is covered from
-the day it lands, but the "must have examples" assertion below names only the
-modules that currently have any. Asserting it for all nine would fail today for
-a reason that is a documentation gap rather than a regression.
+All nine modules now carry examples, so the list below is a single one. It was
+briefly two: five of the core modules had none at all, and asserting that they
+did would have failed for a documentation gap rather than a regression. That
+gap is closed (#337), so the distinction can go.
 """
 
 from __future__ import annotations
@@ -74,10 +72,7 @@ def test_the_viz_examples_reproduce() -> None:
     assert results.failed == 0
 
 
-DOCUMENTED = [actuarial, risk, tail_index, threshold]
-
-
-@pytest.mark.parametrize("module", DOCUMENTED, ids=lambda m: m.__name__)
+@pytest.mark.parametrize("module", MODULES, ids=lambda m: m.__name__)
 def test_the_examples_have_not_been_deleted(module: ModuleType) -> None:
     """A module with no examples passes the check above vacuously.
 

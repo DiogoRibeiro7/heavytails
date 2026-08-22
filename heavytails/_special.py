@@ -26,7 +26,15 @@ class ConvergenceError(RuntimeError):
 
 
 def _log_beta(a: float, b: float) -> float:
-    """log B(a,b) via lgamma for stability."""
+    """log B(a,b) via lgamma for stability.
+
+    Examples:
+        >>> import math
+        >>> round(_log_beta(2.0, 3.0), 6)
+        -2.484907
+        >>> round(math.log(1 / 12), 6)
+        -2.484907
+    """
     return math.lgamma(a) + math.lgamma(b) - math.lgamma(a + b)
 
 
@@ -36,6 +44,12 @@ def _betainc_reg(a: float, b: float, x: float) -> float:
       - symmetry reduction (x -> 1-x) for x > (a+1)/(a+b+2)
       - Lentz/continued-fraction for the incomplete beta function ratio
     Accuracy ~ 1e-12 in double precision for typical parameter ranges.
+
+    Examples:
+        >>> round(_betainc_reg(2.0, 3.0, 0.5), 10)
+        0.6875
+        >>> _betainc_reg(2.0, 3.0, 0.0), _betainc_reg(2.0, 3.0, 1.0)
+        (0.0, 1.0)
     """
     if not (0.0 <= x <= 1.0):
         raise ValueError("x must be in [0,1].")
@@ -118,6 +132,15 @@ def _gammainc_lower_reg(a: float, x: float) -> float:
     """
     Regularized lower incomplete gamma P(a,x) = gamma(a,x) / Gamma(a).
     Uses series for x < a+1 and continued fraction for x >= a+1.
+
+    Examples:
+        At shape one this is the exponential distribution function:
+
+        >>> import math
+        >>> round(_gammainc_lower_reg(1.0, 1.0), 6)
+        0.632121
+        >>> round(1 - math.exp(-1), 6)
+        0.632121
     """
     if a <= 0 or x < 0:
         raise ValueError("a must be >0 and x>=0.")
@@ -202,6 +225,16 @@ def _gammainc_upper_reg(a: float, x: float) -> float:
     ------
     ValueError
         If ``a`` is not positive or ``x`` is negative.
+
+    Examples:
+        The reason this exists rather than ``1 - P``: the subtraction cannot
+        express a result below about 1e-16, and returns exactly zero where the
+        true value is not zero.
+
+        >>> f"{_gammainc_upper_reg(2.0, 50.0):.6e}"
+        '9.836624e-21'
+        >>> 1.0 - _gammainc_lower_reg(2.0, 50.0)
+        0.0
     """
     if a <= 0 or x < 0:
         raise ValueError("a must be >0 and x>=0.")
@@ -292,6 +325,12 @@ def _gammaincinv_reg(
     ------
     ValueError
         If ``p`` is outside [0, 1] or ``a`` is not positive.
+
+    Examples:
+        >>> round(_gammaincinv_reg(1.0, 0.6321205588285577), 6)
+        1.0
+        >>> round(_gammainc_lower_reg(2.0, _gammaincinv_reg(2.0, 0.25)), 10)
+        0.25
     """
     if not (0.0 <= p <= 1.0):
         raise ValueError("p must be in [0,1].")
@@ -515,6 +554,12 @@ def _betaincinv_reg(
     -------
     float
         The value ``y`` in [0, 1] satisfying ``I_y(a, b) = p``.
+
+    Examples:
+        >>> round(_betaincinv_reg(2.0, 3.0, 0.6875), 10)
+        0.5
+        >>> round(_betainc_reg(1.5, 0.5, _betaincinv_reg(1.5, 0.5, 1e-9)), 12)
+        1e-09
     """
     if not (0.0 <= p <= 1.0):
         raise ValueError("p must be in [0,1].")
@@ -635,6 +680,14 @@ def _phi_inverse(u: float) -> float:
 
     Reference:
     https://web.archive.org/web/20150910002153/http://home.online.no/~pjacklam/notes/invnorm/
+
+    Examples:
+        The familiar 1.96 of a two-sided 95% interval:
+
+        >>> round(_phi_inverse(0.975), 6)
+        1.959964
+        >>> _phi_inverse(0.5)
+        0.0
     """
     if not (0.0 < u < 1.0):
         raise ValueError("u must be in (0,1).")

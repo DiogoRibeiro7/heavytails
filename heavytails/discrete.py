@@ -23,6 +23,18 @@ class Zipf(Samplable):
         Maximum value for truncated distribution (default: 10,000)
     _Z : float
         Normalization constant ζ(s) computed in __post_init__
+
+    Examples:
+        The discrete power law of word frequencies and city sizes. The mass
+        falls as ``k ** -s``, so doubling the rank divides it by ``2 ** s``:
+
+        >>> zipf = Zipf(s=2.0, kmax=1000)
+        >>> round(zipf.pmf(1), 6)
+        0.608297
+        >>> round(zipf.pmf(2), 6)
+        0.152074
+        >>> round(zipf.pmf(1) / zipf.pmf(2), 6)
+        4.0
     """
 
     s: float
@@ -63,6 +75,18 @@ class YuleSimon(Samplable):
     """
     Yule-Simon with shape rho>0 (discrete heavy tail).
     P(X=k) = rho * B(k, rho+1) = rho * Gamma(k)Gamma(rho+1) / Gamma(k+rho+1)
+
+    Examples:
+        A preferential-attachment law: the mass falls like ``k ** -(rho + 1)``,
+        so the tail index is ``rho``.
+
+        >>> yule = YuleSimon(rho=2.0)
+        >>> round(yule.pmf(1), 6)
+        0.666667
+        >>> round(yule.pmf(2), 6)
+        0.166667
+        >>> round(yule.sf(10), 6)
+        0.015152
     """
 
     rho: float
@@ -153,6 +177,18 @@ class DiscretePareto(Samplable):
         Maximum value for truncated distribution (default: 10,000)
     _H : float
         Normalization constant H_alpha computed in __post_init__
+
+    Examples:
+        The Pareto tail on the integers, truncated at ``k_max`` so the
+        normalising sum is finite:
+
+        >>> discrete_pareto = DiscretePareto(alpha=1.5, k_min=1, k_max=1000)
+        >>> round(discrete_pareto.pmf(1), 6)
+        0.392288
+        >>> round(discrete_pareto.cdf(3), 6)
+        0.606479
+        >>> discrete_pareto.ppf(0.5)
+        2
     """
 
     alpha: float

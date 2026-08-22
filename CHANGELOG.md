@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Runnable examples in the five core modules that had none
+  ([#337](https://github.com/DiogoRibeiro7/heavytails/issues/337)): 86 across
+  `heavy_tails`, `extra_distributions`, `discrete`, `plotting` and `_special`.
+  Every value was computed rather than transcribed, and `tests/test_doctests.py`
+  now guards all nine modules rather than the four that previously had any.
+
+### Added
+
 - `heavytails.vectorized`, evaluating `pdf`, `cdf`, `sf` and `ppf` over many
   points at once using NumPy when it is installed
   ([#308](https://github.com/DiogoRibeiro7/heavytails/issues/308)). Measured on
