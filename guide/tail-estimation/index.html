@@ -4057,11 +4057,14 @@ stable set using the log-spacing covariance approximation.</p>
 </span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>    <span class="n">adaptive_trim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>The point estimator is cross-fitted by default: threshold, trimming and weight
-decisions are learned on one split of the sample and evaluated on the other,
-then the roles are swapped. This is slower and a little noisier than the
-full-sample diagnostic estimate, but it separates random selection decisions
-from the observations used for the final estimate.</p>
+<p>The point estimator is cross-fitted by default. Threshold sets, <code>rho</code> and
+aggregation weights are learned on one split of the sample and evaluated on the
+other, then the roles are swapped. The trimming count is deliberately
+re-estimated on the evaluation fold: a random split does not put the same number
+of contaminated extremes in both halves. This is slower and a little noisier
+than the full-sample diagnostic estimate, but it separates threshold selection
+from the observations used for the final estimate without transferring an
+absolute outlier count across folds.</p>
 <p>For diagnostics, use the selection function:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">threshold_averaged_orthogonalized_hill_selection</span>
 </span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>
@@ -4080,6 +4083,20 @@ same full-sample value reported by the diagnostic selection function.</p>
 <p>The research question is therefore not "is this weighted Hill formula new?" It
 is whether the adaptive procedure can achieve near-oracle risk when both <code>r</code>
 and <code>k</code> are unknown while second-order bias is present.</p>
+<div class="admonition warning">
+<p class="admonition-title">Current scope</p>
+<p>The estimator adapts within a user-supplied threshold window
+<code>[min_k, k]</code>; it does not remove the need to choose a plausible envelope.
+A theorem would need deterministic sequences <code>min_k_n</code> and <code>max_k_n</code> and an
+assumption that the oracle threshold lies inside that range.</p>
+<p>Exact recovery of arbitrary contamination is also impossible when the
+outlier is statistically indistinguishable from a legitimate tail draw.
+The adaptive trimming theory needs a separation condition: the anomalous
+boundary spacing must be detectable at the vanishing test level.</p>
+<p>Finally, the default <code>rho=-1</code> should be read as a tuning choice. A first
+theorem should treat <code>rho</code> as known and bounded away from zero; plug-in
+estimation of <code>rho</code> is a separate problem.</p>
+</div>
 
 
 
