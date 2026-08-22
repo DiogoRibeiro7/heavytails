@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 from heavytails import (
     _special,
     actuarial,
+    copula,
     discrete,
     extra_distributions,
     heavy_tails,
@@ -45,6 +46,7 @@ from heavytails import (
 MODULES: list[ModuleType] = [
     _special,
     actuarial,
+    copula,
     discrete,
     extra_distributions,
     heavy_tails,
