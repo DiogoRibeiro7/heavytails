@@ -1464,6 +1464,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#orthogonalized-bias-reduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orthogonalized bias reduction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Orthogonalized bias reduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#threshold-averaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threshold averaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3423,6 +3451,18 @@ represent and in how efficiently they use the data.</p>
 <td>The Hill plot has a visible slope</td>
 </tr>
 <tr>
+<td><code>orthogonalized_bias_reduced_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>Lower</td>
+<td>Second-order bias plus top contamination</td>
+</tr>
+<tr>
+<td><code>threshold_averaged_orthogonalized_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>Lower</td>
+<td>Bias correction with threshold uncertainty</td>
+</tr>
+<tr>
 <td><code>hill_estimator</code></td>
 <td><code>gamma &gt; 0</code></td>
 <td>High</td>
@@ -3959,6 +3999,87 @@ better choice.</p>
 sometimes known analytically: Fréchet has <code>rho = -1</code> for every shape parameter,
 Student-t with <code>nu</code> degrees of freedom has <code>rho = -2/nu</code>, and
 <code>BurrXII(c, k, s)</code> has <code>rho = -1/k</code>.</p>
+<h2 id="orthogonalized-bias-reduction">Orthogonalized bias reduction<a class="headerlink" href="#orthogonalized-bias-reduction" title="Permanent link">&para;</a></h2>
+<p><code>bias_reduced_hill_estimator</code> estimates the leading bias and subtracts it after
+the fact. <code>orthogonalized_bias_reduced_hill_estimator</code> instead builds the
+cancellation into the log-spacing weights.</p>
+<div class="admonition note">
+<p class="admonition-title">Novelty</p>
+<p>The weighted log-spacing formula is not presented here as a new estimator.
+Bias-cancelling weighted Hill and exponential-regression estimators are
+already part of the tail-index literature. In this package the local
+formula is a transparent building block for adaptive procedures over
+unknown contamination <code>r</code> and threshold <code>k</code>.</p>
+</div>
+<p>For normalised log-spacings</p>
+<div class="arithmatex">\[Z_j = j\{\log X_{(j)} - \log X_{(j+1)}\},\]</div>
+<p>the second-order approximation is</p>
+<div class="arithmatex">\[E[Z_j] \approx \gamma + b\left(\frac{j}{k+1}\right)^{-\rho}.\]</div>
+<p>The estimator returns the intercept from this one-covariate regression. In
+weighted form,</p>
+<div class="arithmatex">\[\hat{\gamma} = \sum_j w_j Z_j,\]</div>
+<p>where the weights satisfy</p>
+<div class="arithmatex">\[\sum_j w_j = 1, \qquad
+\sum_j w_j\left(\frac{j}{k+1}\right)^{-\rho}=0.\]</div>
+<p>The first identity targets <code>gamma</code>; the second removes the leading second-order
+bias direction.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Frechet</span><span class="p">,</span> <span class="n">orthogonalized_bias_reduced_hill_estimator</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Frechet</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="n">orthogonalized_bias_reduced_hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">rho</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
+</span></code></pre></div>
+<p>It can also reuse the adaptive trimming scan before fitting the intercept:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">orthogonalized_bias_reduced_hill_estimator</span><span class="p">(</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>    <span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">rho</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">adaptive_trim</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>That combination is useful when the largest observations may be contaminated
+and the Hill plot also shows second-order drift. It is not free: on an exact
+Pareto tail the estimator has higher variance than Hill. Use it when the bias
+or contamination is more damaging than that variance cost.</p>
+<p>When <code>adaptive_trim=True</code>, the default trimming level is not a fixed 5% test.
+It is a conservative sequence that decreases with sample size. That matters for
+the oracle claim: a fixed false-alarm probability would not give
+<code>P(r_hat = r) -&gt; 1</code>.</p>
+<h3 id="threshold-averaging">Threshold averaging<a class="headerlink" href="#threshold-averaging" title="Permanent link">&para;</a></h3>
+<p><code>threshold_averaged_orthogonalized_hill_estimator</code> adds a threshold-uncertainty
+layer. It evaluates a logarithmic grid up to <code>k</code>, keeps thresholds whose
+orthogonalized estimates remain statistically compatible, and averages the
+stable set using the log-spacing covariance approximation.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">threshold_averaged_orthogonalized_hill_estimator</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="n">gamma</span> <span class="o">=</span> <span class="n">threshold_averaged_orthogonalized_hill_estimator</span><span class="p">(</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>    <span class="n">data</span><span class="p">,</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>    <span class="n">k</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>    <span class="n">min_k</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>    <span class="n">grid_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>    <span class="n">rho</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>    <span class="n">adaptive_trim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>The point estimator is cross-fitted by default: threshold, trimming and weight
+decisions are learned on one split of the sample and evaluated on the other,
+then the roles are swapped. This is slower and a little noisier than the
+full-sample diagnostic estimate, but it separates random selection decisions
+from the observations used for the final estimate.</p>
+<p>For diagnostics, use the selection function:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">threshold_averaged_orthogonalized_hill_selection</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="n">details</span> <span class="o">=</span> <span class="n">threshold_averaged_orthogonalized_hill_selection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="n">details</span><span class="p">[</span><span class="s2">"candidate_pairs"</span><span class="p">]</span>          <span class="c1"># [(r, k), ...]</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="n">details</span><span class="p">[</span><span class="s2">"stable_candidate_pairs"</span><span class="p">]</span>   <span class="c1"># admitted pairs</span>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="n">details</span><span class="p">[</span><span class="s2">"stable_thresholds"</span><span class="p">]</span>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="n">details</span><span class="p">[</span><span class="s2">"weights"</span><span class="p">]</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="n">details</span><span class="p">[</span><span class="s2">"local_estimates"</span><span class="p">]</span>
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="n">details</span><span class="p">[</span><span class="s2">"variance_proxy"</span><span class="p">]</span>           <span class="c1"># sum(w_j**2) for each local candidate</span>
+</span></code></pre></div>
+<p>The selector uses a compatibility cutoff that grows slowly with sample size.
+The default aggregation is convex: weights are constrained to be non-negative
+and to sum to one. Set <code>crossfit=False</code> on the point estimator when you want the
+same full-sample value reported by the diagnostic selection function.</p>
+<p>The research question is therefore not "is this weighted Hill formula new?" It
+is whether the adaptive procedure can achieve near-oracle risk when both <code>r</code>
+and <code>k</code> are unknown while second-order bias is present.</p>
 
 
 
