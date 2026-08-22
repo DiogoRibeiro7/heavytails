@@ -30,6 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   formulas. It called them "written to match the batch version operation for
   operation", which held only until the batch version changed its summation
   order -- so it now calls those functions and the agreement is structural.
+- `test_pickands_estimator_basic` drew an unseeded sample and required a single
+  Pickands estimate to land in `(0.1, 2.0)`. At `k=20` on 1000 points that
+  estimator has a standard deviation of about 0.44 around a true 0.5, so the
+  bound failed for **18% of seeds** -- a near one-in-five chance of a red build
+  on any run, on any platform. It now averages 200 replications and asserts the
+  estimator is centred on the true index, which is the property that was meant.
+- The other two randomised tests in `tests/test_tail_index.py` draw from a
+  generator they own rather than the unseeded module-level one.
 
 ## [0.4.0] - 2026-08-22
 
