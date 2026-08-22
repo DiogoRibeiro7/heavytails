@@ -885,6 +885,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guide/streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming Estimation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guide/cli/" class="md-nav__link">
         
   
@@ -1412,6 +1440,34 @@
     
   
     Actuarial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming
   
 
     
@@ -2426,13 +2482,26 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>tests/reference_values.json</code> and <code>scripts/generate_reference_values.py</code>, a
+<li>
+<p><code>heavytails.streaming</code>, tail index estimation over a stream without holding
+  the sample (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/310">#310</a>).
+  <code>TopK</code> maintains the largest values in <code>O(k)</code> memory with a min-heap;
+  <code>StreamingTailIndex</code> builds the Hill and moment estimators on it and returns
+  <strong>bit-for-bit the batch result</strong>, since both depend on the sample only
+  through its top <code>k + 1</code> values. <code>WindowedTailIndex</code> does the same over the
+  most recent observations, in <code>O(window)</code> memory, which is inherent rather
+  than a gap: when the largest value in a window expires the new largest can
+  be any of the survivors.</p>
+</li>
+<li>
+<p><code>tests/reference_values.json</code> and <code>scripts/generate_reference_values.py</code>, a
   database of 209 values computed by mpmath at 50 decimal digits from the
   mathematical definitions, covering all twelve continuous families
   (<a href="https://github.com/DiogoRibeiro7/heavytails/issues/311">#311</a>). Every
   point carries its condition number, so the tolerance follows from how well
   the quantity can be determined at that input rather than from a flat
-  guess. Reading the table needs no mpmath and runs in about a second.</li>
+  guess. Reading the table needs no mpmath and runs in about a second.</p>
+</li>
 <li><code>tests/test_distribution_properties.py</code>, applying the generic properties --
   quantile inversion, survival complementarity, monotonicity, non-negative
   density, support, reproducibility -- to every family from one registry

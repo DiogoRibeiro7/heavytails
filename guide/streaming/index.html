@@ -12,13 +12,13 @@
         <meta name="author" content="Diogo Ribeiro">
       
       
-        <link rel="canonical" href="https://diogoribeiro7.github.io/heavytails/theory/heavy-tails/">
+        <link rel="canonical" href="https://diogoribeiro7.github.io/heavytails/guide/streaming/">
       
       
-        <link rel="prev" href="../../examples/basic_usage/">
+        <link rel="prev" href="../actuarial/">
       
       
-        <link rel="next" href="../evt/">
+        <link rel="next" href="../cli/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Heavy-Tail Theory - HeavyTails Documentation</title>
+        <title>Streaming Estimation - HeavyTails Documentation</title>
       
     
     
@@ -96,7 +96,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#heavy-tail-theory" class="md-skip">
+        <a href="#streaming-estimation" class="md-skip">
           Skip to content
         </a>
       
@@ -136,7 +136,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Heavy-Tail Theory
+              Streaming Estimation
             
           </span>
         </div>
@@ -285,11 +285,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../guide/distributions/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../distributions/" class="md-tabs__link">
           
   
   
@@ -325,13 +327,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../theory/heavy-tails/" class="md-tabs__link">
           
   
   
@@ -632,28 +632,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -671,7 +674,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -689,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/distributions/" class="md-nav__link">
+      <a href="../distributions/" class="md-nav__link">
         
   
   
@@ -717,7 +720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/pdf-cdf/" class="md-nav__link">
+      <a href="../pdf-cdf/" class="md-nav__link">
         
   
   
@@ -745,7 +748,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/sampling/" class="md-nav__link">
+      <a href="../sampling/" class="md-nav__link">
         
   
   
@@ -773,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/tail-estimation/" class="md-nav__link">
+      <a href="../tail-estimation/" class="md-nav__link">
         
   
   
@@ -801,7 +804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/fitting/" class="md-nav__link">
+      <a href="../fitting/" class="md-nav__link">
         
   
   
@@ -829,7 +832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/diagnostics/" class="md-nav__link">
+      <a href="../diagnostics/" class="md-nav__link">
         
   
   
@@ -857,7 +860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/actuarial/" class="md-nav__link">
+      <a href="../actuarial/" class="md-nav__link">
         
   
   
@@ -882,10 +885,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../guide/streaming/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming Estimation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -901,6 +931,83 @@
   
 
       </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-estimate-is-exact-not-approximate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The estimate is exact, not approximate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-does-not-grow-with-the-stream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory does not grow with the stream
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whole-stream-or-a-window" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whole stream, or a window
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-there-is-enough-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before there is enough data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-between-this-and-the-batch-estimators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing between this and the batch estimators
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -913,7 +1020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -1034,31 +1141,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1076,7 +1180,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1091,37 +1195,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Heavy-Tail Theory
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../theory/heavy-tails/" class="md-nav__link">
         
   
   
@@ -1137,534 +1214,6 @@
   
 
       </a>
-      
-        
-
-  
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#formal-definitions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Formal Definitions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Formal Definitions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#heavy-tailed-distributions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Heavy-Tailed Distributions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#subexponential-distributions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Subexponential Distributions
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#regular-variation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Regular Variation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Regular Variation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#definition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Definition
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#karamatas-theorem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Karamata's Theorem
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pareto-type-tails" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pareto-Type Tails
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Pareto-Type Tails">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#definition_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Definition
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#moment-characterization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Moment Characterization
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tail-equivalence" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tail Equivalence
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#domains-of-attraction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Domains of Attraction
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Domains of Attraction">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#extreme-value-theory-framework" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Extreme Value Theory Framework
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fisher-tippett-gnedenko-theorem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fisher-Tippett-Gnedenko Theorem
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#unified-gev-form" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unified GEV Form
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#domain-of-attraction-characterization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Domain of Attraction Characterization
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#stable-distributions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stable Distributions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Stable Distributions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#definition_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Definition
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#characteristic-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Characteristic Function
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tail-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tail Behavior
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#special-cases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Special Cases
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#generalized-central-limit-theorem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Generalized Central Limit Theorem
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Generalized Central Limit Theorem">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#classical-clt-failure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Classical CLT Failure
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#generalized-clt" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Generalized CLT
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#second-order-regular-variation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Second-Order Regular Variation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Second-Order Regular Variation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#motivation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Motivation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#definition_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Definition
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#implications-for-estimation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Implications for Estimation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tail-dependence-and-copulas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tail Dependence and Copulas
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Tail Dependence and Copulas">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tail-dependence-coefficient" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tail Dependence Coefficient
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sum-of-heavy-tailed-random-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sum of Heavy-Tailed Random Variables
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Sum of Heavy-Tailed Random Variables">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#subexponential-property" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Subexponential Property
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ruin-theory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Ruin Theory
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Ruin Theory">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#classical-ruin-problem" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Classical Ruin Problem
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#heavy-tailed-claims" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Heavy-Tailed Claims
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mathematical-results-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mathematical Results Summary
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Mathematical Results Summary">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#theorems" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Theorems
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#key-references" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key References
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next Steps
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1677,7 +1226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../evt/" class="md-nav__link">
+      <a href="../../theory/evt/" class="md-nav__link">
         
   
   
@@ -1705,7 +1254,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tail-estimation/" class="md-nav__link">
+      <a href="../../theory/tail-estimation/" class="md-nav__link">
         
   
   
@@ -1733,7 +1282,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../validation/" class="md-nav__link">
+      <a href="../../theory/validation/" class="md-nav__link">
         
   
   
@@ -2743,10 +2292,10 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="../distributions/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Mathematical Background
+    User Guide
   </span>
 
         </a>
@@ -2765,7 +2314,7 @@
 
 
   
-    <a href="https://github.com/diogoribeiro7/heavytails/edit/main/docs/theory/heavy-tails.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/diogoribeiro7/heavytails/edit/main/docs/guide/streaming.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
     </a>
@@ -2774,307 +2323,131 @@
     
       
     
-    <a href="https://github.com/diogoribeiro7/heavytails/raw/main/docs/theory/heavy-tails.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/diogoribeiro7/heavytails/raw/main/docs/guide/streaming.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"/></svg>
     </a>
   
 
 
-<h1 id="heavy-tail-theory">Heavy-Tail Theory<a class="headerlink" href="#heavy-tail-theory" title="Permanent link">&para;</a></h1>
-<p>This section provides the mathematical foundations of heavy-tailed distributions, focusing on rigorous definitions, key theorems, and asymptotic properties.</p>
-<hr />
-<h2 id="formal-definitions">Formal Definitions<a class="headerlink" href="#formal-definitions" title="Permanent link">&para;</a></h2>
-<h3 id="heavy-tailed-distributions">Heavy-Tailed Distributions<a class="headerlink" href="#heavy-tailed-distributions" title="Permanent link">&para;</a></h3>
-<p>A random variable <span class="arithmatex">\(X\)</span> (or its distribution <span class="arithmatex">\(F\)</span>) is <strong>heavy-tailed</strong> if:</p>
-<div class="arithmatex">\[
-\limsup_{x \to \infty} e^{\lambda x} \bar{F}(x) = \infty \quad \text{for all } \lambda &gt; 0
-\]</div>
-<p>where <span class="arithmatex">\(\bar{F}(x) = P(X &gt; x) = 1 - F(x)\)</span> is the survival function.</p>
-<p><strong>Equivalently:</strong> The tail is not dominated by any exponential distribution.</p>
-<h3 id="subexponential-distributions">Subexponential Distributions<a class="headerlink" href="#subexponential-distributions" title="Permanent link">&para;</a></h3>
-<p>A distribution <span class="arithmatex">\(F\)</span> on <span class="arithmatex">\([0, \infty)\)</span> is <strong>subexponential</strong> (written <span class="arithmatex">\(F \in \mathcal{S}\)</span>) if:</p>
-<div class="arithmatex">\[
-\lim_{x \to \infty} \frac{\bar{F^{*2}}(x)}{\bar{F}(x)} = 2
-\]</div>
-<p>where <span class="arithmatex">\(F^{*2}\)</span> is the convolution of <span class="arithmatex">\(F\)</span> with itself.</p>
-<p><strong>Interpretation:</strong> The tail of a sum <span class="arithmatex">\(X_1 + X_2\)</span> is dominated by the maximum:</p>
-<div class="arithmatex">\[
-P(X_1 + X_2 &gt; x) \sim 2P(\max(X_1, X_2) &gt; x) \sim 2P(X_1 &gt; x)
-\]</div>
-<p><strong>Implication:</strong> One large jump dominates the sum.</p>
-<hr />
-<h2 id="regular-variation">Regular Variation<a class="headerlink" href="#regular-variation" title="Permanent link">&para;</a></h2>
-<h3 id="definition">Definition<a class="headerlink" href="#definition" title="Permanent link">&para;</a></h3>
-<p>A measurable function <span class="arithmatex">\(L: (0, \infty) \to (0, \infty)\)</span> is <strong>slowly varying</strong> (at infinity) if:</p>
-<div class="arithmatex">\[
-\lim_{x \to \infty} \frac{L(tx)}{L(x)} = 1 \quad \text{for all } t &gt; 0
-\]</div>
-<p><strong>Examples:</strong>
-- Constant functions: <span class="arithmatex">\(L(x) = c\)</span>
-- Logarithmic functions: <span class="arithmatex">\(L(x) = \log x\)</span>, <span class="arithmatex">\((\log x)^\beta\)</span>, <span class="arithmatex">\(\log \log x\)</span>
-- Iterated logarithms</p>
-<p>A function <span class="arithmatex">\(f\)</span> is <strong>regularly varying</strong> with index <span class="arithmatex">\(\alpha \in \mathbb{R}\)</span> (written <span class="arithmatex">\(f \in RV_\alpha\)</span>) if:</p>
-<div class="arithmatex">\[
-f(x) = x^\alpha L(x)
-\]</div>
-<p>where <span class="arithmatex">\(L\)</span> is slowly varying.</p>
-<p><strong>Key Property:</strong>
-$$
-\lim_{x \to \infty} \frac{f(tx)}{f(x)} = t^\alpha \quad \text{for all } t &gt; 0
-$$</p>
-<h3 id="karamatas-theorem">Karamata's Theorem<a class="headerlink" href="#karamatas-theorem" title="Permanent link">&para;</a></h3>
-<p>If <span class="arithmatex">\(L\)</span> is slowly varying and <span class="arithmatex">\(\alpha &gt; -1\)</span>, then:</p>
-<div class="arithmatex">\[
-\int_a^x t^\alpha L(t) \, dt \sim \frac{x^{\alpha+1} L(x)}{\alpha+1} \quad \text{as } x \to \infty
-\]</div>
-<p><strong>Application:</strong> Moments of regularly varying distributions.</p>
-<hr />
-<h2 id="pareto-type-tails">Pareto-Type Tails<a class="headerlink" href="#pareto-type-tails" title="Permanent link">&para;</a></h2>
-<h3 id="definition_1">Definition<a class="headerlink" href="#definition_1" title="Permanent link">&para;</a></h3>
-<p>A distribution <span class="arithmatex">\(F\)</span> has a <strong>Pareto-type tail</strong> with index <span class="arithmatex">\(\alpha &gt; 0\)</span> if:</p>
-<div class="arithmatex">\[
-\bar{F}(x) = P(X &gt; x) \sim x^{-\alpha} L(x) \quad \text{as } x \to \infty
-\]</div>
-<p>where <span class="arithmatex">\(L\)</span> is slowly varying.</p>
-<p><strong>Equivalently:</strong> <span class="arithmatex">\(\bar{F} \in RV_{-\alpha}\)</span>.</p>
-<h3 id="moment-characterization">Moment Characterization<a class="headerlink" href="#moment-characterization" title="Permanent link">&para;</a></h3>
-<p>For Pareto-type tails with index <span class="arithmatex">\(\alpha\)</span>:</p>
-<div class="arithmatex">\[
-\mathbb{E}[X^p] &lt; \infty \iff p &lt; \alpha
-\]</div>
-<p><strong>Proof sketch:</strong>
-$$
-\mathbb{E}[X^p] = \int_0^\infty px^{p-1} \bar{F}(x) \, dx
-$$</p>
-<p>For large <span class="arithmatex">\(x\)</span>, <span class="arithmatex">\(\bar{F}(x) \sim Cx^{-\alpha}\)</span>, so:</p>
-<div class="arithmatex">\[
-\int_A^\infty px^{p-1} \cdot Cx^{-\alpha} \, dx = Cp \int_A^\infty x^{p-\alpha-1} \, dx
-\]</div>
-<p>This integral converges iff <span class="arithmatex">\(p - \alpha - 1 &lt; -1\)</span>, i.e., <span class="arithmatex">\(p &lt; \alpha\)</span>.</p>
-<h3 id="tail-equivalence">Tail Equivalence<a class="headerlink" href="#tail-equivalence" title="Permanent link">&para;</a></h3>
-<p>For Pareto-type tails:</p>
-<div class="arithmatex">\[
-\bar{F}(x) \sim \frac{C}{x^\alpha} \quad \text{as } x \to \infty
-\]</div>
-<p>where <span class="arithmatex">\(C = \alpha x_m^\alpha\)</span> for Pareto(<span class="arithmatex">\(\alpha, x_m\)</span>).</p>
-<p><strong>Examples:</strong>
-- <strong>Pareto:</strong> <span class="arithmatex">\(\bar{F}(x) = (x_m/x)^\alpha\)</span> for <span class="arithmatex">\(x \geq x_m\)</span>
-- <strong>Student-t(<span class="arithmatex">\(\nu\)</span>):</strong> <span class="arithmatex">\(\bar{F}(x) \sim \frac{c_\nu}{x^\nu}\)</span> as <span class="arithmatex">\(x \to \infty\)</span>
-- <strong>Burr XII:</strong> <span class="arithmatex">\(\bar{F}(x) = [1 + (x/s)^c]^{-k} \sim (s/x)^{ck}\)</span></p>
-<hr />
-<h2 id="domains-of-attraction">Domains of Attraction<a class="headerlink" href="#domains-of-attraction" title="Permanent link">&para;</a></h2>
-<h3 id="extreme-value-theory-framework">Extreme Value Theory Framework<a class="headerlink" href="#extreme-value-theory-framework" title="Permanent link">&para;</a></h3>
-<p>Let <span class="arithmatex">\(X_1, X_2, \ldots\)</span> be iid with distribution <span class="arithmatex">\(F\)</span>, and define:</p>
-<div class="arithmatex">\[
-M_n = \max\{X_1, \ldots, X_n\}
-\]</div>
-<h3 id="fisher-tippett-gnedenko-theorem">Fisher-Tippett-Gnedenko Theorem<a class="headerlink" href="#fisher-tippett-gnedenko-theorem" title="Permanent link">&para;</a></h3>
-<p>If there exist sequences <span class="arithmatex">\(\{a_n &gt; 0\}\)</span> and <span class="arithmatex">\(\{b_n\}\)</span> such that:</p>
-<div class="arithmatex">\[
-\frac{M_n - b_n}{a_n} \overset{d}{\to} G
-\]</div>
-<p>for some non-degenerate distribution <span class="arithmatex">\(G\)</span>, then <span class="arithmatex">\(G\)</span> belongs to one of three types:</p>
-<ol>
-<li>
-<p><strong>Gumbel</strong> (<span class="arithmatex">\(\xi = 0\)</span>):
-   $$
-   G(x) = \exp{-e^{-x}}, \quad x \in \mathbb{R}
-   $$</p>
-</li>
-<li>
-<p><strong>Fréchet</strong> (<span class="arithmatex">\(\xi &gt; 0\)</span>):
-   $$
-   G(x) = \begin{cases}
-   0 &amp; x \leq 0 \
-   \exp{-x^{-1/\xi}} &amp; x &gt; 0
-   \end{cases}
-   $$</p>
-</li>
-<li>
-<p><strong>Weibull</strong> (<span class="arithmatex">\(\xi &lt; 0\)</span>):
-   $$
-   G(x) = \begin{cases}
-   \exp{-(-x)^{-1/\xi}} &amp; x &lt; 0 \
-   1 &amp; x \geq 0
-   \end{cases}
-   $$</p>
-</li>
-</ol>
-<h3 id="unified-gev-form">Unified GEV Form<a class="headerlink" href="#unified-gev-form" title="Permanent link">&para;</a></h3>
-<p>All three types can be written as:</p>
-<div class="arithmatex">\[
-G(x) = \exp\left\{-\left[1 + \xi\frac{x-\mu}{\sigma}\right]_+^{-1/\xi}\right\}
-\]</div>
-<p>where <span class="arithmatex">\([z]_+ = \max(z, 0)\)</span>, <span class="arithmatex">\(\sigma &gt; 0\)</span>, and:
-- <span class="arithmatex">\(\xi &gt; 0\)</span>: Fréchet (heavy tail)
-- <span class="arithmatex">\(\xi = 0\)</span>: Gumbel (exponential tail, limit as <span class="arithmatex">\(\xi \to 0\)</span>)
-- <span class="arithmatex">\(\xi &lt; 0\)</span>: Weibull (bounded support)</p>
-<h3 id="domain-of-attraction-characterization">Domain of Attraction Characterization<a class="headerlink" href="#domain-of-attraction-characterization" title="Permanent link">&para;</a></h3>
-<p><span class="arithmatex">\(F\)</span> is in the <strong>Fréchet domain</strong> (<span class="arithmatex">\(\xi &gt; 0\)</span>) iff:</p>
-<div class="arithmatex">\[
-\bar{F}(x) = x^{-1/\xi} L(x)
-\]</div>
-<p>where <span class="arithmatex">\(L\)</span> is slowly varying.</p>
-<p><strong>Connection:</strong> <span class="arithmatex">\(\xi = 1/\alpha\)</span> for Pareto-type tail index <span class="arithmatex">\(\alpha\)</span>.</p>
-<hr />
-<h2 id="stable-distributions">Stable Distributions<a class="headerlink" href="#stable-distributions" title="Permanent link">&para;</a></h2>
-<h3 id="definition_2">Definition<a class="headerlink" href="#definition_2" title="Permanent link">&para;</a></h3>
-<p>A random variable <span class="arithmatex">\(X\)</span> has a <strong>stable distribution</strong> if for any <span class="arithmatex">\(n \geq 2\)</span>, there exist <span class="arithmatex">\(a_n &gt; 0\)</span> and <span class="arithmatex">\(b_n \in \mathbb{R}\)</span> such that:</p>
-<div class="arithmatex">\[
-X_1 + \cdots + X_n \overset{d}{=} a_n X + b_n
-\]</div>
-<p>where <span class="arithmatex">\(X_1, \ldots, X_n \overset{iid}{\sim} X\)</span>.</p>
-<h3 id="characteristic-function">Characteristic Function<a class="headerlink" href="#characteristic-function" title="Permanent link">&para;</a></h3>
-<p>Stable distributions are characterized by:</p>
-<div class="arithmatex">\[
-\phi(t) = \exp\left\{i\mu t - |\sigma t|^\alpha [1 - i\beta \text{sign}(t) \omega(t, \alpha)]\right\}
-\]</div>
-<p>where:
-- <span class="arithmatex">\(0 &lt; \alpha \leq 2\)</span>: <strong>stability parameter</strong> (tail index)
-- <span class="arithmatex">\(-1 \leq \beta \leq 1\)</span>: skewness
-- <span class="arithmatex">\(\sigma &gt; 0\)</span>: scale
-- <span class="arithmatex">\(\mu \in \mathbb{R}\)</span>: location</p>
-<h3 id="tail-behavior">Tail Behavior<a class="headerlink" href="#tail-behavior" title="Permanent link">&para;</a></h3>
-<p>For <span class="arithmatex">\(\alpha &lt; 2\)</span>, stable distributions have power-law tails:</p>
-<div class="arithmatex">\[
-P(X &gt; x) \sim C_+ x^{-\alpha}, \quad P(X &lt; -x) \sim C_- x^{-\alpha}
-\]</div>
-<p>where <span class="arithmatex">\(C_\pm\)</span> depend on <span class="arithmatex">\(\beta\)</span>.</p>
-<h3 id="special-cases">Special Cases<a class="headerlink" href="#special-cases" title="Permanent link">&para;</a></h3>
-<ul>
-<li><span class="arithmatex">\(\alpha = 2\)</span>: <strong>Normal</strong> distribution (light tail)</li>
-<li><span class="arithmatex">\(\alpha = 1, \beta = 0\)</span>: <strong>Cauchy</strong> distribution</li>
-<li><span class="arithmatex">\(\alpha &lt; 2, \beta = 1\)</span>: <strong>Lévy</strong> distribution (one-sided)</li>
-</ul>
-<hr />
-<h2 id="generalized-central-limit-theorem">Generalized Central Limit Theorem<a class="headerlink" href="#generalized-central-limit-theorem" title="Permanent link">&para;</a></h2>
-<h3 id="classical-clt-failure">Classical CLT Failure<a class="headerlink" href="#classical-clt-failure" title="Permanent link">&para;</a></h3>
-<p>For heavy tails with <span class="arithmatex">\(\alpha &lt; 2\)</span>, the sample mean does NOT converge to a Normal distribution.</p>
-<p><strong>Example (Cauchy):</strong>
-If <span class="arithmatex">\(X_1, \ldots, X_n \overset{iid}{\sim} \text{Cauchy}\)</span>, then:</p>
-<div class="arithmatex">\[
-\frac{X_1 + \cdots + X_n}{n} \overset{d}{=} X_1
-\]</div>
-<p>The average is still Cauchy!</p>
-<h3 id="generalized-clt">Generalized CLT<a class="headerlink" href="#generalized-clt" title="Permanent link">&para;</a></h3>
-<p>For <span class="arithmatex">\(X_i \in\)</span> domain of attraction of a stable law with <span class="arithmatex">\(\alpha &lt; 2\)</span>:</p>
-<div class="arithmatex">\[
-\frac{S_n - b_n}{a_n} \overset{d}{\to} S_\alpha
-\]</div>
-<p>where <span class="arithmatex">\(S_n = X_1 + \cdots + X_n\)</span>, <span class="arithmatex">\(S_\alpha\)</span> is a stable distribution, and:
-- <span class="arithmatex">\(a_n \sim n^{1/\alpha} L(n)\)</span> (regular variation)
-- <span class="arithmatex">\(b_n = n\mathbb{E}[X]\)</span> if <span class="arithmatex">\(1 &lt; \alpha &lt; 2\)</span>; <span class="arithmatex">\(b_n = 0\)</span> if <span class="arithmatex">\(\alpha \leq 1\)</span></p>
-<p><strong>Implication:</strong> Convergence is slow; sample mean is unreliable.</p>
-<hr />
-<h2 id="second-order-regular-variation">Second-Order Regular Variation<a class="headerlink" href="#second-order-regular-variation" title="Permanent link">&para;</a></h2>
-<h3 id="motivation">Motivation<a class="headerlink" href="#motivation" title="Permanent link">&para;</a></h3>
-<p>First-order theory: <span class="arithmatex">\(\bar{F}(x) \sim x^{-\alpha} L(x)\)</span></p>
-<p>Second-order theory: How fast does <span class="arithmatex">\(\bar{F}(x)\)</span> converge to <span class="arithmatex">\(Cx^{-\alpha}\)</span>?</p>
-<h3 id="definition_3">Definition<a class="headerlink" href="#definition_3" title="Permanent link">&para;</a></h3>
-<p><span class="arithmatex">\(\bar{F} \in 2RV_{\alpha, \rho}\)</span> if there exists <span class="arithmatex">\(\rho \leq 0\)</span> and a function <span class="arithmatex">\(A(x) \to 0\)</span> such that:</p>
-<div class="arithmatex">\[
-\lim_{x \to \infty} \frac{\frac{\bar{F}(tx)}{\bar{F}(x)} - t^{-\alpha}}{A(x)} = t^{-\alpha} \frac{t^\rho - 1}{\rho}
-\]</div>
-<p>for all <span class="arithmatex">\(t &gt; 0\)</span>.</p>
-<p><strong>Interpretation:</strong> <span class="arithmatex">\(A(x)\)</span> measures the rate of convergence to first-order asymptotics.</p>
-<h3 id="implications-for-estimation">Implications for Estimation<a class="headerlink" href="#implications-for-estimation" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Hill estimator bias:</strong> Asymptotic bias is <span class="arithmatex">\(O(A(x_{n-k}))\)</span></li>
-<li><strong>Bias-corrected estimators:</strong> Use second-order structure</li>
-<li><strong>Optimal <span class="arithmatex">\(k\)</span> selection:</strong> Balances bias and variance</li>
-</ul>
-<hr />
-<h2 id="tail-dependence-and-copulas">Tail Dependence and Copulas<a class="headerlink" href="#tail-dependence-and-copulas" title="Permanent link">&para;</a></h2>
-<h3 id="tail-dependence-coefficient">Tail Dependence Coefficient<a class="headerlink" href="#tail-dependence-coefficient" title="Permanent link">&para;</a></h3>
-<p>For a bivariate distribution with marginals <span class="arithmatex">\(F_1, F_2\)</span> and copula <span class="arithmatex">\(C\)</span>:</p>
-<p><strong>Upper tail dependence coefficient:</strong>
-$$
-\lambda_U = \lim_{u \to 1^-} P(U_2 &gt; u \mid U_1 &gt; u) = \lim_{u \to 1^-} \frac{1 - 2u + C(u, u)}{1 - u}
-$$</p>
-<p>where <span class="arithmatex">\(U_i = F_i(X_i) \sim \text{Uniform}(0, 1)\)</span>.</p>
-<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Gaussian copula:</strong> <span class="arithmatex">\(\lambda_U = 0\)</span> (no tail dependence)</li>
-<li><strong>Student-t copula:</strong> <span class="arithmatex">\(\lambda_U &gt; 0\)</span> (tail dependence)</li>
-<li><strong>Clayton copula:</strong> Lower tail dependence</li>
-<li><strong>Gumbel copula:</strong> Upper tail dependence</li>
-</ul>
-<p><strong>Financial implication:</strong> Normal models underestimate joint extreme events.</p>
-<hr />
-<h2 id="sum-of-heavy-tailed-random-variables">Sum of Heavy-Tailed Random Variables<a class="headerlink" href="#sum-of-heavy-tailed-random-variables" title="Permanent link">&para;</a></h2>
-<h3 id="subexponential-property">Subexponential Property<a class="headerlink" href="#subexponential-property" title="Permanent link">&para;</a></h3>
-<p>For iid subexponential <span class="arithmatex">\(X_i\)</span>:</p>
-<div class="arithmatex">\[
-P(X_1 + \cdots + X_n &gt; x) \sim n P(X_1 &gt; x) \quad \text{as } x \to \infty
-\]</div>
-<p><strong>Interpretation:</strong> The tail of the sum is driven by the largest observation.</p>
-<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<h1 id="streaming-estimation">Streaming Estimation<a class="headerlink" href="#streaming-estimation" title="Permanent link">&para;</a></h1>
+<p>The Hill estimator needs the top <span class="arithmatex">\(k\)</span> order statistics, which sounds like it
+rules out a streaming version — order statistics are a property of the whole
+sample. But only the top <span class="arithmatex">\(k+1\)</span> values ever enter the calculation, and <em>which</em>
+values those are can be maintained as the data arrives.</p>
+<p>A min-heap of size <span class="arithmatex">\(k+1\)</span> does it in <span class="arithmatex">\(O(k)\)</span> memory and <span class="arithmatex">\(O(\log k)\)</span> time per
+observation, whatever the length of the stream.</p>
+<h2 id="the-estimate-is-exact-not-approximate">The estimate is exact, not approximate<a class="headerlink" href="#the-estimate-is-exact-not-approximate" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">statistics</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Pareto samples</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">samples1</span> <span class="o">=</span> <span class="n">pareto</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">samples2</span> <span class="o">=</span> <span class="n">pareto</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">43</span><span class="p">)</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Sum of two independent Pareto variables</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">sums</span> <span class="o">=</span> <span class="p">[</span><span class="n">x1</span> <span class="o">+</span> <span class="n">x2</span> <span class="k">for</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)]</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Tail is still heavy (not Normal!)</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"P(X1 &gt; 100): </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">samples1</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"P(X1+X2 &gt; 200): </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">sums</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">200</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1"># Approximately 2x the first probability</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.streaming</span><span class="w"> </span><span class="kn">import</span> <span class="n">StreamingTailIndex</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.tail_index</span><span class="w"> </span><span class="kn">import</span> <span class="n">hill_estimator</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">data</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">200_000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">stream</span> <span class="o">=</span> <span class="n">StreamingTailIndex</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">stream</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">stream</span><span class="o">.</span><span class="n">hill</span><span class="p">()</span> <span class="o">==</span> <span class="n">hill_estimator</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>   <span class="c1"># True</span>
 </span></code></pre></div>
-<hr />
-<h2 id="ruin-theory">Ruin Theory<a class="headerlink" href="#ruin-theory" title="Permanent link">&para;</a></h2>
-<h3 id="classical-ruin-problem">Classical Ruin Problem<a class="headerlink" href="#classical-ruin-problem" title="Permanent link">&para;</a></h3>
-<p>Surplus process:
-$$
-U_t = u + ct - \sum_{i=1}^{N_t} X_i
-$$</p>
-<p>where:
-- <span class="arithmatex">\(u\)</span>: initial capital
-- <span class="arithmatex">\(c\)</span>: premium rate
-- <span class="arithmatex">\(N_t\)</span>: Poisson claim arrivals
-- <span class="arithmatex">\(X_i\)</span>: claim sizes</p>
-<p><strong>Ruin probability:</strong>
-$$
-\psi(u) = P(\text{ruin} | U_0 = u)
-$$</p>
-<h3 id="heavy-tailed-claims">Heavy-Tailed Claims<a class="headerlink" href="#heavy-tailed-claims" title="Permanent link">&para;</a></h3>
-<p>For subexponential claim sizes:</p>
-<div class="arithmatex">\[
-\psi(u) \sim \frac{\lambda \mathbb{E}[X^2]}{2c(\mathbb{E}[X])^2} \bar{F}_X(u) \quad \text{as } u \to \infty
-\]</div>
-<p>where <span class="arithmatex">\(\lambda\)</span> is claim arrival rate.</p>
-<p><strong>Implication:</strong> Ruin is driven by one large claim, not accumulation of small claims.</p>
-<hr />
-<h2 id="mathematical-results-summary">Mathematical Results Summary<a class="headerlink" href="#mathematical-results-summary" title="Permanent link">&para;</a></h2>
-<h3 id="theorems">Theorems<a class="headerlink" href="#theorems" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Karamata's Theorem:</strong> Integration of regularly varying functions</li>
-<li><strong>Potter's Bounds:</strong> Uniform bounds for slowly varying functions</li>
-<li><strong>Representation Theorem:</strong> <span class="arithmatex">\(L(x) = c(x) \exp\{\int_1^x \frac{\epsilon(t)}{t} dt\}\)</span> where <span class="arithmatex">\(\epsilon(t) \to 0\)</span></li>
-<li><strong>Fisher-Tippett-Gnedenko:</strong> Limiting distributions of maxima</li>
-<li><strong>Balkema-de Haan-Pickands:</strong> GPD limit for exceedances</li>
-<li><strong>Breiman's Theorem:</strong> Products and sums of heavy-tailed variables</li>
-</ol>
-<h3 id="key-references">Key References<a class="headerlink" href="#key-references" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Resnick, S. I. (2007).</strong> <em>Heavy-Tail Phenomena</em>. Springer.</li>
-<li><strong>Embrechts, P., Klüppelberg, C., Mikosch, T. (1997).</strong> <em>Modelling Extremal Events</em>. Springer.</li>
-<li><strong>Bingham, N. H., Goldie, C. M., Teugels, J. L. (1987).</strong> <em>Regular Variation</em>. Cambridge.</li>
-<li><strong>de Haan, L., Ferreira, A. (2006).</strong> <em>Extreme Value Theory</em>. Springer.</li>
-</ol>
-<hr />
-<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong><a href="../evt/">Extreme Value Theory</a></strong> - EVT framework in detail</li>
-<li><strong><a href="../tail-estimation/">Tail Index Estimation Theory</a></strong> - Estimator theory</li>
-<li><strong><a href="../../examples/basic_usage/">Examples</a></strong> - Apply the theory</li>
-<li><strong><a href="../reference/">API Reference</a></strong> - Implementation details</li>
-</ul>
+<p>Not "close to". <strong>The same float.</strong> Both depend on the sample only through its
+top <span class="arithmatex">\(k+1\)</span> values, and the streaming version keeps exactly those, in the same
+order, and combines them with the same arithmetic. The test suite asserts
+equality rather than closeness, because a tolerance would pass on an
+implementation that quietly dropped or duplicated an order statistic.</p>
+<p>Nothing is traded away except the ability to ask for a different <span class="arithmatex">\(k\)</span> later.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">stream</span><span class="o">.</span><span class="n">moment</span><span class="p">()</span>      <span class="c1"># (gamma, alpha), also bit-for-bit the batch result</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">stream</span><span class="o">.</span><span class="n">threshold</span>     <span class="c1"># the (k+1)-th order statistic</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">stream</span><span class="o">.</span><span class="n">n_seen</span>        <span class="c1"># 200000</span>
+</span></code></pre></div>
+<h2 id="memory-does-not-grow-with-the-stream">Memory does not grow with the stream<a class="headerlink" href="#memory-does-not-grow-with-the-stream" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Observations</th>
+<th>Retained</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10,000</td>
+<td>1,001</td>
+</tr>
+<tr>
+<td>100,000</td>
+<td>1,001</td>
+</tr>
+<tr>
+<td>1,000,000</td>
+<td>1,001</td>
+</tr>
+</tbody>
+</table>
+<p>Values below the current threshold are discarded as they arrive and never
+looked at again. They may be anything at all — including values the estimator
+could not take a logarithm of, since they never reach it.</p>
+<h2 id="whole-stream-or-a-window">Whole stream, or a window<a class="headerlink" href="#whole-stream-or-a-window" title="Permanent link">&para;</a></h2>
+<p>These are different questions and the module keeps them separate.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Memory</th>
+<th>Answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StreamingTailIndex</code></td>
+<td><span class="arithmatex">\(O(k)\)</span></td>
+<td>What is the tail index of everything seen?</td>
+</tr>
+<tr>
+<td><code>WindowedTailIndex</code></td>
+<td><span class="arithmatex">\(O(\text{window})\)</span></td>
+<td>What is it <em>now</em>?</td>
+</tr>
+</tbody>
+</table>
+<p>For monitoring, the second is usually the one wanted. A portfolio whose tail
+index has moved from 3 to 1.5 is not well described by an average of the two:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.streaming</span><span class="w"> </span><span class="kn">import</span> <span class="n">WindowedTailIndex</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">monitor</span> <span class="o">=</span> <span class="n">WindowedTailIndex</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">monitor</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">monitor</span><span class="o">.</span><span class="n">hill</span><span class="p">()</span>          <span class="c1"># 0.330, against a true gamma of 0.333</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">monitor</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Pareto</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">xm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">monitor</span><span class="o">.</span><span class="n">hill</span><span class="p">()</span>          <span class="c1"># 0.667 — the old regime has left the window</span>
+</span></code></pre></div>
+<p>The whole-stream estimator over the same data reports 0.650, describing neither
+regime.</p>
+<div class="admonition warning">
+<p class="admonition-title">The window costs <span class="arithmatex">\(O(\text{window})\)</span> memory, not <span class="arithmatex">\(O(k)\)</span></p>
+<p>This is inherent, not an implementation gap. When the largest value in a
+window expires, the new largest can be any of the survivors, so nothing
+smaller than the window itself determines the answer. Anything claiming to
+track windowed order statistics in <span class="arithmatex">\(O(k)\)</span> is either approximating or wrong.</p>
+</div>
+<p>A window also handles contamination that is <em>temporary</em>, which fixed trimming
+cannot: one bad observation corrupts every whole-stream estimate from the moment
+it arrives, whereas in a window it corrupts <code>window</code> of them and is then gone.</p>
+<h2 id="before-there-is-enough-data">Before there is enough data<a class="headerlink" href="#before-there-is-enough-data" title="Permanent link">&para;</a></h2>
+<p>Both refuse rather than returning something:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">stream</span> <span class="o">=</span> <span class="n">StreamingTailIndex</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">stream</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">stream</span><span class="o">.</span><span class="n">ready</span>            <span class="c1"># False</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">stream</span><span class="o">.</span><span class="n">hill</span><span class="p">()</span>           <span class="c1"># ValueError: need at least 101 observations for k=100, seen 10</span>
+</span></code></pre></div>
+<p>An estimate from ten observations at <code>k = 100</code> would be a number with no
+meaning attached, and the caller has <code>ready</code> to test if they would rather
+branch than catch.</p>
+<h2 id="choosing-between-this-and-the-batch-estimators">Choosing between this and the batch estimators<a class="headerlink" href="#choosing-between-this-and-the-batch-estimators" title="Permanent link">&para;</a></h2>
+<p>Use <code>heavytails.tail_index</code> when the sample fits in memory and you want to sweep
+<code>k</code>, look at a Hill plot, or apply the robust estimators — <code>StreamingTailIndex</code>
+fixes <code>k</code> when it is constructed, and the trimmed and bias-reduced estimators
+are not available over a stream.</p>
+<p>Use <code>heavytails.streaming</code> when the data does not fit, arrives continuously, or
+is being watched for change.</p>
 
 
 
@@ -3130,7 +2503,7 @@ $$</p>
                 
                 
               
-              Thanks for your feedback! Help us improve this page by <a href="https://github.com/diogoribeiro7/heavytails/issues/new/?title=[Feedback]+Heavy-Tail%20Theory+-+/theory/heavy-tails/" target="_blank" rel="noopener">telling us what you found unclear</a>.
+              Thanks for your feedback! Help us improve this page by <a href="https://github.com/diogoribeiro7/heavytails/issues/new/?title=[Feedback]+Streaming%20Estimation+-+/guide/streaming/" target="_blank" rel="noopener">telling us what you found unclear</a>.
             </div>
           
         </div>
