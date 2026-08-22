@@ -6,12 +6,17 @@ a mathematically equal form that rounds differently. So the tests compare
 element by element to a budget of a few units in the last place -- not a
 relative tolerance, which would let a genuine formula error hide inside it.
 
-Eight of the ten kernels are bit-identical to their scalar counterparts at
-every point tested, because NumPy and :mod:`math` call the same library for the
-functions involved. BurrXII and LogLogistic are not: NumPy evaluates ``**``
-over an array through a different route, and about one point in two thousand
-differs in the last bits, by at most 4 ULP. The budget is 8, which is tight
-enough that any real error fails immediately.
+How close they are depends on the platform, which is worth knowing before
+reading a failure here. On Windows, NumPy and :mod:`math` call the same library
+and eight of the ten kernels come out bit-identical. On Linux they do not:
+NumPy dispatches ``exp``, ``log1p``, ``expm1``, ``tan`` and ``**`` to its own
+SIMD routines, which round differently from glibc in the last bits. The first
+version of this file asserted bit-identity and passed locally on Windows while
+failing on every Linux job in CI.
+
+So nothing here asserts equality. The budget is 32 ULP, which is around 1e-14
+relative -- far tighter than any tolerance that could hide a formula error, and
+loose enough to survive whichever routines a platform picks.
 
 The arrays deliberately include the guard regions: below the support, at the
 support boundary, at the endpoints of a bounded distribution, and far into both
@@ -45,8 +50,21 @@ from heavytails.vectorized import accelerated, cdf, pdf, ppf, sf
 
 np = pytest.importorskip("numpy", reason="the fast path needs numpy")
 
-# Units in the last place. Measured worst case is 4, on BurrXII.pdf.
-ULP_BUDGET = 8
+# Units in the last place. Measured worst case is 4 on Windows, where NumPy and
+# math share a libm; Linux is looser because NumPy uses its own SIMD routines.
+ULP_BUDGET = 32
+
+# The elementary functions individually, before any kernel compounds them.
+ELEMENTARY_BUDGET = 4
+
+
+def _max_ulp(fast: object, scalar: object) -> float:
+    """Largest elementwise disagreement, in units in the last place."""
+    a, b = np.asarray(fast, dtype=float), np.asarray(scalar, dtype=float)
+    finite = np.isfinite(a) & np.isfinite(b)
+    if not finite.any():
+        return 0.0
+    return float(np.max(np.abs(a[finite] - b[finite]) / np.spacing(np.abs(b[finite]))))
 
 
 def _within_budget(fast: object, scalar: object) -> bool:
@@ -155,10 +173,12 @@ PROBABILITIES = [
 
 
 class TestNumpyAndMathAgree:
-    """The premise the exactness claim rests on, checked directly.
+    """How far apart NumPy and libm are on this platform, measured.
 
-    If a platform's NumPy and libm disagree, every kernel comparison below
-    fails for the same reason and this test says what it is.
+    Not an equality check -- they are equal on Windows and not on Linux. This
+    exists so that a platform where they drift reports *that*, with a number,
+    instead of leaving ten kernel comparisons to fail for a reason nobody can
+    see from the message.
     """
 
     @pytest.mark.parametrize(
@@ -176,14 +196,21 @@ class TestNumpyAndMathAgree:
         self, numpy_fn: object, math_fn: object, low: float, high: float
     ) -> None:
         values = np.random.default_rng(0).uniform(low, high, 20_000)
-        assert np.array_equal(
+        difference = _max_ulp(
             numpy_fn(values),  # type: ignore[operator]
             np.array([math_fn(v) for v in values]),  # type: ignore[operator]
+        )
+        assert difference <= ELEMENTARY_BUDGET, (
+            f"NumPy and math differ by {difference:.1f} ULP here, above the "
+            f"{ELEMENTARY_BUDGET} expected of an elementary function"
         )
 
     def test_exponentiation_is_bit_identical(self) -> None:
         values = np.random.default_rng(1).uniform(1.0, 100.0, 20_000)
-        assert np.array_equal(values**2.5, np.array([v**2.5 for v in values]))
+        difference = _max_ulp(values**2.5, np.array([v**2.5 for v in values]))
+        assert difference <= ELEMENTARY_BUDGET, (
+            f"array ** and scalar ** differ by {difference:.1f} ULP"
+        )
 
 
 class TestTheFastPathMatchesTheScalarPath:
@@ -221,7 +248,10 @@ class TestTheFastPathMatchesTheScalarPath:
         for name, function in (("pdf", pdf), ("cdf", cdf), ("sf", sf)):
             fast = function(dist, sample)
             scalar = np.array([getattr(dist, name)(v) for v in sample])
-            assert _within_budget(fast, scalar), f"{name} differs"
+            assert _within_budget(fast, scalar), (
+                f"{name} differs by {_max_ulp(fast, scalar):.1f} ULP, "
+                f"above the budget of {ULP_BUDGET}"
+            )
 
 
 class TestTheFallbackPath:

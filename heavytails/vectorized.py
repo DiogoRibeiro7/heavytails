@@ -28,16 +28,15 @@ changes them, and every kernel below is a transcription of one. The test suite
 compares the two element by element, including across the guard regions below
 the support where a transcription slip is likeliest.
 
-The agreement is stronger than a tolerance and weaker than universal equality,
-and it is worth stating precisely. NumPy and :mod:`math` call the same library
-for ``log``, ``exp``, ``log1p``, ``expm1``, ``arctan`` and ``tan``, so eight of
-the ten kernels are **bit-identical** to their scalar counterparts at every
-point tested. BurrXII and LogLogistic are not: NumPy evaluates ``**`` over an
-array through a different route than the scalar operator, and on roughly one
-point in two thousand the last bits differ. The measured worst case is 4 units
-in the last place, and the tests hold both to a budget of 8 -- tight enough
-that any real transcription error fails immediately, loose enough to survive a
-platform whose ``pow`` rounds differently.
+The agreement is close but **platform dependent**, and it is worth stating
+precisely rather than promising more than holds. On Windows, NumPy and
+:mod:`math` call the same library and eight of the ten kernels come out
+bit-identical. On Linux they do not: NumPy dispatches ``exp``, ``log1p``,
+``expm1``, ``tan`` and ``**`` to its own SIMD routines, which round differently
+from glibc in the last bits. The tests hold every kernel to 32 units in the
+last place -- around 1e-14 relative, far tighter than any tolerance that could
+hide a formula error, and loose enough not to depend on which routines a
+platform picks.
 
 Four families have no kernel and cannot have one: LogNormal needs the error
 function, and StudentT, InverseGamma and BetaPrime need the incomplete beta or
