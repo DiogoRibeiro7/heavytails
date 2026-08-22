@@ -59,7 +59,19 @@
   ],
   "references": [
     "de Haan, L., & Ferreira, A. (2006). Extreme Value Theory: An Introduction. Springer. ISBN 978-0-387-23946-0.",
+    "Embrechts, P., Kluppelberg, C., & Mikosch, T. (1997). Modelling Extremal Events for Insurance and Finance. Springer. ISBN 978-3-540-60931-5.",
     "Rachev, S. T., & Mittnik, S. (2000). Heavy-Tailed Distributions in Finance. Academic Press. ISBN 978-0-12-574340-4.",
-    "Hill, B. M. (1975). A Simple General Approach to Inference About the Tail of a Distribution. The Annals of Statistics, 3(5), 1163-1174. doi:10.1214/aos/1176343247"
+    "Hill, B. M. (1975). A Simple General Approach to Inference About the Tail of a Distribution. The Annals of Statistics, 3(5), 1163-1174. doi:10.1214/aos/1176343247",
+    "Pickands, J. (1975). Statistical Inference Using Extreme Order Statistics. The Annals of Statistics, 3(1), 119-131. doi:10.1214/aos/1176343003",
+    "Balkema, A. A., & de Haan, L. (1974). Residual Life Time at Great Age. The Annals of Probability, 2(5), 792-804. doi:10.1214/aop/1176996548",
+    "Dekkers, A. L. M., Einmahl, J. H. J., & de Haan, L. (1989). A Moment Estimator for the Index of an Extreme-Value Distribution. The Annals of Statistics, 17(4), 1833-1855. doi:10.1214/aos/1176347397",
+    "Resnick, S., & Starica, C. (1997). Smoothing the Hill Estimator. Advances in Applied Probability, 29(1), 271-293. doi:10.2307/1427870",
+    "Beirlant, J., Vynckier, P., & Teugels, J. L. (1996). Excess Functions and Estimation of the Extreme-Value Index. Bernoulli, 2(4), 293-318.",
+    "Caeiro, F., Gomes, M. I., & Pestana, D. (2005). Direct Reduction of Bias of the Classical Hill Estimator. REVSTAT - Statistical Journal, 3(2), 113-136.",
+    "Beran, J., Schell, D., & Stehlik, M. (2014). The Harmonic Moment Tail Index Estimator: Asymptotic Distribution and Robustness. Annals of the Institute of Statistical Mathematics, 66(1), 193-220. doi:10.1007/s10463-013-0412-2",
+    "Bhattacharya, S., Kallitsis, M., & Stoev, S. (2019). Trimming the Hill Estimator: Robustness, Optimality and Adaptivity. arXiv:1705.03088.",
+    "Grimshaw, S. D. (1993). Computing Maximum Likelihood Estimates for the Generalized Pareto Distribution. Technometrics, 35(2), 185-191. doi:10.1080/00401706.1993.10485040",
+    "Panjer, H. H. (1981). Recursive Evaluation of a Family of Compound Distributions. ASTIN Bulletin, 12(1), 22-26. doi:10.1017/S0515036100006796",
+    "Marsaglia, G., & Marsaglia, J. (2004). Evaluating the Anderson-Darling Distribution. Journal of Statistical Software, 9(2), 1-5. doi:10.18637/jss.v009.i02"
   ]
 }

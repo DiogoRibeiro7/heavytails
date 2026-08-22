@@ -6,6 +6,7 @@
 [![codecov](https://codecov.io/gh/DiogoRibeiro7/heavytails/branch/main/graph/badge.svg)](https://codecov.io/gh/DiogoRibeiro7/heavytails)
 [![PyPI](https://img.shields.io/pypi/v/heavytails.svg)](https://pypi.org/project/heavytails/)
 [![Python versions](https://img.shields.io/pypi/pyversions/heavytails.svg)](https://pypi.org/project/heavytails/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22045594.svg)](https://doi.org/10.5281/zenodo.22045594)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-mkdocs--material-blue)](https://diogoribeiro7.github.io/heavytails)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -185,9 +186,30 @@ MIT License © 2025 Diogo Ribeiro. See [LICENSE](LICENSE).
 If you use this package in research or teaching, please cite it. GitHub's
 "Cite this repository" button reads [CITATION.cff](CITATION.cff), or use:
 
-> Ribeiro, D. (2025). *heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions*.
-> <https://github.com/DiogoRibeiro7/heavytails>
+> Ribeiro, D. (2026). *heavytails: A Pure-Python Library for Heavy-Tailed
+> Probability Distributions* (Version 0.3.0) [Computer software]. Zenodo.
+> <https://doi.org/10.5281/zenodo.22045594>
+
+**Which DOI to use.** [`10.5281/zenodo.22045594`](https://doi.org/10.5281/zenodo.22045594)
+is the concept DOI: it always resolves to the most recent release, and citing
+it means "this software, any version". Use it unless the exact version
+matters. When reproducibility depends on the version you ran, cite that
+version's own DOI instead -- for 0.3.0 that is
+[`10.5281/zenodo.22050721`](https://doi.org/10.5281/zenodo.22050721). Every release
+gets its own, listed on the Zenodo record.
+
+```bibtex
+@software{ribeiro_heavytails,
+  author    = {Ribeiro, Diogo},
+  title     = {heavytails: A Pure-Python Library for Heavy-Tailed
+               Probability Distributions},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.22045594},
+  url       = {https://doi.org/10.5281/zenodo.22045594}
+}
+```
 
 Shared citation metadata is maintained in `CITATION.cff`; Zenodo-specific
-archive metadata is maintained in `.zenodo.json`. The DOI will be added after
-the first archived GitHub release.
+archive metadata is maintained in `.zenodo.json`. Both list the papers the
+library implements, so citing a specific estimator is a matter of copying the
+entry rather than tracking it down.

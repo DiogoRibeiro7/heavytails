@@ -34,6 +34,14 @@ keywords:
 license: MIT
 version: 0.3.0
 date-released: 2026-08-21
+doi: "10.5281/zenodo.22045594"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22045594"
+    description: "Concept DOI, resolving to all versions of the software."
+  - type: doi
+    value: "10.5281/zenodo.22050721"
+    description: "Version DOI for release 0.3.0."
 references:
   - type: book
     title: "Extreme Value Theory: An Introduction"
@@ -45,6 +53,18 @@ references:
     publisher: "Springer"
     year: 2006
     isbn: "978-0-387-23946-0"
+  - type: book
+    title: "Modelling Extremal Events for Insurance and Finance"
+    authors:
+      - family-names: Embrechts
+        given-names: Paul
+      - family-names: Kluppelberg
+        given-names: Claudia
+      - family-names: Mikosch
+        given-names: Thomas
+    publisher: "Springer"
+    year: 1997
+    isbn: "978-3-540-60931-5"
   - type: book
     title: "Heavy-Tailed Distributions in Finance"
     authors:
@@ -66,3 +86,144 @@ references:
     issue: 5
     pages: "1163-1174"
     doi: "10.1214/aos/1176343247"
+  - type: article
+    title: "Statistical Inference Using Extreme Order Statistics"
+    authors:
+      - family-names: Pickands
+        given-names: James
+    journal: "The Annals of Statistics"
+    year: 1975
+    volume: 3
+    issue: 1
+    pages: "119-131"
+    doi: "10.1214/aos/1176343003"
+  - type: article
+    title: "Residual Life Time at Great Age"
+    authors:
+      - family-names: Balkema
+        given-names: August A.
+      - family-names: de Haan
+        given-names: Laurens
+    journal: "The Annals of Probability"
+    year: 1974
+    volume: 2
+    issue: 5
+    pages: "792-804"
+    doi: "10.1214/aop/1176996548"
+  - type: article
+    title: "A Moment Estimator for the Index of an Extreme-Value Distribution"
+    authors:
+      - family-names: Dekkers
+        given-names: Arnold L. M.
+      - family-names: Einmahl
+        given-names: John H. J.
+      - family-names: de Haan
+        given-names: Laurens
+    journal: "The Annals of Statistics"
+    year: 1989
+    volume: 17
+    issue: 4
+    pages: "1833-1855"
+    doi: "10.1214/aos/1176347397"
+  - type: article
+    title: "Smoothing the Hill Estimator"
+    authors:
+      - family-names: Resnick
+        given-names: Sidney
+      - family-names: Starica
+        given-names: Catalin
+    journal: "Advances in Applied Probability"
+    year: 1997
+    volume: 29
+    issue: 1
+    pages: "271-293"
+    doi: "10.2307/1427870"
+  - type: article
+    title: "Excess Functions and Estimation of the Extreme-Value Index"
+    authors:
+      - family-names: Beirlant
+        given-names: Jan
+      - family-names: Vynckier
+        given-names: Petra
+      - family-names: Teugels
+        given-names: Jozef L.
+    journal: "Bernoulli"
+    year: 1996
+    volume: 2
+    issue: 4
+    pages: "293-318"
+  - type: article
+    title: "Direct Reduction of Bias of the Classical Hill Estimator"
+    authors:
+      - family-names: Caeiro
+        given-names: Frederico
+      - family-names: Gomes
+        given-names: M. Ivette
+      - family-names: Pestana
+        given-names: Dinis
+    journal: "REVSTAT - Statistical Journal"
+    year: 2005
+    volume: 3
+    issue: 2
+    pages: "113-136"
+  - type: article
+    title: "The Harmonic Moment Tail Index Estimator: Asymptotic Distribution and Robustness"
+    authors:
+      - family-names: Beran
+        given-names: Jan
+      - family-names: Schell
+        given-names: Dieter
+      - family-names: Stehlik
+        given-names: Milan
+    journal: "Annals of the Institute of Statistical Mathematics"
+    year: 2014
+    volume: 66
+    issue: 1
+    pages: "193-220"
+    doi: "10.1007/s10463-013-0412-2"
+  - type: article
+    title: "Trimming the Hill Estimator: Robustness, Optimality and Adaptivity"
+    authors:
+      - family-names: Bhattacharya
+        given-names: Shrijita
+      - family-names: Kallitsis
+        given-names: Michael
+      - family-names: Stoev
+        given-names: Stilian
+    year: 2019
+    notes: "arXiv:1705.03088"
+  - type: article
+    title: "Computing Maximum Likelihood Estimates for the Generalized Pareto Distribution"
+    authors:
+      - family-names: Grimshaw
+        given-names: Scott D.
+    journal: "Technometrics"
+    year: 1993
+    volume: 35
+    issue: 2
+    pages: "185-191"
+    doi: "10.1080/00401706.1993.10485040"
+  - type: article
+    title: "Recursive Evaluation of a Family of Compound Distributions"
+    authors:
+      - family-names: Panjer
+        given-names: Harry H.
+    journal: "ASTIN Bulletin"
+    year: 1981
+    volume: 12
+    issue: 1
+    pages: "22-26"
+    doi: "10.1017/S0515036100006796"
+  - type: article
+    title: "Evaluating the Anderson-Darling Distribution"
+    authors:
+      - family-names: Marsaglia
+        given-names: George
+      - family-names: Marsaglia
+        given-names: John
+    journal: "Journal of Statistical Software"
+    year: 2004
+    volume: 9
+    issue: 2
+    pages: "1-5"
+    doi: "10.18637/jss.v009.i02"
