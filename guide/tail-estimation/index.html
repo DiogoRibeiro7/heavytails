@@ -838,10 +838,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#notation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Notation
       
     </span>
   </a>
@@ -3043,12 +3043,22 @@
 
 
 <h1 id="tail-index-estimation">Tail Index Estimation<a class="headerlink" href="#tail-index-estimation" title="Permanent link">&para;</a></h1>
-<p>Estimating the tail index from empirical data is fundamental to heavy-tail analysis. This guide covers the main estimation methods available in HeavyTails.</p>
+<p>Estimating the tail index from empirical data is fundamental to heavy-tail
+analysis. This guide covers the classical estimators, the robust variants,
+bias-reduced estimators, peaks-over-threshold fits and the adaptive
+threshold-averaged estimator available in HeavyTails.</p>
 <hr />
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>For heavy-tailed distributions with power-law tails:</p>
-<div class="arithmatex">\[ P(X &gt; x) \sim Cx^{-\alpha} \quad \text{as } x \to \infty \]</div>
-<p>the <strong>tail index</strong> <span class="arithmatex">\(\alpha\)</span> determines the heaviness of the tail. Estimating <span class="arithmatex">\(\alpha\)</span> from data allows you to:</p>
+<h2 id="notation">Notation<a class="headerlink" href="#notation" title="Permanent link">&para;</a></h2>
+<p>Two tail-index conventions are common. In this guide:</p>
+<ul>
+<li><code>alpha</code> is the power-law exponent in
+  $$ P(X &gt; x) \sim Cx^{-\alpha} \quad \text{as } x \to \infty. $$</li>
+<li><code>gamma</code> is the extreme-value index, with <code>gamma = 1 / alpha</code> for
+  Pareto-type heavy tails.</li>
+</ul>
+<p>Every estimator in <code>heavytails.tail_index</code> returns <code>gamma</code>. Functions that also
+report <code>alpha</code> say so explicitly.</p>
+<p>Estimating the tail index allows you to:</p>
 <ul>
 <li>Assess the degree of tail heaviness</li>
 <li>Determine which moments exist</li>
@@ -3060,33 +3070,57 @@
 <table>
 <thead>
 <tr>
-<th>Estimator</th>
-<th>Best For</th>
-<th>Pros</th>
-<th>Cons</th>
+<th>Family</th>
+<th>Estimators</th>
+<th>Valid range</th>
+<th>Use when</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Hill</strong></td>
-<td>Pareto-type tails</td>
-<td>Efficient, well-studied</td>
-<td>Sensitive to <span class="arithmatex">\(k\)</span></td>
+<td>Classical</td>
+<td><code>hill_estimator</code>, <code>smoothed_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>The tail is known to be Pareto-type and the Hill plot is stable</td>
 </tr>
 <tr>
-<td><strong>Pickands</strong></td>
-<td>Extreme values</td>
+<td>General EVI</td>
+<td><code>pickands_estimator</code>, <code>moment_estimator</code>, <code>generalized_hill_estimator</code></td>
+<td>any <code>gamma</code></td>
+<td>The sign of <code>gamma</code> is uncertain or a bounded tail is possible</td>
+</tr>
+<tr>
 <td>Robust</td>
-<td>Less efficient</td>
+<td><code>trimmed_hill_estimator</code>, <code>adaptive_trimmed_hill_estimator</code>, <code>t_hill_estimator</code>, <code>harmonic_moment_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>The upper tail may contain contaminated observations</td>
 </tr>
 <tr>
-<td><strong>Moment</strong></td>
-<td>General heavy tails</td>
-<td>Reduced bias</td>
-<td>Higher variance</td>
+<td>Bias-reduced</td>
+<td><code>bias_reduced_hill_estimator</code>, <code>orthogonalized_bias_reduced_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>The Hill plot slopes because the tail approaches its limit slowly</td>
+</tr>
+<tr>
+<td>Threshold-adaptive</td>
+<td><code>threshold_averaged_orthogonalized_hill_estimator</code></td>
+<td><code>gamma &gt; 0</code></td>
+<td>Bias, top contamination and threshold uncertainty are all present</td>
+</tr>
+<tr>
+<td>Peaks over threshold</td>
+<td><code>gpd_mle_estimator</code>, <code>fit_generalized_pareto</code></td>
+<td>any <code>gamma</code></td>
+<td>You want a parametric fit to exceedances above a chosen threshold</td>
 </tr>
 </tbody>
 </table>
+<p>Pickands is useful as a low-efficiency cross-check and handles general
+extreme-value indices. It should not be read as a contamination-robust
+alternative to trimmed Hill or bounded-influence estimators.</p>
+<p>The rest of the guide follows that taxonomy: classical estimators first, then
+workflow and uncertainty, then robust estimators, peaks-over-threshold fitting,
+bias reduction and the adaptive estimator.</p>
 <hr />
 <h2 id="hill-estimator">Hill Estimator<a class="headerlink" href="#hill-estimator" title="Permanent link">&para;</a></h2>
 <p>The <strong>Hill estimator</strong> is the maximum likelihood estimator for the tail index under the Pareto-type assumption.</p>
