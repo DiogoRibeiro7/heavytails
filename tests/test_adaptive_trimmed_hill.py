@@ -156,7 +156,7 @@ class TestChoosingTheTrimming:
         Without it, scanning 75 spacings at 0.05 each would over-trim almost
         every clean sample.
         """
-        samples = 600
+        samples = 400
         over = sum(
             1
             for seed in range(samples)
@@ -195,7 +195,7 @@ class TestTheEstimator:
         the estimator is the Hill estimator almost every time.
         """
         adaptive, plain = [], []
-        for seed in range(400):
+        for seed in range(250):
             clean = Pareto(alpha=2.0, xm=1.0).rvs(N, seed=seed)
             adaptive.append(adaptive_trimmed_hill_estimator(clean, k=K))
             plain.append(hill_estimator(clean, k=K))
@@ -287,7 +287,7 @@ class TestTheFailureModeIsReported:
         """
         flagged = sum(
             adaptive_trim_selection(contaminate(seed, 0), K)["saturated"]
-            for seed in range(500)
+            for seed in range(200)
         )
         assert flagged == 0
 

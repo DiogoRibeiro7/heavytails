@@ -83,5 +83,10 @@ def test_the_examples_have_not_been_deleted(module: ModuleType) -> None:
 
     Deleting a failing example is an easier repair than fixing it, and would
     leave the guard green while removing the thing it guards.
+
+    Counted with ``DocTestFinder`` rather than by running them again: the check
+    above already ran them, and re-running the slower modules cost seven
+    seconds to learn a number that parsing gives for free.
     """
-    assert doctest.testmod(module, verbose=False).attempted > 0
+    found = doctest.DocTestFinder().find(module)
+    assert sum(len(test.examples) for test in found) > 0
