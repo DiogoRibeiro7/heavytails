@@ -519,6 +519,7 @@ represent and in how efficiently they use the data.
 | --- | --- | --- | --- |
 | `smoothed_hill_estimator` | `gamma > 0` | Highest | Clean data, tail known to be heavy |
 | `trimmed_hill_estimator` | `gamma > 0` | Near-Hill | Contamination, count roughly known |
+| `adaptive_trimmed_hill_estimator` | `gamma > 0` | Near-Hill | Contamination of unknown *count* |
 | `t_hill_estimator` | `gamma > 0` | Near-Hill | Contamination of unknown extremity |
 | `harmonic_moment_estimator` | `gamma > 0` | Tunable | As above, with a robustness dial |
 | `gpd_mle_estimator` | any `gamma` | Lower | Parametric peaks-over-threshold |
@@ -658,6 +659,7 @@ outliers, at `k = 500`:
 | `moment` | 1.015 | 0.5 |
 | `generalized_hill` | 0.880 | 0.5 |
 | **`trimmed_hill`** (r=5) | **0.503** | 0.5 |
+| **`adaptive_trimmed_hill`** | **0.503** | 0.5 |
 | `pickands` | 0.518 | 0.5 |
 
 Note that `pickands` also survives, which is not usually why anyone reaches for
@@ -682,9 +684,63 @@ trimmed_hill_estimator(data, k=500, r=5)   # discard the 5 largest
     table above, `trimmed_hill` with `r = 5` against **ten** outliers reports
     0.808 rather than 0.5.
 
+    `adaptive_trimmed_hill_estimator` exists because of exactly this. Against
+    the same ten outliers it reports 0.503, because it works out how many there
+    are rather than being told.
+
 On clean data trimming is close to free. Discarding ten observations from a
 sample of ten thousand raises the standard deviation from 0.0296 to 0.0302, so
 trimming a few by default is a cheap insurance policy.
+
+### Choosing r from the data
+
+Reading `r` off the plot works, and requires someone to look. The adaptive
+variant works it out:
+
+```python
+from heavytails.tail_index import (
+    adaptive_trim_selection, adaptive_trimmed_hill_estimator,
+)
+
+adaptive_trimmed_hill_estimator(data, k=300)     # picks r itself
+adaptive_trim_selection(data, k=300)["trim"]     # and says what it picked
+```
+
+Under a Pareto tail the normalised log-spacings `Y_i = i(log X_(i) - log
+X_(i+1))` are independent and exponential, so contamination among the largest
+observations inflates one of them. Each spacing is tested against the mean of
+the deeper ones, with an exactly computable null distribution:
+
+$$P(R > t) = \left(\frac{m}{m+t}\right)^{m}, \qquad R = \frac{Y_j}{\overline{Y}_{j+1..k}}$$
+
+No asymptotics and no tabulated critical values. Over 200 samples of 10,000
+`Pareto(2)` draws with `k = 300`, the median `r` chosen equals the number of
+outliers planted, at 0, 1, 2, 3, 5 and 8 of them.
+
+!!! tip "Scan the deepest spacing first, not the first"
+    Several outliers of similar size sit close together, so the gaps *between*
+    them are small and only the gap *below* the last one is large. A rule that
+    stopped at the first ordinary-looking spacing would report a badly
+    contaminated sample as clean.
+
+**Detection is a rate, not a certainty.** With three outliers among 10,000
+draws it finds them in 100% of samples at five times the true sample maximum,
+95% at three times, 64% at twice and 46% at one and a half times. An outlier
+only half again the size of the largest genuine observation is not reliably
+distinguishable from the tail itself.
+
+**On clean data it costs almost nothing.** The standard deviation is 0.0295
+against 0.0292 for the plain Hill estimator, because trimming is applied only
+when the data asks for it. The `level` argument is the probability of
+over-trimming a clean sample, and it means what it says: measured at 0.009,
+0.052 and 0.094 for nominal 0.01, 0.05 and 0.10.
+
+!!! danger "It refuses rather than guessing when the scan is too short"
+    If contamination reaches deeper than `max_trim`, every scanned spacing is a
+    gap *between* outliers and nothing looks anomalous. The estimator would
+    report a badly wrong answer that is indistinguishable from a clean one --
+    1.79 for a true 0.5, with 30 outliers and `max_trim = 20`. A separate
+    interlock detects that case and raises instead, naming the limit to use.
 
 ### Choosing r
 

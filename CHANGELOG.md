@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `adaptive_trimmed_hill_estimator` and `adaptive_trim_selection`, choosing the
+  trimming parameter for the trimmed Hill estimator from the data
+  ([#321](https://github.com/DiogoRibeiro7/heavytails/issues/321)). Each
+  normalised log-spacing is tested against the mean of the deeper ones, with an
+  exactly computable null distribution, and the scan trims past the deepest
+  anomaly. The median trimming chosen equals the number of planted outliers at
+  0, 1, 2, 3, 5 and 8 of them, and on clean data the standard deviation is
+  0.0295 against 0.0292 for the plain Hill estimator. Completes the eleven
+  estimator benchmark suite; `scripts/tail_index_study.py` now runs twelve.
+- `tests/test_doctests.py`, checking that the docstring examples in the
+  numerical modules actually reproduce. The main suite does not collect
+  doctests, so four had stopped working unnoticed.
+
+### Fixed
+
+- Four docstring examples reported values their code never produced. Two claimed
+  a tail index estimate of 0.5 on samples too small for the estimator's own
+  sampling variability, so the figure shown had been transcribed from what the
+  estimator should give rather than measured; both produced 0.4.
+
 - `heavytails.actuarial`, building the aggregate loss distribution from a
   frequency model and a severity, and pricing the reinsurance written on it
   ([#304](https://github.com/DiogoRibeiro7/heavytails/issues/304)). Frequency
