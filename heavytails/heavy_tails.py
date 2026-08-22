@@ -22,6 +22,13 @@ class RNG:
     ----------
     rng : random.Random
         Underlying random number generator.
+
+    Examples:
+        Seeded, which is what makes a simulation study checkable rather than
+        merely plausible:
+
+        >>> RNG(42).uniform_0_1() == RNG(42).uniform_0_1()
+        True
     """
 
     def __init__(self, seed: int | None = None) -> None:
@@ -89,7 +96,17 @@ class RNG:
 
 
 class Samplable:
-    """Mixin to provide vectorized sampling with a given RNG."""
+    """Mixin to provide vectorized sampling with a given RNG.
+
+    Examples:
+        Every distribution here draws through it, so the same seed gives the
+        same sample:
+
+        >>> Pareto(alpha=2.0, xm=1.0).rvs(3, seed=1) == Pareto(
+        ...     alpha=2.0, xm=1.0
+        ... ).rvs(3, seed=1)
+        True
+    """
 
     def rvs(self, n: int, seed: int | None = None) -> list[float]:
         """
@@ -115,6 +132,20 @@ class Pareto(Samplable):
     PDF: f(x) = alpha x_m^alpha / x^{alpha+1},  x >= x_m
     CDF: F(x) = 1 - (x_m / x)^alpha
     PPF: F^{-1}(u) = x_m * (1 - u)^{-1/alpha}
+
+    Examples:
+        The defining property is a straight line on a log-log tail plot: the
+        survival function falls by a factor of ``10 ** alpha`` per decade.
+
+        >>> pareto = Pareto(alpha=2.0, xm=1.0)
+        >>> round(pareto.sf(10.0), 10)
+        0.01
+        >>> round(pareto.sf(100.0), 10)
+        0.0001
+        >>> pareto.cdf(2.0)
+        0.75
+        >>> round(pareto.ppf(0.5), 6)
+        1.414214
     """
 
     alpha: float
@@ -167,6 +198,24 @@ class Cauchy(Samplable):
     PDF: f(x) = [1/πgamma] * [1 / (1 + ((x-x0)/gamma)^2)]
     CDF: F(x) = 0.5 + (1/π) * arctan((x - x0)/gamma)
     PPF: x = x0 + gamma * tan(π(u - 0.5))
+
+    Examples:
+        Symmetric, and heavy enough to have no mean at all -- the sample mean
+        of Cauchy draws is itself Cauchy, so more data does not help.
+
+        >>> cauchy = Cauchy(x0=0.0, gamma=1.0)
+        >>> cauchy.cdf(0.0)
+        0.5
+        >>> round(cauchy.ppf(0.75), 10)
+        1.0
+        >>> round(cauchy.pdf(0.0), 6)
+        0.31831
+
+        The tail decays like ``1/x``, so the survival function times ``x``
+        tends to ``1/pi``:
+
+        >>> round(cauchy.sf(1e6) * 1e6, 5)
+        0.31831
     """
 
     x0: float = 0.0
@@ -251,6 +300,22 @@ class StudentT(Samplable):
     The CDF, survival function and quantile function are expressed through the
     regularized incomplete beta function in ``heavytails._special``, so no
     third-party dependency is required.
+
+    Examples:
+        The tail index is ``nu``, so moments below it exist and the rest do
+        not. One degree of freedom is the Cauchy exactly:
+
+        >>> round(StudentT(nu=1.0).cdf(1.0), 10)
+        0.75
+        >>> round(Cauchy(x0=0.0, gamma=1.0).cdf(1.0), 10)
+        0.75
+
+        More degrees of freedom means a lighter tail:
+
+        >>> round(StudentT(nu=1.0).sf(10.0), 6)
+        0.031726
+        >>> round(StudentT(nu=4.0).sf(10.0), 6)
+        0.000281
     """
 
     nu: float
@@ -334,6 +399,22 @@ class LogNormal(Samplable):
     LogNormal with underlying Normal(mu, sigma^2), sigma>0.
     PDF: f(x) = [1/(x sigma sqrt(2π))] * exp( -(ln x - mu)^2 / (2sigma^2) ), x>0
     CDF: F(x) = 0.5 * [1 + erf( (ln x - mu) / (sigma sqrt(2)) )], x>0
+
+    Examples:
+        The median is ``exp(mu)`` exactly:
+
+        >>> lognormal = LogNormal(mu=0.0, sigma=1.0)
+        >>> lognormal.ppf(0.5)
+        1.0
+        >>> round(lognormal.cdf(1.0), 10)
+        0.5
+
+        Heavy-tailed but **not** regularly varying: the tail decays faster
+        than any power, so a tail index estimator applied to it returns
+        something that does not mean what it usually means.
+
+        >>> round(lognormal.sf(10.0), 6)
+        0.010651
     """
 
     mu: float = 0.0
@@ -401,6 +482,21 @@ class Weibull(Samplable):
     CDF: F(x) = 1 - exp(-(x/lambda_)^k), x>=0
     PPF: x = lambda_ * (-ln(1-u))^{1/k}
     Heavy-tailed for k in (0,1) (subexponential, slower than exponential decay).
+
+    Examples:
+        Shape one is the exponential distribution, whose survival function at
+        the scale is ``1/e``:
+
+        >>> round(Weibull(k=1.0, lam=1.0).sf(1.0), 6)
+        0.367879
+
+        Below one it is heavy-tailed, and the density is unbounded at the
+        origin:
+
+        >>> Weibull(k=0.5, lam=1.0).pdf(0.0)
+        inf
+        >>> round(Weibull(k=0.5, lam=1.0).sf(4.0), 6)
+        0.135335
     """
 
     k: float
@@ -463,6 +559,17 @@ class Frechet(Samplable):
     CDF: F(x) = exp( - ((x - m)/s)^(-alpha) ), x>m
     PDF: f(x) = (alpha/s) * ((x - m)/s)^(-alpha-1) * exp( - ((x - m)/s)^(-alpha) ), x>m
     PPF: x = m + s * [ -ln(u) ]^{-1/alpha}
+
+    Examples:
+        The limit law for maxima of Pareto-tailed data, so ``cdf(m + s)`` is
+        ``exp(-1)`` whatever the shape:
+
+        >>> round(Frechet(alpha=2.0, s=1.0, m=0.0).cdf(1.0), 6)
+        0.367879
+        >>> round(Frechet(alpha=5.0, s=1.0, m=0.0).cdf(1.0), 6)
+        0.367879
+        >>> round(Frechet(alpha=2.0, s=1.0, m=0.0).ppf(0.5), 6)
+        1.201122
     """
 
     alpha: float
@@ -527,6 +634,21 @@ class GEV_Frechet(Samplable):
     CDF: F(x) = exp( -[1 + xi ( (x-mu)/sigma )]^(-1/xi) ), for 1 + xi (x-mu)/sigma > 0
     PDF: f(x) = (1/sigma) * [1 + xi z]^(-1/xi - 1) * exp( -[1 + xi z]^(-1/xi) ), z=(x-mu)/sigma
     PPF: x = mu + (sigma/xi) * ( (-ln u)^(-xi) - 1 )
+
+    Examples:
+        The generalized extreme value distribution in its heavy-tailed branch,
+        parameterised by ``xi = 1 / alpha``:
+
+        >>> gev = GEV_Frechet(xi=0.5, mu=0.0, sigma=1.0)
+        >>> round(gev.cdf(1.0), 6)
+        0.64118
+        >>> round(gev.ppf(0.5), 6)
+        0.402245
+
+        Its support starts at ``mu - sigma / xi``, and nothing falls below it:
+
+        >>> gev.cdf(-2.0)
+        0.0
     """
 
     xi: float

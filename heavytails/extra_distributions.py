@@ -52,6 +52,25 @@ class GeneralizedPareto(Samplable):
     PPF:
         x = mu + (sigma/xi) * ( (1-u)^(-xi) - 1 )      if xi != 0
         x = mu - sigma * ln(1-u)                     if xi = 0 (exponential limit)
+
+    Examples:
+        The limit law for exceedances over a high threshold, which is what
+        makes peaks-over-threshold work at all:
+
+        >>> gpd = GeneralizedPareto(xi=0.5, sigma=1.0, mu=0.0)
+        >>> round(gpd.sf(1.0), 6)
+        0.444444
+        >>> round(gpd.ppf(0.5), 6)
+        0.828427
+
+        Positive ``xi`` gives a Pareto tail with index ``1 / xi``; negative
+        ``xi`` bounds it above at ``mu - sigma / xi``, past which nothing
+        falls:
+
+        >>> GeneralizedPareto(xi=-0.5, sigma=1.0, mu=0.0).cdf(2.0)
+        1.0
+        >>> gpd.cdf(-1.0)
+        0.0
     """
 
     xi: float
@@ -130,6 +149,18 @@ class BurrXII(Samplable):
     CDF: F(x) = 1 - (1 + (x/s)^c)^(-k),   x > 0
     PDF: f(x) = (ck/s) * (x/s)^(c-1) * (1 + (x/s)^c)^(-k-1)
     PPF: x = s * ( (1 - u)^(-1/k) - 1 )^(1/c)
+
+    Examples:
+        The tail index is the product ``c * k``, so shape and scale can be
+        traded against each other:
+
+        >>> burr = BurrXII(c=2.0, k=1.0, s=1.0)
+        >>> burr.cdf(1.0)
+        0.5
+        >>> round(burr.sf(3.0), 10)
+        0.1
+        >>> round(BurrXII(c=1.0, k=2.0, s=1.0).sf(3.0), 6)
+        0.0625
     """
 
     c: float
@@ -186,6 +217,20 @@ class LogLogistic(Samplable):
     CDF: F(x) = 1 / (1 + (lambda_/x)^kappa) = (x^kappa) / (x^kappa + lambda_^kappa)
     PDF: f(x) = (kappa/lambda_) (x/lambda_)^(kappa-1) / (1 + (x/lambda_)^kappa)^2
     PPF: x = lambda_ * (u/(1-u))^(1/kappa)
+
+    Examples:
+        The median is ``lam`` exactly, whatever the shape:
+
+        >>> loglogistic = LogLogistic(kappa=2.0, lam=3.0)
+        >>> loglogistic.cdf(3.0)
+        0.5
+        >>> round(loglogistic.ppf(0.5), 10)
+        3.0
+
+        The tail index is ``kappa``:
+
+        >>> round(loglogistic.sf(30.0), 6)
+        0.009901
     """
 
     kappa: float
@@ -237,6 +282,19 @@ class InverseGamma(Samplable):
     CDF: F(x) = Q(alpha, β/x) = Gamma(alpha, β/x) / Gamma(alpha)  (regularized upper gamma)
          where Q = 1 - P and P is the regularized lower gamma.
     Sampling: If G ~ Gamma(alpha, scale=1), then X = β / G has InvGamma(alpha, β).
+
+    Examples:
+        Its tail index is ``alpha``, and its *lower* tail is the interesting
+        numerical case: the probability there is far too small to reach by
+        subtracting from one.
+
+        >>> inverse_gamma = InverseGamma(alpha=2.0, beta=1.0)
+        >>> round(inverse_gamma.ppf(0.5), 6)
+        0.595824
+        >>> f"{inverse_gamma.cdf(0.02):.6e}"
+        '9.836624e-21'
+        >>> round(inverse_gamma.sf(1.0), 6)
+        0.264241
     """
 
     alpha: float
@@ -308,6 +366,21 @@ class BetaPrime(Samplable):
     CDF: F(x) = I_{ y }(a,b) with y = x / (x + s)  (regularized incomplete beta)
     PPF: No closed form in general -> monotone numeric inversion.
     Sampling: If U~Gamma(a,1), V~Gamma(b,1), then X = s * U/V ~ BetaPrime(a,b,s).
+
+    Examples:
+        A ratio of two gamma variates, with tail index ``b``:
+
+        >>> beta_prime = BetaPrime(a=2.0, b=3.0, s=1.0)
+        >>> round(beta_prime.cdf(1.0), 10)
+        0.6875
+        >>> round(beta_prime.ppf(0.5), 6)
+        0.627942
+
+        The survival function stays accurate where one minus the distribution
+        function would have run out of digits:
+
+        >>> f"{beta_prime.sf(1e6):.6e}"
+        '3.999985e-18'
     """
 
     a: float
