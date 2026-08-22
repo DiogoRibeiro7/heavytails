@@ -1042,10 +1042,12 @@ details["local_estimates"]
 details["variance_proxy"]           # sum(w_j**2) for each local candidate
 ```
 
-The selector uses a compatibility cutoff that grows slowly with sample size.
-The default aggregation is convex: weights are constrained to be non-negative
-and to sum to one. Set `crossfit=False` on the point estimator when you want the
-same full-sample value reported by the diagnostic selection function.
+The selector uses a grid-size compatibility cutoff, `sqrt(2 log M)` for `M`
+proposed thresholds. That is a union-bound-scale heuristic, not yet a proved
+oracle penalty. The default aggregation is convex: weights are constrained to
+be non-negative and to sum to one. Set `crossfit=False` on the point estimator
+when you want the same full-sample value reported by the diagnostic selection
+function.
 
 The research question is therefore not "is this weighted Hill formula new?" It
 is whether the adaptive procedure can achieve near-oracle risk when both `r`

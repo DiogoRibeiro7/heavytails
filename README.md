@@ -33,7 +33,8 @@ extreme-value analysis.
 - **Reproducible sampling** through a deterministic RNG wrapper.
 - **Special functions from scratch** — incomplete gamma and incomplete beta —
   plus a safeguarded-Newton numeric PPF for families with no closed form.
-- **Tail index estimation** with the Hill, Pickands and moment estimators.
+- **Tail index estimation** with Hill-family, robust, bias-reduced,
+  threshold-averaged and peaks-over-threshold estimators.
 - **Parameter fitting** by maximum likelihood and method of moments, with
   AIC/BIC model comparison.
 - **Diagnostics** for log–log tail plots and QQ plots.
@@ -138,7 +139,7 @@ discrete family provides `pmf`, `cdf`, `ppf` and `rvs`.
 
 | Module       | Contents                                              |
 | ------------ | ----------------------------------------------------- |
-| `tail_index` | Hill, Pickands and moment tail index estimators        |
+| `tail_index` | Hill-family, robust, bias-reduced and POT estimators   |
 | `plotting`   | Log–log tail plots and QQ plots                        |
 | `utilities`  | Data I/O, automatic fitting and model comparison       |
 | `validation` | Mathematical and numerical validation of the families  |

@@ -492,9 +492,9 @@ def _vanishing_interlock_level(n: int) -> float:
     return min(1e-4, 1.0 / max(n, 1) ** 2)
 
 
-def _growing_critical(n: int) -> float:
-    """Slowly growing default compatibility cutoff for threshold selection."""
-    return math.sqrt(2.0 * math.log(max(n, 3)))
+def _grid_critical(grid_size: int) -> float:
+    """Default compatibility cutoff calibrated to the candidate grid size."""
+    return math.sqrt(2.0 * math.log(max(grid_size, 3)))
 
 
 def _spacing_p_value(spacings: list[float], j: int) -> float:
@@ -1001,7 +1001,9 @@ def threshold_averaged_orthogonalized_hill_selection(
         level: Family-wise probability of over-trimming clean data. Defaults
             to a conservative sequence that tends to zero with the sample size.
         critical: Compatibility cutoff, in approximate standard errors.
-            Defaults to a slowly growing sequence.
+            Defaults to a grid-size penalty, ``sqrt(2 log M)`` for ``M``
+            proposed thresholds. This is a heuristic union-bound scale, not a
+            proved oracle penalty.
         convex_weights: If true, constrain the threshold-averaging weights to
             be non-negative.
 
@@ -1018,14 +1020,14 @@ def threshold_averaged_orthogonalized_hill_selection(
         raise ValueError("k must be between 1 and n-1")
     if x[k] <= 0.0:
         raise ValueError("threshold averaging requires positive data")
-    critical_value = _growing_critical(n) if critical is None else critical
-    if critical_value <= 0.0:
-        raise ValueError("critical must be positive")
     trim_level = _vanishing_level(n) if level is None else level
 
     if min_k is None:
         min_k = max(10, k // 4)
     thresholds = _threshold_grid(k, min_k, grid_size, n)
+    critical_value = _grid_critical(len(thresholds)) if critical is None else critical
+    if critical_value <= 0.0:
+        raise ValueError("critical must be positive")
 
     max_k = thresholds[-1]
     spacings = _normalised_log_spacings(x, max_k)
@@ -1156,7 +1158,6 @@ def _scaled_order_count(count: int, part_n: int, full_n: int) -> int:
 def _apply_threshold_average(data: Sequence[float], selection: dict[str, Any]) -> float:
     """Evaluate threshold-averaging decisions on a fresh sample."""
     thresholds = selection["stable_thresholds"]
-    averaging_weights = selection["weights"]
     rho = selection["rho"]
     adaptive_trim = bool(selection["adaptive_trim"])
     max_trim = selection["max_trim"]
@@ -1172,6 +1173,7 @@ def _apply_threshold_average(data: Sequence[float], selection: dict[str, Any]) -
         raise ValueError("threshold averaging requires positive data")
 
     spacings = _normalised_log_spacings(x, max_k)
+    embedded_weights: list[list[float]] = []
     local_estimates = []
     for threshold in thresholds:
         trim = 0
@@ -1187,9 +1189,24 @@ def _apply_threshold_average(data: Sequence[float], selection: dict[str, Any]) -
                 )
             trim = int(trim_selection["trim"])
         weights = _orthogonalized_spacing_weights(threshold, trim, rho)
+        embedded = [0.0] * max_k
+        for offset, weight in enumerate(weights, start=trim):
+            embedded[offset] = weight
         local_estimates.append(
             sum(w * z for w, z in zip(weights, spacings[trim:threshold], strict=True))
         )
+        embedded_weights.append(embedded)
+
+    covariance = [
+        [
+            sum(w_i * w_j for w_i, w_j in zip(first, second, strict=True))
+            for second in embedded_weights
+        ]
+        for first in embedded_weights
+    ]
+    averaging_weights = _minimum_variance_weights(
+        covariance, nonnegative=bool(selection["convex_weights"])
+    )
 
     return float(
         sum(
@@ -1216,10 +1233,12 @@ def threshold_averaged_orthogonalized_hill_estimator(
 ) -> float:
     """Threshold-averaged orthogonalized tail-index estimator.
 
-    By default this uses two-fold cross-fitting: threshold, trimming and
-    weighting decisions are learned on one half of the sample and evaluated on
-    the other, then the roles are swapped. Set ``crossfit=False`` to return the
-    full-sample diagnostic estimate from
+    By default this uses two-fold cross-fitting: threshold sets and rho are
+    learned on one half of the sample and evaluated on the other, then the roles
+    are swapped. The trimming count and covariance weights are recomputed on the
+    evaluation half, because a random split need not contain the same number of
+    contaminated extremes as the training half. Set ``crossfit=False`` to return
+    the full-sample diagnostic estimate from
     :func:`threshold_averaged_orthogonalized_hill_selection`.
     """
     if crossfit:

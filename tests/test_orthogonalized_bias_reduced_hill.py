@@ -15,6 +15,7 @@ import pytest
 import heavytails
 from heavytails import BurrXII, Frechet, Pareto
 from heavytails.tail_index import (
+    _apply_threshold_average,
     _normalised_log_spacings,
     _orthogonalized_spacing_weights,
     hill_estimator,
@@ -253,6 +254,29 @@ class TestThresholdAggregation:
             errors.append(abs(robust - reference))
 
         assert statistics.fmean(errors) < 0.025
+
+    def test_cross_fit_recomputes_weights_after_evaluation_trimming(self) -> None:
+        """Training-fold weights correspond to training-fold trims, not target trims."""
+        train = Pareto(alpha=2.0, xm=1.0).rvs(10_000, seed=21)
+        target = Pareto(alpha=2.0, xm=1.0).rvs(10_000, seed=22)
+        selection = threshold_averaged_orthogonalized_hill_selection(
+            train,
+            k=500,
+            min_k=150,
+            grid_size=6,
+            rho=-1.0,
+            adaptive_trim=True,
+            critical=100.0,
+        )
+        assert len(selection["stable_thresholds"]) > 1
+
+        baseline = _apply_threshold_average(target, selection)
+        tampered = dict(selection)
+        tampered["weights"] = [1.0] + [0.0] * (len(selection["weights"]) - 1)
+
+        assert _apply_threshold_average(target, tampered) == pytest.approx(
+            baseline, rel=1e-15
+        )
 
 
 class TestValidationAndIntegration:

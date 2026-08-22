@@ -34,9 +34,11 @@ from heavytails.tail_index import (
     harmonic_moment_estimator,
     hill_estimator,
     moment_estimator,
+    orthogonalized_bias_reduced_hill_estimator,
     pickands_estimator,
     smoothed_hill_estimator,
     t_hill_estimator,
+    threshold_averaged_orthogonalized_hill_estimator,
     trimmed_hill_estimator,
 )
 
@@ -57,6 +59,19 @@ ESTIMATORS: dict[str, Estimator] = {
     # rho = -1 is the canonical choice; estimating it per sample is both
     # slow and unstable, and the study is about the tail index itself.
     "bias_reduced_hill": lambda d, k: bias_reduced_hill_estimator(d, k, rho=-1.0),
+    "orthogonalized_br_hill": lambda d, k: (
+        orthogonalized_bias_reduced_hill_estimator(d, k, rho=-1.0)
+    ),
+    "threshold_avg_orthogonalized": lambda d, k: (
+        threshold_averaged_orthogonalized_hill_estimator(
+            d,
+            k,
+            min_k=max(10, k // 4),
+            grid_size=6,
+            rho=-1.0,
+            adaptive_trim=True,
+        )
+    ),
 }
 
 
