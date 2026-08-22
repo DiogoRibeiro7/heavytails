@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-22
+
+Twelve new modules and estimators, and a dozen numerical corrections. The
+corrections are the reason to upgrade rather than the additions: several
+functions returned values that were wrong rather than merely imprecise, and one
+returned negative probabilities.
+
+**Some values change, because the old ones were wrong.**
+
+- `GeneralizedPareto.cdf`, `sf` and `pdf` return different values **below**
+  `mu`, where they previously reported probabilities outside [0, 1].
+- `Weibull.pdf(0.0)` returns `inf` for shape below one, where it previously
+  raised `ZeroDivisionError`.
+- `InverseGamma.cdf`, `BetaPrime.sf`, `Cauchy.cdf` and `LogNormal.cdf` return
+  different values in the tails, where they previously returned exactly zero or
+  kept only a handful of digits.
+- `cdf` and `sf` no longer sum to exactly one for several families. Each is now
+  computed from the branch where its own value is the small quantity, which is
+  what lets both tails be accurate; insisting on exact complementarity would
+  force back the subtraction that made the lower tail return zero.
+
 ### Added
 
 - `heavytails.timeseries`, separating heavy tails that come from volatility
@@ -22,8 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   degrees of freedom produce 2.85. Estimating a tail index on raw returns
   measures the volatility process as much as the shocks, and the docstring
   says which of the two a given question needs.
-
-### Added
 
 - `heavytails.copula`, dependence separated from the margins
   ([#306](https://github.com/DiogoRibeiro7/heavytails/issues/306)).
@@ -45,8 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Vine copulas are deliberately not included; they need pair-copula
   construction and structure selection and are a subsystem rather than a class.
 
-### Added
-
 - `heavytails.multivariate`, the elliptical family and joint tail dependence
   ([#305](https://github.com/DiogoRibeiro7/heavytails/issues/305)).
   `MultivariateStudentT` and `MultivariateNormal` are normal scale mixtures
@@ -60,15 +77,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   linear algebra is pure Python, which is right at the dimensions tail
   dependence is asked about and would be wrong at hundreds.
 
-### Added
-
 - Runnable examples in the five core modules that had none
   ([#337](https://github.com/DiogoRibeiro7/heavytails/issues/337)): 86 across
   `heavy_tails`, `extra_distributions`, `discrete`, `plotting` and `_special`.
   Every value was computed rather than transcribed, and `tests/test_doctests.py`
   now guards all nine modules rather than the four that previously had any.
-
-### Added
 
 - `heavytails.vectorized`, evaluating `pdf`, `cdf`, `sf` and `ppf` over many
   points at once using NumPy when it is installed
@@ -80,16 +93,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is which rather than leaving a caller to guess. Without NumPy everything
   falls back to the loop. `scripts/vectorization_benchmark.py` produces the
   table.
-
-### Fixed
-
-- `GeneralizedPareto` returned negative probabilities below `mu` for every sign
-  of `xi`: its validity check tested only `1 + xi z > 0`, which is the *upper*
-  endpoint of a bounded distribution and is satisfied far below the support.
-  `cdf(mu - 1)` returned -2.586 at `xi=0.4, mu=1`. Found by the new
-  vectorisation tests, and now covered by a generic property over every family.
-- `Weibull.pdf(0.0)` raised `ZeroDivisionError` for shape below one, where the
-  density diverges. It returns `inf`.
 
 - `heavytails.streaming`, tail index estimation over a stream without holding
   the sample ([#310](https://github.com/DiogoRibeiro7/heavytails/issues/310)).
@@ -108,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   point carries its condition number, so the tolerance follows from how well
   the quantity can be determined at that input rather than from a flat
   guess. Reading the table needs no mpmath and runs in about a second.
+
 - `tests/test_distribution_properties.py`, applying the generic properties --
   quantile inversion, survival complementarity, monotonicity, non-negative
   density, support, reproducibility -- to every family from one registry
@@ -115,61 +119,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   relationships, of the tail index each family is supposed to have, and of
   moments existing exactly when the theory says.
 
-### Fixed
-
-Eight numerical defects, all found by the reference database on its first run
-and all the same mistake: computing a small quantity by subtracting from one.
-
-- `Cauchy.ppf` used `tan(pi(u - 1/2))`, whose argument sits next to `+-pi/2`
-  where the tangent is arbitrarily steep. At `u = 1e-9` it returned
-  -318309868.8 for a true -318309886.2, wrong in the eighth digit. Now uses
-  the cotangent form, accurate to 1.9e-16.
-- `_phi_inverse` refined its rational approximation using
-  `0.5*(1 + erf(x/sqrt(2)))`, which cancels once `x` is a few units negative,
-  so the correction was computed from noise. The relative error at `u = 1e-12`
-  was 4.4e-07 -- worse than the unrefined approximation. Now 4.2e-16 across
-  the range, which also improves every normal-quantile consumer, including
-  `LogNormal.ppf` and the confidence intervals in `tail_index` and `threshold`.
-- `GeneralizedPareto.ppf`, `BurrXII.ppf` and `Weibull.ppf` formed `1 - u`
-  before taking a power or a logarithm, losing the lower tail to about seven
-  digits. Now use `log1p`/`expm1`.
-- `GeneralizedPareto.cdf`, `BurrXII.cdf`, `Weibull.cdf`, `Cauchy.cdf` and
-  `LogNormal.cdf` computed a small probability as `1 - g(x)` with `g`
-  approaching one. Each now takes the branch where its own value is the small
-  quantity.
-
 - `_gammainc_upper_reg`, the regularized upper incomplete gamma computed as
   itself rather than as `1 - P`
   ([#309](https://github.com/DiogoRibeiro7/heavytails/issues/309)). The
   subtraction cannot express a result below about 1e-16, so at `a=2, x=50` it
   returned exactly zero where the true value is 9.8e-21.
+
 - `_gammaincinv_reg`, the inverse of the regularized incomplete gamma in both
   the lower and upper senses, so a caller can go through whichever of the two
   is its small quantity.
-
-### Changed
-
-- `InverseGamma.ppf` and `BetaPrime.ppf` invert the incomplete gamma and beta
-  directly instead of bracketing and solving against their own distribution
-  functions. Round-trip accuracy across the quantile range improves from
-  2.2e-05 to 9.7e-15 and from 5.6e-04 to 3.5e-15 respectively.
-- `_betaincinv_reg` starts from the small-`y` asymptote rather than bisecting
-  the whole exponent range, cutting `StudentT.ppf` from 127 to 35 microseconds
-  with identical accuracy.
-
-### Fixed
-
-- The safeguarded Newton iteration in `_betaincinv_reg` narrowed its bracket
-  *after* computing the midpoint to fall back to, so on the first iteration --
-  where the starting point is the midpoint by construction -- the fallback
-  returned that same point and the no-progress check declared convergence.
-  `I_y(50, 0.3) = 1e-3` came back with a relative error of 0.18. The fixed
-  bisection to 1e-13 that preceded it had hidden this.
-- `InverseGamma.cdf` computed `1 - P` and returned exactly zero throughout the
-  lower tail; `cdf(0.02)` at `alpha=2, beta=1` is 9.8e-21, not 0.
-- `BetaPrime.sf` computed `1 - cdf`, which is exactly zero above about `x=1e17`
-  because `x/(x+s)` rounds to 1 there. It now uses the mirrored incomplete
-  beta, whose argument `s/(x+s)` is computed rather than subtracted.
 
 - `adaptive_trimmed_hill_estimator` and `adaptive_trim_selection`, choosing the
   trimming parameter for the trimmed Hill estimator from the data
@@ -180,16 +138,10 @@ and all the same mistake: computing a small quantity by subtracting from one.
   0, 1, 2, 3, 5 and 8 of them, and on clean data the standard deviation is
   0.0295 against 0.0292 for the plain Hill estimator. Completes the eleven
   estimator benchmark suite; `scripts/tail_index_study.py` now runs twelve.
+
 - `tests/test_doctests.py`, checking that the docstring examples in the
   numerical modules actually reproduce. The main suite does not collect
   doctests, so four had stopped working unnoticed.
-
-### Fixed
-
-- Four docstring examples reported values their code never produced. Two claimed
-  a tail index estimate of 0.5 on samples too small for the estimator's own
-  sampling variability, so the figure shown had been transcribed from what the
-  estimator should give rather than measured; both produced 0.4.
 
 - `heavytails.actuarial`, building the aggregate loss distribution from a
   frequency model and a severity, and pricing the reinsurance written on it
@@ -236,6 +188,68 @@ and all the same mistake: computing a small quantity by subtracting from one.
   Expected shortfall returns `inf` whenever the distribution has no finite
   mean, rather than a large number that would look like a result, and the
   Monte Carlo estimator always reports standard errors.
+
+### Changed
+
+- `InverseGamma.ppf` and `BetaPrime.ppf` invert the incomplete gamma and beta
+  directly instead of bracketing and solving against their own distribution
+  functions. Round-trip accuracy across the quantile range improves from
+  2.2e-05 to 9.7e-15 and from 5.6e-04 to 3.5e-15 respectively.
+
+- `_betaincinv_reg` starts from the small-`y` asymptote rather than bisecting
+  the whole exponent range, cutting `StudentT.ppf` from 127 to 35 microseconds
+  with identical accuracy.
+
+### Fixed
+
+- `GeneralizedPareto` returned negative probabilities below `mu` for every sign
+  of `xi`: its validity check tested only `1 + xi z > 0`, which is the *upper*
+  endpoint of a bounded distribution and is satisfied far below the support.
+  `cdf(mu - 1)` returned -2.586 at `xi=0.4, mu=1`. Found by the new
+  vectorisation tests, and now covered by a generic property over every family.
+
+- `Weibull.pdf(0.0)` raised `ZeroDivisionError` for shape below one, where the
+  density diverges. It returns `inf`.
+
+- `Cauchy.ppf` used `tan(pi(u - 1/2))`, whose argument sits next to `+-pi/2`
+  where the tangent is arbitrarily steep. At `u = 1e-9` it returned
+  -318309868.8 for a true -318309886.2, wrong in the eighth digit. Now uses
+  the cotangent form, accurate to 1.9e-16.
+
+- `_phi_inverse` refined its rational approximation using
+  `0.5*(1 + erf(x/sqrt(2)))`, which cancels once `x` is a few units negative,
+  so the correction was computed from noise. The relative error at `u = 1e-12`
+  was 4.4e-07 -- worse than the unrefined approximation. Now 4.2e-16 across
+  the range, which also improves every normal-quantile consumer, including
+  `LogNormal.ppf` and the confidence intervals in `tail_index` and `threshold`.
+
+- `GeneralizedPareto.ppf`, `BurrXII.ppf` and `Weibull.ppf` formed `1 - u`
+  before taking a power or a logarithm, losing the lower tail to about seven
+  digits. Now use `log1p`/`expm1`.
+
+- `GeneralizedPareto.cdf`, `BurrXII.cdf`, `Weibull.cdf`, `Cauchy.cdf` and
+  `LogNormal.cdf` computed a small probability as `1 - g(x)` with `g`
+  approaching one. Each now takes the branch where its own value is the small
+  quantity.
+
+- The safeguarded Newton iteration in `_betaincinv_reg` narrowed its bracket
+  *after* computing the midpoint to fall back to, so on the first iteration --
+  where the starting point is the midpoint by construction -- the fallback
+  returned that same point and the no-progress check declared convergence.
+  `I_y(50, 0.3) = 1e-3` came back with a relative error of 0.18. The fixed
+  bisection to 1e-13 that preceded it had hidden this.
+
+- `InverseGamma.cdf` computed `1 - P` and returned exactly zero throughout the
+  lower tail; `cdf(0.02)` at `alpha=2, beta=1` is 9.8e-21, not 0.
+
+- `BetaPrime.sf` computed `1 - cdf`, which is exactly zero above about `x=1e17`
+  because `x/(x+s)` rounds to 1 there. It now uses the mirrored incomplete
+  beta, whose argument `s/(x+s)` is computed rather than subtracted.
+
+- Four docstring examples reported values their code never produced. Two claimed
+  a tail index estimate of 0.5 on samples too small for the estimator's own
+  sampling variability, so the figure shown had been transcribed from what the
+  estimator should give rather than measured; both produced 0.4.
 
 ## [0.3.0] - 2026-08-21
 
