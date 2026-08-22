@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `heavytails.timeseries`, separating heavy tails that come from volatility
+  clustering from heavy tails that come from the shocks
+  ([#307](https://github.com/DiogoRibeiro7/heavytails/issues/307)). `GARCH11`
+  with normal or Student-t innovations, `fit_garch11` by maximum likelihood,
+  standardised residual extraction, `extremal_index` by the Ferro-Segers
+  intervals estimator, and `decluster` by runs.
+
+  The point the module exists to make, measured on 60,000 simulated returns:
+  Gaussian innovations -- which have no power-law tail at all -- produce a
+  series whose estimated tail index is 4.5. Student-t innovations with 5
+  degrees of freedom produce 2.85. Estimating a tail index on raw returns
+  measures the volatility process as much as the shocks, and the docstring
+  says which of the two a given question needs.
+
+### Added
+
 - `heavytails.copula`, dependence separated from the margins
   ([#306](https://github.com/DiogoRibeiro7/heavytails/issues/306)).
   `GaussianCopula`, `StudentTCopula`, `GumbelCopula` and `GalambosCopula`, with
