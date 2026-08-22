@@ -50,9 +50,25 @@ from heavytails.vectorized import accelerated, cdf, pdf, ppf, sf
 
 np = pytest.importorskip("numpy", reason="the fast path needs numpy")
 
-# Units in the last place. Measured worst case is 4 on Windows, where NumPy and
-# math share a libm; Linux is looser because NumPy uses its own SIMD routines.
+# Units in the last place, for quantities where a relative comparison is
+# meaningful. Measured worst case is 4 on Windows, where NumPy and math share a
+# libm; Linux is looser because NumPy uses its own SIMD routines.
 ULP_BUDGET = 32
+
+# Absolute agreement, in units in the last place *of one*.
+#
+# A relative budget cannot work for a probability near a support boundary,
+# because the value there is computed as a difference from one and inherits the
+# absolute error of the intermediate rather than its own relative error. For
+# Pareto(2.5, 2.0) the smallest cdf in a 5000-point sample is 2.2e-04, computed
+# as ``1 - 0.9997782941452693``; a one-ulp change in that power moves the
+# answer by 1.1e-16 absolute, which is 4096 ulp *of the answer*. Demanding 32
+# was asking the two paths to agree thirty times more tightly than a single
+# rounding difference in ``pow`` permits, and on Linux they do not.
+#
+# Eight ulp of one is 1.8e-15: comfortably above one rounding of the
+# intermediate, and far below any difference a wrong formula would produce.
+ABSOLUTE_BUDGET = 8
 
 # The elementary functions individually, before any kernel compounds them.
 ELEMENTARY_BUDGET = 4
@@ -84,7 +100,12 @@ def _within_budget(fast: object, scalar: object) -> bool:
     if not finite.any():
         return True
     difference = np.abs(fast_a[finite] - scalar_a[finite])
-    return bool(np.all(difference <= ULP_BUDGET * np.spacing(np.abs(scalar_a[finite]))))
+    relative = ULP_BUDGET * np.spacing(np.abs(scalar_a[finite]))
+    absolute = ABSOLUTE_BUDGET * np.spacing(1.0)
+    # Either arm is enough: the relative one governs well-conditioned values,
+    # the absolute one governs those computed as a difference from something
+    # much larger than themselves.
+    return bool(np.all(difference <= np.maximum(relative, absolute)))
 
 
 # Families with a kernel, and points spanning their guard regions.
