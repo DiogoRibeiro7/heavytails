@@ -63,6 +63,15 @@ class GeneralizedPareto(Samplable):
             raise ParameterError("GPD requires sigma>0.")
 
     def _valid(self, x: float) -> bool:
+        """Whether ``x`` is inside the support.
+
+        Both halves matter. The bracket condition alone is the *upper* endpoint
+        for a bounded (negative xi) distribution, and it is satisfied well
+        below ``mu`` for every sign of xi -- so on its own it let points below
+        the support through and produced probabilities like -2.586.
+        """
+        if x < self.mu:
+            return False
         return (1.0 + self.xi * ((x - self.mu) / self.sigma)) > 0.0
 
     def pdf(self, x: float) -> float:
@@ -78,7 +87,7 @@ class GeneralizedPareto(Samplable):
 
     def cdf(self, x: float) -> float:
         if not self._valid(x):
-            return 0.0 if (self.xi >= 0 and x < self.mu) else 1.0
+            return 0.0 if x < self.mu else 1.0
         z = (x - self.mu) / self.sigma
         if self.xi == 0.0:
             return -math.expm1(-z)

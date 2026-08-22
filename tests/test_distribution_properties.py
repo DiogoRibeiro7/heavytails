@@ -192,6 +192,88 @@ class TestPropertiesOfEveryFamily:
         assert 0.38 < below / len(sample) < 0.62
 
 
+class TestOutsideTheSupport:
+    """Probabilities must stay probabilities where the density is zero.
+
+    This is where ``GeneralizedPareto`` was wrong for every sign of ``xi``: its
+    validity check tested only the bracket ``1 + xi z > 0``, which is the
+    *upper* endpoint of a bounded distribution and is satisfied well below
+    ``mu``. So points below the support were treated as inside it, and
+    ``cdf(mu - 1)`` returned -2.586.
+
+    Nothing caught it because the existing tests evaluate distributions on
+    their own samples, which are inside the support by construction. Reaching
+    below it is the whole point of these.
+    """
+
+    @given(dist=ALL)
+    @SETTINGS
+    def test_the_distribution_function_stays_a_probability_below_the_support(
+        self, dist: Any
+    ) -> None:
+        floor = dist.ppf(1e-12)
+        assume(math.isfinite(floor))
+        for offset in (1.0, 10.0, 1e6):
+            below = floor - offset
+            assert 0.0 <= dist.cdf(below) <= 1.0
+            assert 0.0 <= dist.sf(below) <= 1.0
+            assert dist.pdf(below) >= 0.0
+
+    @given(dist=ALL)
+    @SETTINGS
+    def test_it_stays_a_probability_far_above_the_support(self, dist: Any) -> None:
+        ceiling = dist.ppf(1 - 1e-12)
+        assume(math.isfinite(ceiling))
+        for factor in (1.0, 10.0, 1e6):
+            above = ceiling * factor + 1.0
+            assert 0.0 <= dist.cdf(above) <= 1.0
+            assert 0.0 <= dist.sf(above) <= 1.0
+            assert dist.pdf(above) >= 0.0
+
+    @pytest.mark.parametrize(
+        ("xi", "sigma", "mu"),
+        [(0.4, 1.0, 1.0), (-0.5, 1.0, 0.0), (0.0, 2.0, 0.0), (1.2, 0.5, -3.0)],
+    )
+    def test_the_generalized_pareto_starts_at_its_location(
+        self, xi: float, sigma: float, mu: float
+    ) -> None:
+        """The support is ``[mu, ...)`` whichever way ``xi`` points."""
+        dist = GeneralizedPareto(xi=xi, sigma=sigma, mu=mu)
+        for below in (mu - 1e-9, mu - 1.0, mu - 1e6):
+            assert dist.cdf(below) == 0.0
+            assert dist.sf(below) == 1.0
+            assert dist.pdf(below) == 0.0
+        assert dist.cdf(mu) == 0.0
+
+    def test_a_bounded_generalized_pareto_is_certain_past_its_endpoint(self) -> None:
+        """Negative ``xi`` bounds it above, where the answer is 1 rather than 0.
+
+        The two constants are easy to swap, and swapping them would look
+        plausible in every test that never goes outside the support.
+        """
+        dist = GeneralizedPareto(xi=-0.5, sigma=1.0, mu=0.0)
+        endpoint = 0.0 - 1.0 / -0.5
+        assert dist.cdf(endpoint + 1e-9) == 1.0
+        assert dist.sf(endpoint + 1e-9) == 0.0
+
+    @pytest.mark.parametrize(("k", "expected"), [(0.5, math.inf), (0.7, math.inf)])
+    def test_the_weibull_density_diverges_at_the_origin_for_small_shape(
+        self, k: float, expected: float
+    ) -> None:
+        """It used to raise ZeroDivisionError, which is not a density.
+
+        For ``k < 1`` the density is unbounded at zero -- the limit exists and
+        is infinite, and saying so beats raising from ``0.0 ** negative``.
+        """
+        assert Weibull(k=k, lam=2.0).pdf(0.0) == expected
+
+    @pytest.mark.parametrize(("k", "expected"), [(1.0, 0.5), (1.5, 0.0)])
+    def test_the_weibull_density_at_the_origin_is_finite_otherwise(
+        self, k: float, expected: float
+    ) -> None:
+        assert Weibull(k=k, lam=2.0).pdf(0.0) == expected
+
+
 class TestDocumentedRelationships:
     """Families that are special cases of one another, checked numerically.
 
