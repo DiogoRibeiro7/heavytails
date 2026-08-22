@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The core tail index estimators compute through NumPy. `hill_estimator` is
+  about 5x faster and `hill_plot` about 10x on a sample of 200,000; the plot
+  now derives every threshold from one cumulative sum instead of re-summing the
+  log-excesses for each `k`.
+- `hill_plot` and `hill_estimator` agree exactly at every `k`. Both now form
+  the log-excess as `log x_i - log x_k`, where the estimator previously used
+  `log(x_i / x_k)`; the two differ at the last bit, and the shared form is what
+  lets one cumulative sum serve every threshold.
+- `trimmed_hill_plot` uses suffix sums rather than subtracting each spacing
+  from a running total, so successive estimates do not drift apart for a reason
+  that is not the data.
+- `_normalised_log_spacings` returns an array.
+- `adaptive_trim_selection` returns a Python `float` for `gamma`, not a NumPy
+  scalar.
+
+### Fixed
+
+- `streaming.py` no longer keeps its own transcription of the Hill and moment
+  formulas. It called them "written to match the batch version operation for
+  operation", which held only until the batch version changed its summation
+  order -- so it now calls those functions and the agreement is structural.
+
 ## [0.4.0] - 2026-08-22
 
 Twelve new modules and estimators, and a dozen numerical corrections. The
