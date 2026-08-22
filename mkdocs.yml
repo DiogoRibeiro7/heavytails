@@ -170,6 +170,7 @@ nav:
     - Actuarial: reference/actuarial.md
     - Streaming: reference/streaming.md
     - Vectorized Evaluation: reference/vectorized.md
+    - Multivariate: reference/multivariate.md
     - Tail-Risk Metrics: reference/risk.md
     - Threshold Selection: reference/threshold.md
     - Utilities: reference/utilities.md
