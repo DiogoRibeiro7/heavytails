@@ -2195,6 +2195,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/vectorized/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vectorized Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/risk/" class="md-nav__link">
         
   
@@ -4076,10 +4104,12 @@ absolute outlier count across folds.</p>
 </span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="n">details</span><span class="p">[</span><span class="s2">"local_estimates"</span><span class="p">]</span>
 </span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="n">details</span><span class="p">[</span><span class="s2">"variance_proxy"</span><span class="p">]</span>           <span class="c1"># sum(w_j**2) for each local candidate</span>
 </span></code></pre></div>
-<p>The selector uses a compatibility cutoff that grows slowly with sample size.
-The default aggregation is convex: weights are constrained to be non-negative
-and to sum to one. Set <code>crossfit=False</code> on the point estimator when you want the
-same full-sample value reported by the diagnostic selection function.</p>
+<p>The selector uses a grid-size compatibility cutoff, <code>sqrt(2 log M)</code> for <code>M</code>
+proposed thresholds. That is a union-bound-scale heuristic, not yet a proved
+oracle penalty. The default aggregation is convex: weights are constrained to
+be non-negative and to sum to one. Set <code>crossfit=False</code> on the point estimator
+when you want the same full-sample value reported by the diagnostic selection
+function.</p>
 <p>The research question is therefore not "is this weighted Hill formula new?" It
 is whether the adaptive procedure can achieve near-oracle risk when both <code>r</code>
 and <code>k</code> are unknown while second-order bias is present.</p>
