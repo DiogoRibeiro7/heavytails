@@ -172,6 +172,7 @@ nav:
     - Vectorized Evaluation: reference/vectorized.md
     - Multivariate: reference/multivariate.md
     - Copulas: reference/copula.md
+    - Time Series: reference/timeseries.md
     - Tail-Risk Metrics: reference/risk.md
     - Threshold Selection: reference/threshold.md
     - Utilities: reference/utilities.md

@@ -41,6 +41,7 @@ from heavytails import (
     risk,
     tail_index,
     threshold,
+    timeseries,
 )
 
 MODULES: list[ModuleType] = [
@@ -55,6 +56,7 @@ MODULES: list[ModuleType] = [
     risk,
     tail_index,
     threshold,
+    timeseries,
 ]
 
 

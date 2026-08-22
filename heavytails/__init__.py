@@ -36,6 +36,8 @@ Modules
     Elliptical families and tail dependence for joint heavy tails
 - heavytails.copula
     Dependence separated from the margins, and joint-tail diagnostics
+- heavytails.timeseries
+    GARCH, standardised residuals and the extremal index
 
 Author: Diogo Ribeiro
 License: MIT
