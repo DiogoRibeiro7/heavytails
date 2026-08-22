@@ -22,6 +22,7 @@ exception in shape, returning the pair ``(gamma, alpha)`` for convenience, and
 from __future__ import annotations
 
 import math
+import random
 from typing import TYPE_CHECKING, Any
 
 from heavytails._special import _phi_inverse
@@ -486,6 +487,16 @@ def trimmed_hill_plot(
 _INTERLOCK_LEVEL = 1e-4
 
 
+def _vanishing_level(n: int) -> float:
+    """Conservative default level for adaptive choices that must vanish."""
+    return min(0.05, 1.0 / math.log(max(n, 90)) ** 2)
+
+
+def _growing_critical(n: int) -> float:
+    """Slowly growing default compatibility cutoff for threshold selection."""
+    return math.sqrt(2.0 * math.log(max(n, 3)))
+
+
 def _spacing_p_value(spacings: list[float], j: int) -> float:
     """Exact probability that spacing ``j`` is as large as it is, by chance.
 
@@ -735,6 +746,508 @@ def adaptive_trimmed_hill_estimator(
             f"so raise max_trim above {result['deepest_anomaly']}."
         )
     return float(result["gamma"])
+
+
+def _orthogonalized_spacing_weights(k: int, r: int, rho: float) -> list[float]:
+    """Regression-intercept weights for second-order log-spacing correction."""
+    if rho >= 0.0:
+        raise ValueError("rho must be negative")
+    if not (0 <= r < k):
+        raise ValueError(f"r must satisfy 0 <= r < k; got r={r}, k={k}")
+
+    m = k - r
+    if m < 2:
+        raise ValueError("at least two untrimmed spacings are needed")
+
+    covariates = [((j + 1) / (k + 1)) ** (-rho) for j in range(r, k)]
+    mean_x = sum(covariates) / m
+    centered = [x_j - mean_x for x_j in covariates]
+    sum_squares = sum(dx * dx for dx in centered)
+    if sum_squares <= 0.0:
+        raise ValueError("rho is too close to zero to identify the correction")
+
+    base = 1.0 / m
+    return [base - mean_x * dx / sum_squares for dx in centered]
+
+
+def orthogonalized_bias_reduced_hill_estimator(
+    data: Sequence[float],
+    k: int,
+    r: int = 0,
+    rho: float | None = -1.0,
+    *,
+    adaptive_trim: bool = False,
+    max_trim: int | None = None,
+    level: float | None = None,
+) -> float:
+    """Trimmed log-spacing estimator with explicit second-order orthogonalization.
+
+    This is the local reduced-bias building block, not a novelty claim. Weighted
+    log-spacing and exponential-regression estimators with bias-cancelling
+    constraints are part of the reduced-bias tail-index literature. The useful
+    role of this function is to expose a transparent ``(r, k)`` candidate that
+    can be combined with adaptive trimming, threshold selection and
+    cross-fitting.
+
+    The ordinary Hill estimator is the mean of the normalised upper
+    log-spacings. Under a second-order tail approximation those spacings have
+    mean ``gamma + b * (j / (k + 1)) ** (-rho)``. This estimator fits that
+    one-covariate exponential-regression mean model and returns the intercept,
+    which is equivalent to a weighted sum whose weights satisfy both::
+
+        sum(w_j) = 1
+        sum(w_j * (j / (k + 1)) ** (-rho)) = 0
+
+    The first identity targets ``gamma``. The second removes the leading
+    second-order bias term. Setting ``r > 0`` discards the largest ``r``
+    spacings before the regression; setting ``adaptive_trim=True`` chooses that
+    trimming level with :func:`adaptive_trim_selection`.
+
+    The variance is intentionally higher than Hill's on an exact Pareto tail.
+    This is a bias-variance trade: use it when second-order bias or extreme
+    contamination is more damaging than that extra variance.
+
+    Args:
+        data: Sample values. The top ``k + 1`` are read and must be positive.
+        k: Number of top order statistics, with ``1 < k < n``.
+        r: Number of largest spacings to discard when ``adaptive_trim`` is
+            false.
+        rho: Negative second-order shape parameter. Defaults to ``-1``, a
+            common stable choice. If ``None``, :func:`second_order_rho` is used.
+        adaptive_trim: If true, choose ``r`` from the data and ignore the
+            supplied ``r``.
+        max_trim: Largest trimming considered by the adaptive selector.
+        level: Family-wise probability of over-trimming clean data. Defaults
+            to a conservative sequence that tends to zero with the sample size.
+
+    Returns:
+        The extreme-value index estimate gamma, equal to ``1 / alpha``.
+
+    Raises:
+        ValueError: If the arguments are out of range, the data is not positive,
+            rho is non-negative, or adaptive trimming finds contamination below
+            ``max_trim``.
+
+    Examples:
+        >>> from heavytails import Frechet
+        >>> data = Frechet(alpha=2.0, s=1.0, m=0.0).rvs(20000, seed=1)
+        >>> round(orthogonalized_bias_reduced_hill_estimator(data, k=2000), 1)
+        0.5
+    """
+    x = sorted(data, reverse=True)
+    n = len(x)
+    if not (1 < k < n):
+        raise ValueError("k must be between 1 and n-1")
+    if x[k] <= 0.0:
+        raise ValueError("the orthogonalized estimator requires positive data")
+
+    if adaptive_trim:
+        trim_level = _vanishing_level(n) if level is None else level
+        result = adaptive_trim_selection(x, k, max_trim=max_trim, level=trim_level)
+        if result["saturated"]:
+            raise ValueError(
+                "Contamination reaches deeper than max_trim: a spacing at "
+                f"{result['deepest_anomaly']} is anomalous but the scan stopped at "
+                f"{max_trim if max_trim is not None else max(1, k // 4)}. Raise "
+                f"max_trim above {result['deepest_anomaly']}."
+            )
+        r = int(result["trim"])
+
+    if rho is None:
+        rho = second_order_rho(x[r:])
+    if rho >= 0.0:
+        raise ValueError("rho must be negative")
+
+    weights = _orthogonalized_spacing_weights(k, r, rho)
+    spacings = _normalised_log_spacings(x, k)
+    return float(sum(w * z for w, z in zip(weights, spacings[r:], strict=True)))
+
+
+def _solve_linear_system(matrix: list[list[float]], rhs: list[float]) -> list[float]:
+    """Solve a small dense linear system by Gauss-Jordan elimination."""
+    n = len(rhs)
+    augmented = [[*row.copy(), rhs_i] for row, rhs_i in zip(matrix, rhs, strict=True)]
+
+    for col in range(n):
+        pivot = max(range(col, n), key=lambda row: abs(augmented[row][col]))
+        if abs(augmented[pivot][col]) < 1e-14:
+            raise ValueError("threshold covariance matrix is singular")
+        if pivot != col:
+            augmented[col], augmented[pivot] = augmented[pivot], augmented[col]
+
+        scale = augmented[col][col]
+        for j in range(col, n + 1):
+            augmented[col][j] /= scale
+
+        for row in range(n):
+            if row == col:
+                continue
+            factor = augmented[row][col]
+            if factor == 0.0:
+                continue
+            for j in range(col, n + 1):
+                augmented[row][j] -= factor * augmented[col][j]
+
+    return [row[-1] for row in augmented]
+
+
+def _unconstrained_minimum_variance_weights(
+    covariance: list[list[float]],
+) -> list[float]:
+    """Return ``Sigma^-1 1 / (1' Sigma^-1 1)`` with a tiny ridge fallback."""
+    n = len(covariance)
+    ones = [1.0] * n
+    try:
+        solved = _solve_linear_system(covariance, ones)
+    except ValueError:
+        scale = max((covariance[i][i] for i in range(n)), default=1.0)
+        ridge = max(scale, 1.0) * 1e-10
+        regularized = [
+            [value + (ridge if i == j else 0.0) for j, value in enumerate(row)]
+            for i, row in enumerate(covariance)
+        ]
+        solved = _solve_linear_system(regularized, ones)
+
+    total = sum(solved)
+    if total == 0.0:
+        raise ValueError("threshold covariance matrix gives zero total precision")
+    return [value / total for value in solved]
+
+
+def _minimum_variance_weights(
+    covariance: list[list[float]], *, nonnegative: bool = True
+) -> list[float]:
+    """Minimum-variance averaging weights, optionally constrained long-only."""
+    if not nonnegative:
+        return _unconstrained_minimum_variance_weights(covariance)
+
+    active = list(range(len(covariance)))
+    weights = [0.0] * len(covariance)
+    while active:
+        submatrix = [[covariance[i][j] for j in active] for i in active]
+        active_weights = _unconstrained_minimum_variance_weights(submatrix)
+        most_negative = min(range(len(active_weights)), key=active_weights.__getitem__)
+        if active_weights[most_negative] >= -1e-12:
+            for index, weight in zip(active, active_weights, strict=True):
+                weights[index] = max(0.0, weight)
+            total = sum(weights)
+            if total == 0.0:
+                weights[active[0]] = 1.0
+                return weights
+            return [weight / total for weight in weights]
+        del active[most_negative]
+
+    raise ValueError("threshold covariance matrix gives no nonnegative weights")
+
+
+def _threshold_grid(k: int, min_k: int, grid_size: int, n: int) -> list[int]:
+    """Log-spaced threshold grid ending at ``k``."""
+    if not (1 < min_k <= k < n):
+        raise ValueError("min_k and k must satisfy 1 < min_k <= k < n")
+    if grid_size < 1:
+        raise ValueError("grid_size must be at least 1")
+    if grid_size == 1:
+        return [k]
+
+    ratio = k / min_k
+    grid = {
+        min(k, max(min_k, round(min_k * ratio ** (i / (grid_size - 1)))))
+        for i in range(grid_size)
+    }
+    grid.add(min_k)
+    grid.add(k)
+    return sorted(grid)
+
+
+def threshold_averaged_orthogonalized_hill_selection(
+    data: Sequence[float],
+    k: int,
+    *,
+    min_k: int | None = None,
+    grid_size: int = 12,
+    rho: float | None = -1.0,
+    adaptive_trim: bool = True,
+    max_trim: int | None = None,
+    level: float | None = None,
+    critical: float | None = None,
+    convex_weights: bool = True,
+) -> dict[str, Any]:
+    """Choose and average compatible orthogonalized ``(r, k)`` candidates.
+
+    This is the threshold-aggregation layer around
+    :func:`orthogonalized_bias_reduced_hill_estimator`. A logarithmic grid of
+    thresholds from ``min_k`` to ``k`` is evaluated from the most extreme data
+    toward the body. A new threshold is admitted while its estimate remains
+    compatible with the estimates already admitted, using the exact
+    log-spacing covariance approximation under a Pareto tail. The admitted
+    estimates are then averaged with minimum-variance weights based on the same
+    covariance approximation.
+
+    The returned dictionary exposes the candidate pairs and threshold decisions. Use
+    :func:`threshold_averaged_orthogonalized_hill_estimator` when only the point
+    estimate is needed.
+
+    Args:
+        data: Sample values. The top ``k + 1`` are read and must be positive.
+        k: Largest threshold in the grid, with ``1 < k < n``.
+        min_k: Smallest threshold in the grid. Defaults to ``max(10, k // 4)``.
+        grid_size: Number of log-spaced thresholds to propose.
+        rho: Negative second-order shape parameter. If ``None``,
+            :func:`second_order_rho` is used.
+        adaptive_trim: Whether to choose trimming separately at each threshold.
+        max_trim: Largest trimming considered by the adaptive selector.
+        level: Family-wise probability of over-trimming clean data. Defaults
+            to a conservative sequence that tends to zero with the sample size.
+        critical: Compatibility cutoff, in approximate standard errors.
+            Defaults to a slowly growing sequence.
+        convex_weights: If true, constrain the threshold-averaging weights to
+            be non-negative.
+
+    Returns:
+        A dictionary with ``gamma``, ``candidate_pairs``,
+        ``stable_candidate_pairs``, ``local_estimates``, ``variance_proxy`` and
+        threshold-averaging ``weights``. The variance proxy is ``sum(w_j^2)``,
+        so under an exact Pareto spacing approximation the candidate variance
+        is approximately ``gamma**2 * variance_proxy``.
+    """
+    x = sorted(data, reverse=True)
+    n = len(x)
+    if not (1 < k < n):
+        raise ValueError("k must be between 1 and n-1")
+    if x[k] <= 0.0:
+        raise ValueError("threshold averaging requires positive data")
+    critical_value = _growing_critical(n) if critical is None else critical
+    if critical_value <= 0.0:
+        raise ValueError("critical must be positive")
+    trim_level = _vanishing_level(n) if level is None else level
+
+    if min_k is None:
+        min_k = max(10, k // 4)
+    thresholds = _threshold_grid(k, min_k, grid_size, n)
+
+    max_k = thresholds[-1]
+    spacings = _normalised_log_spacings(x, max_k)
+    trims: list[int] = []
+
+    for threshold in thresholds:
+        trim = 0
+        if adaptive_trim:
+            selection = adaptive_trim_selection(
+                x, threshold, max_trim=max_trim, level=trim_level
+            )
+            if selection["saturated"]:
+                raise ValueError(
+                    "Contamination reaches deeper than max_trim at threshold "
+                    f"{threshold}; raise max_trim above "
+                    f"{selection['deepest_anomaly']}."
+                )
+            trim = int(selection["trim"])
+        trims.append(trim)
+
+    if rho is None:
+        rho = second_order_rho(x[max(trims, default=0) :])
+    if rho >= 0.0:
+        raise ValueError("rho must be negative")
+
+    local_estimates: list[float] = []
+    embedded_weights: list[list[float]] = []
+    variance_proxy: list[float] = []
+
+    for threshold, trim in zip(thresholds, trims, strict=True):
+        weights = _orthogonalized_spacing_weights(threshold, trim, rho)
+        estimate = sum(
+            w * z for w, z in zip(weights, spacings[trim:threshold], strict=True)
+        )
+        embedded = [0.0] * max_k
+        for offset, weight in enumerate(weights, start=trim):
+            embedded[offset] = weight
+
+        local_estimates.append(float(estimate))
+        embedded_weights.append(embedded)
+        variance_proxy.append(sum(weight * weight for weight in weights))
+
+    stable_count = 1
+    for index in range(1, len(thresholds)):
+        current = embedded_weights[index]
+        current_estimate = local_estimates[index]
+        max_distance = 0.0
+        for previous_index in range(stable_count):
+            previous = embedded_weights[previous_index]
+            variance = sum(
+                (w_current - w_previous) ** 2
+                for w_current, w_previous in zip(current, previous, strict=True)
+            )
+            if variance == 0.0:
+                continue
+            scale = max(
+                abs(current_estimate),
+                abs(local_estimates[previous_index]),
+                1e-12,
+            )
+            distance = abs(current_estimate - local_estimates[previous_index]) / (
+                scale * math.sqrt(variance)
+            )
+            max_distance = max(max_distance, distance)
+        if max_distance > critical_value:
+            break
+        stable_count += 1
+
+    stable_weights = embedded_weights[:stable_count]
+    covariance = [
+        [
+            sum(w_i * w_j for w_i, w_j in zip(first, second, strict=True))
+            for second in stable_weights
+        ]
+        for first in stable_weights
+    ]
+    averaging_weights = _minimum_variance_weights(
+        covariance, nonnegative=convex_weights
+    )
+    gamma = sum(
+        weight * estimate
+        for weight, estimate in zip(
+            averaging_weights, local_estimates[:stable_count], strict=True
+        )
+    )
+
+    return {
+        "gamma": float(gamma),
+        "thresholds": thresholds,
+        "stable_thresholds": thresholds[:stable_count],
+        "candidate_pairs": list(zip(trims, thresholds, strict=True)),
+        "stable_candidate_pairs": list(
+            zip(trims[:stable_count], thresholds[:stable_count], strict=True)
+        ),
+        "local_estimates": local_estimates,
+        "trims": trims,
+        "variance_proxy": variance_proxy,
+        "weights": averaging_weights,
+        "critical": critical_value,
+        "rho": rho,
+        "level": trim_level,
+        "convex_weights": convex_weights,
+    }
+
+
+def _crossfit_split(
+    data: Sequence[float], seed: int | None
+) -> tuple[list[float], list[float]]:
+    """Deterministic value-independent split for cross-fitted estimators."""
+    values = list(data)
+    if len(values) < 8:
+        raise ValueError("need at least 8 observations for cross-fitting")
+    indices = list(range(len(values)))
+    random.Random(0 if seed is None else seed).shuffle(indices)
+    midpoint = len(indices) // 2
+    first = [values[index] for index in indices[:midpoint]]
+    second = [values[index] for index in indices[midpoint:]]
+    return first, second
+
+
+def _scaled_order_count(count: int, part_n: int, full_n: int) -> int:
+    """Scale an order-statistic count from the full sample to a split."""
+    return min(part_n - 1, max(2, round(count * part_n / full_n)))
+
+
+def _apply_threshold_average(data: Sequence[float], selection: dict[str, Any]) -> float:
+    """Evaluate threshold-averaging decisions on a fresh sample."""
+    thresholds = selection["stable_thresholds"]
+    trims = selection["trims"][: len(thresholds)]
+    averaging_weights = selection["weights"]
+    rho = selection["rho"]
+
+    x = sorted(data, reverse=True)
+    if not thresholds:
+        raise ValueError("selection contains no stable thresholds")
+    max_k = thresholds[-1]
+    if not (1 < max_k < len(x)):
+        raise ValueError("selected thresholds do not fit the evaluation sample")
+    if x[max_k] <= 0.0:
+        raise ValueError("threshold averaging requires positive data")
+
+    spacings = _normalised_log_spacings(x, max_k)
+    local_estimates = []
+    for threshold, trim in zip(thresholds, trims, strict=True):
+        weights = _orthogonalized_spacing_weights(threshold, trim, rho)
+        local_estimates.append(
+            sum(w * z for w, z in zip(weights, spacings[trim:threshold], strict=True))
+        )
+
+    return float(
+        sum(
+            weight * estimate
+            for weight, estimate in zip(averaging_weights, local_estimates, strict=True)
+        )
+    )
+
+
+def threshold_averaged_orthogonalized_hill_estimator(
+    data: Sequence[float],
+    k: int,
+    *,
+    min_k: int | None = None,
+    grid_size: int = 12,
+    rho: float | None = -1.0,
+    adaptive_trim: bool = True,
+    max_trim: int | None = None,
+    level: float | None = None,
+    critical: float | None = None,
+    convex_weights: bool = True,
+    crossfit: bool = True,
+    seed: int | None = None,
+) -> float:
+    """Threshold-averaged orthogonalized tail-index estimator.
+
+    By default this uses two-fold cross-fitting: threshold, trimming and
+    weighting decisions are learned on one half of the sample and evaluated on
+    the other, then the roles are swapped. Set ``crossfit=False`` to return the
+    full-sample diagnostic estimate from
+    :func:`threshold_averaged_orthogonalized_hill_selection`.
+    """
+    if crossfit:
+        values = list(data)
+        first, second = _crossfit_split(values, seed)
+        n = len(values)
+
+        def select_then_apply(train: list[float], target: list[float]) -> float:
+            split_k = _scaled_order_count(k, len(train), n)
+            split_min_k = (
+                None
+                if min_k is None
+                else min(_scaled_order_count(min_k, len(train), n), split_k)
+            )
+            selection = threshold_averaged_orthogonalized_hill_selection(
+                train,
+                split_k,
+                min_k=split_min_k,
+                grid_size=grid_size,
+                rho=rho,
+                adaptive_trim=adaptive_trim,
+                max_trim=max_trim,
+                level=level,
+                critical=critical,
+                convex_weights=convex_weights,
+            )
+            return _apply_threshold_average(target, selection)
+
+        return 0.5 * (
+            select_then_apply(first, second) + select_then_apply(second, first)
+        )
+
+    return float(
+        threshold_averaged_orthogonalized_hill_selection(
+            data,
+            k,
+            min_k=min_k,
+            grid_size=grid_size,
+            rho=rho,
+            adaptive_trim=adaptive_trim,
+            max_trim=max_trim,
+            level=level,
+            critical=critical,
+            convex_weights=convex_weights,
+        )["gamma"]
+    )
 
 
 def harmonic_moment_estimator(
@@ -1311,6 +1824,10 @@ _POINT_ESTIMATORS: dict[str, Callable[..., float]] = {
     "t_hill": t_hill_estimator,
     "gpd_mle": gpd_mle_estimator,
     "bias_reduced_hill": bias_reduced_hill_estimator,
+    "orthogonalized_bias_reduced_hill": orthogonalized_bias_reduced_hill_estimator,
+    "threshold_averaged_orthogonalized_hill": (
+        threshold_averaged_orthogonalized_hill_estimator
+    ),
     "moment": lambda d, k: moment_estimator(d, k)[0],
     "pickands": pickands_estimator,
 }
