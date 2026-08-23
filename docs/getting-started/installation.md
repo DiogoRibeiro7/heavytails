@@ -11,7 +11,7 @@ HeavyTails has **one dependency** and requires:
 - **Python 3.10 or higher**
 - **NumPy 1.24 or higher**
 
-!!! tip "One dependency" NumPy became a requirement in 0.5.0. Before that the library was pure Python, which kept it inspectable but meant evaluating a density over a hundred thousand points cost a hundred thousand interpreter round trips. The trade was worth making:
+!!! tip "One dependency" NumPy is required. It was optional through 0.4.0, and requiring it is why the next release is 0.5.0 rather than 0.4.1 — the library was pure Python, which kept it inspectable but meant evaluating a density over a hundred thousand points cost a hundred thousand interpreter round trips. The trade was worth making:
 
 ```
 - **Fast** - a density over a million points takes about 20 milliseconds

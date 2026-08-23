@@ -57,3 +57,44 @@ def test_zenodo_metadata_rejects_citation_drift() -> None:
     errors = validate_against_citation(zenodo)
 
     assert "Zenodo publication_date must match CITATION.cff date-released." in errors
+
+
+def _cff_field(name: str) -> str:
+    """Read a top-level scalar out of CITATION.cff."""
+    citation = CITATION_METADATA.read_text(encoding="utf-8")
+    match = re.search(rf'^{name}:\s*"?([^"\n]+)"?\s*$', citation, re.MULTILINE)
+    assert match is not None, f"CITATION.cff has no {name}"
+    return match.group(1).strip()
+
+
+def test_the_citation_version_is_the_package_version() -> None:
+    """CITATION.cff describes a release, so it must name the one it ships with."""
+    pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    match = re.search(r'^version\s*=\s*"([^"]+)"', pyproject, re.MULTILINE)
+    assert match is not None, "pyproject.toml has no version"
+    assert _cff_field("version") == match.group(1)
+
+
+def test_the_citation_docs_cite_that_same_version() -> None:
+    """Every version named in the citation guidance is the current one.
+
+    This is here because they drifted. CITATION.cff was advanced to 0.4.0 at
+    release and the citation page was not, so for a while the documentation
+    handed people APA, IEEE, MLA, Chicago and BibTeX entries for 0.3.0 and the
+    version DOI of a release they were not running -- while the file the
+    "Cite this repository" button reads said something else.
+
+    Nothing checked the two against each other, so nothing said so. Bumping the
+    version now fails here until the guidance is bumped with it.
+    """
+    expected = _cff_field("version")
+    for name in ("docs/about/citation.md", "README.md"):
+        text = (REPO_ROOT / name).read_text(encoding="utf-8")
+        # DOIs come out first. A registrant's suffix can look exactly like a
+        # version -- 10.1080/00401706.1993.10485040 reads as one to any
+        # three-part pattern -- and citing a method's paper is the whole point
+        # of half this page.
+        text = re.sub(r"10\.\d{4,}/\S+", "", text)
+        found = set(re.findall(r"(?<![\w.])\d+\.\d+\.\d+(?![\w.])", text))
+        stale = found - {expected}
+        assert not stale, f"{name} cites {sorted(stale)}, but the release is {expected}"

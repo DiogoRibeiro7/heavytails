@@ -189,15 +189,15 @@ If you use this package in research or teaching, please cite it. GitHub's
 "Cite this repository" button reads [CITATION.cff](CITATION.cff), or use:
 
 > Ribeiro, D. (2026). *heavytails: A Python Library for Heavy-Tailed
-> Probability Distributions* (Version 0.3.0) [Computer software]. Zenodo.
+> Probability Distributions* (Version 0.4.0) [Computer software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.22045594>
 
 **Which DOI to use.** [`10.5281/zenodo.22045594`](https://doi.org/10.5281/zenodo.22045594)
 is the concept DOI: it always resolves to the most recent release, and citing
 it means "this software, any version". Use it unless the exact version
 matters. When reproducibility depends on the version you ran, cite that
-version's own DOI instead -- for 0.3.0 that is
-[`10.5281/zenodo.22050721`](https://doi.org/10.5281/zenodo.22050721). Every release
+version's own DOI instead -- for 0.4.0 that is
+[`10.5281/zenodo.22062643`](https://doi.org/10.5281/zenodo.22062643). Every release
 gets its own, listed on the Zenodo record.
 
 ```bibtex

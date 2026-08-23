@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The citation guidance cited **0.3.0**. `CITATION.cff` was advanced to 0.4.0 at
+  release and the documentation was not, so `docs/about/citation.md` handed out
+  APA, IEEE, MLA, Chicago and BibTeX entries for 0.3.0, along with the version
+  DOI of a release the reader was not running, while the file GitHub's "Cite
+  this repository" button reads said 0.4.0. Both now cite 0.4.0 and its version
+  DOI, `10.5281/zenodo.22062643`.
+- `CITATION.cff` carried a placeholder saying 0.4.0's version DOI would be
+  added once Zenodo had archived it. It had been, on 2026-08-22.
+- The documentation described NumPy as having become a requirement "in 0.5.0",
+  a version that does not exist -- the latest release is 0.4.0. The three
+  places that said so now say it was optional through 0.4.0, which is true
+  before and after that release is cut.
+
+### Added
+
+- Two tests tying the citation metadata together: `CITATION.cff` must name the
+  version in `pyproject.toml`, and the citation guidance must cite that same
+  version. Nothing checked either, which is how the documentation sat a release
+  behind. Bumping the version now fails until the guidance is bumped with it.
+
 ### Changed
 
 **The package no longer describes itself as pure Python, because it is not.**
