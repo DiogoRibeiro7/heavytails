@@ -6,7 +6,6 @@ and statistical analysis.
 """
 
 import csv
-from dataclasses import dataclass
 from io import StringIO
 import json
 import math
@@ -935,252 +934,27 @@ class StatisticalSummary:
 
 
 # TODO: Add configuration management system
-class ConfigurationManager:
-    """
-    Configuration management for HeavyTails library settings.
-
-    Should manage:
-    - Default tolerances for numerical algorithms
-    - Random number generator settings
-    - Plotting preferences
-    - Performance optimization flags
-    - Caching behavior
-    """
-
-    def __init__(self, config_file: Path | None = None) -> None:
-        # TODO: Implement configuration loading and management
-        self.config: dict[str, Any] = {}
-        self.config_file = config_file or Path.home() / ".heavytails" / "config.json"
-
-    def load_config(self) -> dict[str, Any]:
-        # TODO: Load configuration from file
-        # LABELS: configuration, file-io
-        """Load configuration from file."""
-        raise NotImplementedError("Configuration loading not implemented")
-
-    def save_config(self, config: dict[str, Any]) -> None:
-        # TODO: Save configuration to file
-        # LABELS: configuration, file-io
-        """Save configuration to file."""
-        raise NotImplementedError("Configuration saving not implemented")
 
 
 # TODO: Implement data quality assessment tools
-class DataQualityAssessment:
-    """
-    Data quality assessment for statistical analysis.
-
-    Should check for:
-    - Missing values and outliers
-    - Data type consistency
-    - Sufficient sample size
-    - Independence assumptions
-    - Stationarity (for time series)
-    """
-
-    def __init__(self, data: list[float]):
-        self.data = data
-
-    def assess_quality(self) -> dict[str, Any]:
-        # TODO: Comprehensive data quality assessment
-        # LABELS: data-quality, assessment
-        """Assess data quality for statistical analysis."""
-        raise NotImplementedError("Data quality assessment not implemented")
-
-    def detect_outliers(self, method: str = "iqr") -> list[int]:
-        # TODO: Detect outliers using various methods
-        # LABELS: outlier-detection, data-cleaning
-        """Detect outliers in the data."""
-        raise NotImplementedError("Outlier detection not implemented")
-
-    def suggest_preprocessing(self) -> list[str]:
-        # TODO: Suggest data preprocessing steps
-        # LABELS: data-preprocessing, recommendations
-        """Suggest preprocessing steps."""
-        raise NotImplementedError("Preprocessing suggestions not implemented")
 
 
 # HACK: Using simple string-based distribution names - need better type system
-@dataclass
-class DistributionMetadata:
-    """
-    Metadata container for distribution information.
-
-    Should replace string-based distribution identification
-    with proper type system that includes:
-    - Distribution family information
-    - Parameter constraints
-    - Mathematical properties
-    - Implementation details
-    """
-
-    name: str
-    family: str
-    parameters: dict[str, dict[str, Any]]
-    properties: dict[str, Any]
-
-    def __post_init__(self) -> None:
-        # TODO: Implement proper distribution type system
-        # LABELS: type-system, metadata
-        pass
-
-    def validate_parameters(self, **params: Any) -> bool:
-        # TODO: Validate parameters against constraints
-        # LABELS: parameter-validation, metadata
-        """Validate parameters against distribution constraints."""
-        raise NotImplementedError("Metadata-based validation not implemented")
 
 
 # TODO: Add web scraping utilities for financial data
-class FinancialDataScraper:
-    """
-    Web scraping utilities for financial and economic data.
-
-    Data sources to support:
-    - Yahoo Finance for stock data
-    - FRED for economic indicators
-    - Central bank websites
-    - Financial news sentiment
-
-    Should be used for testing and examples, not production.
-    """
-
-    def __init__(self) -> None:
-        # TODO: Implement web scraping capabilities
-        self.session = None
-
-    def get_stock_returns(
-        self, symbol: str, start_date: str, end_date: str
-    ) -> list[float]:
-        # TODO: Scrape stock return data
-        # LABELS: web-scraping, finance, stock-data
-        """Get stock return data from web sources."""
-        raise NotImplementedError("Stock data scraping not implemented")
-
-    def get_economic_indicators(self, indicator: str) -> list[float]:
-        # TODO: Scrape economic indicator data
-        # LABELS: web-scraping, economics, indicators
-        """Get economic indicator data."""
-        raise NotImplementedError("Economic data scraping not implemented")
 
 
 # TODO: Implement citation and bibliography utilities
-class CitationManager:
-    """
-    Citation and bibliography management for research use.
-
-    Should provide:
-    - Automatic citation generation
-    - Bibliography formatting
-    - DOI lookup and validation
-    - Reference database management
-    """
-
-    def __init__(self) -> None:
-        # TODO: Implement citation management
-        self.references: dict[str, Any] = {}
-
-    def generate_citation(self, distribution: str, format: str = "bibtex") -> str:
-        # TODO: Generate citation for distribution implementation
-        # LABELS: citations, bibliography
-        """Generate citation for distribution usage."""
-        raise NotImplementedError("Citation generation not implemented")
-
-    def export_bibliography(self, format: str = "bibtex") -> str:
-        # TODO: Export complete bibliography
-        # LABELS: bibliography, export
-        """Export bibliography in specified format."""
-        raise NotImplementedError("Bibliography export not implemented")
 
 
 # NOTE: Consider adding interactive tutorials and examples
-class InteractiveTutorials:
-    """
-    Interactive tutorials for learning heavy-tailed distributions.
-
-    Should provide:
-    - Step-by-step guided examples
-    - Interactive parameter exploration
-    - Visualization of distribution properties
-    - Quiz and assessment features
-    - Progress tracking
-    """
-
-    def __init__(self) -> None:
-        # TODO: Implement interactive tutorial system
-        self.tutorials: dict[str, Any] = {}
-
-    def start_tutorial(self, topic: str) -> dict[str, Any]:
-        # TODO: Start interactive tutorial session
-        # LABELS: education, tutorials
-        """Start an interactive tutorial."""
-        raise NotImplementedError("Interactive tutorials not implemented")
-
-    def generate_exercises(self, difficulty: str = "beginner") -> list[dict[str, Any]]:
-        # TODO: Generate practice exercises
-        # LABELS: education, exercises
-        """Generate practice exercises."""
-        raise NotImplementedError("Exercise generation not implemented")
 
 
 # TODO: Implement plugin system for extensions
-class PluginManager:
-    """
-    Plugin system for extending HeavyTails functionality.
-
-    Should allow:
-    - Third-party distribution implementations
-    - Custom estimation methods
-    - Additional plotting backends
-    - Domain-specific extensions
-    """
-
-    def __init__(self) -> None:
-        # TODO: Implement plugin discovery and loading
-        self.plugins: dict[str, Any] = {}
-
-    def load_plugin(self, plugin_name: str) -> Any:
-        # TODO: Load and register plugin
-        # LABELS: plugins, extensibility
-        """Load a plugin module."""
-        raise NotImplementedError("Plugin loading not implemented")
-
-    def list_plugins(self) -> list[str]:
-        # TODO: List available plugins
-        # LABELS: plugins, discovery
-        """List available plugins."""
-        raise NotImplementedError("Plugin listing not implemented")
 
 
 # TODO: Add unit conversion utilities for different scales
-class UnitConverter:
-    """
-    Unit conversion utilities for different measurement scales.
-
-    Useful for:
-    - Converting between log and linear scales
-    - Financial data (returns vs prices)
-    - Time scale conversions
-    - Probability scale transformations
-    """
-
-    @staticmethod
-    def log_returns_to_prices(
-        log_returns: list[float], initial_price: float = 1.0
-    ) -> list[float]:
-        # TODO: Convert log returns to price series
-        # LABELS: finance, conversion, log-returns
-        """Convert log returns to price series."""
-        raise NotImplementedError("Log return conversion not implemented")
-
-    @staticmethod
-    def scale_transform(
-        data: list[float], from_scale: str, to_scale: str
-    ) -> list[float]:
-        # TODO: Transform data between different scales
-        # LABELS: transformation, scaling
-        """Transform data between scales."""
-        raise NotImplementedError("Scale transformation not implemented")
 
 
 if __name__ == "__main__":

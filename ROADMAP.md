@@ -78,6 +78,31 @@ This roadmap outlines the planned development phases for the **heavytails** proj
 
 ---
 
+## 💡 Considered, Not Committed
+
+These shipped as empty signatures raising `NotImplementedError` and were removed
+in #312. A module of empty signatures is indistinguishable from a module of
+working code until you call it, so the ideas live here instead, where they
+promise nothing.
+
+**Plausible for a statistics library, unscheduled.** Regime-switching models;
+survival analysis with heavy-tailed hazards; Bayesian parameter estimation and
+MCMC; spatial processes and kriging; distribution classification by machine
+learning; GPU-accelerated sampling; vine copulas; tail geometry via convex hulls
+and Voronoi diagrams; interoperability shims for NumPy and scikit-learn.
+
+**Infrastructure worth building.** A distribution registry, to replace the
+string-keyed lookups the CLI and `AutoFit` both rely on — this is the one piece
+of #312 kept as work rather than dropped. Alongside it, data-quality assessment
+and configuration management.
+
+**Deliberately out of scope.** Web scraping for financial data, an interactive
+tutorial system, a plugin loader, unit conversion, a citation manager, a web
+service. These belong in a project that uses this library, not in a
+distributions library.
+
+---
+
 **Maintainer:** Diogo Ribeiro
 **License:** MIT
 **Repository:** [https://github.com/DiogoRibeiro7/heavytails](https://github.com/DiogoRibeiro7/heavytails)

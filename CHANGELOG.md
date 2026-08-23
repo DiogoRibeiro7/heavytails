@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+**The 59 shipped functions that raised `NotImplementedError`** (#312). A module
+of empty signatures is indistinguishable from a module of working code until
+you call it, and these set an expectation the package does not meet.
+
+- `heavytails.extensions`: `RegimeSwitchingModel`, `VineCopula`,
+  `SpatialHeavyTailProcess`, `ScientificComputingIntegration`,
+  `BayesianHeavyTailRegression`, `DistributionClassifier`,
+  `DomainSpecificExtensions`, `TailGeometryAnalysis`, and
+  `HeavyTailCopula.sample`. The working copulas there are untouched.
+- `heavytails.utilities`: `ConfigurationManager`, `DataQualityAssessment`,
+  `DistributionMetadata`, `FinancialDataScraper`, `CitationManager`,
+  `InteractiveTutorials`, `PluginManager`, `UnitConverter`. `DataIO`,
+  `AutoFit`, `ParameterValidator` and `StatisticalSummary` are untouched.
+- `heavytails.roadmap`: `MultivariateStudentT`, `HeavyTailGARCH`,
+  `HeavyTailSurvival`, `HeavyTailsAPI`, `gpu_sampling`,
+  `adaptive_threshold_selection`, `bayesian_parameter_estimation`,
+  `memory_efficient_sampling`, `diagnostic_plots`. The stub
+  `MultivariateStudentT` shadowed the working one in
+  `heavytails.multivariate`, which is the clearest case of the harm.
+- `heavytails.performance`: `cython_special_functions`,
+  `jit_accelerated_functions`, `optimized_rejection_sampling`,
+  `distribution_specific_optimizations`, `MemoryProfiler`, `OnlineEstimation`.
+- `heavytails.validation`: `fuzz_testing`,
+  `special_function_accuracy_analysis`, `python_version_compatibility`,
+  `ParameterEstimationValidation`, `RegressionTesting`,
+  `MathematicalPropertyVerification`.
+
+The ideas are recorded in `ROADMAP.md` under "Considered, Not Committed", where
+they promise nothing. The distribution registry is kept as work rather than
+dropped.
+
+Eighteen tests went with them, each of which asserted only that a stub raised
+`NotImplementedError`.
+
 ### Fixed
 
 - `heavytails.viz.plot_tail` overlaid a *sample drawn from* the fitted model

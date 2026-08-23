@@ -14,30 +14,7 @@ from typing import Any
 
 import numpy as np
 
-
 # NOTE: Future enhancement - Cython extensions for critical mathematical functions
-def cython_special_functions():
-    """
-    Rejected. Cython needs a build step, a compiler on the user's machine or a
-    wheel per platform, and it would break the property that makes this library
-    worth having: it installs anywhere Python does. The optional NumPy path in
-    :mod:`heavytails.vectorized` reaches 5 to 19 times faster with none of
-    that, which was the point of the exercise (#308).
-
-    Future: Cython implementations of special functions for speed.
-
-    Critical functions that could be optimized:
-    - Incomplete beta function
-    - Incomplete gamma function
-    - Log-gamma function
-    - Beta function computation
-
-    Expected speedup: 10-100x for intensive calculations.
-
-    Note: This is a future enhancement. The current NumPy implementations
-    work well for most use cases.
-    """
-    raise NotImplementedError("Cython extensions not yet implemented")
 
 
 def vectorized_pdf_evaluation(
@@ -474,28 +451,6 @@ def _parallel_worker(
 
 
 # NOTE: Future enhancement - memory profiling and optimization tools
-class MemoryProfiler:
-    """
-    Memory usage profiling for distribution operations.
-
-    Should track:
-    - Peak memory usage during sampling
-    - Memory allocation patterns
-    - Garbage collection impact
-    - Memory leaks in long-running processes
-    """
-
-    def __init__(self):
-        # TODO: Implement memory profiling utilities
-        self.profiles: dict[str, dict] = {}
-
-    def profile_sampling(self, distribution: str, n: int) -> dict:
-        # TODO: Profile memory usage during sampling
-        raise NotImplementedError("Memory profiling not implemented")
-
-    def optimize_memory_usage(self) -> dict[str, str]:
-        # TODO: Provide memory optimization recommendations
-        raise NotImplementedError("Memory optimization not implemented")
 
 
 # NOTE: Current implementation uses Python's math.lgamma
@@ -522,29 +477,6 @@ def robust_log_gamma(x: float) -> float:
 
 
 # NOTE: Future enhancement - Just-In-Time (JIT) compilation with Numba
-def jit_accelerated_functions():
-    """
-    Rejected, for the same reason as the Cython stub above: a compiler
-    dependency in exchange for a speedup that :mod:`heavytails.vectorized`
-    already delivers without one (#308).
-
-    Future: Numba JIT compilation for critical functions.
-
-    Candidate functions for JIT acceleration:
-    - PDF calculations
-    - Special function implementations
-    - Random number generation
-    - Tail index estimation algorithms
-
-    Expected benefits:
-    - Near C-speed execution
-    - Automatic optimization
-    - No compilation complexity for users
-
-    Note: This is a future enhancement. Current implementations provide
-    good performance for most use cases.
-    """
-    raise NotImplementedError("JIT compilation not yet available")
 
 
 class DistributionCache:
@@ -965,81 +897,12 @@ class PerformanceBenchmarks:
 
 
 # NOTE: Future enhancement - optimized rejection sampling algorithms
-def optimized_rejection_sampling():
-    """
-    Future: Optimized rejection sampling algorithms.
-
-    Potential improvements:
-    - Adaptive rejection sampling (ARS)
-    - Squeeze acceptance for common cases
-    - Custom proposal distributions per distribution
-    - Batch rejection sampling
-
-    Note: Current rejection sampling in distribution implementations works
-    well for most use cases. This would be an optimization for extreme
-    performance requirements.
-    """
-    raise NotImplementedError("Advanced rejection sampling not yet available")
 
 
 # NOTE: Future enhancement - streaming algorithms for online parameter estimation
-class OnlineEstimation:
-    """
-    Online/streaming parameter estimation algorithms.
-
-    .. deprecated::
-        Superseded by :mod:`heavytails.streaming`, which implements streaming
-        Hill and moment estimation over both the whole stream and a moving
-        window. This class has never done anything but raise; it is left in
-        place only because what happens to this module is still open (#312).
-
-    For applications with:
-    - Continuous data streams
-    - Memory constraints
-    - Real-time processing requirements
-
-    Algorithms to implement:
-    - Online MLE estimation
-    - Streaming tail index estimation
-    - Adaptive threshold selection
-    - Concept drift detection
-    """
-
-    def __init__(self, distribution: str):
-        # TODO: Implement online parameter estimation
-        self.distribution = distribution
-        self.n_samples = 0
-        self.estimates: dict[str, float] = {}
-
-    def update(self, new_data: float):
-        # TODO: Update parameter estimates with new data point
-        raise NotImplementedError("Online updating not implemented")
-
-    def get_current_estimates(self) -> dict[str, float]:
-        # TODO: Return current parameter estimates
-        raise NotImplementedError("Online estimation not implemented")
 
 
 # NOTE: Future enhancement - distribution-specific optimizations
-def distribution_specific_optimizations():
-    """
-    Specialized optimizations for individual distributions.
-
-    Pareto optimizations:
-    - Analytical quantile function (already implemented)
-    - Fast tail probability calculations
-
-    Student-t optimizations:
-    - Series expansions for small nu
-    - Asymptotic approximations for large nu
-
-    LogNormal optimizations:
-    - Direct normal distribution transforms
-    - Moment-based parameter estimation
-    """
-    # TODO: Implement distribution-specific optimizations
-    # LABELS: performance, mathematics
-    raise NotImplementedError("Distribution-specific optimizations not available")
 
 
 if __name__ == "__main__":

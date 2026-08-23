@@ -9,17 +9,11 @@ from heavytails.validation import (
     HYPOTHESIS_AVAILABLE,
     SCIPY_AVAILABLE,
     GoodnessOfFitTests,
-    MathematicalPropertyVerification,
     NumericalValidation,
-    ParameterEstimationValidation,
     PropertyBasedTests,
-    RegressionTesting,
     convergence_validation,
-    fuzz_testing,
     parameter_stability_check,
     ppf_edge_case_handler,
-    python_version_compatibility,
-    special_function_accuracy_analysis,
 )
 
 
@@ -577,63 +571,6 @@ class TestUnimplementedFeatures:
         result = gof.anderson_darling_test([1, 2, 3], "pareto", alpha=2.5, xm=1.0)
         assert 0.0 <= result["p_value"] <= 1.0
         assert math.isfinite(result["statistic"])
-
-    def test_regression_testing_add_reference_value(self):
-        """Test that regression testing raises NotImplementedError."""
-        rt = RegressionTesting()
-        with pytest.raises(NotImplementedError):
-            rt.add_reference_value("test1", 1.5)
-
-    def test_regression_testing_check_regression(self):
-        """Test that regression check raises NotImplementedError."""
-        rt = RegressionTesting()
-        with pytest.raises(NotImplementedError):
-            rt.check_regression("test1", 1.5)
-
-    def test_parameter_estimation_validation_mle(self):
-        """Test that MLE validation raises NotImplementedError."""
-        pev = ParameterEstimationValidation()
-        with pytest.raises(NotImplementedError):
-            pev.validate_mle("pareto", {"alpha": 2.5, "xm": 1.0})
-
-    def test_parameter_estimation_validation_hill(self):
-        """Test that Hill estimator validation raises NotImplementedError."""
-        pev = ParameterEstimationValidation()
-        with pytest.raises(NotImplementedError):
-            pev.validate_hill_estimator(2.5)
-
-    def test_fuzz_testing(self):
-        """Test that fuzz testing raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            fuzz_testing()
-
-    def test_special_function_accuracy_analysis(self):
-        """Test that special function analysis raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            special_function_accuracy_analysis()
-
-    def test_python_version_compatibility(self):
-        """Test that version compatibility raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            python_version_compatibility()
-
-    def test_mathematical_property_verification_tail_behavior(self):
-        """Test that tail behavior verification raises NotImplementedError."""
-        mpv = MathematicalPropertyVerification()
-        with pytest.raises(NotImplementedError):
-            mpv.verify_tail_behavior("pareto", alpha=2.5, xm=1.0)
-
-    def test_mathematical_property_verification_moments(self):
-        """Test that moments verification raises NotImplementedError."""
-        mpv = MathematicalPropertyVerification()
-        with pytest.raises(NotImplementedError):
-            mpv.verify_moments("pareto", alpha=2.5, xm=1.0)
-
-    def test_mathematical_property_verification_relationships(self):
-        """Test that relationships verification raises NotImplementedError."""
-        mpv = MathematicalPropertyVerification()
-        with pytest.raises(NotImplementedError):
-            mpv.verify_relationships("pareto", "lognormal")
 
 
 class TestNumericalValidationWithoutScipy:
