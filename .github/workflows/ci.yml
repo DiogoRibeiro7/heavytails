@@ -7,10 +7,6 @@ on:
     branches: [main]
   release:
     types: [published]
-  schedule:
-    # Monday 04:00 UTC, for the coverage job below. Merges to main measure it
-    # too; this is so a quiet week cannot let the number go stale unnoticed.
-    - cron: "0 4 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -82,11 +78,11 @@ jobs:
       # is 1m36s this way against 6m54s with coverage and 20m37s as this job
       # used to run it -- coverage instrumentation traces Python bytecode, so
       # it costs about 6.4x and is unaffected by the work having moved into
-      # NumPy. It is measured in the `coverage` job below instead, on merges
-      # to main and weekly, because it is a slowly-changing map of what is
-      # untested rather than a per-change signal: the gate sits at 80% against
-      # an actual 90%, so no single change can trip it, and the defects found
-      # in this library so far have all been in code that was covered.
+      # NumPy. It is measured in the `coverage` job below instead, at release,
+      # because it is a slowly-changing map of what is untested rather than a
+      # per-change signal: the gate sits at 80% against an actual 90%, so no
+      # single change can trip it, and the defects found in this library so far
+      # have all been in code that was covered.
       - name: Run tests
         run: >-
           poetry run pytest tests/
@@ -102,11 +98,19 @@ jobs:
 
   coverage:
     name: Coverage
-    # Not on pull requests. See the test job above for why: it is a
-    # slowly-changing map of what is untested, and measuring it on every
-    # change across every interpreter cost about five minutes a job to
-    # recompute a number that moves by fractions of a point.
-    if: github.event_name != 'pull_request'
+    # Releases only, plus a manual run when someone wants the number.
+    #
+    # It is a slowly-changing map of what is untested, not a per-change
+    # signal, and it takes about eleven minutes. On pull requests that was
+    # five minutes a job to recompute a number that moves by fractions of a
+    # point. On merges to main it was worse in practice: nothing depended on
+    # it there, but it kept main amber for eleven minutes after every merge,
+    # which is eleven minutes of someone deciding whether to wait.
+    #
+    # `publish` depends on this job, so a release still cannot ship without
+    # the gate passing -- which is the moment the number actually has to be
+    # right.
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
