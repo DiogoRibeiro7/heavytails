@@ -25,8 +25,13 @@ Q_n = R(gamma_hat_adaptive) / min_{(r,k) in A_n} R(gamma_hat_BR(r,k)).
 The generic benchmark in `scripts/tail_index_study.py` is not designed to
 measure this. It compares named estimators at a single external `k`. The
 experiment here varies the contamination count, contamination strength,
-second-order parameter and threshold grid, then compares the adaptive estimator
-against the empirical oracle over `(r, k)`.
+second-order parameter and threshold envelope, then compares the adaptive
+estimator against an empirical oracle over `(r, k)`.
+
+The oracle is selected out of sample: half the Monte Carlo replications choose
+the best `(r, k)`, the other half evaluates it, and then the roles are swapped.
+The candidate `k` values are the exact logarithmic grid used by the adaptive
+estimator, not the raw envelope fractions.
 
 ## Initial Experiment
 
@@ -44,11 +49,34 @@ python research/adaptive_tail/oracle_experiment.py --trials 200 --json oracle-re
 
 The output reports:
 
-- `adaptive_rmse`: RMSE of the adaptive estimator.
-- `oracle_rmse`: best empirical RMSE over the supplied `(r, k)` grid.
-- `risk_ratio`: `adaptive_rmse**2 / oracle_rmse**2`.
-- `trim_recovery`: probability that the adaptive trimming rule recovers the
-  planted contamination count at the largest candidate threshold.
+- `adaptive_rmse`: unconditional RMSE of the adaptive estimator, present only
+  when every replication succeeds.
+- `adaptive_rmse_success`: RMSE conditional on estimator success.
+- `adaptive_failure_rate`: fraction of replications where the adaptive
+  estimator refused to produce a value.
+- `oracle_rmse`: out-of-sample empirical oracle RMSE over the adaptive
+  estimator's exact `(r, k)` grid.
+- `risk_ratio`: `adaptive_mse / oracle_mse`, reported only when the adaptive
+  estimator has no failures.
+- `risk_ratio_bootstrap`: paired bootstrap uncertainty for the risk ratio.
+- `trim_recovery_vanishing`: probability, with a Wilson interval, that the
+  adaptive trimming rule recovers the planted contamination count at the
+  largest candidate threshold using the same vanishing level as the estimator.
+- `trim_recovery_fixed_005`: the same diagnostic under the fixed 5% level.
+
+JSON output is structured as:
+
+```text
+{
+  "provenance": {...},
+  "configuration": {...},
+  "results": [...]
+}
+```
+
+For exact Pareto scenarios, `rho_true` is `null` and `rho_used` records the
+orthogonalization tuning value. This avoids treating an exact Pareto tail as if
+it had an identified second-order parameter.
 
 The script is intentionally explicit rather than optimized. It is a research
 artifact for deciding whether the estimator deserves a theorem, not a public
