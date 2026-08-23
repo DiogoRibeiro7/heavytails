@@ -163,6 +163,20 @@ def _standard_error(values: Sequence[float]) -> float | None:
     return statistics.stdev(values) / math.sqrt(len(values))
 
 
+def _bootstrap_summary(ratios: Sequence[float]) -> dict[str, float | None]:
+    """Summarize bootstrap replicates of a statistic."""
+    if len(ratios) < 2:
+        return {"se": None, "lower": None, "upper": None}
+    sorted_ratios = sorted(ratios)
+    lower_index = math.floor(0.025 * (len(sorted_ratios) - 1))
+    upper_index = math.ceil(0.975 * (len(sorted_ratios) - 1))
+    return {
+        "se": statistics.stdev(sorted_ratios),
+        "lower": sorted_ratios[lower_index],
+        "upper": sorted_ratios[upper_index],
+    }
+
+
 def _wilson_interval(
     successes: int, total: int, z: float = 1.96
 ) -> dict[str, float | None]:
@@ -304,16 +318,7 @@ def _bootstrap_select_evaluate_ratio(
         denominator = _mean(oracle_squared)
         if denominator > 0.0:
             ratios.append(numerator / denominator)
-    if len(ratios) < 2:
-        return {"se": None, "lower": None, "upper": None}
-    ratios.sort()
-    lower_index = math.floor(0.025 * (len(ratios) - 1))
-    upper_index = math.ceil(0.975 * (len(ratios) - 1))
-    return {
-        "se": _standard_error(ratios),
-        "lower": ratios[lower_index],
-        "upper": ratios[upper_index],
-    }
+    return _bootstrap_summary(ratios)
 
 
 def _jsonable_pair(pair: Candidate | None) -> list[int] | None:

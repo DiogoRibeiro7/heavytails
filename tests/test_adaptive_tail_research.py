@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import statistics
 
 from research.adaptive_tail import oracle_experiment as experiment
 
@@ -37,6 +38,15 @@ def test_oracle_squared_errors_are_reordered_by_replication_index() -> None:
         20.0,
         30.0,
     ]
+
+
+def test_bootstrap_summary_reports_statistic_standard_deviation() -> None:
+    ratios = [1.0, 2.0, 4.0, 8.0]
+
+    summary = experiment._bootstrap_summary(ratios)
+
+    assert summary["se"] == statistics.stdev(ratios)
+    assert summary["se"] != experiment._standard_error(ratios)
 
 
 def test_report_contains_provenance_configuration_and_jsonable_results() -> None:
