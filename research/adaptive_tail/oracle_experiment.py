@@ -134,10 +134,12 @@ SCENARIOS: dict[str, Scenario] = {
 }
 
 
-def _contaminate(sample: list[float], count: int, delta: float) -> list[float]:
+def _contaminate(sample: list[float], count: int, delta: float | None) -> list[float]:
     """Replace the largest observations by separated top outliers."""
     if count == 0:
         return list(sample)
+    if delta is None:
+        raise ValueError("delta is required when count is positive")
     out = sorted(sample, reverse=True)
     anchor = out[0]
     for index in range(count):
@@ -175,6 +177,11 @@ def _bootstrap_summary(ratios: Sequence[float]) -> dict[str, float | None]:
         "lower": sorted_ratios[lower_index],
         "upper": sorted_ratios[upper_index],
     }
+
+
+def _deltas_for_count(count: int, deltas: Sequence[float]) -> list[float | None]:
+    """Return the non-duplicated delta grid for a contamination count."""
+    return [None] if count == 0 else list(deltas)
 
 
 def _wilson_interval(
@@ -330,7 +337,7 @@ def _evaluate_cell(
     *,
     n: int,
     contamination_count: int,
-    delta: float,
+    delta: float | None,
     trials: int,
     k_fractions: list[float],
     max_trim: int,
@@ -524,7 +531,7 @@ def run_experiment(
                             max_trim=max(max_trim, contamination_count),
                             bootstrap_draws=bootstrap_draws,
                         )
-                        for delta in deltas
+                        for delta in _deltas_for_count(contamination_count, deltas)
                     ]
                 )
     return rows
@@ -552,6 +559,8 @@ def _print_rows(rows: list[dict[str, Any]]) -> None:
     )
     print(header)
     for row in rows:
+        delta = row["delta"]
+        delta_text = "N/A" if delta is None else f"{delta:.2f}"
         pair_text = ",".join(
             "-" if pair is None else f"({pair[0]},{pair[1]})"
             for pair in row["oracle_pairs"]
@@ -559,7 +568,7 @@ def _print_rows(rows: list[dict[str, Any]]) -> None:
         trim = row["trim_recovery_vanishing"]["estimate"]
         print(
             f"{row['scenario']:<18}{row['n']:>7}{row['contamination_count']:>4}"
-            f"{row['delta']:>8.2f}"
+            f"{delta_text:>8}"
             f"{_format_optional(row['adaptive_rmse'], 10)}"
             f"{100.0 * row['adaptive_failure_rate']:>8.1f}"
             f"{_format_optional(row['oracle_rmse'], 10)}"

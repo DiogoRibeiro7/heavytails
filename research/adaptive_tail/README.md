@@ -41,7 +41,7 @@ Run a quick smoke check:
 python research/adaptive_tail/oracle_experiment.py --trials 2 --sample-sizes 500 --scenarios pareto,burr_rho_half
 ```
 
-Run a larger exploratory grid:
+Run a pilot grid:
 
 ```bash
 python research/adaptive_tail/oracle_experiment.py --trials 200 --json oracle-results.json
@@ -62,6 +62,9 @@ The output reports:
   bootstrap draw resamples Monte Carlo replications and reruns the oracle
   select/evaluate split, so the interval includes oracle-selection variability
   rather than conditioning on the originally selected oracle pairs.
+- `delta`: contamination strength. Clean cells with `contamination_count == 0`
+  are run once with `delta: null`, because contamination strength is irrelevant
+  when no observations are replaced.
 - `trim_recovery_vanishing`: probability, with a Wilson interval, that the
   adaptive trimming rule recovers the planted contamination count at the
   largest candidate threshold using the same vanishing level as the estimator.
