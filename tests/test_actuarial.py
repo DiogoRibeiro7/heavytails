@@ -24,6 +24,7 @@ from itertools import pairwise
 import math
 import statistics
 
+import numpy as np
 import pytest
 
 from heavytails import LogNormal, Pareto, Weibull
@@ -1029,3 +1030,70 @@ def test_the_rng_is_shared_with_the_rest_of_the_library() -> None:
     assert isinstance(Poisson(lam=2.0).draw(rng), int)
     assert isinstance(NegativeBinomial(r=2.0, beta=1.0).draw(rng), int)
     assert isinstance(Binomial(m=5, p=0.5).draw(rng), int)
+
+
+class TestTheLayerTakesOneValueOrMany:
+    """``PolicyTerms`` and ``LayeredSeverity`` mirror the kind of input given.
+
+    Pricing reaches these once per quadrature node and once per simulated
+    claim, so they were the reason a layer with no closed-form severity cost
+    512 separate quantile evaluations per bound. They now take the whole grid
+    at once, which is only safe if a single value still behaves as it did.
+    """
+
+    TERMS = PolicyTerms(deductible=1.0, limit=10.0, coinsurance=0.8)
+
+    def _layer(self, basis: str) -> LayeredSeverity:
+        return LayeredSeverity(
+            severity=Pareto(alpha=2.5, xm=1.0), terms=self.TERMS, basis=basis
+        )
+
+    def test_payment_mirrors_its_input(self) -> None:
+        assert isinstance(self.TERMS.payment(5.0), float)
+        many = self.TERMS.payment([0.0, 0.5, 1.0, 5.0, 100.0])
+        assert isinstance(many, np.ndarray)
+        assert many.shape == (5,)
+        one_at_a_time = [self.TERMS.payment(v) for v in [0.0, 0.5, 1.0, 5.0, 100.0]]
+        np.testing.assert_allclose(many, one_at_a_time, rtol=0.0, atol=0.0)
+
+    def test_payment_still_clips_at_the_limit_and_the_deductible(self) -> None:
+        assert self.TERMS.payment(0.5) == 0.0
+        assert self.TERMS.payment(1.0) == 0.0
+        assert self.TERMS.payment(1e9) == pytest.approx(0.8 * 10.0)
+
+    @pytest.mark.parametrize("basis", ["per-loss", "per-payment"])
+    @pytest.mark.parametrize("method", ["cdf", "sf", "ppf"])
+    def test_the_layer_mirrors_its_input(self, basis: str, method: str) -> None:
+        layer = self._layer(basis)
+        grid = (
+            [0.0, 0.01, 0.25, 0.5, 0.99, 1.0]
+            if method == "ppf"
+            else [-1.0, 0.0, 0.5, 4.0, 8.0, 1e6]
+        )
+        vectorised = np.asarray(getattr(layer, method)(grid))
+        assert vectorised.shape == (len(grid),)
+        one_at_a_time = np.array([getattr(layer, method)(v) for v in grid])
+        np.testing.assert_allclose(vectorised, one_at_a_time, rtol=1e-13, atol=1e-15)
+        assert isinstance(getattr(layer, method)(grid[2]), float)
+
+    @pytest.mark.parametrize("basis", ["per-loss", "per-payment"])
+    def test_the_quantile_still_rejects_probabilities_outside_the_unit_interval(
+        self, basis: str
+    ) -> None:
+        layer = self._layer(basis)
+        for bad in ([-0.1, 0.5], [0.5, 1.5]):
+            with pytest.raises(ValueError, match=r"u must be in \[0,1\]"):
+                layer.ppf(bad)
+        with pytest.raises(ValueError, match=r"u must be in \[0,1\]"):
+            layer.ppf(-0.1)
+
+    @pytest.mark.parametrize("basis", ["per-loss", "per-payment"])
+    def test_batched_sampling_matches_the_definition(self, basis: str) -> None:
+        """``rvs`` is the batched form of ``_one`` and must draw the same."""
+        layer = self._layer(basis)
+        batched = layer.rvs(500, seed=13)
+        rng = RNG(13)
+        one_at_a_time = [layer._one(rng) for _ in range(500)]
+        np.testing.assert_allclose(batched, one_at_a_time, rtol=1e-13, atol=1e-15)
+        assert isinstance(batched, list)
+        assert all(isinstance(v, float) for v in batched)

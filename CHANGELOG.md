@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+**The actuarial machinery computes over grids, not one point at a time.**
+
+- `panjer_recursion` evaluates its inner sum as a dot product. The recursion in
+  `k` is sequential -- each aggregate probability needs every one before it --
+  but the sum over `j` inside it is a dot product between the severity weights
+  and the aggregate so far, reversed. On a 2,000 point grid that is 0.176s to
+  **0.014s**, with the probabilities unchanged to the bit on the cases measured.
+- `limited_expected_value` runs its 512-node midpoint rule in one call rather
+  than 512. Every layer bound of every price reaches it, so for a severity with
+  no closed form that was most of the cost of pricing anything.
+- `discretise_severity` evaluates each cell edge once. The edges are shared
+  between adjacent cells, so evaluating them per cell computed every interior
+  one twice.
+- `_severity_second_moment` does the same for its 4,096-node fallback.
+- `PolicyTerms.payment`, and `LayeredSeverity.cdf`, `sf` and `ppf`, take one
+  value or an array and mirror what they were given.
+- `LayeredSeverity.rvs` inverts its uniforms in one call. The generator is
+  untouched and draws in the same order, so a seeded sample is unchanged --
+  measured bit-identical to the loop it replaces.
+
 ### Fixed
 
 - `scripts/tail_index_study.py` stamped its results with the *installed*
