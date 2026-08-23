@@ -773,32 +773,6 @@ def convergence_validation(distribution: str, method: str = "ppf") -> dict[str, 
 
 
 # TODO: Add cross-validation framework for parameter estimation methods
-class ParameterEstimationValidation:
-    """
-    Cross-validation for parameter estimation accuracy.
-
-    Validation approaches:
-    - Generate data with known parameters
-    - Estimate parameters using various methods
-    - Compare estimated vs true parameters
-    - Test across different sample sizes
-    - Evaluate bias and variance of estimators
-    """
-
-    def __init__(self) -> None:
-        self.validation_results: dict[str, dict[str, Any]] = {}
-
-    def validate_mle(
-        self, distribution: str, true_params: dict[str, Any], n_trials: int = 100
-    ) -> None:
-        # TODO: Validate MLE estimation accuracy
-        # LABELS: validation, mle, parameter-estimation
-        raise NotImplementedError("MLE validation not implemented")
-
-    def validate_hill_estimator(self, alpha_true: float, n_trials: int = 100) -> None:
-        # TODO: Validate Hill estimator accuracy across different scenarios
-        # LABELS: validation, hill-estimator, tail-index
-        raise NotImplementedError("Hill estimator validation not implemented")
 
 
 # FIXME: Edge cases in PPF calculation need better handling
@@ -1161,124 +1135,18 @@ class GoodnessOfFitTests:
 
 
 # TODO: Add automated regression testing for mathematical accuracy
-class RegressionTesting:
-    """
-    Automated regression testing for mathematical accuracy.
-
-    Should maintain a database of:
-    - Reference values for key computations
-    - Expected results for edge cases
-    - Performance benchmarks
-    - Historical accuracy metrics
-
-    Any changes that affect accuracy should be flagged.
-    """
-
-    def __init__(self, reference_db_path: str = "tests/reference_values.json") -> None:
-        # TODO: Load reference values database
-        self.reference_db_path = reference_db_path
-        self.reference_values: dict[str, Any] = {}
-
-    def add_reference_value(
-        self, test_id: str, value: float, tolerance: float = 1e-15
-    ) -> None:
-        # TODO: Add new reference value to database
-        # LABELS: regression-testing, reference-values
-        raise NotImplementedError("Reference value management not implemented")
-
-    def check_regression(self, test_id: str, computed_value: float) -> bool:
-        # TODO: Check if computed value matches reference within tolerance
-        # LABELS: regression-testing, validation
-        raise NotImplementedError("Regression checking not implemented")
 
 
 # NOTE: Consider implementing fuzzing tests for robustness
-def fuzz_testing() -> None:
-    """
-    Fuzzing tests for robustness against malformed inputs.
-
-    Should test:
-    - Random parameter combinations
-    - Extreme parameter values
-    - Invalid input types
-    - Boundary conditions
-    - Memory stress scenarios
-
-    Goal: Ensure library never crashes, always provides informative errors.
-    """
-    # TODO: Implement comprehensive fuzzing test suite
-    # LABELS: fuzzing, robustness
-    raise NotImplementedError("Fuzz testing not implemented")
 
 
 # TODO: Implement mathematical property verification
-class MathematicalPropertyVerification:
-    """
-    Verify theoretical mathematical properties of distributions.
-
-    Properties to verify:
-    - Moment calculations (when they exist)
-    - Tail behavior asymptotic properties
-    - Distribution relationships (e.g., LogNormal from Normal)
-    - Scaling and location transformations
-    - Convolution properties where applicable
-    """
-
-    def verify_tail_behavior(self, distribution: str, **params: Any) -> dict[str, bool]:
-        # TODO: Verify asymptotic tail behavior matches theory
-        # LABELS: mathematics, tail-behavior
-        raise NotImplementedError("Tail behavior verification not implemented")
-
-    def verify_moments(self, distribution: str, **params: Any) -> dict[str, bool]:
-        # TODO: Verify moment calculations against theory
-        # LABELS: mathematics, moments
-        raise NotImplementedError("Moment verification not implemented")
-
-    def verify_relationships(self, distribution1: str, distribution2: str) -> bool:
-        # TODO: Verify known relationships between distributions
-        # LABELS: mathematics, distribution-relationships
-        raise NotImplementedError(
-            "Distribution relationship verification not implemented"
-        )
 
 
 # HACK: Some special function implementations use approximations - need accuracy bounds
-def special_function_accuracy_analysis() -> None:
-    """
-    Analyze and improve accuracy of special function implementations.
-
-    Current approximations in:
-    - Incomplete beta function
-    - Incomplete gamma function
-    - Normal quantile function (Acklam's approximation)
-
-    Need to:
-    - Document accuracy bounds
-    - Implement higher-precision alternatives
-    - Provide accuracy guarantees
-    - Test against high-precision references
-    """
-    # TODO: Comprehensive accuracy analysis of special functions
-    # LABELS: special-functions, accuracy
-    raise NotImplementedError("Special function accuracy analysis not implemented")
 
 
 # TODO: Add continuous integration tests with different Python versions
-def python_version_compatibility() -> None:
-    """
-    Test compatibility across different Python versions.
-
-    Should test:
-    - Python 3.10, 3.11, 3.12 compatibility
-    - Different operating systems (Linux, Windows, macOS)
-    - Various numerical precisions
-    - Performance consistency across versions
-
-    Critical for ensuring broad usability.
-    """
-    # TODO: Implement cross-version compatibility testing
-    # LABELS: compatibility, python-versions
-    raise NotImplementedError("Python version compatibility testing not implemented")
 
 
 if __name__ == "__main__":

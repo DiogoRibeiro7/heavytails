@@ -17,15 +17,9 @@ import pytest
 from heavytails import Pareto, StudentT
 from heavytails.performance import (
     DistributionCache,
-    MemoryProfiler,
-    OnlineEstimation,
     PerformanceBenchmarks,
     PPFOptimizer,
     _parallel_worker,
-    cython_special_functions,
-    distribution_specific_optimizations,
-    jit_accelerated_functions,
-    optimized_rejection_sampling,
     parallel_sampling,
     robust_log_gamma,
     vectorized_cdf_evaluation,
@@ -513,11 +507,6 @@ class TestPPFOptimizerExtended:
 class TestUnimplementedFeatures:
     """Test that unimplemented features raise appropriate errors."""
 
-    def test_cython_special_functions(self):
-        """Test that Cython special functions raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            cython_special_functions()
-
     def test_robust_log_gamma_overflow(self):
         """Test robust log gamma with values."""
         # Normal values should work
@@ -527,45 +516,6 @@ class TestUnimplementedFeatures:
         # Test with another normal value
         result2 = robust_log_gamma(10.0)
         assert result2 > result  # log-gamma is increasing
-
-    def test_jit_accelerated_functions(self):
-        """Test that JIT acceleration raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            jit_accelerated_functions()
-
-    def test_memory_profiler_sampling(self):
-        """Test that memory profiler raises NotImplementedError."""
-        profiler = MemoryProfiler()
-        with pytest.raises(NotImplementedError):
-            profiler.profile_sampling("Pareto", 1000)
-
-    def test_memory_profiler_optimize(self):
-        """Test that memory optimizer raises NotImplementedError."""
-        profiler = MemoryProfiler()
-        with pytest.raises(NotImplementedError):
-            profiler.optimize_memory_usage()
-
-    def test_optimized_rejection_sampling(self):
-        """Test that optimized rejection sampling raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            optimized_rejection_sampling()
-
-    def test_online_estimation_update(self):
-        """Test that online estimation update raises NotImplementedError."""
-        estimator = OnlineEstimation("Pareto")
-        with pytest.raises(NotImplementedError):
-            estimator.update(1.5)
-
-    def test_online_estimation_get_estimates(self):
-        """Test that online estimation get estimates raises NotImplementedError."""
-        estimator = OnlineEstimation("Pareto")
-        with pytest.raises(NotImplementedError):
-            estimator.get_current_estimates()
-
-    def test_distribution_specific_optimizations(self):
-        """Test that distribution-specific optimizations raises NotImplementedError."""
-        with pytest.raises(NotImplementedError):
-            distribution_specific_optimizations()
 
 
 class TestPerformanceBenchmarksExtended:
