@@ -26,6 +26,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
 from heavytails.plotting import qq_pareto, tail_loglog_plot
 from heavytails.tail_index import hill_plot, trimmed_hill_plot
 from heavytails.threshold import mean_residual_life, parameter_stability
@@ -41,6 +43,9 @@ __all__ = [
     "plot_tail",
     "plot_trimmed_hill",
 ]
+
+# Enough to look smooth on a log axis without the cost mattering.
+_REFERENCE_POINTS = 200
 
 _INSTALL_HINT = (
     "Rendering the diagnostics requires matplotlib, which is an optional "
@@ -113,10 +118,21 @@ def plot_tail(
     axes.plot(xs, ys, label=label, **style)
 
     if fitted is not None:
-        reference = tail_loglog_plot(fitted.rvs(len(data), seed=0))
+        # The model's own survival function on a grid, not a sample drawn from
+        # it. Drawing one put Monte Carlo noise into the reference curve, worst
+        # in the far tail where its last points rested on a handful of draws:
+        # against Pareto(alpha=2) at n=1000 the reference wandered up to 1.238
+        # in log survival from the curve it was meant to represent -- a factor
+        # of three, seed-dependent, and entirely in the region the plot exists
+        # to show. A reader would have read it as misfit.
+        grid = np.exp(np.linspace(min(xs), max(xs), _REFERENCE_POINTS))
+        survival = np.asarray(fitted.sf(grid), dtype=float)
+        # log(0) is not a point on the plot. A bounded model can put zero
+        # survival inside the data's range, and those x are simply not drawn.
+        visible = survival > 0.0
         axes.plot(
-            [p[0] for p in reference],
-            [p[1] for p in reference],
+            np.log(grid[visible]),
+            np.log(survival[visible]),
             linewidth=1.5,
             alpha=0.8,
             label=f"fitted {type(fitted).__name__}",

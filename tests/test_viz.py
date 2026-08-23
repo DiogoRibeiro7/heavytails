@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 matplotlib = pytest.importorskip(
@@ -22,6 +23,7 @@ matplotlib.use("Agg")  # No display in CI.
 import matplotlib.pyplot as plt  # noqa: E402
 
 from heavytails import Pareto  # noqa: E402
+from heavytails.extra_distributions import GeneralizedPareto  # noqa: E402
 import heavytails.plotting as primitives  # noqa: E402
 from heavytails.plotting import qq_pareto, tail_loglog_plot  # noqa: E402
 from heavytails.tail_index import hill_plot, trimmed_hill_plot  # noqa: E402
@@ -73,6 +75,50 @@ class TestPlotTail:
 
     def test_without_a_fit_there_is_one_series(self, data: list[float]) -> None:
         assert len(plot_tail(data).get_lines()) == 1
+
+    def test_the_overlay_is_the_model_curve_not_a_sample_from_it(
+        self, data: list[float]
+    ) -> None:
+        """The reference must be the survival function, evaluated.
+
+        It used to be an empirical curve of ``len(data)`` draws from the fitted
+        model. That put Monte Carlo noise into the line the reader compares
+        against, worst in the far tail where its last points rested on a
+        handful of observations: for Pareto(alpha=2) at n=1000 the reference
+        wandered up to 1.238 in log survival away from the curve it claimed to
+        be -- a factor of three, in the region the plot exists to show, which
+        reads as misfit and is not.
+        """
+        fitted = Pareto(alpha=2.0, xm=1.0)
+        reference = plot_tail(data, fitted=fitted).get_lines()[1]
+        x = np.asarray(reference.get_xdata(), dtype=float)
+        y = np.asarray(reference.get_ydata(), dtype=float)
+
+        expected = np.log(np.asarray(fitted.sf(np.exp(x)), dtype=float))
+        np.testing.assert_allclose(y, expected, rtol=1e-13, atol=1e-15)
+
+    def test_the_overlay_is_monotone_and_does_not_depend_on_a_seed(
+        self, data: list[float]
+    ) -> None:
+        fitted = Pareto(alpha=2.0, xm=1.0)
+        first = np.asarray(plot_tail(data, fitted=fitted).get_lines()[1].get_ydata())
+        second = np.asarray(plot_tail(data, fitted=fitted).get_lines()[1].get_ydata())
+        np.testing.assert_array_equal(first, second)
+        assert np.all(np.diff(first) <= 1e-12), "a survival curve cannot rise"
+
+    def test_a_bounded_model_drops_the_points_beyond_its_support(
+        self, data: list[float]
+    ) -> None:
+        """``log(0)`` is not a point on the plot.
+
+        A model with an upper endpoint inside the data's range has zero
+        survival above it, and those x are simply not drawn rather than
+        plotted at negative infinity.
+        """
+        bounded = GeneralizedPareto(xi=-0.5, sigma=1.0, mu=0.0)
+        y = np.asarray(plot_tail(data, fitted=bounded).get_lines()[1].get_ydata())
+        assert y.size > 0
+        assert np.all(np.isfinite(y))
 
     def test_draws_on_a_supplied_axes(self, data: list[float]) -> None:
         _, ax = plt.subplots()

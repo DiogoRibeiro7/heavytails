@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `heavytails.viz.plot_tail` overlaid a *sample drawn from* the fitted model
+  rather than the model's survival curve. That put Monte Carlo noise into the
+  reference the reader compares against, worst in the far tail where its last
+  points rested on a handful of draws: against Pareto(alpha=2) at n=1000 the
+  reference wandered up to **1.238 in log survival** from the curve it claimed
+  to be -- a factor of three, seed-dependent, and entirely in the region the
+  plot exists to show. It reads as misfit and is not. The overlay is now
+  `fitted.sf` evaluated on a grid, which is exact, monotone and independent of
+  any seed. Points where a bounded model has zero survival are not drawn, since
+  `log(0)` is not a point on the plot.
+
 ## [0.5.0] - 2026-08-23
 
 **NumPy is now required, and every distribution method takes a number or an
