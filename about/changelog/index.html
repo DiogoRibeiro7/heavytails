@@ -2219,6 +2219,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2241,7 +2252,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2263,7 +2274,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2274,7 +2285,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_2" class="md-nav__link">
+  <a href="#changed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2324,7 +2335,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_3" class="md-nav__link">
+  <a href="#changed_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2374,7 +2385,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_4" class="md-nav__link">
+  <a href="#changed_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2413,7 +2424,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_5" class="md-nav__link">
+  <a href="#changed_6" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2664,6 +2675,14 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Coverage runs at release only, plus a manual dispatch. It ran on merges to
+  main and weekly, which left main amber for eleven minutes after every merge
+  -- nothing depended on it there, but it is eleven minutes of deciding whether
+  to wait. <code>publish</code> still depends on it, so a release cannot ship without the
+  gate passing, which is the moment the number has to be right.</li>
+</ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
 <li>The citation guidance cited <strong>0.3.0</strong>. <code>CITATION.cff</code> was advanced to 0.4.0 at
@@ -2686,7 +2705,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   version. Nothing checked either, which is how the documentation sat a release
   behind. Bumping the version now fails until the guidance is bumped with it.</li>
 </ul>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <p><strong>The package no longer describes itself as pure Python, because it is not.</strong></p>
 <ul>
 <li><code>CITATION.cff</code>, <code>.zenodo.json</code>, <code>AUTHORS.md</code>, <code>mkdocs.yml</code> and the citation
@@ -2718,7 +2737,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>heavytails.performance</code> and <code>heavytails.vectorized</code> no longer branch on
   NumPy being absent. It cannot be.</li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <p><strong>The multivariate distributions compute over observations, not one at a time.</strong></p>
 <ul>
 <li><code>mahalanobis</code>, <code>logpdf</code> and <code>pdf</code> take one point or an array of them and
@@ -2738,7 +2757,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>_solve_lower</code> is gone. The substitution it did now happens inside
   <code>mahalanobis</code>, across all observations, and nothing else called it.</li>
 </ul>
-<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
 <p><strong>NumPy is now a required dependency, and every distribution method takes a
 number or an array.</strong></p>
 <p>The library was pure Python by choice, and that choice stopped paying: a density
@@ -3007,7 +3026,7 @@ returned negative probabilities.</p>
   Monte Carlo estimator always reports standard errors.</p>
 </li>
 </ul>
-<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>InverseGamma.ppf</code> and <code>BetaPrime.ppf</code> invert the incomplete gamma and beta
@@ -3143,7 +3162,7 @@ returned negative probabilities.</p>
   invisible on clean data.</p>
 </li>
 </ul>
-<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The <code>tail_index</code> module docstring now states that every estimator returns the
@@ -3288,7 +3307,7 @@ returned negative probabilities.</p>
   review, and an executable <code>basic_usage</code> notebook.</p>
 </li>
 </ul>
-<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
+<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Migrated project metadata to the PEP 621 <code>[project]</code> table.</p>
