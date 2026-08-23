@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `heavytails.vectorized` is a thin shim. It held a hand-written NumPy kernel
+  for each of 32 (family, method) pairs, every one a transcription of the
+  scalar method it shadowed; the methods take arrays themselves now, so the
+  kernels were duplicates. 447 lines to 198. The public functions --
+  `pdf`, `cdf`, `sf`, `ppf`, `accelerated` -- behave as before, and
+  `dist.cdf(values)` is the same call for new code.
+- `accelerated` is answered per method rather than per family, so it now
+  reports `True` for `LogNormal.pdf`: the density is elementary and is one
+  NumPy expression, and only the probabilities need the error function. It
+  reports `True` for a distribution defined outside this library, where before
+  it reported `False`, because there is no longer a table of known families to
+  consult.
+
+### Changed
+
 **The actuarial machinery computes over grids, not one point at a time.**
 
 - `panjer_recursion` evaluates its inner sum as a dot product. The recursion in

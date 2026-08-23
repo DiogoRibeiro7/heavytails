@@ -280,10 +280,18 @@ class TestTheFallbackPath:
     def test_families_without_a_kernel_still_work(
         self, dist: object, points: list[float]
     ) -> None:
-        """Correct by construction: the fallback *is* the scalar method."""
+        """These four evaluate their probabilities one element at a time.
+
+        Their *densities* do not: a LogNormal density is elementary and is one
+        NumPy expression like any other. Only the probabilities need the error
+        function or an incomplete beta or gamma, so only they loop -- which is
+        why ``accelerated`` is asked per method rather than per family.
+        """
+        assert accelerated(dist, "pdf")
         for name, function in (("pdf", pdf), ("cdf", cdf), ("sf", sf)):
-            assert not accelerated(dist, name)
-            # The fallback *is* the scalar method, so this is exact.
+            if name != "pdf":
+                assert not accelerated(dist, name)
+            # Same implementation either way, so this is exact.
             assert np.array_equal(
                 function(dist, points),
                 np.array([getattr(dist, name)(p) for p in points]),
