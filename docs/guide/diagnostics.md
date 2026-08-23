@@ -70,8 +70,8 @@ plot_qq(samples, ax=axes[1])
 plot_hill(samples, ax=axes[2], true_gamma=0.5)
 ```
 
-The coordinate-returning functions stay available and dependency-free, so the
-library itself never requires matplotlib.
+The coordinate-returning functions return plain numbers and pull in nothing
+beyond NumPy, so the library itself never requires matplotlib.
 
 ### Reading the plot
 

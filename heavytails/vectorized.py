@@ -59,30 +59,12 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 __all__ = ["accelerated", "cdf", "pdf", "ppf", "sf"]
-
-_MISSING = object()
-_numpy_module: Any = _MISSING
-
-
-def _numpy() -> Any:
-    """Return NumPy, or None if it is not installed.
-
-    Imported on first use and remembered, so the failure costs one attempt
-    rather than one per call.
-    """
-    global _numpy_module  # noqa: PLW0603
-    if _numpy_module is _MISSING:
-        try:
-            import numpy  # noqa: PLC0415
-        except ModuleNotFoundError:  # pragma: no cover - needs numpy absent
-            _numpy_module = None
-        else:
-            _numpy_module = numpy
-    return _numpy_module
 
 
 # --------------------------- Kernels ----------------------------------------- #
@@ -363,17 +345,11 @@ def accelerated(dist: Any, method: str) -> bool:
         >>> accelerated(LogNormal(mu=0.0, sigma=1.0), "cdf")
         False
     """
-    if _numpy() is None:  # pragma: no cover - needs numpy absent
-        return False
     return (type(dist).__name__, method) in _KERNELS
 
 
 def _evaluate(dist: Any, method: str, values: Sequence[float]) -> Any:
     """Apply ``method`` to every element, by kernel where one exists."""
-    numpy = _numpy()
-    if numpy is None:  # pragma: no cover - needs numpy absent
-        return [getattr(dist, method)(value) for value in values]
-
     kernel = _KERNELS.get((type(dist).__name__, method))
     if kernel is None:
         # No kernel, so the loop -- which is exactly what the caller would have
@@ -383,9 +359,9 @@ def _evaluate(dist: Any, method: str, values: Sequence[float]) -> Any:
         # scalar, which the scalar methods handle more slowly than a float.
         # Doing that turned these families' calls into a 0.6x slowdown.
         scalar = getattr(dist, method)
-        return numpy.asarray([scalar(value) for value in values], dtype=float)
-    array = numpy.asarray(values, dtype=float)
-    return numpy.asarray(kernel(dist, array, numpy), dtype=float)
+        return np.asarray([scalar(value) for value in values], dtype=float)
+    array = np.asarray(values, dtype=float)
+    return np.asarray(kernel(dist, array, np), dtype=float)
 
 
 def pdf(dist: Any, values: Sequence[float]) -> Any:
@@ -460,13 +436,9 @@ def ppf(dist: Any, probabilities: Sequence[float]) -> Any:
         >>> [round(float(v), 4) for v in ppf(Pareto(alpha=2.0, xm=1.0), [0.5, 0.99])]
         [1.4142, 10.0]
     """
-    numpy = _numpy()
-    if numpy is None:  # pragma: no cover - needs numpy absent
-        offending = [p for p in probabilities if not (0.0 < p < 1.0)]
-    else:
-        array = numpy.asarray(probabilities, dtype=float)
-        bad = array[(array <= 0.0) | (array >= 1.0) | numpy.isnan(array)]
-        offending = bad.tolist()
+    array = np.asarray(probabilities, dtype=float)
+    bad = array[(array <= 0.0) | (array >= 1.0) | np.isnan(array)]
+    offending = bad.tolist()
     if offending:
         raise ValueError(
             f"every probability must be in (0,1); got {offending[0]!r}"

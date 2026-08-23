@@ -2,11 +2,11 @@
 heavytails
 ==========
 
-Pure-Python library of heavy-tailed probability distributions.
+Python library of heavy-tailed probability distributions.
 
 This package implements continuous and discrete heavy-tailed distributions,
-tail index estimators, and diagnostic utilities — entirely dependency-free,
-using only the Python standard library.
+tail index estimators, and diagnostic utilities with NumPy-backed vectorized
+evaluation.
 
 Modules
 --------
@@ -19,7 +19,7 @@ Modules
 - heavytails.tail_index
     Tail index estimators (Hill, Pickands, Moment)
 - heavytails.plotting
-    Diagnostic coordinates (log-log tails, QQ plots), with no third-party imports
+    Diagnostic coordinates (log-log tails, QQ plots)
 - heavytails.viz
     Rendering of those diagnostics, needing the optional ``plot`` extra
 - heavytails.threshold
@@ -31,7 +31,7 @@ Modules
 - heavytails.streaming
     Tail index estimation over a stream, in bounded memory
 - heavytails.vectorized
-    Evaluation over many points at once, using NumPy when it is installed
+    Evaluation over many points at once, using NumPy
 - heavytails.multivariate
     Elliptical families and tail dependence for joint heavy tails
 - heavytails.copula

@@ -13,9 +13,10 @@
 [![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue)](https://mypy-lang.org/)
 
 `heavytails` implements continuous and discrete heavy-tailed distributions, tail
-index estimators, and diagnostic utilities — **using only the Python standard
-library**. Every density, quantile and sampler is derived from first principles,
-so the implementation can be read, checked and taught rather than taken on faith.
+index estimators, and diagnostic utilities with NumPy-backed vectorized
+evaluation. Every density, quantile and sampler is derived from first
+principles, so the implementation can be read, checked and taught rather than
+taken on faith.
 
 It targets research, teaching and simulation work in risk, finance, insurance and
 extreme-value analysis.
@@ -24,8 +25,8 @@ extreme-value analysis.
 
 ## Features
 
-- **No runtime dependencies.** The library imports nothing outside `math`,
-  `random` and friends, so it installs anywhere Python does.
+- **NumPy-backed evaluation.** NumPy is the required runtime dependency, giving
+  the distribution and estimator code efficient scalar and array evaluation.
 - **Complete distribution interface.** PDF/PMF, CDF, survival function, quantile
   function and random sampling for every family, with survival functions computed
   directly so they stay accurate far into the tail where `1 - cdf(x)` has lost
@@ -187,7 +188,7 @@ MIT License © 2025 Diogo Ribeiro. See [LICENSE](LICENSE).
 If you use this package in research or teaching, please cite it. GitHub's
 "Cite this repository" button reads [CITATION.cff](CITATION.cff), or use:
 
-> Ribeiro, D. (2026). *heavytails: A Pure-Python Library for Heavy-Tailed
+> Ribeiro, D. (2026). *heavytails: A Python Library for Heavy-Tailed
 > Probability Distributions* (Version 0.3.0) [Computer software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.22045594>
 
@@ -202,7 +203,7 @@ gets its own, listed on the Zenodo record.
 ```bibtex
 @software{ribeiro_heavytails,
   author    = {Ribeiro, Diogo},
-  title     = {heavytails: A Pure-Python Library for Heavy-Tailed
+  title     = {heavytails: A Python Library for Heavy-Tailed
                Probability Distributions},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.22045594},

@@ -85,8 +85,8 @@ Python release is visible separately from one introduced by a code change.
 
 ## Writing a benchmark that means something
 
-Timing pure-Python numerical code is easy to get wrong. The rules the existing
-suite follows:
+Timing numerical code is easy to get wrong, whether it runs in the
+interpreter or in NumPy. The rules the existing suite follows:
 
 **Use `time.perf_counter()`, never `time.time()`.** `time.time()` has roughly
 16 ms resolution on Windows, so anything faster than that measures as exactly
@@ -139,13 +139,20 @@ Some structural facts that shape optimisation work here:
 - **Special functions** — incomplete gamma and incomplete beta — dominate the
   Student-t, Inverse-Gamma and Beta-Prime families. `heavytails.performance`
   caches where the arguments repeat.
-- **Attribute lookup and function call overhead** are a real fraction of the cost
-  in tight pure-Python loops. Hoisting a bound method out of a loop is a
-  legitimate and measurable optimisation.
+- **Attribute lookup and function call overhead** are a real fraction of the
+  cost wherever a loop remains -- the four families whose probabilities need a
+  special function, and the samplers, which draw their uniforms one at a time.
+  Hoisting a bound method out of such a loop is a legitimate and measurable
+  optimisation. Everywhere else the question is not how fast the loop is but
+  whether there should be one: a scalar call costs about 2.6us of dispatch,
+  and the same points passed as an array cost that once.
 
 ## Before optimising
 
-Profile first; intuition about pure-Python hot spots is unreliable.
+Profile first; intuition about hot spots is unreliable. The clearest example
+in this project's history: the test suite was assumed to be slow because the
+library was, and it was actually spending 6.4x its runtime inside coverage
+instrumentation, which no amount of vectorisation could touch.
 
 ```bash
 poetry run python -m cProfile -s cumtime benchmarks/performance_tests.py --output /dev/null

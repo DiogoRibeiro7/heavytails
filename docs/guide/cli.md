@@ -5,7 +5,7 @@ benchmarking, so common tasks need no Python file at all.
 
 ## Installation
 
-The library itself has no runtime dependencies, but the CLI is built on
+The library itself needs only NumPy, but the CLI is built on
 [Typer](https://typer.tiangolo.com/) and [Rich](https://rich.readthedocs.io/).
 Install them with the `cli` extra:
 

@@ -1,5 +1,5 @@
 site_name: HeavyTails Documentation
-site_description: Pure-Python heavy-tailed probability distributions for research, teaching, and simulation
+site_description: Heavy-tailed probability distributions, vectorized over NumPy, for research, teaching, and simulation
 site_author: Diogo Ribeiro
 site_url: https://diogoribeiro7.github.io/heavytails
 repo_url: https://github.com/diogoribeiro7/heavytails

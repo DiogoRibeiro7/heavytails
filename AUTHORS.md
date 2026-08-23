@@ -87,7 +87,7 @@ If you use this software in academic work, please cite:
 ```bibtex
 @software{ribeiro2025heavytails,
   author = {Ribeiro, Diogo},
-  title = {HeavyTails: A Pure-Python Library for Heavy-Tailed Probability Distributions},
+  title = {HeavyTails: A Python Library for Heavy-Tailed Probability Distributions},
   url = {https://github.com/diogoribeiro7/heavytails},
   version = {0.1.0},
   year = {2025}

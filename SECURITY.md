@@ -126,10 +126,16 @@ def safe_read_data(filepath):
 
 ## Dependencies Security
 
-HeavyTails is designed to be dependency-free (pure Python) to minimize security attack surface:
+HeavyTails keeps its runtime dependency surface to one package, to limit what
+a supply-chain compromise could reach:
 
-- **No external dependencies** in the core library
-- **Optional dependencies** only for development, testing, and examples
+- **One runtime dependency**, NumPy. It was none until 0.5.0; the library was
+  pure Python, and the trade was made for speed rather than for want of it.
+  NumPy is about as well-scrutinised as a Python package gets, which is what
+  makes it an acceptable thing to require, but it is a dependency and this
+  section should not pretend otherwise.
+- **Optional dependencies** only for the CLI, plotting, development, testing
+  and examples
 - **Regular updates** of development dependencies through automated tools
 
 ## Vulnerability Disclosure Timeline

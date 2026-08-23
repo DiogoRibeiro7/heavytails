@@ -240,9 +240,9 @@ ignore_missing_imports = true
 module = "mpmath.*"
 ignore_missing_imports = true
 
-# numpy ships stubs that use `type` statement syntax, which mypy rejects while
-# python_version is pinned to the lowest supported interpreter. numpy is an
-# optional benchmark-only import, so skip analysing its stubs entirely.
+# numpy is a runtime dependency, but its stubs use `type` statement syntax that
+# mypy rejects while python_version is pinned to the lowest supported
+# interpreter. Keep analysing the project code and skip traversing numpy stubs.
 [[tool.mypy.overrides]]
 module = "numpy.*"
 ignore_missing_imports = true

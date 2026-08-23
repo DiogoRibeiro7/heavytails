@@ -40,7 +40,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## Third-Party Dependencies
 
-HeavyTails has **zero external dependencies** in the core library. It uses only the Python standard library, which is distributed under the [Python Software Foundation License](https://docs.python.org/3/license.html).
+HeavyTails has **one runtime dependency**, NumPy, which is distributed under the [NumPy license](https://numpy.org/doc/stable/license.html), a permissive BSD-3-Clause licence compatible with this project's MIT terms. Beyond that it uses only the Python standard library, distributed under the [Python Software Foundation License](https://docs.python.org/3/license.html).
 
 Optional development dependencies have their own licenses:
 
@@ -58,7 +58,7 @@ When using HeavyTails in academic research or publications, please cite:
 ```bibtex
 @software{ribeiro2025heavytails,
   author = {Ribeiro, Diogo F.},
-  title = {HeavyTails: A Pure-Python Library for Heavy-Tailed Probability Distributions},
+  title = {HeavyTails: A Python Library for Heavy-Tailed Probability Distributions},
   year = {2025},
   url = {https://github.com/diogoribeiro7/heavytails},
   version = {0.1.0}
