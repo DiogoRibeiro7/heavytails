@@ -129,8 +129,9 @@ def safe_read_data(filepath):
 HeavyTails keeps its runtime dependency surface to one package, to limit what
 a supply-chain compromise could reach:
 
-- **One runtime dependency**, NumPy. It was none until 0.5.0; the library was
-  pure Python, and the trade was made for speed rather than for want of it.
+- **One runtime dependency**, NumPy. There were none through 0.4.0; the
+  library was pure Python, and the trade was made for speed rather than for
+  want of it.
   NumPy is about as well-scrutinised as a Python package gets, which is what
   makes it an acceptable thing to require, but it is a dependency and this
   section should not pretend otherwise.

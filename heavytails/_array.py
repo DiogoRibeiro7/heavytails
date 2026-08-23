@@ -11,7 +11,7 @@ step, and they do not stay in step. The previous arrangement had exactly that
 shape, with a separate kernel per method held to a tolerance against its scalar
 twin, and the tolerance itself had to be rewritten twice before it was right.
 
-NumPy is a hard dependency. It was optional until 0.5.0, and the pure-Python
+NumPy is a hard dependency. It was optional through 0.4.0, and the pure-Python
 promise was worth keeping while the library was small; it stopped being worth
 it once evaluating a density over a hundred thousand points meant a hundred
 thousand interpreter round trips.
