@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `scripts/tail_index_study.py` stamped its results with the *installed*
+  package version, which an editable install keeps reporting from whenever its
+  metadata was last built. In this checkout that read **0.2.0** against a
+  working tree at **0.4.0**, so a saved study carried a version two releases
+  stale -- worse than carrying none, since a reader has no reason to doubt it.
+  It now reads `pyproject.toml` when running from a checkout, and records which
+  source the version came from.
+
 ### Changed
 
 - CI does not re-verify on a merge what the pull request just verified. A push

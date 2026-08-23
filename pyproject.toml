@@ -240,6 +240,14 @@ ignore_missing_imports = true
 module = "mpmath.*"
 ignore_missing_imports = true
 
+# tomllib is standard library from 3.11, and python_version above is pinned to
+# the lowest interpreter this supports, so mypy analyses as 3.10 and does not
+# find it. The one import of it is already guarded by ModuleNotFoundError for
+# exactly that reason.
+[[tool.mypy.overrides]]
+module = "tomllib"
+ignore_missing_imports = true
+
 # numpy is a runtime dependency, but its stubs use `type` statement syntax that
 # mypy rejects while python_version is pinned to the lowest supported
 # interpreter. Keep analysing the project code and skip traversing numpy stubs.

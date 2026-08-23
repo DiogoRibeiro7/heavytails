@@ -21,6 +21,7 @@ import json
 import math
 from pathlib import Path
 import random
+import re
 import sys
 from typing import Any, Literal
 
@@ -216,6 +217,41 @@ def _git_commit() -> str | None:
     return None
 
 
+def _package_version() -> tuple[str, str]:
+    """The version, and where it was read from.
+
+    ``heavytails.__version__`` comes from ``importlib.metadata``, which reports
+    what is *installed*. In an editable install that is whatever the metadata
+    said when it was last built, so it lags a working tree after a version
+    bump: a study run from a 0.3.0 checkout was stamped 0.2.0, and a saved
+    table carrying the wrong version is worse than one carrying none.
+
+    ``pyproject.toml`` is the working tree's own answer, so it wins when this
+    is running from a checkout. Which source was used is returned alongside,
+    because provenance that cannot be questioned is not provenance.
+    """
+    pyproject = Path(__file__).resolve().parent.parent / "pyproject.toml"
+    if pyproject.is_file():
+        try:
+            text = pyproject.read_text(encoding="utf-8")
+        except OSError:
+            text = None
+        if text is not None:
+            try:
+                import tomllib  # noqa: PLC0415
+
+                version = tomllib.loads(text).get("project", {}).get("version")
+            except ModuleNotFoundError:
+                # tomllib is 3.11+; this project supports 3.10.
+                match = re.search(r'^version\s*=\s*"([^"]+)"', text, re.MULTILINE)
+                version = match.group(1) if match else None
+            except ValueError:
+                version = None
+            if isinstance(version, str) and version:
+                return version, "pyproject.toml"
+    return heavytails.__version__, "installed distribution metadata"
+
+
 def _provenance(trials: int) -> dict[str, Any]:
     """Describe the run, so a results file can be traced back to its code.
 
@@ -223,12 +259,13 @@ def _provenance(trials: int) -> dict[str, Any]:
     cannot be reproduced or cited, which matters as soon as the numbers
     leave this repository.
 
-    Both the package version and the git commit are recorded. The version
-    comes from the installed distribution metadata and can lag a working tree
-    after a version bump; the commit cannot.
+    The version, where it came from, and the git commit are all recorded. The
+    commit is the unambiguous one; the version is what a reader will quote.
     """
+    version, version_source = _package_version()
     return {
-        "heavytails_version": heavytails.__version__,
+        "heavytails_version": version,
+        "heavytails_version_source": version_source,
         "git_commit": _git_commit(),
         "python_version": sys.version.split()[0],
         "trials": trials,

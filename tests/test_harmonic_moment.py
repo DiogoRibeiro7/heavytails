@@ -12,6 +12,7 @@ roughly how many observations are bad, bounded influence does not.
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import sys
 
 import pytest
@@ -234,6 +235,34 @@ class TestStudyProvenance:
         assert commit is None or (
             len(commit) == 40 and all(c in "0123456789abcdef" for c in commit)
         )
+
+    def test_the_version_is_the_working_tree_one(self) -> None:
+        """Not whatever the installed distribution metadata happens to say.
+
+        ``importlib.metadata`` reports what was installed, and an editable
+        install keeps reporting the version its metadata was built with. In
+        this checkout it says 0.2.0 against a working tree at 0.4.0, so a saved
+        study was stamped with a version that had not been current for two
+        releases -- worse than carrying no version at all, because a reader has
+        no reason to doubt it.
+        """
+        pyproject = (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(
+            encoding="utf-8"
+        )
+        match = re.search(r'^version\s*=\s*"([^"]+)"', pyproject, re.MULTILINE)
+        assert match is not None
+
+        prov = _study_provenance(trials=1)
+        assert prov["heavytails_version"] == match.group(1)
+        assert prov["heavytails_version_source"] == "pyproject.toml"
+
+    def test_the_version_says_where_it_came_from(self) -> None:
+        """Provenance that cannot be questioned is not provenance."""
+        prov = _study_provenance(trials=1)
+        assert prov["heavytails_version_source"] in {
+            "pyproject.toml",
+            "installed distribution metadata",
+        }
 
 
 class TestStudyDomainContract:
