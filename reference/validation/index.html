@@ -1811,17 +1811,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#heavytails.validation.MathematicalPropertyVerification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MathematicalPropertyVerification
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#heavytails.validation.NumericalValidation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1846,17 +1835,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#heavytails.validation.ParameterEstimationValidation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;ParameterEstimationValidation
-      
-    </span>
-  </a>
   
 </li>
         
@@ -1911,32 +1889,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#heavytails.validation.RegressionTesting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;RegressionTesting
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#heavytails.validation.convergence_validation" class="md-nav__link">
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;convergence_validation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#heavytails.validation.fuzz_testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;fuzz_testing
       
     </span>
   </a>
@@ -1959,28 +1915,6 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;ppf_edge_case_handler
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#heavytails.validation.python_version_compatibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;python_version_compatibility
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#heavytails.validation.special_function_accuracy_analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;special_function_accuracy_analysis
       
     </span>
   </a>
@@ -2751,23 +2685,23 @@ False</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>heavytails/validation.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1016">1016</a></span>
-<span class="normal"><a href="#__codelineno-0-1017">1017</a></span>
-<span class="normal"><a href="#__codelineno-0-1018">1018</a></span>
-<span class="normal"><a href="#__codelineno-0-1019">1019</a></span>
-<span class="normal"><a href="#__codelineno-0-1020">1020</a></span>
-<span class="normal"><a href="#__codelineno-0-1021">1021</a></span>
-<span class="normal"><a href="#__codelineno-0-1022">1022</a></span>
-<span class="normal"><a href="#__codelineno-0-1023">1023</a></span>
-<span class="normal"><a href="#__codelineno-0-1024">1024</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1016"><a id="__codelineno-0-1016" name="__codelineno-0-1016"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-1017"><a id="__codelineno-0-1017" name="__codelineno-0-1017"></a><span class="w">    </span><span class="sd">"""Initialise the test suite.</span>
-</span><span id="__span-0-1018"><a id="__codelineno-0-1018" name="__codelineno-0-1018"></a>
-</span><span id="__span-0-1019"><a id="__codelineno-0-1019" name="__codelineno-0-1019"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-1020"><a id="__codelineno-0-1020" name="__codelineno-0-1020"></a><span class="sd">        alpha_level: Significance level for the ``reject`` field.</span>
-</span><span id="__span-0-1021"><a id="__codelineno-0-1021" name="__codelineno-0-1021"></a><span class="sd">    """</span>
-</span><span id="__span-0-1022"><a id="__codelineno-0-1022" name="__codelineno-0-1022"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">alpha_level</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
-</span><span id="__span-0-1023"><a id="__codelineno-0-1023" name="__codelineno-0-1023"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"alpha_level must be in (0,1)."</span><span class="p">)</span>
-</span><span id="__span-0-1024"><a id="__codelineno-0-1024" name="__codelineno-0-1024"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span> <span class="o">=</span> <span class="n">alpha_level</span>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-990">990</a></span>
+<span class="normal"><a href="#__codelineno-0-991">991</a></span>
+<span class="normal"><a href="#__codelineno-0-992">992</a></span>
+<span class="normal"><a href="#__codelineno-0-993">993</a></span>
+<span class="normal"><a href="#__codelineno-0-994">994</a></span>
+<span class="normal"><a href="#__codelineno-0-995">995</a></span>
+<span class="normal"><a href="#__codelineno-0-996">996</a></span>
+<span class="normal"><a href="#__codelineno-0-997">997</a></span>
+<span class="normal"><a href="#__codelineno-0-998">998</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-990"><a id="__codelineno-0-990" name="__codelineno-0-990"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-991"><a id="__codelineno-0-991" name="__codelineno-0-991"></a><span class="w">    </span><span class="sd">"""Initialise the test suite.</span>
+</span><span id="__span-0-992"><a id="__codelineno-0-992" name="__codelineno-0-992"></a>
+</span><span id="__span-0-993"><a id="__codelineno-0-993" name="__codelineno-0-993"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-994"><a id="__codelineno-0-994" name="__codelineno-0-994"></a><span class="sd">        alpha_level: Significance level for the ``reject`` field.</span>
+</span><span id="__span-0-995"><a id="__codelineno-0-995" name="__codelineno-0-995"></a><span class="sd">    """</span>
+</span><span id="__span-0-996"><a id="__codelineno-0-996" name="__codelineno-0-996"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">alpha_level</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+</span><span id="__span-0-997"><a id="__codelineno-0-997" name="__codelineno-0-997"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"alpha_level must be in (0,1)."</span><span class="p">)</span>
+</span><span id="__span-0-998"><a id="__codelineno-0-998" name="__codelineno-0-998"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span> <span class="o">=</span> <span class="n">alpha_level</span>
 </span></code></pre></div></td></tr></table></div>
                   </details>
 
@@ -2949,7 +2883,33 @@ sample; see :meth:<code>kolmogorov_smirnov_test</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>heavytails/validation.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1093">1093</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1067">1067</a></span>
+<span class="normal"><a href="#__codelineno-0-1068">1068</a></span>
+<span class="normal"><a href="#__codelineno-0-1069">1069</a></span>
+<span class="normal"><a href="#__codelineno-0-1070">1070</a></span>
+<span class="normal"><a href="#__codelineno-0-1071">1071</a></span>
+<span class="normal"><a href="#__codelineno-0-1072">1072</a></span>
+<span class="normal"><a href="#__codelineno-0-1073">1073</a></span>
+<span class="normal"><a href="#__codelineno-0-1074">1074</a></span>
+<span class="normal"><a href="#__codelineno-0-1075">1075</a></span>
+<span class="normal"><a href="#__codelineno-0-1076">1076</a></span>
+<span class="normal"><a href="#__codelineno-0-1077">1077</a></span>
+<span class="normal"><a href="#__codelineno-0-1078">1078</a></span>
+<span class="normal"><a href="#__codelineno-0-1079">1079</a></span>
+<span class="normal"><a href="#__codelineno-0-1080">1080</a></span>
+<span class="normal"><a href="#__codelineno-0-1081">1081</a></span>
+<span class="normal"><a href="#__codelineno-0-1082">1082</a></span>
+<span class="normal"><a href="#__codelineno-0-1083">1083</a></span>
+<span class="normal"><a href="#__codelineno-0-1084">1084</a></span>
+<span class="normal"><a href="#__codelineno-0-1085">1085</a></span>
+<span class="normal"><a href="#__codelineno-0-1086">1086</a></span>
+<span class="normal"><a href="#__codelineno-0-1087">1087</a></span>
+<span class="normal"><a href="#__codelineno-0-1088">1088</a></span>
+<span class="normal"><a href="#__codelineno-0-1089">1089</a></span>
+<span class="normal"><a href="#__codelineno-0-1090">1090</a></span>
+<span class="normal"><a href="#__codelineno-0-1091">1091</a></span>
+<span class="normal"><a href="#__codelineno-0-1092">1092</a></span>
+<span class="normal"><a href="#__codelineno-0-1093">1093</a></span>
 <span class="normal"><a href="#__codelineno-0-1094">1094</a></span>
 <span class="normal"><a href="#__codelineno-0-1095">1095</a></span>
 <span class="normal"><a href="#__codelineno-0-1096">1096</a></span>
@@ -2990,100 +2950,74 @@ sample; see :meth:<code>kolmogorov_smirnov_test</code>.</p>
 <span class="normal"><a href="#__codelineno-0-1131">1131</a></span>
 <span class="normal"><a href="#__codelineno-0-1132">1132</a></span>
 <span class="normal"><a href="#__codelineno-0-1133">1133</a></span>
-<span class="normal"><a href="#__codelineno-0-1134">1134</a></span>
-<span class="normal"><a href="#__codelineno-0-1135">1135</a></span>
-<span class="normal"><a href="#__codelineno-0-1136">1136</a></span>
-<span class="normal"><a href="#__codelineno-0-1137">1137</a></span>
-<span class="normal"><a href="#__codelineno-0-1138">1138</a></span>
-<span class="normal"><a href="#__codelineno-0-1139">1139</a></span>
-<span class="normal"><a href="#__codelineno-0-1140">1140</a></span>
-<span class="normal"><a href="#__codelineno-0-1141">1141</a></span>
-<span class="normal"><a href="#__codelineno-0-1142">1142</a></span>
-<span class="normal"><a href="#__codelineno-0-1143">1143</a></span>
-<span class="normal"><a href="#__codelineno-0-1144">1144</a></span>
-<span class="normal"><a href="#__codelineno-0-1145">1145</a></span>
-<span class="normal"><a href="#__codelineno-0-1146">1146</a></span>
-<span class="normal"><a href="#__codelineno-0-1147">1147</a></span>
-<span class="normal"><a href="#__codelineno-0-1148">1148</a></span>
-<span class="normal"><a href="#__codelineno-0-1149">1149</a></span>
-<span class="normal"><a href="#__codelineno-0-1150">1150</a></span>
-<span class="normal"><a href="#__codelineno-0-1151">1151</a></span>
-<span class="normal"><a href="#__codelineno-0-1152">1152</a></span>
-<span class="normal"><a href="#__codelineno-0-1153">1153</a></span>
-<span class="normal"><a href="#__codelineno-0-1154">1154</a></span>
-<span class="normal"><a href="#__codelineno-0-1155">1155</a></span>
-<span class="normal"><a href="#__codelineno-0-1156">1156</a></span>
-<span class="normal"><a href="#__codelineno-0-1157">1157</a></span>
-<span class="normal"><a href="#__codelineno-0-1158">1158</a></span>
-<span class="normal"><a href="#__codelineno-0-1159">1159</a></span>
-<span class="normal"><a href="#__codelineno-0-1160">1160</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1093"><a id="__codelineno-0-1093" name="__codelineno-0-1093"></a><span class="k">def</span><span class="w"> </span><span class="nf">anderson_darling_test</span><span class="p">(</span>
-</span><span id="__span-0-1094"><a id="__codelineno-0-1094" name="__codelineno-0-1094"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-1095"><a id="__codelineno-0-1095" name="__codelineno-0-1095"></a>    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
-</span><span id="__span-0-1096"><a id="__codelineno-0-1096" name="__codelineno-0-1096"></a>    <span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="__span-0-1097"><a id="__codelineno-0-1097" name="__codelineno-0-1097"></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-1098"><a id="__codelineno-0-1098" name="__codelineno-0-1098"></a>    <span class="n">parameters_estimated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-1099"><a id="__codelineno-0-1099" name="__codelineno-0-1099"></a>    <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-1100"><a id="__codelineno-0-1100" name="__codelineno-0-1100"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-</span><span id="__span-0-1101"><a id="__codelineno-0-1101" name="__codelineno-0-1101"></a><span class="w">    </span><span class="sd">"""Anderson-Darling test against a named distribution.</span>
+<span class="normal"><a href="#__codelineno-0-1134">1134</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1067"><a id="__codelineno-0-1067" name="__codelineno-0-1067"></a><span class="k">def</span><span class="w"> </span><span class="nf">anderson_darling_test</span><span class="p">(</span>
+</span><span id="__span-0-1068"><a id="__codelineno-0-1068" name="__codelineno-0-1068"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-1069"><a id="__codelineno-0-1069" name="__codelineno-0-1069"></a>    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+</span><span id="__span-0-1070"><a id="__codelineno-0-1070" name="__codelineno-0-1070"></a>    <span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-1071"><a id="__codelineno-0-1071" name="__codelineno-0-1071"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-1072"><a id="__codelineno-0-1072" name="__codelineno-0-1072"></a>    <span class="n">parameters_estimated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-1073"><a id="__codelineno-0-1073" name="__codelineno-0-1073"></a>    <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-1074"><a id="__codelineno-0-1074" name="__codelineno-0-1074"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+</span><span id="__span-0-1075"><a id="__codelineno-0-1075" name="__codelineno-0-1075"></a><span class="w">    </span><span class="sd">"""Anderson-Darling test against a named distribution.</span>
+</span><span id="__span-0-1076"><a id="__codelineno-0-1076" name="__codelineno-0-1076"></a>
+</span><span id="__span-0-1077"><a id="__codelineno-0-1077" name="__codelineno-0-1077"></a><span class="sd">    The statistic is</span>
+</span><span id="__span-0-1078"><a id="__codelineno-0-1078" name="__codelineno-0-1078"></a><span class="sd">    ``A^2 = -n - (1/n) sum_i (2i-1) [ln F(x_i) + ln(1 - F(x_{n+1-i}))]``.</span>
+</span><span id="__span-0-1079"><a id="__codelineno-0-1079" name="__codelineno-0-1079"></a>
+</span><span id="__span-0-1080"><a id="__codelineno-0-1080" name="__codelineno-0-1080"></a><span class="sd">    Unlike the Kolmogorov-Smirnov statistic this weights the tails, which</span>
+</span><span id="__span-0-1081"><a id="__codelineno-0-1081" name="__codelineno-0-1081"></a><span class="sd">    is what makes it the more useful of the two here: heavy-tailed families</span>
+</span><span id="__span-0-1082"><a id="__codelineno-0-1082" name="__codelineno-0-1082"></a><span class="sd">    differ from one another in the tail and agree in the middle.</span>
+</span><span id="__span-0-1083"><a id="__codelineno-0-1083" name="__codelineno-0-1083"></a>
+</span><span id="__span-0-1084"><a id="__codelineno-0-1084" name="__codelineno-0-1084"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-1085"><a id="__codelineno-0-1085" name="__codelineno-0-1085"></a><span class="sd">        data: Sample values.</span>
+</span><span id="__span-0-1086"><a id="__codelineno-0-1086" name="__codelineno-0-1086"></a><span class="sd">        distribution: Distribution name, as accepted by the fitting helpers.</span>
+</span><span id="__span-0-1087"><a id="__codelineno-0-1087" name="__codelineno-0-1087"></a><span class="sd">        parameters_estimated: Set when the parameters came from this same</span>
+</span><span id="__span-0-1088"><a id="__codelineno-0-1088" name="__codelineno-0-1088"></a><span class="sd">            sample; see :meth:`kolmogorov_smirnov_test`.</span>
+</span><span id="__span-0-1089"><a id="__codelineno-0-1089" name="__codelineno-0-1089"></a><span class="sd">        **params: Distribution parameters.</span>
+</span><span id="__span-0-1090"><a id="__codelineno-0-1090" name="__codelineno-0-1090"></a>
+</span><span id="__span-0-1091"><a id="__codelineno-0-1091" name="__codelineno-0-1091"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-1092"><a id="__codelineno-0-1092" name="__codelineno-0-1092"></a><span class="sd">        Dictionary with the same shape as</span>
+</span><span id="__span-0-1093"><a id="__codelineno-0-1093" name="__codelineno-0-1093"></a><span class="sd">        :meth:`kolmogorov_smirnov_test`.</span>
+</span><span id="__span-0-1094"><a id="__codelineno-0-1094" name="__codelineno-0-1094"></a>
+</span><span id="__span-0-1095"><a id="__codelineno-0-1095" name="__codelineno-0-1095"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-1096"><a id="__codelineno-0-1096" name="__codelineno-0-1096"></a><span class="sd">        ValueError: If the sample is empty or the distribution is unknown.</span>
+</span><span id="__span-0-1097"><a id="__codelineno-0-1097" name="__codelineno-0-1097"></a><span class="sd">    """</span>
+</span><span id="__span-0-1098"><a id="__codelineno-0-1098" name="__codelineno-0-1098"></a>    <span class="n">values</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+</span><span id="__span-0-1099"><a id="__codelineno-0-1099" name="__codelineno-0-1099"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</span><span id="__span-0-1100"><a id="__codelineno-0-1100" name="__codelineno-0-1100"></a>    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-0-1101"><a id="__codelineno-0-1101" name="__codelineno-0-1101"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"data must not be empty."</span><span class="p">)</span>
 </span><span id="__span-0-1102"><a id="__codelineno-0-1102" name="__codelineno-0-1102"></a>
-</span><span id="__span-0-1103"><a id="__codelineno-0-1103" name="__codelineno-0-1103"></a><span class="sd">    The statistic is</span>
-</span><span id="__span-0-1104"><a id="__codelineno-0-1104" name="__codelineno-0-1104"></a><span class="sd">    ``A^2 = -n - (1/n) sum_i (2i-1) [ln F(x_i) + ln(1 - F(x_{n+1-i}))]``.</span>
-</span><span id="__span-0-1105"><a id="__codelineno-0-1105" name="__codelineno-0-1105"></a>
-</span><span id="__span-0-1106"><a id="__codelineno-0-1106" name="__codelineno-0-1106"></a><span class="sd">    Unlike the Kolmogorov-Smirnov statistic this weights the tails, which</span>
-</span><span id="__span-0-1107"><a id="__codelineno-0-1107" name="__codelineno-0-1107"></a><span class="sd">    is what makes it the more useful of the two here: heavy-tailed families</span>
-</span><span id="__span-0-1108"><a id="__codelineno-0-1108" name="__codelineno-0-1108"></a><span class="sd">    differ from one another in the tail and agree in the middle.</span>
+</span><span id="__span-0-1103"><a id="__codelineno-0-1103" name="__codelineno-0-1103"></a>    <span class="n">dist</span> <span class="o">=</span> <span class="n">_resolve_distribution</span><span class="p">(</span><span class="n">distribution</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</span><span id="__span-0-1104"><a id="__codelineno-0-1104" name="__codelineno-0-1104"></a>
+</span><span id="__span-0-1105"><a id="__codelineno-0-1105" name="__codelineno-0-1105"></a>    <span class="c1"># Clamp away from 0 and 1: the statistic takes logs of both F and 1-F,</span>
+</span><span id="__span-0-1106"><a id="__codelineno-0-1106" name="__codelineno-0-1106"></a>    <span class="c1"># and a single saturated value would send the whole sum to infinity.</span>
+</span><span id="__span-0-1107"><a id="__codelineno-0-1107" name="__codelineno-0-1107"></a>    <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-15</span>
+</span><span id="__span-0-1108"><a id="__codelineno-0-1108" name="__codelineno-0-1108"></a>    <span class="n">cdfs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">eps</span><span class="p">),</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">eps</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
 </span><span id="__span-0-1109"><a id="__codelineno-0-1109" name="__codelineno-0-1109"></a>
-</span><span id="__span-0-1110"><a id="__codelineno-0-1110" name="__codelineno-0-1110"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-1111"><a id="__codelineno-0-1111" name="__codelineno-0-1111"></a><span class="sd">        data: Sample values.</span>
-</span><span id="__span-0-1112"><a id="__codelineno-0-1112" name="__codelineno-0-1112"></a><span class="sd">        distribution: Distribution name, as accepted by the fitting helpers.</span>
-</span><span id="__span-0-1113"><a id="__codelineno-0-1113" name="__codelineno-0-1113"></a><span class="sd">        parameters_estimated: Set when the parameters came from this same</span>
-</span><span id="__span-0-1114"><a id="__codelineno-0-1114" name="__codelineno-0-1114"></a><span class="sd">            sample; see :meth:`kolmogorov_smirnov_test`.</span>
-</span><span id="__span-0-1115"><a id="__codelineno-0-1115" name="__codelineno-0-1115"></a><span class="sd">        **params: Distribution parameters.</span>
-</span><span id="__span-0-1116"><a id="__codelineno-0-1116" name="__codelineno-0-1116"></a>
-</span><span id="__span-0-1117"><a id="__codelineno-0-1117" name="__codelineno-0-1117"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-1118"><a id="__codelineno-0-1118" name="__codelineno-0-1118"></a><span class="sd">        Dictionary with the same shape as</span>
-</span><span id="__span-0-1119"><a id="__codelineno-0-1119" name="__codelineno-0-1119"></a><span class="sd">        :meth:`kolmogorov_smirnov_test`.</span>
-</span><span id="__span-0-1120"><a id="__codelineno-0-1120" name="__codelineno-0-1120"></a>
-</span><span id="__span-0-1121"><a id="__codelineno-0-1121" name="__codelineno-0-1121"></a><span class="sd">    Raises:</span>
-</span><span id="__span-0-1122"><a id="__codelineno-0-1122" name="__codelineno-0-1122"></a><span class="sd">        ValueError: If the sample is empty or the distribution is unknown.</span>
-</span><span id="__span-0-1123"><a id="__codelineno-0-1123" name="__codelineno-0-1123"></a><span class="sd">    """</span>
-</span><span id="__span-0-1124"><a id="__codelineno-0-1124" name="__codelineno-0-1124"></a>    <span class="n">values</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
-</span><span id="__span-0-1125"><a id="__codelineno-0-1125" name="__codelineno-0-1125"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-</span><span id="__span-0-1126"><a id="__codelineno-0-1126" name="__codelineno-0-1126"></a>    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="__span-0-1127"><a id="__codelineno-0-1127" name="__codelineno-0-1127"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"data must not be empty."</span><span class="p">)</span>
-</span><span id="__span-0-1128"><a id="__codelineno-0-1128" name="__codelineno-0-1128"></a>
-</span><span id="__span-0-1129"><a id="__codelineno-0-1129" name="__codelineno-0-1129"></a>    <span class="n">dist</span> <span class="o">=</span> <span class="n">_resolve_distribution</span><span class="p">(</span><span class="n">distribution</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-</span><span id="__span-0-1130"><a id="__codelineno-0-1130" name="__codelineno-0-1130"></a>
-</span><span id="__span-0-1131"><a id="__codelineno-0-1131" name="__codelineno-0-1131"></a>    <span class="c1"># Clamp away from 0 and 1: the statistic takes logs of both F and 1-F,</span>
-</span><span id="__span-0-1132"><a id="__codelineno-0-1132" name="__codelineno-0-1132"></a>    <span class="c1"># and a single saturated value would send the whole sum to infinity.</span>
-</span><span id="__span-0-1133"><a id="__codelineno-0-1133" name="__codelineno-0-1133"></a>    <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-15</span>
-</span><span id="__span-0-1134"><a id="__codelineno-0-1134" name="__codelineno-0-1134"></a>    <span class="n">cdfs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">eps</span><span class="p">),</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">eps</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
-</span><span id="__span-0-1135"><a id="__codelineno-0-1135" name="__codelineno-0-1135"></a>
-</span><span id="__span-0-1136"><a id="__codelineno-0-1136" name="__codelineno-0-1136"></a>    <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
-</span><span id="__span-0-1137"><a id="__codelineno-0-1137" name="__codelineno-0-1137"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-</span><span id="__span-0-1138"><a id="__codelineno-0-1138" name="__codelineno-0-1138"></a>        <span class="n">total</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cdfs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cdfs</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">]))</span>
-</span><span id="__span-0-1139"><a id="__codelineno-0-1139" name="__codelineno-0-1139"></a>    <span class="n">statistic</span> <span class="o">=</span> <span class="o">-</span><span class="n">n</span> <span class="o">-</span> <span class="n">total</span> <span class="o">/</span> <span class="n">n</span>
-</span><span id="__span-0-1140"><a id="__codelineno-0-1140" name="__codelineno-0-1140"></a>
-</span><span id="__span-0-1141"><a id="__codelineno-0-1141" name="__codelineno-0-1141"></a>    <span class="n">p_value</span> <span class="o">=</span> <span class="n">_anderson_darling_p_value</span><span class="p">(</span><span class="n">statistic</span><span class="p">)</span>
-</span><span id="__span-0-1142"><a id="__codelineno-0-1142" name="__codelineno-0-1142"></a>    <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-0-1143"><a id="__codelineno-0-1143" name="__codelineno-0-1143"></a>        <span class="s2">"test"</span><span class="p">:</span> <span class="s2">"anderson-darling"</span><span class="p">,</span>
-</span><span id="__span-0-1144"><a id="__codelineno-0-1144" name="__codelineno-0-1144"></a>        <span class="s2">"statistic"</span><span class="p">:</span> <span class="n">statistic</span><span class="p">,</span>
-</span><span id="__span-0-1145"><a id="__codelineno-0-1145" name="__codelineno-0-1145"></a>        <span class="s2">"p_value"</span><span class="p">:</span> <span class="n">p_value</span><span class="p">,</span>
-</span><span id="__span-0-1146"><a id="__codelineno-0-1146" name="__codelineno-0-1146"></a>        <span class="s2">"reject"</span><span class="p">:</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
-</span><span id="__span-0-1147"><a id="__codelineno-0-1147" name="__codelineno-0-1147"></a>        <span class="s2">"alpha_level"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
-</span><span id="__span-0-1148"><a id="__codelineno-0-1148" name="__codelineno-0-1148"></a>        <span class="s2">"n"</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
-</span><span id="__span-0-1149"><a id="__codelineno-0-1149" name="__codelineno-0-1149"></a>        <span class="s2">"distribution"</span><span class="p">:</span> <span class="n">distribution</span><span class="p">,</span>
-</span><span id="__span-0-1150"><a id="__codelineno-0-1150" name="__codelineno-0-1150"></a>        <span class="s2">"parameters"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
-</span><span id="__span-0-1151"><a id="__codelineno-0-1151" name="__codelineno-0-1151"></a>        <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"asymptotic"</span><span class="p">,</span>
-</span><span id="__span-0-1152"><a id="__codelineno-0-1152" name="__codelineno-0-1152"></a>    <span class="p">}</span>
-</span><span id="__span-0-1153"><a id="__codelineno-0-1153" name="__codelineno-0-1153"></a>    <span class="k">if</span> <span class="n">parameters_estimated</span><span class="p">:</span>
-</span><span id="__span-0-1154"><a id="__codelineno-0-1154" name="__codelineno-0-1154"></a>        <span class="n">result</span><span class="p">[</span><span class="s2">"caveat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="__span-0-1155"><a id="__codelineno-0-1155" name="__codelineno-0-1155"></a>            <span class="s2">"Parameters were estimated from this sample, so the asymptotic "</span>
-</span><span id="__span-0-1156"><a id="__codelineno-0-1156" name="__codelineno-0-1156"></a>            <span class="s2">"null distribution does not apply and the p-value is "</span>
-</span><span id="__span-0-1157"><a id="__codelineno-0-1157" name="__codelineno-0-1157"></a>            <span class="s2">"conservative: the test rejects less often than its nominal "</span>
-</span><span id="__span-0-1158"><a id="__codelineno-0-1158" name="__codelineno-0-1158"></a>            <span class="s2">"level. Use a parametric bootstrap for a calibrated p-value."</span>
-</span><span id="__span-0-1159"><a id="__codelineno-0-1159" name="__codelineno-0-1159"></a>        <span class="p">)</span>
-</span><span id="__span-0-1160"><a id="__codelineno-0-1160" name="__codelineno-0-1160"></a>    <span class="k">return</span> <span class="n">result</span>
+</span><span id="__span-0-1110"><a id="__codelineno-0-1110" name="__codelineno-0-1110"></a>    <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span id="__span-0-1111"><a id="__codelineno-0-1111" name="__codelineno-0-1111"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+</span><span id="__span-0-1112"><a id="__codelineno-0-1112" name="__codelineno-0-1112"></a>        <span class="n">total</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cdfs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cdfs</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="p">]))</span>
+</span><span id="__span-0-1113"><a id="__codelineno-0-1113" name="__codelineno-0-1113"></a>    <span class="n">statistic</span> <span class="o">=</span> <span class="o">-</span><span class="n">n</span> <span class="o">-</span> <span class="n">total</span> <span class="o">/</span> <span class="n">n</span>
+</span><span id="__span-0-1114"><a id="__codelineno-0-1114" name="__codelineno-0-1114"></a>
+</span><span id="__span-0-1115"><a id="__codelineno-0-1115" name="__codelineno-0-1115"></a>    <span class="n">p_value</span> <span class="o">=</span> <span class="n">_anderson_darling_p_value</span><span class="p">(</span><span class="n">statistic</span><span class="p">)</span>
+</span><span id="__span-0-1116"><a id="__codelineno-0-1116" name="__codelineno-0-1116"></a>    <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-0-1117"><a id="__codelineno-0-1117" name="__codelineno-0-1117"></a>        <span class="s2">"test"</span><span class="p">:</span> <span class="s2">"anderson-darling"</span><span class="p">,</span>
+</span><span id="__span-0-1118"><a id="__codelineno-0-1118" name="__codelineno-0-1118"></a>        <span class="s2">"statistic"</span><span class="p">:</span> <span class="n">statistic</span><span class="p">,</span>
+</span><span id="__span-0-1119"><a id="__codelineno-0-1119" name="__codelineno-0-1119"></a>        <span class="s2">"p_value"</span><span class="p">:</span> <span class="n">p_value</span><span class="p">,</span>
+</span><span id="__span-0-1120"><a id="__codelineno-0-1120" name="__codelineno-0-1120"></a>        <span class="s2">"reject"</span><span class="p">:</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
+</span><span id="__span-0-1121"><a id="__codelineno-0-1121" name="__codelineno-0-1121"></a>        <span class="s2">"alpha_level"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
+</span><span id="__span-0-1122"><a id="__codelineno-0-1122" name="__codelineno-0-1122"></a>        <span class="s2">"n"</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
+</span><span id="__span-0-1123"><a id="__codelineno-0-1123" name="__codelineno-0-1123"></a>        <span class="s2">"distribution"</span><span class="p">:</span> <span class="n">distribution</span><span class="p">,</span>
+</span><span id="__span-0-1124"><a id="__codelineno-0-1124" name="__codelineno-0-1124"></a>        <span class="s2">"parameters"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
+</span><span id="__span-0-1125"><a id="__codelineno-0-1125" name="__codelineno-0-1125"></a>        <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"asymptotic"</span><span class="p">,</span>
+</span><span id="__span-0-1126"><a id="__codelineno-0-1126" name="__codelineno-0-1126"></a>    <span class="p">}</span>
+</span><span id="__span-0-1127"><a id="__codelineno-0-1127" name="__codelineno-0-1127"></a>    <span class="k">if</span> <span class="n">parameters_estimated</span><span class="p">:</span>
+</span><span id="__span-0-1128"><a id="__codelineno-0-1128" name="__codelineno-0-1128"></a>        <span class="n">result</span><span class="p">[</span><span class="s2">"caveat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-0-1129"><a id="__codelineno-0-1129" name="__codelineno-0-1129"></a>            <span class="s2">"Parameters were estimated from this sample, so the asymptotic "</span>
+</span><span id="__span-0-1130"><a id="__codelineno-0-1130" name="__codelineno-0-1130"></a>            <span class="s2">"null distribution does not apply and the p-value is "</span>
+</span><span id="__span-0-1131"><a id="__codelineno-0-1131" name="__codelineno-0-1131"></a>            <span class="s2">"conservative: the test rejects less often than its nominal "</span>
+</span><span id="__span-0-1132"><a id="__codelineno-0-1132" name="__codelineno-0-1132"></a>            <span class="s2">"level. Use a parametric bootstrap for a calibrated p-value."</span>
+</span><span id="__span-0-1133"><a id="__codelineno-0-1133" name="__codelineno-0-1133"></a>        <span class="p">)</span>
+</span><span id="__span-0-1134"><a id="__codelineno-0-1134" name="__codelineno-0-1134"></a>    <span class="k">return</span> <span class="n">result</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3265,7 +3199,33 @@ assumes, and the result carries a <code>caveat</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>heavytails/validation.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1026">1026</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1000">1000</a></span>
+<span class="normal"><a href="#__codelineno-0-1001">1001</a></span>
+<span class="normal"><a href="#__codelineno-0-1002">1002</a></span>
+<span class="normal"><a href="#__codelineno-0-1003">1003</a></span>
+<span class="normal"><a href="#__codelineno-0-1004">1004</a></span>
+<span class="normal"><a href="#__codelineno-0-1005">1005</a></span>
+<span class="normal"><a href="#__codelineno-0-1006">1006</a></span>
+<span class="normal"><a href="#__codelineno-0-1007">1007</a></span>
+<span class="normal"><a href="#__codelineno-0-1008">1008</a></span>
+<span class="normal"><a href="#__codelineno-0-1009">1009</a></span>
+<span class="normal"><a href="#__codelineno-0-1010">1010</a></span>
+<span class="normal"><a href="#__codelineno-0-1011">1011</a></span>
+<span class="normal"><a href="#__codelineno-0-1012">1012</a></span>
+<span class="normal"><a href="#__codelineno-0-1013">1013</a></span>
+<span class="normal"><a href="#__codelineno-0-1014">1014</a></span>
+<span class="normal"><a href="#__codelineno-0-1015">1015</a></span>
+<span class="normal"><a href="#__codelineno-0-1016">1016</a></span>
+<span class="normal"><a href="#__codelineno-0-1017">1017</a></span>
+<span class="normal"><a href="#__codelineno-0-1018">1018</a></span>
+<span class="normal"><a href="#__codelineno-0-1019">1019</a></span>
+<span class="normal"><a href="#__codelineno-0-1020">1020</a></span>
+<span class="normal"><a href="#__codelineno-0-1021">1021</a></span>
+<span class="normal"><a href="#__codelineno-0-1022">1022</a></span>
+<span class="normal"><a href="#__codelineno-0-1023">1023</a></span>
+<span class="normal"><a href="#__codelineno-0-1024">1024</a></span>
+<span class="normal"><a href="#__codelineno-0-1025">1025</a></span>
+<span class="normal"><a href="#__codelineno-0-1026">1026</a></span>
 <span class="normal"><a href="#__codelineno-0-1027">1027</a></span>
 <span class="normal"><a href="#__codelineno-0-1028">1028</a></span>
 <span class="normal"><a href="#__codelineno-0-1029">1029</a></span>
@@ -3304,155 +3264,77 @@ assumes, and the result carries a <code>caveat</code>.</p>
 <span class="normal"><a href="#__codelineno-0-1062">1062</a></span>
 <span class="normal"><a href="#__codelineno-0-1063">1063</a></span>
 <span class="normal"><a href="#__codelineno-0-1064">1064</a></span>
-<span class="normal"><a href="#__codelineno-0-1065">1065</a></span>
-<span class="normal"><a href="#__codelineno-0-1066">1066</a></span>
-<span class="normal"><a href="#__codelineno-0-1067">1067</a></span>
-<span class="normal"><a href="#__codelineno-0-1068">1068</a></span>
-<span class="normal"><a href="#__codelineno-0-1069">1069</a></span>
-<span class="normal"><a href="#__codelineno-0-1070">1070</a></span>
-<span class="normal"><a href="#__codelineno-0-1071">1071</a></span>
-<span class="normal"><a href="#__codelineno-0-1072">1072</a></span>
-<span class="normal"><a href="#__codelineno-0-1073">1073</a></span>
-<span class="normal"><a href="#__codelineno-0-1074">1074</a></span>
-<span class="normal"><a href="#__codelineno-0-1075">1075</a></span>
-<span class="normal"><a href="#__codelineno-0-1076">1076</a></span>
-<span class="normal"><a href="#__codelineno-0-1077">1077</a></span>
-<span class="normal"><a href="#__codelineno-0-1078">1078</a></span>
-<span class="normal"><a href="#__codelineno-0-1079">1079</a></span>
-<span class="normal"><a href="#__codelineno-0-1080">1080</a></span>
-<span class="normal"><a href="#__codelineno-0-1081">1081</a></span>
-<span class="normal"><a href="#__codelineno-0-1082">1082</a></span>
-<span class="normal"><a href="#__codelineno-0-1083">1083</a></span>
-<span class="normal"><a href="#__codelineno-0-1084">1084</a></span>
-<span class="normal"><a href="#__codelineno-0-1085">1085</a></span>
-<span class="normal"><a href="#__codelineno-0-1086">1086</a></span>
-<span class="normal"><a href="#__codelineno-0-1087">1087</a></span>
-<span class="normal"><a href="#__codelineno-0-1088">1088</a></span>
-<span class="normal"><a href="#__codelineno-0-1089">1089</a></span>
-<span class="normal"><a href="#__codelineno-0-1090">1090</a></span>
-<span class="normal"><a href="#__codelineno-0-1091">1091</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1026"><a id="__codelineno-0-1026" name="__codelineno-0-1026"></a><span class="k">def</span><span class="w"> </span><span class="nf">kolmogorov_smirnov_test</span><span class="p">(</span>
-</span><span id="__span-0-1027"><a id="__codelineno-0-1027" name="__codelineno-0-1027"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-1028"><a id="__codelineno-0-1028" name="__codelineno-0-1028"></a>    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
-</span><span id="__span-0-1029"><a id="__codelineno-0-1029" name="__codelineno-0-1029"></a>    <span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="__span-0-1030"><a id="__codelineno-0-1030" name="__codelineno-0-1030"></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-1031"><a id="__codelineno-0-1031" name="__codelineno-0-1031"></a>    <span class="n">parameters_estimated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-1032"><a id="__codelineno-0-1032" name="__codelineno-0-1032"></a>    <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-1033"><a id="__codelineno-0-1033" name="__codelineno-0-1033"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-</span><span id="__span-0-1034"><a id="__codelineno-0-1034" name="__codelineno-0-1034"></a><span class="w">    </span><span class="sd">"""Kolmogorov-Smirnov test against a named distribution.</span>
+<span class="normal"><a href="#__codelineno-0-1065">1065</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1000"><a id="__codelineno-0-1000" name="__codelineno-0-1000"></a><span class="k">def</span><span class="w"> </span><span class="nf">kolmogorov_smirnov_test</span><span class="p">(</span>
+</span><span id="__span-0-1001"><a id="__codelineno-0-1001" name="__codelineno-0-1001"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-1002"><a id="__codelineno-0-1002" name="__codelineno-0-1002"></a>    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+</span><span id="__span-0-1003"><a id="__codelineno-0-1003" name="__codelineno-0-1003"></a>    <span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-1004"><a id="__codelineno-0-1004" name="__codelineno-0-1004"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-1005"><a id="__codelineno-0-1005" name="__codelineno-0-1005"></a>    <span class="n">parameters_estimated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-1006"><a id="__codelineno-0-1006" name="__codelineno-0-1006"></a>    <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-1007"><a id="__codelineno-0-1007" name="__codelineno-0-1007"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+</span><span id="__span-0-1008"><a id="__codelineno-0-1008" name="__codelineno-0-1008"></a><span class="w">    </span><span class="sd">"""Kolmogorov-Smirnov test against a named distribution.</span>
+</span><span id="__span-0-1009"><a id="__codelineno-0-1009" name="__codelineno-0-1009"></a>
+</span><span id="__span-0-1010"><a id="__codelineno-0-1010" name="__codelineno-0-1010"></a><span class="sd">    The statistic is the largest vertical distance between the empirical</span>
+</span><span id="__span-0-1011"><a id="__codelineno-0-1011" name="__codelineno-0-1011"></a><span class="sd">    distribution function and the fitted one,</span>
+</span><span id="__span-0-1012"><a id="__codelineno-0-1012" name="__codelineno-0-1012"></a><span class="sd">    ``D = max_i max(i/n - F(x_i), F(x_i) - (i-1)/n)``.</span>
+</span><span id="__span-0-1013"><a id="__codelineno-0-1013" name="__codelineno-0-1013"></a>
+</span><span id="__span-0-1014"><a id="__codelineno-0-1014" name="__codelineno-0-1014"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-1015"><a id="__codelineno-0-1015" name="__codelineno-0-1015"></a><span class="sd">        data: Sample values.</span>
+</span><span id="__span-0-1016"><a id="__codelineno-0-1016" name="__codelineno-0-1016"></a><span class="sd">        distribution: Distribution name, as accepted by the fitting helpers.</span>
+</span><span id="__span-0-1017"><a id="__codelineno-0-1017" name="__codelineno-0-1017"></a><span class="sd">        parameters_estimated: Set when the parameters came from this same</span>
+</span><span id="__span-0-1018"><a id="__codelineno-0-1018" name="__codelineno-0-1018"></a><span class="sd">            sample. The reported p-value is then conservative, because the</span>
+</span><span id="__span-0-1019"><a id="__codelineno-0-1019" name="__codelineno-0-1019"></a><span class="sd">            fitted distribution is closer to the data than the null</span>
+</span><span id="__span-0-1020"><a id="__codelineno-0-1020" name="__codelineno-0-1020"></a><span class="sd">            assumes, and the result carries a ``caveat``.</span>
+</span><span id="__span-0-1021"><a id="__codelineno-0-1021" name="__codelineno-0-1021"></a><span class="sd">        **params: Distribution parameters.</span>
+</span><span id="__span-0-1022"><a id="__codelineno-0-1022" name="__codelineno-0-1022"></a>
+</span><span id="__span-0-1023"><a id="__codelineno-0-1023" name="__codelineno-0-1023"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-1024"><a id="__codelineno-0-1024" name="__codelineno-0-1024"></a><span class="sd">        Dictionary with ``statistic``, ``p_value``, ``reject``, ``n``,</span>
+</span><span id="__span-0-1025"><a id="__codelineno-0-1025" name="__codelineno-0-1025"></a><span class="sd">        ``distribution``, ``parameters`` and ``method``, plus ``caveat``</span>
+</span><span id="__span-0-1026"><a id="__codelineno-0-1026" name="__codelineno-0-1026"></a><span class="sd">        when the p-value should not be read at face value.</span>
+</span><span id="__span-0-1027"><a id="__codelineno-0-1027" name="__codelineno-0-1027"></a>
+</span><span id="__span-0-1028"><a id="__codelineno-0-1028" name="__codelineno-0-1028"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-1029"><a id="__codelineno-0-1029" name="__codelineno-0-1029"></a><span class="sd">        ValueError: If the sample is empty or the distribution is unknown.</span>
+</span><span id="__span-0-1030"><a id="__codelineno-0-1030" name="__codelineno-0-1030"></a><span class="sd">    """</span>
+</span><span id="__span-0-1031"><a id="__codelineno-0-1031" name="__codelineno-0-1031"></a>    <span class="n">values</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+</span><span id="__span-0-1032"><a id="__codelineno-0-1032" name="__codelineno-0-1032"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</span><span id="__span-0-1033"><a id="__codelineno-0-1033" name="__codelineno-0-1033"></a>    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-0-1034"><a id="__codelineno-0-1034" name="__codelineno-0-1034"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"data must not be empty."</span><span class="p">)</span>
 </span><span id="__span-0-1035"><a id="__codelineno-0-1035" name="__codelineno-0-1035"></a>
-</span><span id="__span-0-1036"><a id="__codelineno-0-1036" name="__codelineno-0-1036"></a><span class="sd">    The statistic is the largest vertical distance between the empirical</span>
-</span><span id="__span-0-1037"><a id="__codelineno-0-1037" name="__codelineno-0-1037"></a><span class="sd">    distribution function and the fitted one,</span>
-</span><span id="__span-0-1038"><a id="__codelineno-0-1038" name="__codelineno-0-1038"></a><span class="sd">    ``D = max_i max(i/n - F(x_i), F(x_i) - (i-1)/n)``.</span>
-</span><span id="__span-0-1039"><a id="__codelineno-0-1039" name="__codelineno-0-1039"></a>
-</span><span id="__span-0-1040"><a id="__codelineno-0-1040" name="__codelineno-0-1040"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-1041"><a id="__codelineno-0-1041" name="__codelineno-0-1041"></a><span class="sd">        data: Sample values.</span>
-</span><span id="__span-0-1042"><a id="__codelineno-0-1042" name="__codelineno-0-1042"></a><span class="sd">        distribution: Distribution name, as accepted by the fitting helpers.</span>
-</span><span id="__span-0-1043"><a id="__codelineno-0-1043" name="__codelineno-0-1043"></a><span class="sd">        parameters_estimated: Set when the parameters came from this same</span>
-</span><span id="__span-0-1044"><a id="__codelineno-0-1044" name="__codelineno-0-1044"></a><span class="sd">            sample. The reported p-value is then conservative, because the</span>
-</span><span id="__span-0-1045"><a id="__codelineno-0-1045" name="__codelineno-0-1045"></a><span class="sd">            fitted distribution is closer to the data than the null</span>
-</span><span id="__span-0-1046"><a id="__codelineno-0-1046" name="__codelineno-0-1046"></a><span class="sd">            assumes, and the result carries a ``caveat``.</span>
-</span><span id="__span-0-1047"><a id="__codelineno-0-1047" name="__codelineno-0-1047"></a><span class="sd">        **params: Distribution parameters.</span>
-</span><span id="__span-0-1048"><a id="__codelineno-0-1048" name="__codelineno-0-1048"></a>
-</span><span id="__span-0-1049"><a id="__codelineno-0-1049" name="__codelineno-0-1049"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-1050"><a id="__codelineno-0-1050" name="__codelineno-0-1050"></a><span class="sd">        Dictionary with ``statistic``, ``p_value``, ``reject``, ``n``,</span>
-</span><span id="__span-0-1051"><a id="__codelineno-0-1051" name="__codelineno-0-1051"></a><span class="sd">        ``distribution``, ``parameters`` and ``method``, plus ``caveat``</span>
-</span><span id="__span-0-1052"><a id="__codelineno-0-1052" name="__codelineno-0-1052"></a><span class="sd">        when the p-value should not be read at face value.</span>
-</span><span id="__span-0-1053"><a id="__codelineno-0-1053" name="__codelineno-0-1053"></a>
-</span><span id="__span-0-1054"><a id="__codelineno-0-1054" name="__codelineno-0-1054"></a><span class="sd">    Raises:</span>
-</span><span id="__span-0-1055"><a id="__codelineno-0-1055" name="__codelineno-0-1055"></a><span class="sd">        ValueError: If the sample is empty or the distribution is unknown.</span>
-</span><span id="__span-0-1056"><a id="__codelineno-0-1056" name="__codelineno-0-1056"></a><span class="sd">    """</span>
-</span><span id="__span-0-1057"><a id="__codelineno-0-1057" name="__codelineno-0-1057"></a>    <span class="n">values</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
-</span><span id="__span-0-1058"><a id="__codelineno-0-1058" name="__codelineno-0-1058"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-</span><span id="__span-0-1059"><a id="__codelineno-0-1059" name="__codelineno-0-1059"></a>    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="__span-0-1060"><a id="__codelineno-0-1060" name="__codelineno-0-1060"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"data must not be empty."</span><span class="p">)</span>
-</span><span id="__span-0-1061"><a id="__codelineno-0-1061" name="__codelineno-0-1061"></a>
-</span><span id="__span-0-1062"><a id="__codelineno-0-1062" name="__codelineno-0-1062"></a>    <span class="n">dist</span> <span class="o">=</span> <span class="n">_resolve_distribution</span><span class="p">(</span><span class="n">distribution</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-</span><span id="__span-0-1063"><a id="__codelineno-0-1063" name="__codelineno-0-1063"></a>
-</span><span id="__span-0-1064"><a id="__codelineno-0-1064" name="__codelineno-0-1064"></a>    <span class="n">d_plus</span> <span class="o">=</span> <span class="mf">0.0</span>
-</span><span id="__span-0-1065"><a id="__codelineno-0-1065" name="__codelineno-0-1065"></a>    <span class="n">d_minus</span> <span class="o">=</span> <span class="mf">0.0</span>
-</span><span id="__span-0-1066"><a id="__codelineno-0-1066" name="__codelineno-0-1066"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-</span><span id="__span-0-1067"><a id="__codelineno-0-1067" name="__codelineno-0-1067"></a>        <span class="n">cdf</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</span><span id="__span-0-1068"><a id="__codelineno-0-1068" name="__codelineno-0-1068"></a>        <span class="n">d_plus</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d_plus</span><span class="p">,</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="o">-</span> <span class="n">cdf</span><span class="p">)</span>
-</span><span id="__span-0-1069"><a id="__codelineno-0-1069" name="__codelineno-0-1069"></a>        <span class="n">d_minus</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d_minus</span><span class="p">,</span> <span class="n">cdf</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span>
-</span><span id="__span-0-1070"><a id="__codelineno-0-1070" name="__codelineno-0-1070"></a>    <span class="n">statistic</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d_plus</span><span class="p">,</span> <span class="n">d_minus</span><span class="p">)</span>
-</span><span id="__span-0-1071"><a id="__codelineno-0-1071" name="__codelineno-0-1071"></a>
-</span><span id="__span-0-1072"><a id="__codelineno-0-1072" name="__codelineno-0-1072"></a>    <span class="n">p_value</span> <span class="o">=</span> <span class="n">_kolmogorov_p_value</span><span class="p">(</span><span class="n">statistic</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-</span><span id="__span-0-1073"><a id="__codelineno-0-1073" name="__codelineno-0-1073"></a>    <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-0-1074"><a id="__codelineno-0-1074" name="__codelineno-0-1074"></a>        <span class="s2">"test"</span><span class="p">:</span> <span class="s2">"kolmogorov-smirnov"</span><span class="p">,</span>
-</span><span id="__span-0-1075"><a id="__codelineno-0-1075" name="__codelineno-0-1075"></a>        <span class="s2">"statistic"</span><span class="p">:</span> <span class="n">statistic</span><span class="p">,</span>
-</span><span id="__span-0-1076"><a id="__codelineno-0-1076" name="__codelineno-0-1076"></a>        <span class="s2">"p_value"</span><span class="p">:</span> <span class="n">p_value</span><span class="p">,</span>
-</span><span id="__span-0-1077"><a id="__codelineno-0-1077" name="__codelineno-0-1077"></a>        <span class="s2">"reject"</span><span class="p">:</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
-</span><span id="__span-0-1078"><a id="__codelineno-0-1078" name="__codelineno-0-1078"></a>        <span class="s2">"alpha_level"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
-</span><span id="__span-0-1079"><a id="__codelineno-0-1079" name="__codelineno-0-1079"></a>        <span class="s2">"n"</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
-</span><span id="__span-0-1080"><a id="__codelineno-0-1080" name="__codelineno-0-1080"></a>        <span class="s2">"distribution"</span><span class="p">:</span> <span class="n">distribution</span><span class="p">,</span>
-</span><span id="__span-0-1081"><a id="__codelineno-0-1081" name="__codelineno-0-1081"></a>        <span class="s2">"parameters"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
-</span><span id="__span-0-1082"><a id="__codelineno-0-1082" name="__codelineno-0-1082"></a>        <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"asymptotic"</span><span class="p">,</span>
-</span><span id="__span-0-1083"><a id="__codelineno-0-1083" name="__codelineno-0-1083"></a>    <span class="p">}</span>
-</span><span id="__span-0-1084"><a id="__codelineno-0-1084" name="__codelineno-0-1084"></a>    <span class="k">if</span> <span class="n">parameters_estimated</span><span class="p">:</span>
-</span><span id="__span-0-1085"><a id="__codelineno-0-1085" name="__codelineno-0-1085"></a>        <span class="n">result</span><span class="p">[</span><span class="s2">"caveat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="__span-0-1086"><a id="__codelineno-0-1086" name="__codelineno-0-1086"></a>            <span class="s2">"Parameters were estimated from this sample, so the asymptotic "</span>
-</span><span id="__span-0-1087"><a id="__codelineno-0-1087" name="__codelineno-0-1087"></a>            <span class="s2">"null distribution does not apply and the p-value is "</span>
-</span><span id="__span-0-1088"><a id="__codelineno-0-1088" name="__codelineno-0-1088"></a>            <span class="s2">"conservative: the test rejects less often than its nominal "</span>
-</span><span id="__span-0-1089"><a id="__codelineno-0-1089" name="__codelineno-0-1089"></a>            <span class="s2">"level. Use a parametric bootstrap for a calibrated p-value."</span>
-</span><span id="__span-0-1090"><a id="__codelineno-0-1090" name="__codelineno-0-1090"></a>        <span class="p">)</span>
-</span><span id="__span-0-1091"><a id="__codelineno-0-1091" name="__codelineno-0-1091"></a>    <span class="k">return</span> <span class="n">result</span>
+</span><span id="__span-0-1036"><a id="__codelineno-0-1036" name="__codelineno-0-1036"></a>    <span class="n">dist</span> <span class="o">=</span> <span class="n">_resolve_distribution</span><span class="p">(</span><span class="n">distribution</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</span><span id="__span-0-1037"><a id="__codelineno-0-1037" name="__codelineno-0-1037"></a>
+</span><span id="__span-0-1038"><a id="__codelineno-0-1038" name="__codelineno-0-1038"></a>    <span class="n">d_plus</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span id="__span-0-1039"><a id="__codelineno-0-1039" name="__codelineno-0-1039"></a>    <span class="n">d_minus</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span id="__span-0-1040"><a id="__codelineno-0-1040" name="__codelineno-0-1040"></a>    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+</span><span id="__span-0-1041"><a id="__codelineno-0-1041" name="__codelineno-0-1041"></a>        <span class="n">cdf</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span id="__span-0-1042"><a id="__codelineno-0-1042" name="__codelineno-0-1042"></a>        <span class="n">d_plus</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d_plus</span><span class="p">,</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="o">-</span> <span class="n">cdf</span><span class="p">)</span>
+</span><span id="__span-0-1043"><a id="__codelineno-0-1043" name="__codelineno-0-1043"></a>        <span class="n">d_minus</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d_minus</span><span class="p">,</span> <span class="n">cdf</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span>
+</span><span id="__span-0-1044"><a id="__codelineno-0-1044" name="__codelineno-0-1044"></a>    <span class="n">statistic</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d_plus</span><span class="p">,</span> <span class="n">d_minus</span><span class="p">)</span>
+</span><span id="__span-0-1045"><a id="__codelineno-0-1045" name="__codelineno-0-1045"></a>
+</span><span id="__span-0-1046"><a id="__codelineno-0-1046" name="__codelineno-0-1046"></a>    <span class="n">p_value</span> <span class="o">=</span> <span class="n">_kolmogorov_p_value</span><span class="p">(</span><span class="n">statistic</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span><span id="__span-0-1047"><a id="__codelineno-0-1047" name="__codelineno-0-1047"></a>    <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-0-1048"><a id="__codelineno-0-1048" name="__codelineno-0-1048"></a>        <span class="s2">"test"</span><span class="p">:</span> <span class="s2">"kolmogorov-smirnov"</span><span class="p">,</span>
+</span><span id="__span-0-1049"><a id="__codelineno-0-1049" name="__codelineno-0-1049"></a>        <span class="s2">"statistic"</span><span class="p">:</span> <span class="n">statistic</span><span class="p">,</span>
+</span><span id="__span-0-1050"><a id="__codelineno-0-1050" name="__codelineno-0-1050"></a>        <span class="s2">"p_value"</span><span class="p">:</span> <span class="n">p_value</span><span class="p">,</span>
+</span><span id="__span-0-1051"><a id="__codelineno-0-1051" name="__codelineno-0-1051"></a>        <span class="s2">"reject"</span><span class="p">:</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
+</span><span id="__span-0-1052"><a id="__codelineno-0-1052" name="__codelineno-0-1052"></a>        <span class="s2">"alpha_level"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
+</span><span id="__span-0-1053"><a id="__codelineno-0-1053" name="__codelineno-0-1053"></a>        <span class="s2">"n"</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
+</span><span id="__span-0-1054"><a id="__codelineno-0-1054" name="__codelineno-0-1054"></a>        <span class="s2">"distribution"</span><span class="p">:</span> <span class="n">distribution</span><span class="p">,</span>
+</span><span id="__span-0-1055"><a id="__codelineno-0-1055" name="__codelineno-0-1055"></a>        <span class="s2">"parameters"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
+</span><span id="__span-0-1056"><a id="__codelineno-0-1056" name="__codelineno-0-1056"></a>        <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"asymptotic"</span><span class="p">,</span>
+</span><span id="__span-0-1057"><a id="__codelineno-0-1057" name="__codelineno-0-1057"></a>    <span class="p">}</span>
+</span><span id="__span-0-1058"><a id="__codelineno-0-1058" name="__codelineno-0-1058"></a>    <span class="k">if</span> <span class="n">parameters_estimated</span><span class="p">:</span>
+</span><span id="__span-0-1059"><a id="__codelineno-0-1059" name="__codelineno-0-1059"></a>        <span class="n">result</span><span class="p">[</span><span class="s2">"caveat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-0-1060"><a id="__codelineno-0-1060" name="__codelineno-0-1060"></a>            <span class="s2">"Parameters were estimated from this sample, so the asymptotic "</span>
+</span><span id="__span-0-1061"><a id="__codelineno-0-1061" name="__codelineno-0-1061"></a>            <span class="s2">"null distribution does not apply and the p-value is "</span>
+</span><span id="__span-0-1062"><a id="__codelineno-0-1062" name="__codelineno-0-1062"></a>            <span class="s2">"conservative: the test rejects less often than its nominal "</span>
+</span><span id="__span-0-1063"><a id="__codelineno-0-1063" name="__codelineno-0-1063"></a>            <span class="s2">"level. Use a parametric bootstrap for a calibrated p-value."</span>
+</span><span id="__span-0-1064"><a id="__codelineno-0-1064" name="__codelineno-0-1064"></a>        <span class="p">)</span>
+</span><span id="__span-0-1065"><a id="__codelineno-0-1065" name="__codelineno-0-1065"></a>    <span class="k">return</span> <span class="n">result</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
 
 </div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h3 id="heavytails.validation.MathematicalPropertyVerification" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MathematicalPropertyVerification</span>
-
-
-<a href="#heavytails.validation.MathematicalPropertyVerification" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Verify theoretical mathematical properties of distributions.</p>
-<p>Properties to verify:
-- Moment calculations (when they exist)
-- Tail behavior asymptotic properties
-- Distribution relationships (e.g., LogNormal from Normal)
-- Scaling and location transformations
-- Convolution properties where applicable</p>
-
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3881,66 +3763,6 @@ against scipy implementations where available.</p>
     </div>
 
 </div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h3 id="heavytails.validation.ParameterEstimationValidation" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">ParameterEstimationValidation</span>
-
-
-<a href="#heavytails.validation.ParameterEstimationValidation" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">ParameterEstimationValidation</span><span class="p">()</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Cross-validation for parameter estimation accuracy.</p>
-<p>Validation approaches:
-- Generate data with known parameters
-- Estimate parameters using various methods
-- Compare estimated vs true parameters
-- Test across different sample sizes
-- Evaluate bias and variance of estimators</p>
-
-
-
-
-
-
-
-
-                  <details class="mkdocstrings-source">
-                    <summary>Source code in <code>heavytails/validation.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-788">788</a></span>
-<span class="normal"><a href="#__codelineno-0-789">789</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-788"><a id="__codelineno-0-788" name="__codelineno-0-788"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-789"><a id="__codelineno-0-789" name="__codelineno-0-789"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">validation_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-</span></code></pre></div></td></tr></table></div>
-                  </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4708,72 +4530,6 @@ against scipy implementations where available.</p>
 
 </div>
 
-<div class="doc doc-object doc-class">
-
-
-
-<h3 id="heavytails.validation.RegressionTesting" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">RegressionTesting</span>
-
-
-<a href="#heavytails.validation.RegressionTesting" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">RegressionTesting</span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">reference_db_path</span><span class="o">=</span><span class="s2">"tests/reference_values.json"</span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Automated regression testing for mathematical accuracy.</p>
-<p>Should maintain a database of:
-- Reference values for key computations
-- Expected results for edge cases
-- Performance benchmarks
-- Historical accuracy metrics</p>
-<p>Any changes that affect accuracy should be flagged.</p>
-
-
-
-
-
-
-
-
-                  <details class="mkdocstrings-source">
-                    <summary>Source code in <code>heavytails/validation.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1177">1177</a></span>
-<span class="normal"><a href="#__codelineno-0-1178">1178</a></span>
-<span class="normal"><a href="#__codelineno-0-1179">1179</a></span>
-<span class="normal"><a href="#__codelineno-0-1180">1180</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1177"><a id="__codelineno-0-1177" name="__codelineno-0-1177"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference_db_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"tests/reference_values.json"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-1178"><a id="__codelineno-0-1178" name="__codelineno-0-1178"></a>    <span class="c1"># TODO: Load reference values database</span>
-</span><span id="__span-0-1179"><a id="__codelineno-0-1179" name="__codelineno-0-1179"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">reference_db_path</span> <span class="o">=</span> <span class="n">reference_db_path</span>
-</span><span id="__span-0-1180"><a id="__codelineno-0-1180" name="__codelineno-0-1180"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">reference_values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span></code></pre></div></td></tr></table></div>
-                  </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
 
 <div class="doc doc-object doc-function">
 
@@ -5081,68 +4837,6 @@ such as PPF computation via bisection/Newton-Raphson.</p>
 </span><span id="__span-0-770"><a id="__codelineno-0-770" name="__codelineno-0-770"></a>            <span class="s2">"converged"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
 </span><span id="__span-0-771"><a id="__codelineno-0-771" name="__codelineno-0-771"></a>            <span class="s2">"error"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
 </span><span id="__span-0-772"><a id="__codelineno-0-772" name="__codelineno-0-772"></a>        <span class="p">}</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="heavytails.validation.fuzz_testing" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">fuzz_testing</span>
-
-
-<a href="#heavytails.validation.fuzz_testing" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">fuzz_testing</span><span class="p">()</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Fuzzing tests for robustness against malformed inputs.</p>
-<p>Should test:
-- Random parameter combinations
-- Extreme parameter values
-- Invalid input types
-- Boundary conditions
-- Memory stress scenarios</p>
-<p>Goal: Ensure library never crashes, always provides informative errors.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>heavytails/validation.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1196">1196</a></span>
-<span class="normal"><a href="#__codelineno-0-1197">1197</a></span>
-<span class="normal"><a href="#__codelineno-0-1198">1198</a></span>
-<span class="normal"><a href="#__codelineno-0-1199">1199</a></span>
-<span class="normal"><a href="#__codelineno-0-1200">1200</a></span>
-<span class="normal"><a href="#__codelineno-0-1201">1201</a></span>
-<span class="normal"><a href="#__codelineno-0-1202">1202</a></span>
-<span class="normal"><a href="#__codelineno-0-1203">1203</a></span>
-<span class="normal"><a href="#__codelineno-0-1204">1204</a></span>
-<span class="normal"><a href="#__codelineno-0-1205">1205</a></span>
-<span class="normal"><a href="#__codelineno-0-1206">1206</a></span>
-<span class="normal"><a href="#__codelineno-0-1207">1207</a></span>
-<span class="normal"><a href="#__codelineno-0-1208">1208</a></span>
-<span class="normal"><a href="#__codelineno-0-1209">1209</a></span>
-<span class="normal"><a href="#__codelineno-0-1210">1210</a></span>
-<span class="normal"><a href="#__codelineno-0-1211">1211</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1196"><a id="__codelineno-0-1196" name="__codelineno-0-1196"></a><span class="k">def</span><span class="w"> </span><span class="nf">fuzz_testing</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-1197"><a id="__codelineno-0-1197" name="__codelineno-0-1197"></a><span class="w">    </span><span class="sd">"""</span>
-</span><span id="__span-0-1198"><a id="__codelineno-0-1198" name="__codelineno-0-1198"></a><span class="sd">    Fuzzing tests for robustness against malformed inputs.</span>
-</span><span id="__span-0-1199"><a id="__codelineno-0-1199" name="__codelineno-0-1199"></a>
-</span><span id="__span-0-1200"><a id="__codelineno-0-1200" name="__codelineno-0-1200"></a><span class="sd">    Should test:</span>
-</span><span id="__span-0-1201"><a id="__codelineno-0-1201" name="__codelineno-0-1201"></a><span class="sd">    - Random parameter combinations</span>
-</span><span id="__span-0-1202"><a id="__codelineno-0-1202" name="__codelineno-0-1202"></a><span class="sd">    - Extreme parameter values</span>
-</span><span id="__span-0-1203"><a id="__codelineno-0-1203" name="__codelineno-0-1203"></a><span class="sd">    - Invalid input types</span>
-</span><span id="__span-0-1204"><a id="__codelineno-0-1204" name="__codelineno-0-1204"></a><span class="sd">    - Boundary conditions</span>
-</span><span id="__span-0-1205"><a id="__codelineno-0-1205" name="__codelineno-0-1205"></a><span class="sd">    - Memory stress scenarios</span>
-</span><span id="__span-0-1206"><a id="__codelineno-0-1206" name="__codelineno-0-1206"></a>
-</span><span id="__span-0-1207"><a id="__codelineno-0-1207" name="__codelineno-0-1207"></a><span class="sd">    Goal: Ensure library never crashes, always provides informative errors.</span>
-</span><span id="__span-0-1208"><a id="__codelineno-0-1208" name="__codelineno-0-1208"></a><span class="sd">    """</span>
-</span><span id="__span-0-1209"><a id="__codelineno-0-1209" name="__codelineno-0-1209"></a>    <span class="c1"># TODO: Implement comprehensive fuzzing test suite</span>
-</span><span id="__span-0-1210"><a id="__codelineno-0-1210" name="__codelineno-0-1210"></a>    <span class="c1"># LABELS: fuzzing, robustness</span>
-</span><span id="__span-0-1211"><a id="__codelineno-0-1211" name="__codelineno-0-1211"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Fuzz testing not implemented"</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5539,182 +5233,55 @@ specific warnings and suggested fixes.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>heavytails/validation.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-805">805</a></span>
-<span class="normal"><a href="#__codelineno-0-806">806</a></span>
-<span class="normal"><a href="#__codelineno-0-807">807</a></span>
-<span class="normal"><a href="#__codelineno-0-808">808</a></span>
-<span class="normal"><a href="#__codelineno-0-809">809</a></span>
-<span class="normal"><a href="#__codelineno-0-810">810</a></span>
-<span class="normal"><a href="#__codelineno-0-811">811</a></span>
-<span class="normal"><a href="#__codelineno-0-812">812</a></span>
-<span class="normal"><a href="#__codelineno-0-813">813</a></span>
-<span class="normal"><a href="#__codelineno-0-814">814</a></span>
-<span class="normal"><a href="#__codelineno-0-815">815</a></span>
-<span class="normal"><a href="#__codelineno-0-816">816</a></span>
-<span class="normal"><a href="#__codelineno-0-817">817</a></span>
-<span class="normal"><a href="#__codelineno-0-818">818</a></span>
-<span class="normal"><a href="#__codelineno-0-819">819</a></span>
-<span class="normal"><a href="#__codelineno-0-820">820</a></span>
-<span class="normal"><a href="#__codelineno-0-821">821</a></span>
-<span class="normal"><a href="#__codelineno-0-822">822</a></span>
-<span class="normal"><a href="#__codelineno-0-823">823</a></span>
-<span class="normal"><a href="#__codelineno-0-824">824</a></span>
-<span class="normal"><a href="#__codelineno-0-825">825</a></span>
-<span class="normal"><a href="#__codelineno-0-826">826</a></span>
-<span class="normal"><a href="#__codelineno-0-827">827</a></span>
-<span class="normal"><a href="#__codelineno-0-828">828</a></span>
-<span class="normal"><a href="#__codelineno-0-829">829</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-805"><a id="__codelineno-0-805" name="__codelineno-0-805"></a><span class="k">def</span><span class="w"> </span><span class="nf">ppf_edge_case_handler</span><span class="p">(</span><span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span><span id="__span-0-806"><a id="__codelineno-0-806" name="__codelineno-0-806"></a><span class="w">    </span><span class="sd">"""</span>
-</span><span id="__span-0-807"><a id="__codelineno-0-807" name="__codelineno-0-807"></a><span class="sd">    Handle edge cases in quantile function calculation.</span>
-</span><span id="__span-0-808"><a id="__codelineno-0-808" name="__codelineno-0-808"></a>
-</span><span id="__span-0-809"><a id="__codelineno-0-809" name="__codelineno-0-809"></a><span class="sd">    Problematic cases:</span>
-</span><span id="__span-0-810"><a id="__codelineno-0-810" name="__codelineno-0-810"></a><span class="sd">    - u very close to 0 or 1</span>
-</span><span id="__span-0-811"><a id="__codelineno-0-811" name="__codelineno-0-811"></a><span class="sd">    - Parameters at boundary values</span>
-</span><span id="__span-0-812"><a id="__codelineno-0-812" name="__codelineno-0-812"></a><span class="sd">    - Distributions with bounded support</span>
-</span><span id="__span-0-813"><a id="__codelineno-0-813" name="__codelineno-0-813"></a><span class="sd">    - Numerical overflow/underflow</span>
-</span><span id="__span-0-814"><a id="__codelineno-0-814" name="__codelineno-0-814"></a>
-</span><span id="__span-0-815"><a id="__codelineno-0-815" name="__codelineno-0-815"></a><span class="sd">    Should provide graceful degradation and informative errors.</span>
-</span><span id="__span-0-816"><a id="__codelineno-0-816" name="__codelineno-0-816"></a><span class="sd">    """</span>
-</span><span id="__span-0-817"><a id="__codelineno-0-817" name="__codelineno-0-817"></a>    <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">distribution</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>  <span class="c1"># Reserved for future implementation</span>
-</span><span id="__span-0-818"><a id="__codelineno-0-818" name="__codelineno-0-818"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
-</span><span id="__span-0-819"><a id="__codelineno-0-819" name="__codelineno-0-819"></a>        <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="__span-0-820"><a id="__codelineno-0-820" name="__codelineno-0-820"></a>            <span class="c1"># TODO: Return theoretical minimum (support lower bound)</span>
-</span><span id="__span-0-821"><a id="__codelineno-0-821" name="__codelineno-0-821"></a>            <span class="k">pass</span>
-</span><span id="__span-0-822"><a id="__codelineno-0-822" name="__codelineno-0-822"></a>        <span class="k">elif</span> <span class="n">u</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="__span-0-823"><a id="__codelineno-0-823" name="__codelineno-0-823"></a>            <span class="c1"># TODO: Return theoretical maximum (support upper bound)</span>
-</span><span id="__span-0-824"><a id="__codelineno-0-824" name="__codelineno-0-824"></a>            <span class="k">pass</span>
-</span><span id="__span-0-825"><a id="__codelineno-0-825" name="__codelineno-0-825"></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-826"><a id="__codelineno-0-826" name="__codelineno-0-826"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"u must be in (0,1), got </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</span><span id="__span-0-827"><a id="__codelineno-0-827" name="__codelineno-0-827"></a>
-</span><span id="__span-0-828"><a id="__codelineno-0-828" name="__codelineno-0-828"></a>    <span class="c1"># TODO: Implement robust edge case handling for all distributions</span>
-</span><span id="__span-0-829"><a id="__codelineno-0-829" name="__codelineno-0-829"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"PPF edge case handling not fully implemented"</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="heavytails.validation.python_version_compatibility" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">python_version_compatibility</span>
-
-
-<a href="#heavytails.validation.python_version_compatibility" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">python_version_compatibility</span><span class="p">()</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Test compatibility across different Python versions.</p>
-<p>Should test:
-- Python 3.10, 3.11, 3.12 compatibility
-- Different operating systems (Linux, Windows, macOS)
-- Various numerical precisions
-- Performance consistency across versions</p>
-<p>Critical for ensuring broad usability.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>heavytails/validation.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1267">1267</a></span>
-<span class="normal"><a href="#__codelineno-0-1268">1268</a></span>
-<span class="normal"><a href="#__codelineno-0-1269">1269</a></span>
-<span class="normal"><a href="#__codelineno-0-1270">1270</a></span>
-<span class="normal"><a href="#__codelineno-0-1271">1271</a></span>
-<span class="normal"><a href="#__codelineno-0-1272">1272</a></span>
-<span class="normal"><a href="#__codelineno-0-1273">1273</a></span>
-<span class="normal"><a href="#__codelineno-0-1274">1274</a></span>
-<span class="normal"><a href="#__codelineno-0-1275">1275</a></span>
-<span class="normal"><a href="#__codelineno-0-1276">1276</a></span>
-<span class="normal"><a href="#__codelineno-0-1277">1277</a></span>
-<span class="normal"><a href="#__codelineno-0-1278">1278</a></span>
-<span class="normal"><a href="#__codelineno-0-1279">1279</a></span>
-<span class="normal"><a href="#__codelineno-0-1280">1280</a></span>
-<span class="normal"><a href="#__codelineno-0-1281">1281</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1267"><a id="__codelineno-0-1267" name="__codelineno-0-1267"></a><span class="k">def</span><span class="w"> </span><span class="nf">python_version_compatibility</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-1268"><a id="__codelineno-0-1268" name="__codelineno-0-1268"></a><span class="w">    </span><span class="sd">"""</span>
-</span><span id="__span-0-1269"><a id="__codelineno-0-1269" name="__codelineno-0-1269"></a><span class="sd">    Test compatibility across different Python versions.</span>
-</span><span id="__span-0-1270"><a id="__codelineno-0-1270" name="__codelineno-0-1270"></a>
-</span><span id="__span-0-1271"><a id="__codelineno-0-1271" name="__codelineno-0-1271"></a><span class="sd">    Should test:</span>
-</span><span id="__span-0-1272"><a id="__codelineno-0-1272" name="__codelineno-0-1272"></a><span class="sd">    - Python 3.10, 3.11, 3.12 compatibility</span>
-</span><span id="__span-0-1273"><a id="__codelineno-0-1273" name="__codelineno-0-1273"></a><span class="sd">    - Different operating systems (Linux, Windows, macOS)</span>
-</span><span id="__span-0-1274"><a id="__codelineno-0-1274" name="__codelineno-0-1274"></a><span class="sd">    - Various numerical precisions</span>
-</span><span id="__span-0-1275"><a id="__codelineno-0-1275" name="__codelineno-0-1275"></a><span class="sd">    - Performance consistency across versions</span>
-</span><span id="__span-0-1276"><a id="__codelineno-0-1276" name="__codelineno-0-1276"></a>
-</span><span id="__span-0-1277"><a id="__codelineno-0-1277" name="__codelineno-0-1277"></a><span class="sd">    Critical for ensuring broad usability.</span>
-</span><span id="__span-0-1278"><a id="__codelineno-0-1278" name="__codelineno-0-1278"></a><span class="sd">    """</span>
-</span><span id="__span-0-1279"><a id="__codelineno-0-1279" name="__codelineno-0-1279"></a>    <span class="c1"># TODO: Implement cross-version compatibility testing</span>
-</span><span id="__span-0-1280"><a id="__codelineno-0-1280" name="__codelineno-0-1280"></a>    <span class="c1"># LABELS: compatibility, python-versions</span>
-</span><span id="__span-0-1281"><a id="__codelineno-0-1281" name="__codelineno-0-1281"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Python version compatibility testing not implemented"</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="heavytails.validation.special_function_accuracy_analysis" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">special_function_accuracy_analysis</span>
-
-
-<a href="#heavytails.validation.special_function_accuracy_analysis" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">special_function_accuracy_analysis</span><span class="p">()</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Analyze and improve accuracy of special function implementations.</p>
-<p>Current approximations in:
-- Incomplete beta function
-- Incomplete gamma function
-- Normal quantile function (Acklam's approximation)</p>
-<p>Need to:
-- Document accuracy bounds
-- Implement higher-precision alternatives
-- Provide accuracy guarantees
-- Test against high-precision references</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>heavytails/validation.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1246">1246</a></span>
-<span class="normal"><a href="#__codelineno-0-1247">1247</a></span>
-<span class="normal"><a href="#__codelineno-0-1248">1248</a></span>
-<span class="normal"><a href="#__codelineno-0-1249">1249</a></span>
-<span class="normal"><a href="#__codelineno-0-1250">1250</a></span>
-<span class="normal"><a href="#__codelineno-0-1251">1251</a></span>
-<span class="normal"><a href="#__codelineno-0-1252">1252</a></span>
-<span class="normal"><a href="#__codelineno-0-1253">1253</a></span>
-<span class="normal"><a href="#__codelineno-0-1254">1254</a></span>
-<span class="normal"><a href="#__codelineno-0-1255">1255</a></span>
-<span class="normal"><a href="#__codelineno-0-1256">1256</a></span>
-<span class="normal"><a href="#__codelineno-0-1257">1257</a></span>
-<span class="normal"><a href="#__codelineno-0-1258">1258</a></span>
-<span class="normal"><a href="#__codelineno-0-1259">1259</a></span>
-<span class="normal"><a href="#__codelineno-0-1260">1260</a></span>
-<span class="normal"><a href="#__codelineno-0-1261">1261</a></span>
-<span class="normal"><a href="#__codelineno-0-1262">1262</a></span>
-<span class="normal"><a href="#__codelineno-0-1263">1263</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1246"><a id="__codelineno-0-1246" name="__codelineno-0-1246"></a><span class="k">def</span><span class="w"> </span><span class="nf">special_function_accuracy_analysis</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-1247"><a id="__codelineno-0-1247" name="__codelineno-0-1247"></a><span class="w">    </span><span class="sd">"""</span>
-</span><span id="__span-0-1248"><a id="__codelineno-0-1248" name="__codelineno-0-1248"></a><span class="sd">    Analyze and improve accuracy of special function implementations.</span>
-</span><span id="__span-0-1249"><a id="__codelineno-0-1249" name="__codelineno-0-1249"></a>
-</span><span id="__span-0-1250"><a id="__codelineno-0-1250" name="__codelineno-0-1250"></a><span class="sd">    Current approximations in:</span>
-</span><span id="__span-0-1251"><a id="__codelineno-0-1251" name="__codelineno-0-1251"></a><span class="sd">    - Incomplete beta function</span>
-</span><span id="__span-0-1252"><a id="__codelineno-0-1252" name="__codelineno-0-1252"></a><span class="sd">    - Incomplete gamma function</span>
-</span><span id="__span-0-1253"><a id="__codelineno-0-1253" name="__codelineno-0-1253"></a><span class="sd">    - Normal quantile function (Acklam's approximation)</span>
-</span><span id="__span-0-1254"><a id="__codelineno-0-1254" name="__codelineno-0-1254"></a>
-</span><span id="__span-0-1255"><a id="__codelineno-0-1255" name="__codelineno-0-1255"></a><span class="sd">    Need to:</span>
-</span><span id="__span-0-1256"><a id="__codelineno-0-1256" name="__codelineno-0-1256"></a><span class="sd">    - Document accuracy bounds</span>
-</span><span id="__span-0-1257"><a id="__codelineno-0-1257" name="__codelineno-0-1257"></a><span class="sd">    - Implement higher-precision alternatives</span>
-</span><span id="__span-0-1258"><a id="__codelineno-0-1258" name="__codelineno-0-1258"></a><span class="sd">    - Provide accuracy guarantees</span>
-</span><span id="__span-0-1259"><a id="__codelineno-0-1259" name="__codelineno-0-1259"></a><span class="sd">    - Test against high-precision references</span>
-</span><span id="__span-0-1260"><a id="__codelineno-0-1260" name="__codelineno-0-1260"></a><span class="sd">    """</span>
-</span><span id="__span-0-1261"><a id="__codelineno-0-1261" name="__codelineno-0-1261"></a>    <span class="c1"># TODO: Comprehensive accuracy analysis of special functions</span>
-</span><span id="__span-0-1262"><a id="__codelineno-0-1262" name="__codelineno-0-1262"></a>    <span class="c1"># LABELS: special-functions, accuracy</span>
-</span><span id="__span-0-1263"><a id="__codelineno-0-1263" name="__codelineno-0-1263"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Special function accuracy analysis not implemented"</span><span class="p">)</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-779">779</a></span>
+<span class="normal"><a href="#__codelineno-0-780">780</a></span>
+<span class="normal"><a href="#__codelineno-0-781">781</a></span>
+<span class="normal"><a href="#__codelineno-0-782">782</a></span>
+<span class="normal"><a href="#__codelineno-0-783">783</a></span>
+<span class="normal"><a href="#__codelineno-0-784">784</a></span>
+<span class="normal"><a href="#__codelineno-0-785">785</a></span>
+<span class="normal"><a href="#__codelineno-0-786">786</a></span>
+<span class="normal"><a href="#__codelineno-0-787">787</a></span>
+<span class="normal"><a href="#__codelineno-0-788">788</a></span>
+<span class="normal"><a href="#__codelineno-0-789">789</a></span>
+<span class="normal"><a href="#__codelineno-0-790">790</a></span>
+<span class="normal"><a href="#__codelineno-0-791">791</a></span>
+<span class="normal"><a href="#__codelineno-0-792">792</a></span>
+<span class="normal"><a href="#__codelineno-0-793">793</a></span>
+<span class="normal"><a href="#__codelineno-0-794">794</a></span>
+<span class="normal"><a href="#__codelineno-0-795">795</a></span>
+<span class="normal"><a href="#__codelineno-0-796">796</a></span>
+<span class="normal"><a href="#__codelineno-0-797">797</a></span>
+<span class="normal"><a href="#__codelineno-0-798">798</a></span>
+<span class="normal"><a href="#__codelineno-0-799">799</a></span>
+<span class="normal"><a href="#__codelineno-0-800">800</a></span>
+<span class="normal"><a href="#__codelineno-0-801">801</a></span>
+<span class="normal"><a href="#__codelineno-0-802">802</a></span>
+<span class="normal"><a href="#__codelineno-0-803">803</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-779"><a id="__codelineno-0-779" name="__codelineno-0-779"></a><span class="k">def</span><span class="w"> </span><span class="nf">ppf_edge_case_handler</span><span class="p">(</span><span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="__span-0-780"><a id="__codelineno-0-780" name="__codelineno-0-780"></a><span class="w">    </span><span class="sd">"""</span>
+</span><span id="__span-0-781"><a id="__codelineno-0-781" name="__codelineno-0-781"></a><span class="sd">    Handle edge cases in quantile function calculation.</span>
+</span><span id="__span-0-782"><a id="__codelineno-0-782" name="__codelineno-0-782"></a>
+</span><span id="__span-0-783"><a id="__codelineno-0-783" name="__codelineno-0-783"></a><span class="sd">    Problematic cases:</span>
+</span><span id="__span-0-784"><a id="__codelineno-0-784" name="__codelineno-0-784"></a><span class="sd">    - u very close to 0 or 1</span>
+</span><span id="__span-0-785"><a id="__codelineno-0-785" name="__codelineno-0-785"></a><span class="sd">    - Parameters at boundary values</span>
+</span><span id="__span-0-786"><a id="__codelineno-0-786" name="__codelineno-0-786"></a><span class="sd">    - Distributions with bounded support</span>
+</span><span id="__span-0-787"><a id="__codelineno-0-787" name="__codelineno-0-787"></a><span class="sd">    - Numerical overflow/underflow</span>
+</span><span id="__span-0-788"><a id="__codelineno-0-788" name="__codelineno-0-788"></a>
+</span><span id="__span-0-789"><a id="__codelineno-0-789" name="__codelineno-0-789"></a><span class="sd">    Should provide graceful degradation and informative errors.</span>
+</span><span id="__span-0-790"><a id="__codelineno-0-790" name="__codelineno-0-790"></a><span class="sd">    """</span>
+</span><span id="__span-0-791"><a id="__codelineno-0-791" name="__codelineno-0-791"></a>    <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">distribution</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>  <span class="c1"># Reserved for future implementation</span>
+</span><span id="__span-0-792"><a id="__codelineno-0-792" name="__codelineno-0-792"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
+</span><span id="__span-0-793"><a id="__codelineno-0-793" name="__codelineno-0-793"></a>        <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-0-794"><a id="__codelineno-0-794" name="__codelineno-0-794"></a>            <span class="c1"># TODO: Return theoretical minimum (support lower bound)</span>
+</span><span id="__span-0-795"><a id="__codelineno-0-795" name="__codelineno-0-795"></a>            <span class="k">pass</span>
+</span><span id="__span-0-796"><a id="__codelineno-0-796" name="__codelineno-0-796"></a>        <span class="k">elif</span> <span class="n">u</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="__span-0-797"><a id="__codelineno-0-797" name="__codelineno-0-797"></a>            <span class="c1"># TODO: Return theoretical maximum (support upper bound)</span>
+</span><span id="__span-0-798"><a id="__codelineno-0-798" name="__codelineno-0-798"></a>            <span class="k">pass</span>
+</span><span id="__span-0-799"><a id="__codelineno-0-799" name="__codelineno-0-799"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-800"><a id="__codelineno-0-800" name="__codelineno-0-800"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"u must be in (0,1), got </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-0-801"><a id="__codelineno-0-801" name="__codelineno-0-801"></a>
+</span><span id="__span-0-802"><a id="__codelineno-0-802" name="__codelineno-0-802"></a>    <span class="c1"># TODO: Implement robust edge case handling for all distributions</span>
+</span><span id="__span-0-803"><a id="__codelineno-0-803" name="__codelineno-0-803"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"PPF edge case handling not fully implemented"</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>

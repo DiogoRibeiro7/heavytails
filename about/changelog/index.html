@@ -2219,6 +2219,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2430,7 +2441,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#removed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Removed
@@ -2659,6 +2670,39 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
+<p><strong>The 59 shipped functions that raised <code>NotImplementedError</code></strong> (<a class="magiclink magiclink-github magiclink-issue" href="https://github.com/diogoribeiro7/heavytails/issues/312" title="GitHub Issue: diogoribeiro7/heavytails #312">#312</a>). A module
+of empty signatures is indistinguishable from a module of working code until
+you call it, and these set an expectation the package does not meet.</p>
+<ul>
+<li><code>heavytails.extensions</code>: <code>RegimeSwitchingModel</code>, <code>VineCopula</code>,
+  <code>SpatialHeavyTailProcess</code>, <code>ScientificComputingIntegration</code>,
+  <code>BayesianHeavyTailRegression</code>, <code>DistributionClassifier</code>,
+  <code>DomainSpecificExtensions</code>, <code>TailGeometryAnalysis</code>, and
+  <code>HeavyTailCopula.sample</code>. The working copulas there are untouched.</li>
+<li><code>heavytails.utilities</code>: <code>ConfigurationManager</code>, <code>DataQualityAssessment</code>,
+  <code>DistributionMetadata</code>, <code>FinancialDataScraper</code>, <code>CitationManager</code>,
+  <code>InteractiveTutorials</code>, <code>PluginManager</code>, <code>UnitConverter</code>. <code>DataIO</code>,
+  <code>AutoFit</code>, <code>ParameterValidator</code> and <code>StatisticalSummary</code> are untouched.</li>
+<li><code>heavytails.roadmap</code>: <code>MultivariateStudentT</code>, <code>HeavyTailGARCH</code>,
+  <code>HeavyTailSurvival</code>, <code>HeavyTailsAPI</code>, <code>gpu_sampling</code>,
+  <code>adaptive_threshold_selection</code>, <code>bayesian_parameter_estimation</code>,
+  <code>memory_efficient_sampling</code>, <code>diagnostic_plots</code>. The stub
+  <code>MultivariateStudentT</code> shadowed the working one in
+  <code>heavytails.multivariate</code>, which is the clearest case of the harm.</li>
+<li><code>heavytails.performance</code>: <code>cython_special_functions</code>,
+  <code>jit_accelerated_functions</code>, <code>optimized_rejection_sampling</code>,
+  <code>distribution_specific_optimizations</code>, <code>MemoryProfiler</code>, <code>OnlineEstimation</code>.</li>
+<li><code>heavytails.validation</code>: <code>fuzz_testing</code>,
+  <code>special_function_accuracy_analysis</code>, <code>python_version_compatibility</code>,
+  <code>ParameterEstimationValidation</code>, <code>RegressionTesting</code>,
+  <code>MathematicalPropertyVerification</code>.</li>
+</ul>
+<p>The ideas are recorded in <code>ROADMAP.md</code> under "Considered, Not Committed", where
+they promise nothing. The distribution registry is kept as work rather than
+dropped.</p>
+<p>Eighteen tests went with them, each of which asserted only that a stub raised
+<code>NotImplementedError</code>.</p>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.viz.plot_tail</code> overlaid a <em>sample drawn from</em> the fitted model
@@ -3388,7 +3432,7 @@ returned negative probabilities.</p>
   recording precision loss that the new incomplete beta inverse eliminates.</p>
 </li>
 </ul>
-<h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
+<h3 id="removed_1">Removed<a class="headerlink" href="#removed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>roadmap.improved_incomplete_beta</code>, a placeholder that delegated to
