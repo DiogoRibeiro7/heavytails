@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- CI does not re-verify on a merge what the pull request just verified. A push
+  to main runs one interpreter and no cross-platform smoke; pull requests and
+  releases run all four and both platforms. Eighteen jobs fire per event across
+  CI, CodeQL and the benchmarks, so two events landing together left everything
+  queued for eight minutes before any of it started -- which was the rest of
+  the wait after coverage came off the merge path.
+- Superseded runs are cancelled on any branch, main included. Merging three
+  pull requests in a row queued three full runs when only the last one's result
+  meant anything. Release runs are never cancelled, since that run publishes.
+
+### Changed
+
 - Coverage runs at release only, plus a manual dispatch. It ran on merges to
   main and weekly, which left main amber for eleven minutes after every merge
   -- nothing depended on it there, but it is eleven minutes of deciding whether

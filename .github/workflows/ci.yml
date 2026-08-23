@@ -14,7 +14,10 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # Cancel superseded runs on branches, including main: merging three pull
+  # requests in a row queued three full runs and only the last one's result
+  # meant anything. Releases are never cancelled -- that run publishes.
+  cancel-in-progress: ${{ github.event_name != 'release' }}
 
 env:
   POETRY_VERSION: "2.2.1"
@@ -34,10 +37,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Full coverage stays on Ubuntu across every supported interpreter.
-        # A separate cross-platform smoke job below keeps Windows and macOS
-        # portability visible without repeating the expensive Monte Carlo suite.
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        # Every supported interpreter on a pull request, where the code is
+        # still being decided on. One on a push, because the merge commit is
+        # the tree the pull request just tested on all four -- and the jobs
+        # were not free: eighteen of them fire per event across CI, CodeQL and
+        # the benchmarks, so two events landing together queued for eight
+        # minutes before anything started.
+        #
+        # A release runs the full matrix again, since that tree is the one
+        # being shipped and it is worth the wait exactly once.
+        python-version: ${{ (github.event_name == 'pull_request' || github.event_name == 'release') && fromJSON('["3.10", "3.11", "3.12", "3.13"]') || fromJSON('["3.12"]') }}
 
     steps:
       - uses: actions/checkout@v7
@@ -163,6 +172,10 @@ jobs:
 
   cross-platform-smoke:
     name: Smoke (${{ matrix.os }}, Python 3.12)
+    # Not on a plain push to main: the pull request that produced the merge
+    # commit ran this on the same tree. Releases run it, because that is the
+    # artifact people install.
+    if: github.event_name != 'push'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
