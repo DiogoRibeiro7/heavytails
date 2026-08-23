@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+**The multivariate distributions compute over observations, not one at a time.**
+
+- `mahalanobis`, `logpdf` and `pdf` take one point or an array of them and
+  mirror what they were given. Over 100,000 points the quadratic form takes
+  5.7ms against about 2.0s a point at a time, a factor of 350. The forward
+  substitution now loops over the dimension, which is small, and does each of
+  its steps across every observation at once -- the opposite of the arrangement
+  it replaced.
+- `fit_multivariate_t` is about 45x faster: 0.558s to 0.012s on 5,000
+  observations in three dimensions with `nu` fixed, and 4.371s to 0.103s when
+  `nu` is chosen over the ten candidates. Same answer -- same iteration count,
+  log-likelihood identical to ten decimals, location to 7e-17.
+- `rvs` builds its draws with one matrix product rather than n triangular ones.
+  The generator is untouched and draws in the same order, so a seeded sample
+  reproduces; the values agree with the one-at-a-time construction to about
+  4e-15, since a matrix product associates its sums differently.
+- `_solve_lower` is gone. The substitution it did now happens inside
+  `mahalanobis`, across all observations, and nothing else called it.
+
+### Changed
+
 **NumPy is now a required dependency, and every distribution method takes a
 number or an array.**
 
