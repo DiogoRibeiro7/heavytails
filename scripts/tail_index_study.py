@@ -12,6 +12,11 @@ between them can be read off rather than asserted.
 The numbers quoted in the validation studies page come from the default run.
 """
 
+# ruff: noqa: E402
+# The sys.path bootstrap below has to run before the imports that depend on it,
+# which is the same arrangement research/adaptive_tail/oracle_experiment.py
+# uses and for the same reason.
+
 from __future__ import annotations
 
 import argparse
@@ -24,7 +29,14 @@ import random
 import sys
 from typing import Any, Literal
 
-from _provenance import base_provenance
+# The repository root, so `scripts` resolves as a package whether this is run
+# as a file or imported. The flat `from _provenance import ...` this replaces
+# worked when run from the scripts directory and nowhere else -- mypy could not
+# resolve it either, which is how it reached main red.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from heavytails import Frechet, Pareto
 from heavytails.tail_index import (
     adaptive_trimmed_hill_estimator,
@@ -41,6 +53,7 @@ from heavytails.tail_index import (
     threshold_averaged_orthogonalized_hill_estimator,
     trimmed_hill_estimator,
 )
+from scripts._provenance import base_provenance
 
 Estimator = Callable[[list[float], int], float]
 GammaDomain = Literal["positive", "any"]
