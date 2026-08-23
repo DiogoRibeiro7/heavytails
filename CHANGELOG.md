@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Coverage runs at release only, plus a manual dispatch. It ran on merges to
+  main and weekly, which left main amber for eleven minutes after every merge
+  -- nothing depended on it there, but it is eleven minutes of deciding whether
+  to wait. `publish` still depends on it, so a release cannot ship without the
+  gate passing, which is the moment the number has to be right.
+
 ### Fixed
 
 - The citation guidance cited **0.3.0**. `CITATION.cff` was advanced to 0.4.0 at
