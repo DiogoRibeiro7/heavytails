@@ -7,228 +7,135 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+## [0.5.0] - 2026-08-23
 
-- `heavytails.vectorized` is a thin shim. It held a hand-written NumPy kernel
-  for each of 32 (family, method) pairs, every one a transcription of the
-  scalar method it shadowed; the methods take arrays themselves now, so the
-  kernels were duplicates. 447 lines to 198. The public functions --
-  `pdf`, `cdf`, `sf`, `ppf`, `accelerated` -- behave as before, and
-  `dist.cdf(values)` is the same call for new code.
-- `accelerated` is answered per method rather than per family, so it now
-  reports `True` for `LogNormal.pdf`: the density is elementary and is one
-  NumPy expression, and only the probabilities need the error function. It
-  reports `True` for a distribution defined outside this library, where before
-  it reported `False`, because there is no longer a table of known families to
-  consult.
+**NumPy is now required, and every distribution method takes a number or an
+array.** The library was pure Python by choice, and that choice stopped paying:
+evaluating a density over a hundred thousand points cost a hundred thousand
+interpreter round trips. Over a million points it now takes about 20
+milliseconds.
 
-### Changed
+That is the reason this is 0.5.0 and not 0.4.1. Installing into an environment
+that cannot have NumPy will no longer work.
 
-**The actuarial machinery computes over grids, not one point at a time.**
+### Breaking
 
-- `panjer_recursion` evaluates its inner sum as a dot product. The recursion in
-  `k` is sequential -- each aggregate probability needs every one before it --
-  but the sum over `j` inside it is a dot product between the severity weights
-  and the aggregate so far, reversed. On a 2,000 point grid that is 0.176s to
-  **0.014s**, with the probabilities unchanged to the bit on the cases measured.
-- `limited_expected_value` runs its 512-node midpoint rule in one call rather
-  than 512. Every layer bound of every price reaches it, so for a severity with
-  no closed form that was most of the cost of pricing anything.
-- `discretise_severity` evaluates each cell edge once. The edges are shared
-  between adjacent cells, so evaluating them per cell computed every interior
-  one twice.
-- `_severity_second_moment` does the same for its 4,096-node fallback.
-- `PolicyTerms.payment`, and `LayeredSeverity.cdf`, `sf` and `ppf`, take one
-  value or an array and mirror what they were given.
-- `LayeredSeverity.rvs` inverts its uniforms in one call. The generator is
-  untouched and draws in the same order, so a seeded sample is unchanged --
-  measured bit-identical to the loop it replaces.
-
-### Fixed
-
-- `scripts/tail_index_study.py` stamped its results with the *installed*
-  package version, which an editable install keeps reporting from whenever its
-  metadata was last built. In this checkout that read **0.2.0** against a
-  working tree at **0.4.0**, so a saved study carried a version two releases
-  stale -- worse than carrying none, since a reader has no reason to doubt it.
-  It now reads `pyproject.toml` when running from a checkout, and records which
-  source the version came from.
+- **NumPy is a runtime dependency** (`numpy>=1.24,<3.0`). There were none
+  through 0.4.0.
+- **A scalar call costs more than it did.** `Pareto.pdf(0.5)` is about 2.6us
+  against roughly 0.2us of plain arithmetic before, because every call goes
+  through the array dispatch. The same ten thousand points in one call take
+  0.3ms, about eighty times less than the loop. Scalars are carried as
+  `numpy.float64` rather than 0-d arrays and guarded with an ordinary
+  conditional rather than `np.where`, which is what keeps it to 2.6us and not
+  5.3.
+- **A few seeded variates move by one unit in the last place.** NumPy's
+  vectorised `log` and `pow` round differently from its scalar ones. For
+  Weibull(k=0.5) that is 14 values in 20,000; sample means are unchanged to
+  twelve digits and distributions are identical. Frechet, Cauchy, Pareto,
+  GEV_Frechet and the generalized Pareto are bit-identical.
+- **`vectorized.accelerated` answers per method, not per family.** It reports
+  `True` for `LogNormal.pdf`, where it used to report `False`: the density is
+  elementary and vectorises, and only the probabilities need the error
+  function. It also reports `True` for a distribution defined outside this
+  library, because there is no longer a table of known families to consult.
 
 ### Changed
 
-- CI does not re-verify on a merge what the pull request just verified. A push
-  to main runs one interpreter and no cross-platform smoke; pull requests and
-  releases run all four and both platforms. Eighteen jobs fire per event across
-  CI, CodeQL and the benchmarks, so two events landing together left everything
-  queued for eight minutes before any of it started -- which was the rest of
-  the wait after coverage came off the merge path.
-- Superseded runs are cancelled on any branch, main included. Merging three
-  pull requests in a row queued three full runs when only the last one's result
-  meant anything. Release runs are never cancelled, since that run publishes.
+**The distributions.** `pdf`, `cdf`, `sf` and `ppf` on all twelve continuous
+families accept a number, a sequence or an array and return the same kind of
+thing they were given. Each formula is written once, against NumPy, so the
+scalar and array results come from the same expression; they can still differ
+in the last bits, and the tests hold them to 1e-13 relative rather than to
+equality. `rvs` inverts its uniforms in a single call, which makes sampling 21x
+to 31x faster, and still returns a `list` -- returning an array would silently
+turn `sample_a + sample_b` from concatenation into elementwise addition. `ppf`
+checks its whole input before computing any of it and names an offending value.
 
-### Changed
+**The tail index estimators.** `hill_estimator` is about 5x faster and
+`hill_plot` about 10x on a sample of 200,000, the plot now deriving every
+threshold from one cumulative sum instead of re-summing the log-excesses for
+each `k`. The two agree exactly at every `k`, which they did not before.
+`trimmed_hill_plot` uses suffix sums rather than subtracting from a running
+total. `_normalised_log_spacings` returns an array, and
+`adaptive_trim_selection` returns a Python `float` for `gamma`.
 
-- Coverage runs at release only, plus a manual dispatch. It ran on merges to
-  main and weekly, which left main amber for eleven minutes after every merge
-  -- nothing depended on it there, but it is eleven minutes of deciding whether
-  to wait. `publish` still depends on it, so a release cannot ship without the
-  gate passing, which is the moment the number has to be right.
+**The multivariate families.** `mahalanobis`, `logpdf` and `pdf` take one point
+or many. Over 100,000 points the quadratic form takes 5.7ms against about 2.0s
+a point at a time. `fit_multivariate_t` is about 45x faster -- 0.558s to 0.012s
+on 5,000 observations in three dimensions, and 4.371s to 0.103s when `nu` is
+chosen over ten candidates -- for the same answer, to ten decimals of
+log-likelihood. `_solve_lower` is gone.
 
-### Fixed
+**The actuarial machinery.** `panjer_recursion` evaluates its inner sum as a
+dot product: on a 2,000 point grid, 0.176s to 0.014s, with the probabilities
+unchanged to the bit on the cases measured. `limited_expected_value` runs its
+512-node midpoint rule in one call, `_severity_second_moment` its 4,096-node
+fallback, and `discretise_severity` evaluates each cell edge once instead of
+twice. `PolicyTerms.payment` and `LayeredSeverity.cdf`, `sf`, `ppf` take one
+value or an array.
 
-- The citation guidance cited **0.3.0**. `CITATION.cff` was advanced to 0.4.0 at
-  release and the documentation was not, so `docs/about/citation.md` handed out
-  APA, IEEE, MLA, Chicago and BibTeX entries for 0.3.0, along with the version
-  DOI of a release the reader was not running, while the file GitHub's "Cite
-  this repository" button reads said 0.4.0. Both now cite 0.4.0 and its version
-  DOI, `10.5281/zenodo.22062643`.
-- `CITATION.cff` carried a placeholder saying 0.4.0's version DOI would be
-  added once Zenodo had archived it. It had been, on 2026-08-22.
-- The documentation described NumPy as having become a requirement "in 0.5.0",
-  a version that does not exist -- the latest release is 0.4.0. The three
-  places that said so now say it was optional through 0.4.0, which is true
-  before and after that release is cut.
+**`heavytails.vectorized` is a thin shim**, 447 lines to 198. It held a
+hand-written NumPy kernel for each of 32 (family, method) pairs, every one a
+transcription of the method it shadowed; the methods take arrays themselves
+now. The public functions behave as before, and `dist.cdf(values)` is the same
+call for new code.
+
+**Four families keep a Python loop for their probabilities.** `LogNormal`,
+`StudentT`, `InverseGamma` and `BetaPrime` need the error function or an
+incomplete beta or gamma, which NumPy does not provide, so their `cdf`, `sf`
+and `ppf` cost what they always did. Their densities are elementary and are
+vectorised like everything else.
+
+**The package no longer describes itself as pure Python.** `CITATION.cff`,
+`.zenodo.json`, `AUTHORS.md`, `mkdocs.yml` and the citation pages carry the
+title *heavytails: A Python Library for Heavy-Tailed Probability
+Distributions*; the archived 0.1.0-0.4.0 records keep the old one, which is
+correct, because those releases were pure Python. `SECURITY.md` no longer
+justifies the security posture with "dependency-free (pure Python)", and
+`docs/about/license.md` names NumPy's licence rather than claiming there are
+none to name.
+
+**Continuous integration.** Coverage runs at release only. It cost about 6.4x
+the runtime of the suite -- 3m12s without it, 20m37s with -- and caught none of
+the defects found while writing this release, every one of which was in covered
+code. A push to main no longer re-runs the full interpreter matrix that the
+pull request just ran, and superseded runs are cancelled. Test jobs went from
+17-22 minutes to about 3, and a merge from 19.5 minutes to 4.7.
 
 ### Added
 
-- Two tests tying the citation metadata together: `CITATION.cff` must name the
+- Tests tying the citation metadata together: `CITATION.cff` must name the
   version in `pyproject.toml`, and the citation guidance must cite that same
-  version. Nothing checked either, which is how the documentation sat a release
-  behind. Bumping the version now fails until the guidance is bumped with it.
-
-### Changed
-
-**The package no longer describes itself as pure Python, because it is not.**
-
-- `CITATION.cff`, `.zenodo.json`, `AUTHORS.md`, `mkdocs.yml` and the citation
-  pages carry the title *heavytails: A Python Library for Heavy-Tailed
-  Probability Distributions*. The archived 0.1.0-0.4.0 records keep the old
-  title, which is correct: those releases were pure Python.
-- `SECURITY.md` no longer justifies the security posture with
-  "dependency-free (pure Python)". It says there is one runtime dependency and
-  why that is an acceptable one to require.
-- `docs/about/license.md` names NumPy's licence rather than claiming there are
-  no third-party licences to name.
-- `heavytails.multivariate` said "the linear algebra is pure Python" after that
-  stopped being true of everything but the Cholesky factorisation.
+  version. Neither was checked, which is how the documentation sat a release
+  behind through all of 0.4.0.
 
 ### Fixed
 
-- `tests/test_zenodo_metadata.py` compares the two metadata files against each
-  other instead of holding a third copy of the title. The transcription is what
-  broke when the title changed -- a test named for checking two files against
-  each other should not need editing when they both change consistently.
-- `heavytails.performance.vectorized_pdf_evaluation` and
-  `vectorized_cdf_evaluation` call the array methods directly. They went
-  through `np.vectorize`, which is a Python loop wearing an array interface,
-  and was pointless once the methods took arrays themselves.
-- `heavytails.extensions` imports NumPy unconditionally. It was guarded
-  alongside SciPy, so a missing SciPy set `np` to `None` even though NumPy was
-  installed -- harmless only because every caller raises on `SCIPY_AVAILABLE`
-  first.
-- `heavytails.performance` and `heavytails.vectorized` no longer branch on
-  NumPy being absent. It cannot be.
-
-### Changed
-
-**The multivariate distributions compute over observations, not one at a time.**
-
-- `mahalanobis`, `logpdf` and `pdf` take one point or an array of them and
-  mirror what they were given. Over 100,000 points the quadratic form takes
-  5.7ms against about 2.0s a point at a time, a factor of 350. The forward
-  substitution now loops over the dimension, which is small, and does each of
-  its steps across every observation at once -- the opposite of the arrangement
-  it replaced.
-- `fit_multivariate_t` is about 45x faster: 0.558s to 0.012s on 5,000
-  observations in three dimensions with `nu` fixed, and 4.371s to 0.103s when
-  `nu` is chosen over the ten candidates. Same answer -- same iteration count,
-  log-likelihood identical to ten decimals, location to 7e-17.
-- `rvs` builds its draws with one matrix product rather than n triangular ones.
-  The generator is untouched and draws in the same order, so a seeded sample
-  reproduces; the values agree with the one-at-a-time construction to about
-  4e-15, since a matrix product associates its sums differently.
-- `_solve_lower` is gone. The substitution it did now happens inside
-  `mahalanobis`, across all observations, and nothing else called it.
-
-### Changed
-
-**NumPy is now a required dependency, and every distribution method takes a
-number or an array.**
-
-The library was pure Python by choice, and that choice stopped paying: a density
-over a hundred thousand points cost a hundred thousand interpreter round trips.
-Evaluating one over a million points now takes about 20 milliseconds.
-
-- `pdf`, `cdf`, `sf` and `ppf` on all twelve continuous families accept a
-  number, a sequence, or an array, and return the same kind of thing they were
-  given. A number in gives a `float` out; anything array-like in gives an
-  `ndarray` out with the same shape.
-- Each formula is written once, against NumPy, so the scalar and array results
-  come from the same expression and cannot disagree about what is computed.
-  They can still differ in the last bits, because NumPy evaluates an array
-  through vectorised routines and a scalar through libm, so the tests hold them
-  to 1e-13 relative rather than to equality.
-- `rvs` inverts its uniforms in a single call rather than one at a time, which
-  makes sampling 21x to 31x faster. The uniforms themselves are unchanged, so a
-  seeded sample is reproducible and its distribution is identical. A few
-  variates land one ULP away from what the previous version returned, because
-  NumPy's vectorised `log` and `pow` round differently from its scalar ones: for
-  Weibull(k=0.5) that is 14 values in 20,000, with the sample mean unchanged to
-  twelve digits.
-- `rvs` still returns a `list`. Returning an array would silently turn
-  `sample_a + sample_b` from concatenation into elementwise addition.
-- `ppf` checks its whole input before computing any of it, and names an
-  offending value: `u must be in (0,1); got 1.5`. The scalar version raised on
-  the value it happened to reach first.
-- **A scalar call costs more than it did.** `Pareto.pdf(0.5)` is about 2.6us
-  against roughly 0.2us of plain arithmetic before, because every call now goes
-  through the array dispatch. Evaluating the same ten thousand points in one
-  call takes 0.3ms, which is about eighty times less than the loop. Scalars are
-  carried as `numpy.float64` rather than 0-d arrays and guarded with an
-  ordinary conditional rather than `np.where`, which is what keeps it to 2.6us
-  instead of 5.3.
-
-**The tail index estimators too.**
-
-- The core tail index estimators compute through NumPy. `hill_estimator` is
-  about 5x faster and `hill_plot` about 10x on a sample of 200,000; the plot
-  now derives every threshold from one cumulative sum instead of re-summing the
-  log-excesses for each `k`.
-- `hill_plot` and `hill_estimator` agree exactly at every `k`. Both now form
-  the log-excess as `log x_i - log x_k`, where the estimator previously used
-  `log(x_i / x_k)`; the two differ at the last bit, and the shared form is what
-  lets one cumulative sum serve every threshold.
-- `trimmed_hill_plot` uses suffix sums rather than subtracting each spacing
-  from a running total, so successive estimates do not drift apart for a reason
-  that is not the data.
-- `_normalised_log_spacings` returns an array.
-- `adaptive_trim_selection` returns a Python `float` for `gamma`, not a NumPy
-  scalar.
-
-Four families keep a Python loop for their probabilities. `LogNormal`,
-`StudentT`, `InverseGamma` and `BetaPrime` need the error function or an
-incomplete beta or gamma, which NumPy does not provide; their `cdf`, `sf` and
-`ppf` cost what they always did. Their densities are elementary and are
-vectorised like everything else.
-
-### Fixed
-
-- `GeneralizedPareto.sf` computes the survival probability directly instead of
-  as `1 - cdf`. The subtraction returned **exactly zero** in the far tail: at
-  `xi=0.5`, `sf(1e12)` gave `0.0` where the true value is `4.0e-24`. This is the
-  tail the distribution exists to describe.
-- `streaming.py` no longer keeps its own transcription of the Hill and moment
-  formulas. It called them "written to match the batch version operation for
-  operation", which held only until the batch version changed its summation
-  order -- so it now calls those functions and the agreement is structural.
+- **`GeneralizedPareto.sf` returned exactly zero in the far tail.** It computed
+  `1 - cdf`; at `xi=0.5`, `sf(1e12)` gave `0.0` where the true value is
+  `4.0e-24`. This is the tail the distribution exists to describe.
+- `streaming.py` kept its own transcription of the Hill and moment formulas,
+  described as matching the batch version "operation for operation" -- which
+  held only until the batch version changed its summation order. It calls those
+  functions now, so the agreement is structural.
 - `test_pickands_estimator_basic` drew an unseeded sample and required a single
   Pickands estimate to land in `(0.1, 2.0)`. At `k=20` on 1000 points that
   estimator has a standard deviation of about 0.44 around a true 0.5, so the
-  bound failed for **18% of seeds** -- a near one-in-five chance of a red build
-  on any run, on any platform. It now averages 200 replications and asserts the
-  estimator is centred on the true index, which is the property that was meant.
-- The other two randomised tests in `tests/test_tail_index.py` draw from a
-  generator they own rather than the unseeded module-level one.
+  bound failed for **18% of seeds**. It now averages 200 replications and
+  asserts the estimator is centred on the true index.
+- `scripts/tail_index_study.py` stamped its results with the *installed*
+  package version, which an editable install reports from whenever its metadata
+  was last built -- 0.2.0 against a working tree at 0.4.0. A saved study
+  carrying the wrong version is worse than one carrying none.
+- The citation guidance cited **0.3.0** through the whole 0.4.0 release, and
+  `CITATION.cff` carried a placeholder for a DOI Zenodo had already minted.
+- `heavytails.performance` evaluated densities through `np.vectorize`, a Python
+  loop wearing an array interface, and `heavytails.extensions` guarded NumPy in
+  the same `try` as SciPy, so a missing SciPy set `np` to `None` while NumPy sat
+  installed and working.
+- `tests/test_zenodo_metadata.py` held a third copy of the citation title
+  rather than comparing the two files it was named for.
 
 ## [0.4.0] - 2026-08-22
 
