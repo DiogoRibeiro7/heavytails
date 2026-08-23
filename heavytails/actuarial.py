@@ -39,6 +39,9 @@ from dataclasses import dataclass, field
 import math
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
+from heavytails._array import as_array, restore
 from heavytails._special import _gammainc_lower_reg
 from heavytails.heavy_tails import RNG, ParameterError
 
@@ -386,12 +389,17 @@ class PolicyTerms:
         if not (0.0 < self.coinsurance <= 1.0):
             raise ParameterError("coinsurance must be in (0,1].")
 
-    def payment(self, loss: float) -> float:
-        """The amount paid on a loss of size ``loss``."""
-        excess = max(loss - self.deductible, 0.0)
+    def payment(self, loss: Any) -> Any:
+        """The amount paid on a loss of size ``loss``, for one loss or many.
+
+        Mirrors its input, so pricing a whole simulated book is one call rather
+        than one per claim.
+        """
+        losses, scalar = as_array(loss)
+        excess = np.maximum(losses - self.deductible, 0.0)
         if self.limit is not None:
-            excess = min(excess, self.limit)
-        return float(self.coinsurance * excess)
+            excess = np.minimum(excess, self.limit)
+        return restore(self.coinsurance * excess, scalar)
 
     @property
     def max_payment(self) -> float:
@@ -472,38 +480,56 @@ class LayeredSeverity:
         """
         return float(1.0 - self.severity.cdf(self.terms.deductible))
 
-    def cdf(self, y: float) -> float:
-        """Distribution function of the payment."""
-        if y < 0.0:
-            return 0.0
-        if y >= self.terms.max_payment:
-            return 1.0
-        loss = self.terms.deductible + y / self.terms.coinsurance
-        below = float(self.severity.cdf(loss))
+    def cdf(self, y: Any) -> Any:
+        """Distribution function of the payment, for one value or many."""
+        payments, scalar = as_array(y)
+        capped = self.terms.max_payment
+        # The loss that would produce this payment, computed everywhere and
+        # masked afterwards: the entries outside [0, max_payment) are replaced
+        # by whichever constant belongs there.
+        inside = (payments >= 0.0) & (payments < capped)
+        safe = np.where(inside, payments, 0.0)
+        loss = self.terms.deductible + safe / self.terms.coinsurance
+        below = np.asarray(self.severity.cdf(loss), dtype=float)
         if self.basis == "per-loss":
-            return below
-        floor = float(self.severity.cdf(self.terms.deductible))
-        return (below - floor) / (1.0 - floor)
-
-    def sf(self, y: float) -> float:
-        """Survival function of the payment."""
-        return 1.0 - self.cdf(y)
-
-    def ppf(self, u: float) -> float:
-        """Quantile function of the payment."""
-        if not (0.0 <= u <= 1.0):
-            raise ValueError("u must be in [0,1].")
-        floor = float(self.severity.cdf(self.terms.deductible))
-        if self.basis == "per-loss":
-            if u <= floor:
-                return 0.0
-            target = u
+            probability = below
         else:
-            target = floor + u * (1.0 - floor)
-        if target >= 1.0:
-            return self.terms.max_payment
-        loss = float(self.severity.ppf(target))
-        return self.terms.payment(loss)
+            floor = float(self.severity.cdf(self.terms.deductible))
+            probability = (below - floor) / (1.0 - floor)
+        above = np.where(payments >= capped, 1.0, 0.0)
+        return restore(np.where(inside, probability, above), scalar)
+
+    def sf(self, y: Any) -> Any:
+        """Survival function of the payment."""
+        probability, scalar = as_array(self.cdf(y))
+        return restore(1.0 - probability, scalar)
+
+    def ppf(self, u: Any) -> Any:
+        """Quantile function of the payment, for one probability or many."""
+        values, scalar = as_array(u)
+        if np.any((values < 0.0) | (values > 1.0)) or np.any(np.isnan(values)):
+            raise ValueError("u must be in [0,1].")
+
+        floor = float(self.severity.cdf(self.terms.deductible))
+        if self.basis == "per-loss":
+            target = values
+            below_floor = values <= floor
+        else:
+            target = floor + values * (1.0 - floor)
+            below_floor = np.zeros(np.shape(values), dtype=bool)
+
+        saturated = target >= 1.0
+        # The severity quantile is only asked for where it is defined; the
+        # rest get a placeholder that the mask below discards. Feeding it a
+        # probability of 1 would raise, and a whole array must survive the
+        # call for any of it to be usable.
+        resolved = np.where(saturated | (target <= 0.0), 0.5, target)
+        loss = np.asarray(self.severity.ppf(resolved), dtype=float)
+        payment = np.asarray(self.terms.payment(loss), dtype=float)
+
+        payment = np.where(saturated, self.terms.max_payment, payment)
+        payment = np.where(below_floor, 0.0, payment)
+        return restore(payment, scalar)
 
     def lev(self, t: float) -> float:
         """The layer's own limited expected value ``E[min(Y, t)]``.
@@ -544,15 +570,35 @@ class LayeredSeverity:
         if not isinstance(n, int) or n <= 0:
             raise ValueError("n must be a positive integer.")
         rng = RNG(seed)
-        return [self._one(rng) for _ in range(n)]
+
+        # The uniforms come off the generator in the same order a loop of
+        # _one would have taken them, so a seeded sample is unchanged; the
+        # inversion and the layer arithmetic then happen once for all of them.
+        uniforms = np.fromiter(
+            (rng.uniform_0_1() for _ in range(n)), dtype=float, count=n
+        )
+        if self.basis == "per-loss":
+            targets = uniforms
+        else:
+            floor = float(self.severity.cdf(self.terms.deductible))
+            targets = floor + uniforms * (1.0 - floor)
+        losses = np.asarray(self.severity.ppf(targets), dtype=float)
+        payments = np.asarray(self.terms.payment(losses), dtype=float)
+        return [float(value) for value in payments]
 
     def _one(self, rng: RNG) -> float:
-        """One payment, by inversion so the conditioning is exact."""
+        """One payment, by inversion so the conditioning is exact.
+
+        The definition. :meth:`rvs` is the batched form of it and is what
+        callers get; a test holds the two together.
+        """
         u = rng.uniform_0_1()
         if self.basis == "per-loss":
-            return self.terms.payment(float(self.severity.ppf(u)))
+            return float(self.terms.payment(float(self.severity.ppf(u))))
         floor = float(self.severity.cdf(self.terms.deductible))
-        return self.terms.payment(float(self.severity.ppf(floor + u * (1.0 - floor))))
+        return float(
+            self.terms.payment(float(self.severity.ppf(floor + u * (1.0 - floor))))
+        )
 
 
 # --------------------------- Limited expected value -------------------------- #
@@ -693,17 +739,17 @@ def _numeric_lev(dist: Any, d: float, nodes: int) -> float:
     floor = min(max(float(dist.cdf(0.0)), 0.0), upper)
     width = upper - floor
 
-    total = 0.0
-    for i in range(nodes):
-        u = floor + width * (i + 0.5) / nodes
-        try:
-            value = float(dist.ppf(u))
-        except (ValueError, OverflowError):  # pragma: no cover - guarded families
-            return math.inf
-        if not math.isfinite(value):
-            return math.inf
-        total += min(value, d)
-    integral = total * width / nodes
+    # The whole midpoint rule in one call. This runs for every layer bound of
+    # every price, so 512 separate quantile evaluations was most of the cost of
+    # pricing anything whose severity has no closed form.
+    points = floor + width * (np.arange(nodes) + 0.5) / nodes
+    try:
+        values = np.asarray(dist.ppf(points), dtype=float)
+    except (ValueError, OverflowError):  # pragma: no cover - guarded families
+        return math.inf
+    if not np.all(np.isfinite(values)):
+        return math.inf
+    integral = float(np.minimum(values, d).sum()) * width / nodes
 
     if math.isinf(d):
         return float(integral)
@@ -771,17 +817,22 @@ def discretise_severity(
         raise ValueError(f"Unknown method {method!r}. Available: mass, mean-preserving")
 
     if method == "mass":
-        probabilities = [float(severity.cdf(0.5 * h))]
-        probabilities.extend(
-            float(severity.cdf((j + 0.5) * h)) - float(severity.cdf((j - 0.5) * h))
-            for j in range(1, n)
-        )
+        # One call for every cell edge, then one difference. The edges are
+        # shared between adjacent cells, so evaluating them per cell also
+        # computed each interior one twice.
+        edges = np.asarray(severity.cdf((np.arange(n + 1) - 0.5) * h), dtype=float)
+        edges[0] = 0.0  # the -h/2 edge is below the support by construction
+        weights = np.diff(edges)
+        weights[0] = float(severity.cdf(0.5 * h))
+        probabilities = weights.tolist()
     else:
-        levs = [limited_expected_value(severity, j * h) for j in range(n + 1)]
-        probabilities = [1.0 - levs[1] / h]
-        probabilities.extend(
-            (2.0 * levs[j] - levs[j - 1] - levs[j + 1]) / h for j in range(1, n)
+        lev = np.array(
+            [limited_expected_value(severity, j * h) for j in range(n + 1)],
+            dtype=float,
         )
+        # The second difference, as one expression rather than a loop of them.
+        interior = (2.0 * lev[1:n] - lev[0 : n - 1] - lev[2 : n + 1]) / h
+        probabilities = [1.0 - lev[1] / h, *interior.tolist()]
 
     # Local moment matching takes a second difference of limited expected
     # values, so any error in them is amplified by 1/h and can turn a weight
@@ -1017,21 +1068,30 @@ def panjer_recursion(
         )
 
     denominator = 1.0 - a * probabilities[0]
-    aggregate = [g_zero]
-    for k in range(1, n):
-        total = 0.0
-        for j in range(1, min(k, n - 1) + 1):
-            f_j = probabilities[j]
-            if f_j == 0.0:
-                continue
-            total += (a + b * j / k) * f_j * aggregate[k - j]
-        aggregate.append(total / denominator)
 
-    aggregate = [max(g, 0.0) for g in aggregate]
+    # The recursion in k is sequential -- g_k needs every g before it -- but
+    # the sum over j inside it is a dot product between the severity weights
+    # and the aggregate so far, reversed. Written as a Python loop it was
+    # quadratic in the interpreter; this leaves it quadratic in NumPy, which
+    # for the grids this is used on is the difference between seconds and
+    # milliseconds.
+    severity_weights = np.asarray(probabilities, dtype=float)
+    aggregate_array = np.zeros(n, dtype=float)
+    aggregate_array[0] = g_zero
+    index = np.arange(1, n, dtype=float)
+    for k in range(1, n):
+        span = min(k, n - 1)
+        # (a + b j / k) f_j for j = 1..span
+        coefficients = (a + b * index[:span] / k) * severity_weights[1 : span + 1]
+        # g_{k-1}, g_{k-2}, ..., g_{k-span}
+        previous = aggregate_array[k - span : k][::-1]
+        aggregate_array[k] = float(coefficients @ previous) / denominator
+
+    aggregate = np.maximum(aggregate_array, 0.0).tolist()
     return AggregateLoss(
         h=h,
         probabilities=aggregate,
-        truncated_mass=max(1.0 - sum(aggregate), 0.0),
+        truncated_mass=max(1.0 - float(np.sum(aggregate)), 0.0),
         severity_tail_mass=severity_tail,
     )
 
@@ -1107,16 +1167,14 @@ def _severity_second_moment(severity: Any) -> float:
         return float(centred + 2.0 * mu * shifted_mean + mu * mu)
 
     # Fall back on quadrature of the squared quantile function.
-    total = 0.0
     nodes = 4096
-    for i in range(nodes):
-        u = (i + 0.5) / nodes
-        value = float(severity.ppf(u))
-        if not math.isfinite(value):
+    points = (np.arange(nodes) + 0.5) / nodes
+    with np.errstate(over="ignore"):
+        values = np.asarray(severity.ppf(points), dtype=float)
+        if not np.all(np.isfinite(values)):
             return math.inf
-        total += value * value
-    result = total / nodes
-    return float(result) if math.isfinite(result) else math.inf
+        result = float((values * values).sum()) / nodes
+    return result if math.isfinite(result) else math.inf
 
 
 # --------------------------- Simulation -------------------------------------- #
