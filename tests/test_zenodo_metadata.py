@@ -67,12 +67,48 @@ def _cff_field(name: str) -> str:
     return match.group(1).strip()
 
 
-def test_the_citation_version_is_the_package_version() -> None:
-    """CITATION.cff describes a release, so it must name the one it ships with."""
+def _pyproject_version() -> str:
     pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     match = re.search(r'^version\s*=\s*"([^"]+)"', pyproject, re.MULTILINE)
     assert match is not None, "pyproject.toml has no version"
-    assert _cff_field("version") == match.group(1)
+    return match.group(1)
+
+
+def test_the_citation_version_is_the_package_version() -> None:
+    """CITATION.cff names the last release, which during a release *is* the
+    package version and between releases is not.
+
+    The first version of this asserted the two were simply equal, which is
+    true at a release and false for the whole development cycle after it:
+    ``pyproject.toml`` moves to ``0.5.0.dev0`` the moment work on the next
+    version starts, while ``CITATION.cff`` correctly goes on describing 0.4.0,
+    because 0.4.0 is what anyone can actually cite. That test would have gone
+    red on the first commit after every release, which is the wrong moment to
+    be arguing with a metadata check.
+
+    So: equality when the package version is a final release, and otherwise
+    the citation must name a final release no later than the one being worked
+    towards.
+    """
+    package = _pyproject_version()
+    citation = _cff_field("version")
+
+    final = re.fullmatch(r"\d+\.\d+\.\d+", package)
+    if final:
+        assert citation == package, (
+            f"pyproject is at {package}, a release, so CITATION.cff must name "
+            f"it; it names {citation}"
+        )
+        return
+
+    assert re.fullmatch(r"\d+\.\d+\.\d+", citation), (
+        f"CITATION.cff must name a released version, not {citation}"
+    )
+    base = re.match(r"(\d+)\.(\d+)\.(\d+)", package)
+    assert base is not None, f"cannot read a version out of {package}"
+    assert tuple(int(p) for p in citation.split(".")) <= tuple(
+        int(g) for g in base.groups()
+    ), f"CITATION.cff names {citation}, which is ahead of {package}"
 
 
 def test_the_citation_docs_cite_that_same_version() -> None:
