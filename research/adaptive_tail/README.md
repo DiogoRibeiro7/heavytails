@@ -42,6 +42,17 @@ Two threshold envelopes are supported:
   `n^(1/3)` to `n^(2/3)`. This is the theory-oriented envelope because
   `k -> infinity` and `k/n -> 0`.
 
+For any threshold envelope, the adaptive estimator and the local oracle use the
+same admissible trim range:
+
+```text
+h_n = min(max_trim, floor(k_min / 2) - 1).
+```
+
+Rows where `contamination_count > h_n` are labeled with
+`contamination_supported: false`; they are outside the declared trimming
+envelope and should not be used as evidence for recovery claims.
+
 ## Initial Experiment
 
 Run a quick smoke check:
@@ -76,6 +87,8 @@ The output reports:
   estimator's exact `(r, k)` grid.
 - `risk_ratio`: `adaptive_mse / oracle_mse`, reported only when the adaptive
   estimator has no failures.
+- `contamination_supported`: whether the planted contamination count is inside
+  the shared adaptive/oracle trim envelope.
 - `risk_ratio_bootstrap`: bootstrap uncertainty for the risk ratio. Each
   bootstrap draw resamples Monte Carlo replications and reruns the oracle
   select/evaluate split, so the interval includes oracle-selection variability
@@ -124,12 +137,20 @@ python research/adaptive_tail/clean_pareto_decomposition.py \
 
 This report compares:
 
-- `best_local_oracle`: in-sample empirical MSE minimum over fixed local `(r, k)`
-  candidates.
+- `best_local_oracle_oos`: out-of-sample empirical local oracle over fixed
+  `(r, k)` candidates, using the same two-fold Monte Carlo select/evaluate
+  rotation as the oracle experiment. This is the denominator for the reported
+  decomposition ratios.
+- `best_local_oracle_in_sample`: in-sample empirical MSE minimum over fixed
+  local `(r, k)` candidates, reported only as a winner's-curse diagnostic.
 - `full_sample_selected_local`: the final stable local estimator selected by
   the adaptive threshold rule, without threshold aggregation.
 - `full_sample_adaptive_aggregation`: the full-sample adaptive aggregate.
 - `cross_fitted_adaptive`: the production cross-fitted adaptive estimator.
+
+The decomposition uses independent deterministic streams for sample generation
+and cross-fit fold assignment: data seeds are `s`, and cross-fit split seeds are
+`1_000_000_000 + s`.
 
 Use `--k-grid-mode intermediate` on this script to inspect the same
 decomposition under the theory-oriented threshold envelope.

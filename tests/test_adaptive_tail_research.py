@@ -151,6 +151,30 @@ def test_report_can_use_the_intermediate_grid() -> None:
     )
 
 
+def test_intermediate_oracle_and_adaptive_share_the_trim_envelope() -> None:
+    row = experiment._evaluate_cell(
+        experiment.SCENARIOS["pareto"],
+        n=1000,
+        contamination_count=5,
+        delta=2.0,
+        trials=2,
+        k_fractions=[0.05, 0.10],
+        k_grid_mode="intermediate",
+        intermediate_grid_size=4,
+        intermediate_min_power=1.0 / 3.0,
+        intermediate_max_power=2.0 / 3.0,
+        max_trim=8,
+        bootstrap_draws=0,
+    )
+
+    assert row["k_grid"][0] == 10
+    assert row["admissible_max_trim"] == 4
+    assert row["adaptive_max_trim"] == 4
+    assert row["r_grid"] == [0, 1, 2, 3, 4]
+    assert not row["contamination_supported"]
+    assert all(pair is None or pair[0] <= 4 for pair in row["oracle_pairs"])
+
+
 def test_clean_pareto_decomposition_reports_the_four_layers() -> None:
     report = decomposition.build_report(
         trials=3,
@@ -162,15 +186,21 @@ def test_clean_pareto_decomposition_reports_the_four_layers() -> None:
     assert report["configuration"]["target"].startswith("clean-Pareto decomposition")
     row = report["results"][0]
     assert set(row["methods"]) == {
-        "best_local_oracle",
+        "best_local_oracle_oos",
+        "best_local_oracle_in_sample",
         "full_sample_selected_local",
         "full_sample_adaptive_aggregation",
         "cross_fitted_adaptive",
     }
-    assert row["methods"]["best_local_oracle"]["selected_pair"]
-    assert row["methods"]["best_local_oracle"]["ratio_to_best_local"] == 1.0
+    assert row["methods"]["best_local_oracle_oos"]["oracle_pairs"]
+    assert row["methods"]["best_local_oracle_oos"]["ratio_to_best_local_oos"] == 1.0
+    assert row["methods"]["best_local_oracle_in_sample"]["selected_pair"]
+    assert "ratio_to_best_local_oos" in row["methods"]["cross_fitted_adaptive"]
+    assert report["configuration"]["split_seed_offset"] == 1_000_000_000
     assert row["full_sample_selected_local_pair_counts"]
+    assert row["selected_trim_frequency"]
     assert row["stable_set_size_mean"] is not None
+    assert "stable_trim_frequency_within_stable_thresholds" in row
 
     json.dumps(report, allow_nan=False)
 
