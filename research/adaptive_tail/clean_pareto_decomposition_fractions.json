@@ -1,0 +1,387 @@
+{
+  "provenance": {
+    "heavytails_version": "0.5.0",
+    "heavytails_version_source": "pyproject.toml",
+    "version_source": "pyproject.toml",
+    "git_commit": "eb5b9ee5f144c346b885d695b3817c1a898c23be",
+    "python_version": "3.13.5",
+    "numpy_version": "2.3.5"
+  },
+  "configuration": {
+    "trials": 200,
+    "sample_sizes": [
+      1000,
+      5000,
+      10000
+    ],
+    "scenario": "pareto",
+    "k_grid_mode": "fractions",
+    "k_fractions": [
+      0.02,
+      0.05,
+      0.1
+    ],
+    "intermediate_grid_size": 10,
+    "intermediate_min_power": 0.3333333333333333,
+    "intermediate_max_power": 0.6666666666666666,
+    "max_trim": 8,
+    "trim_envelope": "both adaptive and local oracle candidates use min(max_trim, floor(k_min / 2) - 1)",
+    "data_seeds": "0..199 per sample size",
+    "crossfit_split_seeds": "1000000000..1000000199 per sample size",
+    "split_seed_offset": 1000000000,
+    "target": "clean-Pareto decomposition of local oracle, selection, aggregation and cross-fitting",
+    "best_local_oracle_oos": "two-fold Monte Carlo select/evaluate rotation over fixed local (r, k) candidates; main ratio denominator",
+    "best_local_oracle_in_sample": "in-sample empirical MSE minimum over fixed local (r, k) candidates; secondary winner's-curse diagnostic"
+  },
+  "results": [
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_used": -1.0,
+      "n": 1000,
+      "trials": 200,
+      "k_grid_mode": "fractions",
+      "k_grid": [
+        20,
+        45,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "methods": {
+        "best_local_oracle_oos": {
+          "failure_rate": 0.0,
+          "mse": 0.009076012078753993,
+          "rmse": 0.09526810630401968,
+          "mse_se": 0.000984447665796496,
+          "success_mse": 0.009076012078753993,
+          "success_rmse": 0.09526810630401968,
+          "ratio_to_best_local_oos": 1.0,
+          "oracle_pairs": [
+            [
+              0,
+              100
+            ],
+            [
+              0,
+              100
+            ]
+          ],
+          "oracle_selection_mse": [
+            0.010620813480852441,
+            0.0075312106766555476
+          ]
+        },
+        "best_local_oracle_in_sample": {
+          "failure_rate": 0.0,
+          "mse": 0.009076012078753993,
+          "rmse": 0.09526810630401968,
+          "mse_se": 0.000984447665796496,
+          "success_mse": 0.009076012078753993,
+          "success_rmse": 0.09526810630401968,
+          "ratio_to_best_local_oos": 1.0,
+          "selected_pair": [
+            0,
+            100
+          ]
+        },
+        "full_sample_selected_local": {
+          "failure_rate": 0.0,
+          "mse": 0.022260195403601996,
+          "rmse": 0.1491985100582509,
+          "mse_se": 0.0029482407187061935,
+          "success_mse": 0.022260195403601996,
+          "success_rmse": 0.1491985100582509,
+          "ratio_to_best_local_oos": 2.452640566192151
+        },
+        "full_sample_adaptive_aggregation": {
+          "failure_rate": 0.0,
+          "mse": 0.022414446322308074,
+          "rmse": 0.14971454946767224,
+          "mse_se": 0.0029519065054886217,
+          "success_mse": 0.022414446322308074,
+          "success_rmse": 0.14971454946767224,
+          "ratio_to_best_local_oos": 2.4696360172082605
+        },
+        "cross_fitted_adaptive": {
+          "failure_rate": 0.0,
+          "mse": 0.013928951340199319,
+          "rmse": 0.11802097839028161,
+          "mse_se": 0.0021737022871819315,
+          "success_mse": 0.013928951340199319,
+          "success_rmse": 0.11802097839028161,
+          "ratio_to_best_local_oos": 1.5346995155290235
+        }
+      },
+      "full_sample_selected_local_pair_counts": {
+        "r=0,k=100": 161,
+        "r=0,k=20": 17,
+        "r=0,k=45": 20,
+        "r=5,k=100": 1,
+        "r=7,k=100": 1
+      },
+      "selected_trim_frequency": {
+        "0": 0.99,
+        "5": 0.005,
+        "7": 0.005
+      },
+      "stable_set_size_mean": 2.73,
+      "stable_set_size_median": 3.0,
+      "stable_threshold_inclusion": {
+        "20": 1.0,
+        "45": 0.915,
+        "100": 0.815
+      },
+      "stable_trim_frequency_within_stable_thresholds": {
+        "0": 0.9908424908424909,
+        "4": 0.003663003663003663,
+        "5": 0.0018315018315018315,
+        "7": 0.003663003663003663
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_used": -1.0,
+      "n": 5000,
+      "trials": 200,
+      "k_grid_mode": "fractions",
+      "k_grid": [
+        100,
+        224,
+        500
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "methods": {
+        "best_local_oracle_oos": {
+          "failure_rate": 0.0,
+          "mse": 0.0025430102430076883,
+          "rmse": 0.05042826829277095,
+          "mse_se": 0.0002610570780876651,
+          "success_mse": 0.0025430102430076883,
+          "success_rmse": 0.05042826829277095,
+          "ratio_to_best_local_oos": 1.0,
+          "oracle_pairs": [
+            [
+              0,
+              500
+            ],
+            [
+              0,
+              500
+            ]
+          ],
+          "oracle_selection_mse": [
+            0.002646493139928152,
+            0.0024395273460872243
+          ]
+        },
+        "best_local_oracle_in_sample": {
+          "failure_rate": 0.0,
+          "mse": 0.0025430102430076883,
+          "rmse": 0.05042826829277095,
+          "mse_se": 0.0002610570780876651,
+          "success_mse": 0.0025430102430076883,
+          "success_rmse": 0.05042826829277095,
+          "ratio_to_best_local_oos": 1.0,
+          "selected_pair": [
+            0,
+            500
+          ]
+        },
+        "full_sample_selected_local": {
+          "failure_rate": 0.0,
+          "mse": 0.006400351019687389,
+          "rmse": 0.08000219384296527,
+          "mse_se": 0.0007982924296163677,
+          "success_mse": 0.006400351019687389,
+          "success_rmse": 0.08000219384296527,
+          "ratio_to_best_local_oos": 2.516840440295481
+        },
+        "full_sample_adaptive_aggregation": {
+          "failure_rate": 0.0,
+          "mse": 0.006405046992485594,
+          "rmse": 0.08003153748670329,
+          "mse_se": 0.0007983375119306979,
+          "success_mse": 0.006405046992485594,
+          "success_rmse": 0.08003153748670329,
+          "ratio_to_best_local_oos": 2.518687059990041
+        },
+        "cross_fitted_adaptive": {
+          "failure_rate": 0.0,
+          "mse": 0.004108917912862411,
+          "rmse": 0.06410084174847012,
+          "mse_se": 0.0004588876902069356,
+          "success_mse": 0.004108917912862411,
+          "success_rmse": 0.06410084174847012,
+          "ratio_to_best_local_oos": 1.6157693128293027
+        }
+      },
+      "full_sample_selected_local_pair_counts": {
+        "r=0,k=100": 21,
+        "r=0,k=224": 22,
+        "r=0,k=500": 155,
+        "r=3,k=500": 1,
+        "r=7,k=500": 1
+      },
+      "selected_trim_frequency": {
+        "0": 0.99,
+        "3": 0.005,
+        "7": 0.005
+      },
+      "stable_set_size_mean": 2.68,
+      "stable_set_size_median": 3.0,
+      "stable_threshold_inclusion": {
+        "100": 1.0,
+        "224": 0.895,
+        "500": 0.785
+      },
+      "stable_trim_frequency_within_stable_thresholds": {
+        "0": 0.9906716417910447,
+        "3": 0.0037313432835820895,
+        "7": 0.005597014925373134
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_used": -1.0,
+      "n": 10000,
+      "trials": 200,
+      "k_grid_mode": "fractions",
+      "k_grid": [
+        200,
+        447,
+        1000
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "methods": {
+        "best_local_oracle_oos": {
+          "failure_rate": 0.0,
+          "mse": 0.0011038372141445056,
+          "rmse": 0.03322404572210473,
+          "mse_se": 0.00011238417297709252,
+          "success_mse": 0.0011038372141445056,
+          "success_rmse": 0.03322404572210473,
+          "ratio_to_best_local_oos": 1.0,
+          "oracle_pairs": [
+            [
+              0,
+              1000
+            ],
+            [
+              2,
+              1000
+            ]
+          ],
+          "oracle_selection_mse": [
+            0.0012902574367175967,
+            0.0008718156160250755
+          ]
+        },
+        "best_local_oracle_in_sample": {
+          "failure_rate": 0.0,
+          "mse": 0.0010888972343797642,
+          "rmse": 0.03299844290841258,
+          "mse_se": 0.00011270842201149333,
+          "success_mse": 0.0010888972343797642,
+          "success_rmse": 0.03299844290841258,
+          "ratio_to_best_local_oos": 0.9864654139457328,
+          "selected_pair": [
+            1,
+            1000
+          ]
+        },
+        "full_sample_selected_local": {
+          "failure_rate": 0.0,
+          "mse": 0.0027198330778457186,
+          "rmse": 0.052152018923966106,
+          "mse_se": 0.0003459352275499335,
+          "success_mse": 0.0027198330778457186,
+          "success_rmse": 0.052152018923966106,
+          "ratio_to_best_local_oos": 2.4639802345798243
+        },
+        "full_sample_adaptive_aggregation": {
+          "failure_rate": 0.0,
+          "mse": 0.0027198330778457186,
+          "rmse": 0.052152018923966106,
+          "mse_se": 0.0003459352275499335,
+          "success_mse": 0.0027198330778457186,
+          "success_rmse": 0.052152018923966106,
+          "ratio_to_best_local_oos": 2.4639802345798243
+        },
+        "cross_fitted_adaptive": {
+          "failure_rate": 0.0,
+          "mse": 0.0015421669349785303,
+          "rmse": 0.03927043334340137,
+          "mse_se": 0.00018801396675195608,
+          "success_mse": 0.0015421669349785303,
+          "success_rmse": 0.03927043334340137,
+          "ratio_to_best_local_oos": 1.3970963428459318
+        }
+      },
+      "full_sample_selected_local_pair_counts": {
+        "r=0,k=1000": 151,
+        "r=0,k=200": 22,
+        "r=0,k=447": 26,
+        "r=5,k=1000": 1
+      },
+      "selected_trim_frequency": {
+        "0": 0.995,
+        "5": 0.005
+      },
+      "stable_set_size_mean": 2.65,
+      "stable_set_size_median": 3.0,
+      "stable_threshold_inclusion": {
+        "200": 1.0,
+        "447": 0.89,
+        "1000": 0.76
+      },
+      "stable_trim_frequency_within_stable_thresholds": {
+        "0": 0.9943396226415094,
+        "5": 0.005660377358490566
+      }
+    }
+  ]
+}

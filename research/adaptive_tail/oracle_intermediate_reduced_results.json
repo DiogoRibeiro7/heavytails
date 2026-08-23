@@ -1,0 +1,4930 @@
+{
+  "provenance": {
+    "heavytails_version": "0.5.0",
+    "heavytails_version_source": "pyproject.toml",
+    "version_source": "pyproject.toml",
+    "git_commit": "eb5b9ee5f144c346b885d695b3817c1a898c23be",
+    "python_version": "3.13.5",
+    "numpy_version": "2.3.5"
+  },
+  "configuration": {
+    "trials": 200,
+    "sample_sizes": [
+      1000,
+      5000,
+      10000
+    ],
+    "scenarios": [
+      "pareto",
+      "burr_rho_half",
+      "burr_rho_quarter",
+      "hall_rho_half"
+    ],
+    "contamination_counts": [
+      0,
+      1,
+      3
+    ],
+    "deltas": [
+      2.0,
+      10.0
+    ],
+    "k_grid_mode": "intermediate",
+    "k_fractions": [
+      0.02,
+      0.05,
+      0.1
+    ],
+    "intermediate_grid_size": 10,
+    "intermediate_min_power": 0.3333333333333333,
+    "intermediate_max_power": 0.6666666666666666,
+    "max_trim": 8,
+    "trim_envelope": "both adaptive and oracle candidates use min(max_trim, floor(k_min / 2) - 1)",
+    "bootstrap_draws": 200,
+    "seeds": "0..199 per cell",
+    "oracle": "two-fold Monte Carlo select/evaluate rotation",
+    "adaptive_failures": "primary risk ratio is null when any adaptive replication fails"
+  },
+  "results": [
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 1000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.005,
+      "adaptive_rmse_success": 0.21307387883195072,
+      "adaptive_mse_success_se": 0.00783791268463233,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.010620813480852441,
+        0.0075312106766555476
+      ],
+      "oracle_mse": 0.009076012078753993,
+      "oracle_rmse": 0.09526810630401968,
+      "oracle_mse_se": 0.000984447665796496,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.98,
+        "lower": 0.9497121344948062,
+        "upper": 0.9921956998236058
+      },
+      "failures": {
+        "adaptive": 1,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.28977159166265654,
+      "adaptive_mse_success_se": 0.010316607705402797,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.011141691724271598,
+        0.00733683160283898
+      ],
+      "oracle_mse": 0.010034020878866668,
+      "oracle_rmse": 0.10016995996238927,
+      "oracle_mse_se": 0.0010640564694305848,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.005,
+        "lower": 0.0008831459893662054,
+        "upper": 0.02777439986977148
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.045,
+        "lower": 0.023852271724704166,
+        "upper": 0.08329759366096785
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.7464349086535421,
+      "adaptive_mse_success_se": 0.032005770493126036,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          1,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.011141691724271598,
+        0.00844137835646025
+      ],
+      "oracle_mse": 0.010121330705297827,
+      "oracle_rmse": 0.10060482446333191,
+      "oracle_mse_se": 0.0010625455386293072,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.51,
+        "lower": 0.441184632709161,
+        "upper": 0.5784384471724727
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.895,
+        "lower": 0.8448186177864638,
+        "upper": 0.9302930375380627
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.2538647970120839,
+      "adaptive_mse_success_se": 0.008258636120563476,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          3,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.011141691724271598,
+        0.008892846876975367
+      ],
+      "oracle_mse": 0.010017269300623481,
+      "oracle_rmse": 0.10008630925667847,
+      "oracle_mse_se": 0.0010633101289386016,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.945,
+        "lower": 0.9042120755340645,
+        "upper": 0.9690149791986299
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.6197538965293634,
+      "adaptive_mse_success_se": 0.024554693404951426,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          3,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.011141691724271598,
+        0.008892846876975367
+      ],
+      "oracle_mse": 0.010017269300623481,
+      "oracle_rmse": 0.10008630925667847,
+      "oracle_mse_se": 0.0010633101289386016,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 5000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.005,
+      "adaptive_rmse_success": 0.11897551700247669,
+      "adaptive_mse_success_se": 0.002938873450456508,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          0,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.004228450373432961,
+        0.0038271405686173595
+      ],
+      "oracle_mse": 0.004174571965202221,
+      "oracle_rmse": 0.06461092759899227,
+      "oracle_mse_se": 0.00042536345942891,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.945,
+        "lower": 0.9042120755340645,
+        "upper": 0.9690149791986299
+      },
+      "failures": {
+        "adaptive": 1,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.1572787768646955,
+      "adaptive_mse_success_se": 0.003948927708925895,
+      "adaptive_mse": 0.02473661365205467,
+      "adaptive_rmse": 0.1572787768646955,
+      "adaptive_mse_se": 0.003948927708925895,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          0,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.004228450373432961,
+        0.003833867042690039
+      ],
+      "oracle_mse": 0.004271942496348833,
+      "oracle_rmse": 0.06536009865620486,
+      "oracle_mse_se": 0.0004378728274517166,
+      "risk_ratio": 5.79048376077082,
+      "risk_ratio_bootstrap": {
+        "se": 1.1773287225029656,
+        "lower": 3.9216220503159085,
+        "upper": 8.404437007438087
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.02,
+        "lower": 0.007804300176394188,
+        "upper": 0.050287865505193874
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.3748251116753045,
+      "adaptive_mse_success_se": 0.014212796169630016,
+      "adaptive_mse": 0.1404938643424045,
+      "adaptive_rmse": 0.3748251116753045,
+      "adaptive_mse_se": 0.014212796169630016,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          1,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.004228450373432961,
+        0.003887757550533608
+      ],
+      "oracle_mse": 0.004244920887234058,
+      "oracle_rmse": 0.06515305738976536,
+      "oracle_mse_se": 0.0004362173368042964,
+      "risk_ratio": 33.09693350585591,
+      "risk_ratio_bootstrap": {
+        "se": 5.338743326339683,
+        "lower": 25.211724074300864,
+        "upper": 46.0702136120681
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.195,
+        "lower": 0.14605441564505764,
+        "upper": 0.2554416479651182
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.655,
+        "lower": 0.5867546071792236,
+        "upper": 0.7174031309860971
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.22257004654756302,
+      "adaptive_mse_success_se": 0.005945537736694396,
+      "adaptive_mse": 0.049537425620184365,
+      "adaptive_rmse": 0.22257004654756302,
+      "adaptive_mse_se": 0.005945537736694396,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          3,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.004228450373432961,
+        0.0039742709991041425
+      ],
+      "oracle_mse": 0.004179287142750128,
+      "oracle_rmse": 0.06464740631108203,
+      "oracle_mse_se": 0.00042261029929631285,
+      "risk_ratio": 11.853080185245869,
+      "risk_ratio_bootstrap": {
+        "se": 1.892332490025962,
+        "lower": 8.8318039142906,
+        "upper": 16.241545518225614
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.87,
+        "lower": 0.8163353692726989,
+        "upper": 0.9097185863477437
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.94,
+        "lower": 0.8980673646931491,
+        "upper": 0.9653481500987285
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.30193898031284366,
+      "adaptive_mse_success_se": 0.014264062946812619,
+      "adaptive_mse": 0.0911671478323598,
+      "adaptive_rmse": 0.30193898031284366,
+      "adaptive_mse_se": 0.014264062946812619,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          3,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.004228450373432961,
+        0.0039742709991041425
+      ],
+      "oracle_mse": 0.004179287142750128,
+      "oracle_rmse": 0.06464740631108203,
+      "oracle_mse_se": 0.00042261029929631285,
+      "risk_ratio": 21.814042615020796,
+      "risk_ratio_bootstrap": {
+        "se": 4.084599024443974,
+        "lower": 14.027579476389649,
+        "upper": 30.96136271969557
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.96,
+        "lower": 0.9230670617058012,
+        "upper": 0.9795946128493436
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 10000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.08514767411803446,
+      "adaptive_mse_success_se": 0.001176623689320439,
+      "adaptive_mse": 0.007250126407710995,
+      "adaptive_rmse": 0.08514767411803446,
+      "adaptive_mse_se": 0.001176623689320439,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.002721982567049626,
+        0.0018173141236284987
+      ],
+      "oracle_mse": 0.0022696483453390624,
+      "oracle_rmse": 0.04764082645524805,
+      "oracle_mse_se": 0.00022208867237778385,
+      "risk_ratio": 3.1943831398374183,
+      "risk_ratio_bootstrap": {
+        "se": 0.594625941999459,
+        "lower": 2.173564708889121,
+        "upper": 4.442760329341687
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.98,
+        "lower": 0.9497121344948062,
+        "upper": 0.9921956998236058
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.1251820566285842,
+      "adaptive_mse_success_se": 0.0024910295648559017,
+      "adaptive_mse": 0.015670547301762063,
+      "adaptive_rmse": 0.1251820566285842,
+      "adaptive_mse_se": 0.0024910295648559017,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.0027113059764726976,
+        0.001823052863831192
+      ],
+      "oracle_mse": 0.0022671794201519447,
+      "oracle_rmse": 0.04761490754114665,
+      "oracle_mse_se": 0.0002235320358540077,
+      "risk_ratio": 6.911913173908324,
+      "risk_ratio_bootstrap": {
+        "se": 1.1348150024777042,
+        "lower": 4.637469468831453,
+        "upper": 9.324512895256756
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.005,
+        "lower": 0.0008831459893662054,
+        "upper": 0.02777439986977148
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.045,
+        "lower": 0.023852271724704166,
+        "upper": 0.08329759366096785
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.2500747122483089,
+      "adaptive_mse_success_se": 0.008257813156412061,
+      "adaptive_mse": 0.0625373617060745,
+      "adaptive_rmse": 0.2500747122483089,
+      "adaptive_mse_se": 0.008257813156412061,
+      "oracle_pairs": [
+        [
+          1,
+          464
+        ],
+        [
+          1,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.0027938604480777524,
+        0.001854836759832072
+      ],
+      "oracle_mse": 0.002324348603954912,
+      "oracle_rmse": 0.048211498669455524,
+      "oracle_mse_se": 0.000228224080827809,
+      "risk_ratio": 26.905328056069685,
+      "risk_ratio_bootstrap": {
+        "se": 4.120861803459047,
+        "lower": 19.30198352471405,
+        "upper": 36.370500433433975
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.145,
+        "lower": 0.1028928513530641,
+        "upper": 0.20048781284894374
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.58,
+        "lower": 0.5107194625547862,
+        "upper": 0.6462651764982825
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.07225502007111,
+      "adaptive_mse_success_se": 0.001225900172956146,
+      "adaptive_mse": 0.005220787925476508,
+      "adaptive_rmse": 0.07225502007111,
+      "adaptive_mse_se": 0.001225900172956146,
+      "oracle_pairs": [
+        [
+          5,
+          464
+        ],
+        [
+          4,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.002929057597680326,
+        0.0018917650016819461
+      ],
+      "oracle_mse": 0.0024578093107802236,
+      "oracle_rmse": 0.04957629787287695,
+      "oracle_mse_se": 0.00024273924797355348,
+      "risk_ratio": 2.124163132826275,
+      "risk_ratio_bootstrap": {
+        "se": 0.505603418410522,
+        "lower": 1.2431291068271062,
+        "upper": 3.3529120719814673
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.795,
+        "lower": 0.7337418048192546,
+        "upper": 0.8451390516889363
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.96,
+        "lower": 0.9230670617058012,
+        "upper": 0.9795946128493436
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.1412404747277339,
+      "adaptive_mse_success_se": 0.0042608261313652465,
+      "adaptive_mse": 0.019948871701315637,
+      "adaptive_rmse": 0.1412404747277339,
+      "adaptive_mse_se": 0.0042608261313652465,
+      "oracle_pairs": [
+        [
+          5,
+          464
+        ],
+        [
+          4,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.002929057597680326,
+        0.0018917650016819461
+      ],
+      "oracle_mse": 0.0024578093107802236,
+      "oracle_rmse": 0.04957629787287695,
+      "oracle_mse_se": 0.00024273924797355348,
+      "risk_ratio": 8.116525400818395,
+      "risk_ratio_bootstrap": {
+        "se": 2.018736591086091,
+        "lower": 4.735111427327916,
+        "upper": 12.650072426615973
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.005,
+      "adaptive_rmse_success": 0.2903719463935906,
+      "adaptive_mse_success_se": 0.015832106077295214,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.03206027385022417,
+        0.02219293078157075
+      ],
+      "oracle_mse": 0.027126602315897457,
+      "oracle_rmse": 0.16470155529289168,
+      "oracle_mse_se": 0.002994284631420951,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "failures": {
+        "adaptive": 1,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.2984440181489489,
+      "adaptive_mse_success_se": 0.011878418244889007,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.031156858732074286,
+        0.020207757347675853
+      ],
+      "oracle_mse": 0.02568230803987507,
+      "oracle_rmse": 0.16025700621150724,
+      "oracle_mse_se": 0.002977744918311462,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.6321305282752102,
+      "adaptive_mse_success_se": 0.035489326086061486,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          1,
+          100
+        ],
+        [
+          1,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.03647351917281804,
+        0.02574405199381485
+      ],
+      "oracle_mse": 0.03110878558331645,
+      "oracle_rmse": 0.1763768283627882,
+      "oracle_mse_se": 0.0033102919625716347,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.155,
+        "lower": 0.11139568514638545,
+        "upper": 0.211608058937256
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.4,
+        "lower": 0.3346046396837895,
+        "upper": 0.46916456149987484
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.24734953997165043,
+      "adaptive_mse_success_se": 0.006028813294792427,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          3,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.037598816480563166,
+        0.029164380816725184
+      ],
+      "oracle_mse": 0.03338159864864418,
+      "oracle_rmse": 0.1827063180315453,
+      "oracle_mse_se": 0.003584823918911831,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.79,
+        "lower": 0.7283526118460081,
+        "upper": 0.8407167047213658
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.915,
+        "lower": 0.8681031145576462,
+        "upper": 0.9462547005301477
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.35474847095660905,
+      "adaptive_mse_success_se": 0.013684582075361672,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          3,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.037598816480563166,
+        0.029164380816725184
+      ],
+      "oracle_mse": 0.03338159864864418,
+      "oracle_rmse": 0.1827063180315453,
+      "oracle_mse_se": 0.003584823918911831,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.005,
+      "adaptive_rmse_success": 0.22418004827216445,
+      "adaptive_mse_success_se": 0.008507007560338932,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          292
+        ],
+        [
+          0,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.01164170254794187,
+        0.010727053064137453
+      ],
+      "oracle_mse": 0.011184377806039663,
+      "oracle_rmse": 0.10575621875823503,
+      "oracle_mse_se": 0.0011866287218759409,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "failures": {
+        "adaptive": 1,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.2625610524695879,
+      "adaptive_mse_success_se": 0.008687667639773952,
+      "adaptive_mse": 0.06893830627393767,
+      "adaptive_rmse": 0.2625610524695879,
+      "adaptive_mse_se": 0.008687667639773952,
+      "oracle_pairs": [
+        [
+          0,
+          292
+        ],
+        [
+          0,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.011767909853681167,
+        0.010164619572300457
+      ],
+      "oracle_mse": 0.010966264712990812,
+      "oracle_rmse": 0.10471993464947738,
+      "oracle_mse_se": 0.00116038109794766,
+      "risk_ratio": 6.286398156363329,
+      "risk_ratio_bootstrap": {
+        "se": 1.097203508546666,
+        "lower": 4.304011821620396,
+        "upper": 8.66847882556881
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.005,
+        "lower": 0.0008831459893662054,
+        "upper": 0.02777439986977148
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.599875817676065,
+      "adaptive_mse_success_se": 0.0318412818747142,
+      "adaptive_mse": 0.35985099663252756,
+      "adaptive_rmse": 0.599875817676065,
+      "adaptive_mse_se": 0.0318412818747142,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          1,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.012027653260198685,
+        0.01113318152987853
+      ],
+      "oracle_mse": 0.011969142508619801,
+      "oracle_rmse": 0.10940357630635207,
+      "oracle_mse_se": 0.0012782202250564765,
+      "risk_ratio": 30.064893652437856,
+      "risk_ratio_bootstrap": {
+        "se": 4.74312890859465,
+        "lower": 21.51805105884594,
+        "upper": 39.39449251253777
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.04,
+        "lower": 0.02040538715065641,
+        "upper": 0.07693293829419882
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.285,
+        "lower": 0.22694905173277297,
+        "upper": 0.3511547308121051
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.2911695897680427,
+      "adaptive_mse_success_se": 0.008947745289475707,
+      "adaptive_mse": 0.08477973000569028,
+      "adaptive_rmse": 0.2911695897680427,
+      "adaptive_mse_se": 0.008947745289475707,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          3,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.012027653260198685,
+        0.011633258834806776
+      ],
+      "oracle_mse": 0.011982249453730548,
+      "oracle_rmse": 0.10946346172915668,
+      "oracle_mse_se": 0.001275760284198046,
+      "risk_ratio": 7.075443582865402,
+      "risk_ratio_bootstrap": {
+        "se": 1.1584892091902963,
+        "lower": 4.666105007486668,
+        "upper": 9.745159549771031
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.74,
+        "lower": 0.6750912860870691,
+        "upper": 0.795862631072137
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.895,
+        "lower": 0.8448186177864638,
+        "upper": 0.9302930375380627
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.3369851046554104,
+      "adaptive_mse_success_se": 0.016927818473532297,
+      "adaptive_mse": 0.11355896075961787,
+      "adaptive_rmse": 0.3369851046554104,
+      "adaptive_mse_se": 0.016927818473532297,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          3,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.012027653260198685,
+        0.011633258834806776
+      ],
+      "oracle_mse": 0.011982249453730548,
+      "oracle_rmse": 0.10946346172915668,
+      "oracle_mse_se": 0.001275760284198046,
+      "risk_ratio": 9.477265616788046,
+      "risk_ratio_bootstrap": {
+        "se": 1.923495685890909,
+        "lower": 6.06287799633197,
+        "upper": 13.380923859338326
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.14551746238851956,
+      "adaptive_mse_success_se": 0.0026981945024845974,
+      "adaptive_mse": 0.021175331859994203,
+      "adaptive_rmse": 0.14551746238851956,
+      "adaptive_mse_se": 0.0026981945024845974,
+      "oracle_pairs": [
+        [
+          0,
+          331
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.006955549314428352,
+        0.005335406449261353
+      ],
+      "oracle_mse": 0.007258685560230783,
+      "oracle_rmse": 0.0851979199290146,
+      "oracle_mse_se": 0.0007243768717348643,
+      "risk_ratio": 2.917240550549617,
+      "risk_ratio_bootstrap": {
+        "se": 0.4636146190093894,
+        "lower": 2.434504837430448,
+        "upper": 4.283504892597921
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.27480644630273776,
+      "adaptive_mse_success_se": 0.009868857856964494,
+      "adaptive_mse": 0.0755185829295395,
+      "adaptive_rmse": 0.27480644630273776,
+      "adaptive_mse_se": 0.009868857856964494,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.006839921935212481,
+        0.005111085628400795
+      ],
+      "oracle_mse": 0.005975503781806638,
+      "oracle_rmse": 0.07730138279362561,
+      "oracle_mse_se": 0.00064426394032159,
+      "risk_ratio": 12.638027802687988,
+      "risk_ratio_bootstrap": {
+        "se": 1.9052395440029122,
+        "lower": 9.096140425431447,
+        "upper": 16.856654927884186
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.01,
+        "lower": 0.0027466006037749346,
+        "upper": 0.03572248519617954
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.5141236618665445,
+      "adaptive_mse_success_se": 0.025343639663834613,
+      "adaptive_mse": 0.26432313969106497,
+      "adaptive_rmse": 0.5141236618665445,
+      "adaptive_mse_se": 0.025343639663834613,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          1,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.007261090425240694,
+        0.005602656889537692
+      ],
+      "oracle_mse": 0.006674202892436043,
+      "oracle_rmse": 0.08169579482712708,
+      "oracle_mse_se": 0.0007130443393931025,
+      "risk_ratio": 39.603701588189004,
+      "risk_ratio_bootstrap": {
+        "se": 5.483032505980199,
+        "lower": 30.444216260575562,
+        "upper": 51.57354737085225
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.06,
+        "lower": 0.0346518499012715,
+        "upper": 0.10193263530685089
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.255,
+        "lower": 0.19960402982802747,
+        "upper": 0.3196305130719498
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.10917379053965817,
+      "adaptive_mse_success_se": 0.0027165049258779054,
+      "adaptive_mse": 0.011918916540797157,
+      "adaptive_rmse": 0.10917379053965817,
+      "adaptive_mse_se": 0.0027165049258779054,
+      "oracle_pairs": [
+        [
+          3,
+          464
+        ],
+        [
+          4,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.008116121510875122,
+        0.005873186074360135
+      ],
+      "oracle_mse": 0.00710388077853533,
+      "oracle_rmse": 0.08428452276981421,
+      "oracle_mse_se": 0.0007872433908430737,
+      "risk_ratio": 1.6778035713677315,
+      "risk_ratio_bootstrap": {
+        "se": 0.38192888155996235,
+        "lower": 0.9234404413370491,
+        "upper": 2.5609808454564593
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.655,
+        "lower": 0.5867546071792236,
+        "upper": 0.7174031309860971
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.89,
+        "lower": 0.8390720169908702,
+        "upper": 0.9262280983928396
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.1254281724751116,
+      "adaptive_mse_success_se": 0.0028937433601470487,
+      "adaptive_mse": 0.015732226450446342,
+      "adaptive_rmse": 0.1254281724751116,
+      "adaptive_mse_se": 0.0028937433601470487,
+      "oracle_pairs": [
+        [
+          3,
+          464
+        ],
+        [
+          4,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.008116121510875122,
+        0.005873186074360135
+      ],
+      "oracle_mse": 0.00710388077853533,
+      "oracle_rmse": 0.08428452276981421,
+      "oracle_mse_se": 0.0007872433908430737,
+      "risk_ratio": 2.2145960695148372,
+      "risk_ratio_bootstrap": {
+        "se": 0.4385949409917003,
+        "lower": 1.5025790246225648,
+        "upper": 3.0366773361890824
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 1000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.005,
+      "adaptive_rmse_success": 0.508107588117829,
+      "adaptive_mse_success_se": 0.02722317668489899,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          77
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.22318181867362502,
+        0.18333617025009397
+      ],
+      "oracle_mse": 0.21642258647424803,
+      "oracle_rmse": 0.46521241006044545,
+      "oracle_mse_se": 0.021871098454946974,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "failures": {
+        "adaptive": 1,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.4776662553211501,
+      "adaptive_mse_success_se": 0.026322901619829964,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          77
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.1688672160697879,
+        0.13093665968035786
+      ],
+      "oracle_mse": 0.17383728463266584,
+      "oracle_rmse": 0.41693798655515407,
+      "oracle_mse_se": 0.018702548921019746,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.5210298406533109,
+      "adaptive_mse_success_se": 0.03271150420701435,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.16213359895843632,
+        0.11411317098778856
+      ],
+      "oracle_mse": 0.13812338497311244,
+      "oracle_rmse": 0.37164954590731364,
+      "oracle_mse_se": 0.015859718948597525,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.035,
+        "lower": 0.017055324637357105,
+        "upper": 0.07047146086668134
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.46488206348319194,
+      "adaptive_mse_success_se": 0.021316029039616147,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.21997134304873517,
+        0.16263821169030293
+      ],
+      "oracle_mse": 0.19130477736951904,
+      "oracle_rmse": 0.4373840159053815,
+      "oracle_mse_se": 0.02266122971500192,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.505,
+        "lower": 0.4362687594824017,
+        "upper": 0.573542780458415
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.675,
+        "lower": 0.6073185684304498,
+        "upper": 0.736085329498138
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.5138391094143643,
+      "adaptive_mse_success_se": 0.02470322973993569,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          3,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.3058053803735208,
+        0.2641980548989043
+      ],
+      "oracle_mse": 0.28500171763621257,
+      "oracle_rmse": 0.5338555213128479,
+      "oracle_mse_se": 0.026778490481365224,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 5000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.005,
+      "adaptive_rmse_success": 0.35533437529907214,
+      "adaptive_mse_success_se": 0.0186808972090165,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          213
+        ],
+        [
+          0,
+          213
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.06939903286102546,
+        0.07392022236580764
+      ],
+      "oracle_mse": 0.07165962761341654,
+      "oracle_rmse": 0.26769315944457106,
+      "oracle_mse_se": 0.006559895513753659,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "failures": {
+        "adaptive": 1,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.2841710728688935,
+      "adaptive_mse_success_se": 0.010472492197512956,
+      "adaptive_mse": 0.08075319865545798,
+      "adaptive_rmse": 0.2841710728688935,
+      "adaptive_mse_se": 0.010472492197512956,
+      "oracle_pairs": [
+        [
+          0,
+          213
+        ],
+        [
+          0,
+          213
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.05872821769384072,
+        0.05817318834802184
+      ],
+      "oracle_mse": 0.05845070302093128,
+      "oracle_rmse": 0.24176580200874415,
+      "oracle_mse_se": 0.005450607230227823,
+      "risk_ratio": 1.3815607765494309,
+      "risk_ratio_bootstrap": {
+        "se": 0.2182620836546814,
+        "lower": 0.9668458132831714,
+        "upper": 1.891261191301567
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.4598217809791131,
+      "adaptive_mse_success_se": 0.03064289213191832,
+      "adaptive_mse": 0.21143607026280342,
+      "adaptive_rmse": 0.4598217809791131,
+      "adaptive_mse_se": 0.03064289213191832,
+      "oracle_pairs": [
+        [
+          0,
+          292
+        ],
+        [
+          0,
+          213
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.05227295608997732,
+        0.048059557617023206
+      ],
+      "oracle_mse": 0.05445873270823357,
+      "oracle_rmse": 0.23336394903290777,
+      "oracle_mse_se": 0.005041541373806093,
+      "risk_ratio": 3.882500744106309,
+      "risk_ratio_bootstrap": {
+        "se": 0.8492732477519478,
+        "lower": 2.7522053715261956,
+        "upper": 6.270330834334365
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.015,
+        "lower": 0.005114145184492384,
+        "upper": 0.04316648055627889
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.27546888829060334,
+      "adaptive_mse_success_se": 0.009789789688464388,
+      "adaptive_mse": 0.0758831084160609,
+      "adaptive_rmse": 0.27546888829060334,
+      "adaptive_mse_se": 0.009789789688464388,
+      "oracle_pairs": [
+        [
+          0,
+          292
+        ],
+        [
+          0,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.05748475696584257,
+        0.053959808700061146
+      ],
+      "oracle_mse": 0.055722282832951865,
+      "oracle_rmse": 0.23605567740037914,
+      "oracle_mse_se": 0.00590617745641511,
+      "risk_ratio": 1.3618090386488393,
+      "risk_ratio_bootstrap": {
+        "se": 0.22097532097739656,
+        "lower": 0.9588137058683511,
+        "upper": 1.8886762385453426
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.37,
+        "lower": 0.30612497503752417,
+        "upper": 0.4387749865012393
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.695,
+        "lower": 0.6280132012185453,
+        "upper": 0.7546368564733095
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.3963896533815234,
+      "adaptive_mse_success_se": 0.016625492722906865,
+      "adaptive_mse": 0.15712475730792425,
+      "adaptive_rmse": 0.3963896533815234,
+      "adaptive_mse_se": 0.016625492722906865,
+      "oracle_pairs": [
+        [
+          3,
+          213
+        ],
+        [
+          3,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.08254997941223222,
+        0.09475401720858305
+      ],
+      "oracle_mse": 0.08996628835914768,
+      "oracle_rmse": 0.29994380866947007,
+      "oracle_mse_se": 0.009022497674803412,
+      "risk_ratio": 1.7464848241896818,
+      "risk_ratio_bootstrap": {
+        "se": 0.2683433889260545,
+        "lower": 1.2778400522934228,
+        "upper": 2.3673064847385943
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 10000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.3096285303645819,
+      "adaptive_mse_success_se": 0.01256700616113717,
+      "adaptive_mse": 0.0958698268157308,
+      "adaptive_rmse": 0.3096285303645819,
+      "adaptive_mse_se": 0.01256700616113717,
+      "oracle_pairs": [
+        [
+          0,
+          331
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.04058562555204059,
+        0.04463710773490504
+      ],
+      "oracle_mse": 0.049598135277236485,
+      "oracle_rmse": 0.22270638804766352,
+      "oracle_mse_se": 0.004817934027686305,
+      "risk_ratio": 1.9329320806085046,
+      "risk_ratio_bootstrap": {
+        "se": 0.3577968047174739,
+        "lower": 1.5264133963957973,
+        "upper": 2.875265258681566
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.2570071413264647,
+      "adaptive_mse_success_se": 0.008956811940376024,
+      "adaptive_mse": 0.06605267069280138,
+      "adaptive_rmse": 0.2570071413264647,
+      "adaptive_mse_se": 0.008956811940376024,
+      "oracle_pairs": [
+        [
+          0,
+          331
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.03323968456380462,
+        0.03745643536428201
+      ],
+      "oracle_mse": 0.04173917794398726,
+      "oracle_rmse": 0.20430168365431367,
+      "oracle_mse_se": 0.00420037666926201,
+      "risk_ratio": 1.5825101007365816,
+      "risk_ratio_bootstrap": {
+        "se": 0.3184469062047213,
+        "lower": 1.2611036706569076,
+        "upper": 2.4748213225126303
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.018846005918320894
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.44946032685553006,
+      "adaptive_mse_success_se": 0.026113753206492157,
+      "adaptive_mse": 0.20201458541707992,
+      "adaptive_rmse": 0.44946032685553006,
+      "adaptive_mse_se": 0.026113753206492157,
+      "oracle_pairs": [
+        [
+          0,
+          331
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.027938796276925467,
+        0.027176724804363964
+      ],
+      "oracle_mse": 0.03258539375601191,
+      "oracle_rmse": 0.18051424806926436,
+      "oracle_mse_se": 0.003221219328810148,
+      "risk_ratio": 6.199544094194314,
+      "risk_ratio_bootstrap": {
+        "se": 1.1392268789862305,
+        "lower": 4.637555557754137,
+        "upper": 9.011967465509697
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.005,
+        "lower": 0.0008831459893662054,
+        "upper": 0.02777439986977148
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.045,
+        "lower": 0.023852271724704166,
+        "upper": 0.08329759366096785
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.1891295571007041,
+      "adaptive_mse_success_se": 0.004446368608428529,
+      "adaptive_mse": 0.03576998936910849,
+      "adaptive_rmse": 0.1891295571007041,
+      "adaptive_mse_se": 0.004446368608428529,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.031146278718331786,
+        0.027774115214384554
+      ],
+      "oracle_mse": 0.02946019696635817,
+      "oracle_rmse": 0.17163973015114586,
+      "oracle_mse_se": 0.0032470883328113275,
+      "risk_ratio": 1.2141802517463047,
+      "risk_ratio_bootstrap": {
+        "se": 0.17459286675931576,
+        "lower": 0.8769934105790973,
+        "upper": 1.5704554088453344
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.365,
+        "lower": 0.3014041621876483,
+        "upper": 0.4336842594102984
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.635,
+        "lower": 0.5663157405897017,
+        "upper": 0.6985958378123518
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.23666430132567262,
+      "adaptive_mse_success_se": 0.0046191611325753865,
+      "adaptive_mse": 0.05600999152196877,
+      "adaptive_rmse": 0.23666430132567262,
+      "adaptive_mse_se": 0.0046191611325753865,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          3,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.04762124016615862,
+        0.05173332678055408
+      ],
+      "oracle_mse": 0.05730087676749394,
+      "oracle_rmse": 0.23937601543908682,
+      "oracle_mse_se": 0.005714027928605784,
+      "risk_ratio": 0.9774718063955092,
+      "risk_ratio_bootstrap": {
+        "se": 0.15336643604097194,
+        "lower": 0.830313290909919,
+        "upper": 1.4715590065782564
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 1.0,
+        "lower": 0.9811539940816791,
+        "upper": 1.0
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.01,
+      "adaptive_rmse_success": 0.20678932613910098,
+      "adaptive_mse_success_se": 0.0064932017534316076,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.020441185093518235,
+        0.014270213010966586
+      ],
+      "oracle_mse": 0.01735569905224241,
+      "oracle_rmse": 0.13174103025345751,
+      "oracle_mse_se": 0.001838679908859731,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.98,
+        "lower": 0.9497121344948062,
+        "upper": 0.9921956998236058
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.915,
+        "lower": 0.8681031145576462,
+        "upper": 0.9462547005301477
+      },
+      "failures": {
+        "adaptive": 2,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.2615393442852012,
+      "adaptive_mse_success_se": 0.009644703289482543,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          0,
+          100
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.02150855735566307,
+        0.014250737303870314
+      ],
+      "oracle_mse": 0.01787964732976669,
+      "oracle_rmse": 0.13371479846960355,
+      "oracle_mse_se": 0.002073508653584703,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.04,
+        "lower": 0.02040538715065641,
+        "upper": 0.07693293829419882
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.115,
+        "lower": 0.07786317221824318,
+        "upper": 0.16664825233886393
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.5974413689724183,
+      "adaptive_mse_success_se": 0.03629042027856539,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          1,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.022424239642512583,
+        0.016773400473047123
+      ],
+      "oracle_mse": 0.020386074944905186,
+      "oracle_rmse": 0.14277981280596072,
+      "oracle_mse_se": 0.0020515388660166454,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.89,
+        "lower": 0.8390720169908702,
+        "upper": 0.9262280983928396
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.92,
+        "lower": 0.8740095102048769,
+        "upper": 0.9501598448237337
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.20113197702765911,
+      "adaptive_mse_success_se": 0.004313250228277755,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          3,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.022424239642512583,
+        0.017839209909062258
+      ],
+      "oracle_mse": 0.020131724775787424,
+      "oracle_rmse": 0.1418863093317584,
+      "oracle_mse_se": 0.002071277635797561,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.985,
+        "lower": 0.9568335194437211,
+        "upper": 0.9948858548155076
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 1000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        10,
+        13,
+        17,
+        22,
+        28,
+        36,
+        46,
+        60,
+        77,
+        100
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 4,
+      "adaptive_max_trim": 4,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.065,
+      "adaptive_rmse_success": 0.257544415350941,
+      "adaptive_mse_success_se": 0.007380278337981011,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          3,
+          100
+        ],
+        [
+          3,
+          100
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.022424239642512583,
+        0.017839209909062258
+      ],
+      "oracle_mse": 0.020131724775787424,
+      "oracle_rmse": 0.1418863093317584,
+      "oracle_mse_se": 0.002071277635797561,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.995,
+        "lower": 0.9722256001302286,
+        "upper": 0.999116854010634
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.985,
+        "lower": 0.9568335194437211,
+        "upper": 0.9948858548155076
+      },
+      "failures": {
+        "adaptive": 13,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.005,
+      "adaptive_rmse_success": 0.18211046877638312,
+      "adaptive_mse_success_se": 0.005333146534105007,
+      "adaptive_mse": null,
+      "adaptive_rmse": null,
+      "adaptive_mse_se": null,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          0,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.008547579809576768,
+        0.007609153431798647
+      ],
+      "oracle_mse": 0.008390670172037472,
+      "oracle_rmse": 0.09160060137377632,
+      "oracle_mse_se": 0.0008819662767330083,
+      "risk_ratio": null,
+      "risk_ratio_bootstrap": {
+        "se": null,
+        "lower": null,
+        "upper": null
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.98,
+        "lower": 0.9497121344948062,
+        "upper": 0.9921956998236058
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.915,
+        "lower": 0.8681031145576462,
+        "upper": 0.9462547005301477
+      },
+      "failures": {
+        "adaptive": 1,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.24933689928754404,
+      "adaptive_mse_success_se": 0.008354525343180383,
+      "adaptive_mse": 0.06216888934632689,
+      "adaptive_rmse": 0.24933689928754404,
+      "adaptive_mse_se": 0.008354525343180383,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          0,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.008547579809576768,
+        0.007399789061209539
+      ],
+      "oracle_mse": 0.008570122984431251,
+      "oracle_rmse": 0.09257495873307885,
+      "oracle_mse_se": 0.0008974467928380711,
+      "risk_ratio": 7.254142030314478,
+      "risk_ratio_bootstrap": {
+        "se": 1.3726029575570922,
+        "lower": 5.19099921282584,
+        "upper": 11.288066466031795
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.01,
+        "lower": 0.0027466006037749346,
+        "upper": 0.03572248519617954
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.025,
+        "lower": 0.010724561470787711,
+        "upper": 0.05717914415161715
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.5827917882609881,
+      "adaptive_mse_success_se": 0.02996588210025989,
+      "adaptive_mse": 0.33964626846444035,
+      "adaptive_rmse": 0.5827917882609881,
+      "adaptive_mse_se": 0.02996588210025989,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          1,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.008547579809576768,
+        0.007846802839239761
+      ],
+      "oracle_mse": 0.008628082266456913,
+      "oracle_rmse": 0.09288747098751754,
+      "oracle_mse_se": 0.0009180443527370453,
+      "risk_ratio": 39.365209785362275,
+      "risk_ratio_bootstrap": {
+        "se": 6.1364824765958845,
+        "lower": 30.75218200554648,
+        "upper": 54.518832133317034
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.43,
+        "lower": 0.36334204488394795,
+        "upper": 0.49929639594461706
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.89,
+        "lower": 0.8390720169908702,
+        "upper": 0.9262280983928396
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.2575816549260434,
+      "adaptive_mse_success_se": 0.00763153809234094,
+      "adaptive_mse": 0.06634830895443929,
+      "adaptive_rmse": 0.2575816549260434,
+      "adaptive_mse_se": 0.00763153809234094,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          3,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.008547579809576768,
+        0.008091953977025891
+      ],
+      "oracle_mse": 0.008502554920237266,
+      "oracle_rmse": 0.09220929953229916,
+      "oracle_mse_se": 0.0008814619163197571,
+      "risk_ratio": 7.803337888064806,
+      "risk_ratio_bootstrap": {
+        "se": 1.2674792574741878,
+        "lower": 5.663210506329798,
+        "upper": 10.8865710297583
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.925,
+        "lower": 0.8799554020266798,
+        "upper": 0.9540254929427476
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.945,
+        "lower": 0.9042120755340645,
+        "upper": 0.9690149791986299
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 5000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        17,
+        23,
+        32,
+        44,
+        60,
+        83,
+        113,
+        155,
+        213,
+        292
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 7,
+      "adaptive_max_trim": 7,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.27919029598183803,
+      "adaptive_mse_success_se": 0.011263515100765408,
+      "adaptive_mse": 0.07794722137042631,
+      "adaptive_rmse": 0.27919029598183803,
+      "adaptive_mse_se": 0.011263515100765408,
+      "oracle_pairs": [
+        [
+          4,
+          292
+        ],
+        [
+          3,
+          292
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.008547579809576768,
+        0.008091953977025891
+      ],
+      "oracle_mse": 0.008502554920237266,
+      "oracle_rmse": 0.09220929953229916,
+      "oracle_mse_se": 0.0008814619163197571,
+      "risk_ratio": 9.167505779339463,
+      "risk_ratio_bootstrap": {
+        "se": 1.6664894174746596,
+        "lower": 6.216146134721087,
+        "upper": 13.389489739509331
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.985,
+        "lower": 0.9568335194437211,
+        "upper": 0.9948858548155076
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.945,
+        "lower": 0.9042120755340645,
+        "upper": 0.9690149791986299
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.13080792633855373,
+      "adaptive_mse_success_se": 0.002461051234250627,
+      "adaptive_mse": 0.0171107135929925,
+      "adaptive_rmse": 0.13080792633855373,
+      "adaptive_mse_se": 0.002461051234250627,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.005226348714986292,
+        0.0038168121402010775
+      ],
+      "oracle_mse": 0.004521580427593684,
+      "oracle_rmse": 0.0672426979499907,
+      "oracle_mse_se": 0.0004748106302780813,
+      "risk_ratio": 3.784232939565018,
+      "risk_ratio_bootstrap": {
+        "se": 0.5510795072615529,
+        "lower": 2.753854505672725,
+        "upper": 4.912171143773451
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.94,
+        "lower": 0.8980673646931491,
+        "upper": 0.9653481500987285
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.2684552211727624,
+      "adaptive_mse_success_se": 0.009824865804588995,
+      "adaptive_mse": 0.07206820577491677,
+      "adaptive_rmse": 0.2684552211727624,
+      "adaptive_mse_se": 0.009824865804588995,
+      "oracle_pairs": [
+        [
+          0,
+          464
+        ],
+        [
+          0,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.005076137642621155,
+        0.00371939156634216
+      ],
+      "oracle_mse": 0.004397764604481658,
+      "oracle_rmse": 0.06631564373872621,
+      "oracle_mse_se": 0.00046881744045730773,
+      "risk_ratio": 16.38746323563425,
+      "risk_ratio_bootstrap": {
+        "se": 2.51567201823935,
+        "lower": 11.82545399700211,
+        "upper": 22.140747793888416
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.015,
+        "lower": 0.005114145184492384,
+        "upper": 0.04316648055627889
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.05,
+        "lower": 0.027382349028644986,
+        "upper": 0.08957905629784384
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 1,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.49403997889819967,
+      "adaptive_mse_success_se": 0.025872128275166096,
+      "adaptive_mse": 0.24407550074973358,
+      "adaptive_rmse": 0.49403997889819967,
+      "adaptive_mse_se": 0.025872128275166096,
+      "oracle_pairs": [
+        [
+          1,
+          464
+        ],
+        [
+          1,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.005459773394915026,
+        0.003958503132515575
+      ],
+      "oracle_mse": 0.0047091382637153,
+      "oracle_rmse": 0.06862316127748197,
+      "oracle_mse_se": 0.0004991807709907605,
+      "risk_ratio": 51.83018358801996,
+      "risk_ratio_bootstrap": {
+        "se": 7.3504598886620585,
+        "lower": 36.0847398870597,
+        "upper": 64.4813168941527
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.32,
+        "lower": 0.2592642960770526,
+        "upper": 0.38752026605354306
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.915,
+        "lower": 0.8681031145576462,
+        "upper": 0.9462547005301477
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 2.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.09942238525758967,
+      "adaptive_mse_success_se": 0.0025912095203782276,
+      "adaptive_mse": 0.009884810690308584,
+      "adaptive_rmse": 0.09942238525758967,
+      "adaptive_mse_se": 0.0025912095203782276,
+      "oracle_pairs": [
+        [
+          5,
+          464
+        ],
+        [
+          4,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.0058893382917513705,
+        0.004088021937019596
+      ],
+      "oracle_mse": 0.005129027635977462,
+      "oracle_rmse": 0.0716172300216747,
+      "oracle_mse_se": 0.0005498870044319856,
+      "risk_ratio": 1.9272289782515064,
+      "risk_ratio_bootstrap": {
+        "se": 0.5009728693297354,
+        "lower": 1.0658408292378214,
+        "upper": 3.04278386479441
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.915,
+        "lower": 0.8681031145576462,
+        "upper": 0.9462547005301477
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.965,
+        "lower": 0.9295285391333187,
+        "upper": 0.9829446753626429
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "n": 10000,
+      "contamination_count": 3,
+      "delta": 10.0,
+      "trials": 200,
+      "k_grid_mode": "intermediate",
+      "k_grid": [
+        22,
+        31,
+        43,
+        61,
+        85,
+        120,
+        168,
+        236,
+        331,
+        464
+      ],
+      "r_grid": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "requested_max_trim": 8,
+      "admissible_max_trim": 8,
+      "adaptive_max_trim": 8,
+      "contamination_supported": true,
+      "adaptive_failure_rate": 0.0,
+      "adaptive_rmse_success": 0.10963772691394714,
+      "adaptive_mse_success_se": 0.002426292767256752,
+      "adaptive_mse": 0.01202043116285725,
+      "adaptive_rmse": 0.10963772691394714,
+      "adaptive_mse_se": 0.002426292767256752,
+      "oracle_pairs": [
+        [
+          5,
+          464
+        ],
+        [
+          4,
+          464
+        ]
+      ],
+      "oracle_selection_mse": [
+        0.0058893382917513705,
+        0.004088021937019596
+      ],
+      "oracle_mse": 0.005129027635977462,
+      "oracle_rmse": 0.0716172300216747,
+      "oracle_mse_se": 0.0005498870044319856,
+      "risk_ratio": 2.343608187746967,
+      "risk_ratio_bootstrap": {
+        "se": 0.48959021195422237,
+        "lower": 1.6221335532057475,
+        "upper": 3.6357044752198657
+      },
+      "trim_recovery_vanishing": {
+        "estimate": 0.99,
+        "lower": 0.9642775148038205,
+        "upper": 0.9972533993962251
+      },
+      "trim_recovery_fixed_005": {
+        "estimate": 0.965,
+        "lower": 0.9295285391333187,
+        "upper": 0.9829446753626429
+      },
+      "failures": {
+        "adaptive": 0,
+        "trim_selection_vanishing": 0,
+        "trim_selection_fixed": 0
+      }
+    }
+  ]
+}
