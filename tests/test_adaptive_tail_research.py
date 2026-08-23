@@ -15,6 +15,30 @@ def test_oracle_grid_matches_the_adaptive_log_grid() -> None:
     ]
 
 
+def test_oracle_squared_errors_are_reordered_by_replication_index() -> None:
+    folds = [
+        experiment.FoldEvaluation(
+            selected_pair=(0, 30),
+            selection_mse=1.0,
+            evaluation_indices=[2, 3],
+            evaluation_squared_errors=[(2, 20.0), (3, 30.0)],
+        ),
+        experiment.FoldEvaluation(
+            selected_pair=(1, 30),
+            selection_mse=1.0,
+            evaluation_indices=[0, 1],
+            evaluation_squared_errors=[(0, 0.0), (1, 10.0)],
+        ),
+    ]
+
+    assert experiment._oracle_squared_by_index(folds, trials=4) == [
+        0.0,
+        10.0,
+        20.0,
+        30.0,
+    ]
+
+
 def test_report_contains_provenance_configuration_and_jsonable_results() -> None:
     report = experiment.build_report(
         trials=2,

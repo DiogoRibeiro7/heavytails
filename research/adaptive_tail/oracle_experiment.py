@@ -65,7 +65,7 @@ class FoldEvaluation:
     selected_pair: Candidate | None
     selection_mse: float | None
     evaluation_indices: list[int]
-    evaluation_squared_errors: list[float]
+    evaluation_squared_errors: list[tuple[int, float]]
 
 
 def _hall_sample(
@@ -238,28 +238,70 @@ def _evaluate_oracle_fold(
     for index in evaluate_indices:
         value = values[index]
         if value is not None:
-            squared.append((value - truth) ** 2)
+            squared.append((index, (value - truth) ** 2))
     return FoldEvaluation(candidate, selection_mse, list(evaluate_indices), squared)
 
 
-def _bootstrap_ratio(
-    adaptive_squared: Sequence[float],
-    oracle_squared: Sequence[float],
+def _oracle_squared_by_index(
+    folds: Sequence[FoldEvaluation], trials: int
+) -> list[float] | None:
+    """Return oracle errors in replication order, or None if any are missing."""
+    by_index: list[float | None] = [None] * trials
+    for fold in folds:
+        for index, squared in fold.evaluation_squared_errors:
+            by_index[index] = squared
+    if any(value is None for value in by_index):
+        return None
+    return [value for value in by_index if value is not None]
+
+
+def _bootstrap_select_evaluate_ratio(
+    adaptive_estimates: Sequence[float | None],
+    candidate_estimates: dict[Candidate, list[float | None]],
     *,
+    truth: float,
     draws: int,
     seed: int = 0,
 ) -> dict[str, float | None]:
-    """Paired bootstrap uncertainty for ``mean(adaptive) / mean(oracle)``."""
-    same_length = len(adaptive_squared) == len(oracle_squared)
-    if draws <= 0 or len(adaptive_squared) < 2 or not same_length:
+    """Bootstrap risk-ratio uncertainty, redoing oracle selection in each draw."""
+    if draws <= 0 or len(adaptive_estimates) < 2:
         return {"se": None, "lower": None, "upper": None}
+    if any(estimate is None for estimate in adaptive_estimates):
+        return {"se": None, "lower": None, "upper": None}
+    adaptive_values = [
+        estimate for estimate in adaptive_estimates if estimate is not None
+    ]
     rng = random.Random(seed)
     ratios = []
-    n = len(adaptive_squared)
+    n = len(adaptive_values)
     for _ in range(draws):
-        indices = [rng.randrange(n) for _ in range(n)]
-        numerator = _mean([adaptive_squared[index] for index in indices])
-        denominator = _mean([oracle_squared[index] for index in indices])
+        bootstrap_indices = [rng.randrange(n) for _ in range(n)]
+        midpoint = n // 2
+        first = bootstrap_indices[:midpoint]
+        second = bootstrap_indices[midpoint:]
+        folds = [
+            _evaluate_oracle_fold(
+                candidate_estimates,
+                select_indices=first,
+                evaluate_indices=second,
+                truth=truth,
+            ),
+            _evaluate_oracle_fold(
+                candidate_estimates,
+                select_indices=second,
+                evaluate_indices=first,
+                truth=truth,
+            ),
+        ]
+        oracle_squared = [
+            squared for fold in folds for _, squared in fold.evaluation_squared_errors
+        ]
+        if len(oracle_squared) != n:
+            continue
+        numerator = _mean(
+            [(adaptive_values[index] - truth) ** 2 for index in bootstrap_indices]
+        )
+        denominator = _mean(oracle_squared)
         if denominator > 0.0:
             ratios.append(numerator / denominator)
     if len(ratios) < 2:
@@ -371,9 +413,7 @@ def _evaluate_cell(
             truth=scenario.gamma,
         ),
     ]
-    oracle_squared = [
-        squared for fold in folds for squared in fold.evaluation_squared_errors
-    ]
+    oracle_squared = _oracle_squared_by_index(folds, trials)
 
     adaptive_success_squared = [
         (estimate - scenario.gamma) ** 2
@@ -384,7 +424,7 @@ def _evaluate_cell(
         adaptive_success_squared if failures["adaptive"] == 0 else None
     )
 
-    oracle_mse = _mse(oracle_squared) if len(oracle_squared) == trials else None
+    oracle_mse = _mse(oracle_squared) if oracle_squared is not None else None
     adaptive_mse = (
         _mse(adaptive_unconditional_squared)
         if adaptive_unconditional_squared is not None
@@ -396,12 +436,13 @@ def _evaluate_cell(
         else None
     )
     bootstrap = (
-        _bootstrap_ratio(
-            adaptive_unconditional_squared,
-            oracle_squared,
+        _bootstrap_select_evaluate_ratio(
+            adaptive_estimates,
+            candidate_estimates,
+            truth=scenario.gamma,
             draws=bootstrap_draws,
         )
-        if adaptive_unconditional_squared is not None and len(oracle_squared) == trials
+        if adaptive_unconditional_squared is not None and oracle_squared is not None
         else {"se": None, "lower": None, "upper": None}
     )
 
@@ -436,7 +477,9 @@ def _evaluate_cell(
         "oracle_selection_mse": [fold.selection_mse for fold in folds],
         "oracle_mse": oracle_mse,
         "oracle_rmse": math.sqrt(oracle_mse) if oracle_mse is not None else None,
-        "oracle_mse_se": _standard_error(oracle_squared),
+        "oracle_mse_se": (
+            _standard_error(oracle_squared) if oracle_squared is not None else None
+        ),
         "risk_ratio": risk_ratio,
         "risk_ratio_bootstrap": bootstrap,
         "trim_recovery_vanishing": _wilson_interval(
