@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-import importlib.metadata
 import json
 import math
 from pathlib import Path
@@ -40,6 +39,7 @@ from heavytails.tail_index import (
     orthogonalized_bias_reduced_hill_estimator,
     threshold_averaged_orthogonalized_hill_estimator,
 )
+from scripts._provenance import base_provenance
 
 
 Sampler = Callable[[int, int], list[float]]
@@ -577,47 +577,8 @@ def _print_rows(rows: list[dict[str, Any]]) -> None:
         )
 
 
-def _git_commit() -> str | None:
-    """Return the checked-out commit without invoking git."""
-    git_entry = ROOT / ".git"
-    try:
-        if git_entry.is_file():
-            content = git_entry.read_text(encoding="utf-8").strip()
-            if content.startswith("gitdir:"):
-                git_dir = (ROOT / content.removeprefix("gitdir:").strip()).resolve()
-            else:
-                return None
-        else:
-            git_dir = git_entry
-
-        head = git_dir / "HEAD"
-        content = head.read_text(encoding="utf-8").strip()
-        if not content.startswith("ref:"):
-            return content or None
-        ref = content.removeprefix("ref:").strip()
-        ref_file = git_dir / ref
-        if ref_file.is_file():
-            return ref_file.read_text(encoding="utf-8").strip() or None
-        packed = git_dir / "packed-refs"
-        if packed.is_file():
-            for line in packed.read_text(encoding="utf-8").splitlines():
-                if line.endswith(f" {ref}"):
-                    return line.split()[0]
-    except OSError:
-        return None
-    return None
-
-
 def _provenance() -> dict[str, Any]:
-    try:
-        version = importlib.metadata.version("heavytails")
-    except importlib.metadata.PackageNotFoundError:
-        version = "0.0.0.dev0"
-    return {
-        "heavytails_version": version,
-        "git_commit": _git_commit(),
-        "python_version": sys.version.split()[0],
-    }
+    return base_provenance(ROOT)
 
 
 def build_report(
