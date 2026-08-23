@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import statistics
 
+from research.adaptive_tail import clean_pareto_decomposition as decomposition
 from research.adaptive_tail import oracle_experiment as experiment
 
 
@@ -14,6 +15,20 @@ def test_oracle_grid_matches_the_adaptive_log_grid() -> None:
         45,
         100,
     ]
+
+
+def test_intermediate_grid_uses_vanishing_threshold_fractions() -> None:
+    small = experiment._thresholds_from_intermediate_powers(
+        1000, grid_size=4, min_power=1.0 / 3.0, max_power=2.0 / 3.0
+    )
+    large = experiment._thresholds_from_intermediate_powers(
+        1_000_000, grid_size=4, min_power=1.0 / 3.0, max_power=2.0 / 3.0
+    )
+
+    assert small[0] == 10
+    assert small[-1] == 100
+    assert small == sorted(small)
+    assert large[-1] / 1_000_000 < small[-1] / 1000
 
 
 def test_oracle_squared_errors_are_reordered_by_replication_index() -> None:
@@ -105,6 +120,57 @@ def test_report_contains_provenance_configuration_and_jsonable_results() -> None
     assert row["oracle_pairs"]
     assert "trim_recovery_vanishing" in row
     assert "trim_recovery_fixed_005" in row
+
+    json.dumps(report, allow_nan=False)
+
+
+def test_report_can_use_the_intermediate_grid() -> None:
+    report = experiment.build_report(
+        trials=2,
+        sample_sizes=[1000],
+        scenario_keys=["pareto"],
+        contamination_counts=[0],
+        deltas=[2.0],
+        k_fractions=[0.05, 0.10],
+        k_grid_mode="intermediate",
+        intermediate_grid_size=4,
+        intermediate_min_power=1.0 / 3.0,
+        intermediate_max_power=2.0 / 3.0,
+        max_trim=4,
+        bootstrap_draws=0,
+    )
+
+    row = report["results"][0]
+    assert report["configuration"]["k_grid_mode"] == "intermediate"
+    assert row["k_grid_mode"] == "intermediate"
+    assert row["k_grid"] == experiment._thresholds_from_intermediate_powers(
+        1000,
+        grid_size=4,
+        min_power=1.0 / 3.0,
+        max_power=2.0 / 3.0,
+    )
+
+
+def test_clean_pareto_decomposition_reports_the_four_layers() -> None:
+    report = decomposition.build_report(
+        trials=3,
+        sample_sizes=[300],
+        k_fractions=[0.05, 0.10],
+        max_trim=4,
+    )
+
+    assert report["configuration"]["target"].startswith("clean-Pareto decomposition")
+    row = report["results"][0]
+    assert set(row["methods"]) == {
+        "best_local_oracle",
+        "full_sample_selected_local",
+        "full_sample_adaptive_aggregation",
+        "cross_fitted_adaptive",
+    }
+    assert row["methods"]["best_local_oracle"]["selected_pair"]
+    assert row["methods"]["best_local_oracle"]["ratio_to_best_local"] == 1.0
+    assert row["full_sample_selected_local_pair_counts"]
+    assert row["stable_set_size_mean"] is not None
 
     json.dumps(report, allow_nan=False)
 

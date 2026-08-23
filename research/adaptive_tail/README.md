@@ -33,6 +33,15 @@ the best `(r, k)`, the other half evaluates it, and then the roles are swapped.
 The candidate `k` values are the exact logarithmic grid used by the adaptive
 estimator, not the raw envelope fractions.
 
+Two threshold envelopes are supported:
+
+- `--k-grid-mode fractions` preserves the frozen pilot grid derived from fixed
+  fractions of `n`.
+- `--k-grid-mode intermediate` uses a logarithmic grid from
+  `n^intermediate_min_power` to `n^intermediate_max_power`, with defaults
+  `n^(1/3)` to `n^(2/3)`. This is the theory-oriented envelope because
+  `k -> infinity` and `k/n -> 0`.
+
 ## Initial Experiment
 
 Run a quick smoke check:
@@ -45,6 +54,15 @@ Run a pilot grid:
 
 ```bash
 python research/adaptive_tail/oracle_experiment.py --trials 200 --json oracle-results.json
+```
+
+Run the same design on the intermediate threshold envelope:
+
+```bash
+python research/adaptive_tail/oracle_experiment.py \
+  --trials 200 \
+  --k-grid-mode intermediate \
+  --json oracle-intermediate-results.json
 ```
 
 The output reports:
@@ -91,3 +109,27 @@ it had an identified second-order parameter.
 The script is intentionally explicit rather than optimized. It is a research
 artifact for deciding whether the estimator deserves a theorem, not a public
 API.
+
+## Clean Pareto Decomposition
+
+The clean Pareto pilot showed that the adaptive estimator can sit noticeably
+above the local oracle even when the model is exact. Before scaling the oracle
+experiment, decompose that penalty on the same simulated samples:
+
+```bash
+python research/adaptive_tail/clean_pareto_decomposition.py \
+  --trials 200 \
+  --json clean-pareto-decomposition.json
+```
+
+This report compares:
+
+- `best_local_oracle`: in-sample empirical MSE minimum over fixed local `(r, k)`
+  candidates.
+- `full_sample_selected_local`: the final stable local estimator selected by
+  the adaptive threshold rule, without threshold aggregation.
+- `full_sample_adaptive_aggregation`: the full-sample adaptive aggregate.
+- `cross_fitted_adaptive`: the production cross-fitted adaptive estimator.
+
+Use `--k-grid-mode intermediate` on this script to inspect the same
+decomposition under the theory-oriented threshold envelope.
