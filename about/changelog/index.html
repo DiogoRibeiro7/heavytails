@@ -2215,69 +2215,36 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Unreleased">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#050-2026-08-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.5.0] - 2026-08-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.5.0] - 2026-08-23">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fixed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#changed_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#changed_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fixed
       
     </span>
   </a>
@@ -2296,51 +2263,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fixed_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fixed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#changed_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#changed_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Changed
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fixed_3" class="md-nav__link">
+  <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2379,7 +2302,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_7" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2390,7 +2313,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_4" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2429,7 +2352,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_8" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2468,7 +2391,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_9" class="md-nav__link">
+  <a href="#changed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2479,7 +2402,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_5" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2719,222 +2642,123 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h2 id="050-2026-08-23">[0.5.0] - 2026-08-23<a class="headerlink" href="#050-2026-08-23" title="Permanent link">&para;</a></h2>
+<p><strong>NumPy is now required, and every distribution method takes a number or an
+array.</strong> The library was pure Python by choice, and that choice stopped paying:
+evaluating a density over a hundred thousand points cost a hundred thousand
+interpreter round trips. Over a million points it now takes about 20
+milliseconds.</p>
+<p>That is the reason this is 0.5.0 and not 0.4.1. Installing into an environment
+that cannot have NumPy will no longer work.</p>
+<h3 id="breaking">Breaking<a class="headerlink" href="#breaking" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>heavytails.vectorized</code> is a thin shim. It held a hand-written NumPy kernel
-  for each of 32 (family, method) pairs, every one a transcription of the
-  scalar method it shadowed; the methods take arrays themselves now, so the
-  kernels were duplicates. 447 lines to 198. The public functions --
-  <code>pdf</code>, <code>cdf</code>, <code>sf</code>, <code>ppf</code>, <code>accelerated</code> -- behave as before, and
-  <code>dist.cdf(values)</code> is the same call for new code.</li>
-<li><code>accelerated</code> is answered per method rather than per family, so it now
-  reports <code>True</code> for <code>LogNormal.pdf</code>: the density is elementary and is one
-  NumPy expression, and only the probabilities need the error function. It
-  reports <code>True</code> for a distribution defined outside this library, where before
-  it reported <code>False</code>, because there is no longer a table of known families to
-  consult.</li>
+<li><strong>NumPy is a runtime dependency</strong> (<code>numpy&gt;=1.24,&lt;3.0</code>). There were none
+  through 0.4.0.</li>
+<li><strong>A scalar call costs more than it did.</strong> <code>Pareto.pdf(0.5)</code> is about 2.6us
+  against roughly 0.2us of plain arithmetic before, because every call goes
+  through the array dispatch. The same ten thousand points in one call take
+  0.3ms, about eighty times less than the loop. Scalars are carried as
+  <code>numpy.float64</code> rather than 0-d arrays and guarded with an ordinary
+  conditional rather than <code>np.where</code>, which is what keeps it to 2.6us and not
+  5.3.</li>
+<li><strong>A few seeded variates move by one unit in the last place.</strong> NumPy's
+  vectorised <code>log</code> and <code>pow</code> round differently from its scalar ones. For
+  Weibull(k=0.5) that is 14 values in 20,000; sample means are unchanged to
+  twelve digits and distributions are identical. Frechet, Cauchy, Pareto,
+  GEV_Frechet and the generalized Pareto are bit-identical.</li>
+<li><strong><code>vectorized.accelerated</code> answers per method, not per family.</strong> It reports
+  <code>True</code> for <code>LogNormal.pdf</code>, where it used to report <code>False</code>: the density is
+  elementary and vectorises, and only the probabilities need the error
+  function. It also reports <code>True</code> for a distribution defined outside this
+  library, because there is no longer a table of known families to consult.</li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
-<p><strong>The actuarial machinery computes over grids, not one point at a time.</strong></p>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<p><strong>The distributions.</strong> <code>pdf</code>, <code>cdf</code>, <code>sf</code> and <code>ppf</code> on all twelve continuous
+families accept a number, a sequence or an array and return the same kind of
+thing they were given. Each formula is written once, against NumPy, so the
+scalar and array results come from the same expression; they can still differ
+in the last bits, and the tests hold them to 1e-13 relative rather than to
+equality. <code>rvs</code> inverts its uniforms in a single call, which makes sampling 21x
+to 31x faster, and still returns a <code>list</code> -- returning an array would silently
+turn <code>sample_a + sample_b</code> from concatenation into elementwise addition. <code>ppf</code>
+checks its whole input before computing any of it and names an offending value.</p>
+<p><strong>The tail index estimators.</strong> <code>hill_estimator</code> is about 5x faster and
+<code>hill_plot</code> about 10x on a sample of 200,000, the plot now deriving every
+threshold from one cumulative sum instead of re-summing the log-excesses for
+each <code>k</code>. The two agree exactly at every <code>k</code>, which they did not before.
+<code>trimmed_hill_plot</code> uses suffix sums rather than subtracting from a running
+total. <code>_normalised_log_spacings</code> returns an array, and
+<code>adaptive_trim_selection</code> returns a Python <code>float</code> for <code>gamma</code>.</p>
+<p><strong>The multivariate families.</strong> <code>mahalanobis</code>, <code>logpdf</code> and <code>pdf</code> take one point
+or many. Over 100,000 points the quadratic form takes 5.7ms against about 2.0s
+a point at a time. <code>fit_multivariate_t</code> is about 45x faster -- 0.558s to 0.012s
+on 5,000 observations in three dimensions, and 4.371s to 0.103s when <code>nu</code> is
+chosen over ten candidates -- for the same answer, to ten decimals of
+log-likelihood. <code>_solve_lower</code> is gone.</p>
+<p><strong>The actuarial machinery.</strong> <code>panjer_recursion</code> evaluates its inner sum as a
+dot product: on a 2,000 point grid, 0.176s to 0.014s, with the probabilities
+unchanged to the bit on the cases measured. <code>limited_expected_value</code> runs its
+512-node midpoint rule in one call, <code>_severity_second_moment</code> its 4,096-node
+fallback, and <code>discretise_severity</code> evaluates each cell edge once instead of
+twice. <code>PolicyTerms.payment</code> and <code>LayeredSeverity.cdf</code>, <code>sf</code>, <code>ppf</code> take one
+value or an array.</p>
+<p><strong><code>heavytails.vectorized</code> is a thin shim</strong>, 447 lines to 198. It held a
+hand-written NumPy kernel for each of 32 (family, method) pairs, every one a
+transcription of the method it shadowed; the methods take arrays themselves
+now. The public functions behave as before, and <code>dist.cdf(values)</code> is the same
+call for new code.</p>
+<p><strong>Four families keep a Python loop for their probabilities.</strong> <code>LogNormal</code>,
+<code>StudentT</code>, <code>InverseGamma</code> and <code>BetaPrime</code> need the error function or an
+incomplete beta or gamma, which NumPy does not provide, so their <code>cdf</code>, <code>sf</code>
+and <code>ppf</code> cost what they always did. Their densities are elementary and are
+vectorised like everything else.</p>
+<p><strong>The package no longer describes itself as pure Python.</strong> <code>CITATION.cff</code>,
+<code>.zenodo.json</code>, <code>AUTHORS.md</code>, <code>mkdocs.yml</code> and the citation pages carry the
+title <em>heavytails: A Python Library for Heavy-Tailed Probability
+Distributions</em>; the archived 0.1.0-0.4.0 records keep the old one, which is
+correct, because those releases were pure Python. <code>SECURITY.md</code> no longer
+justifies the security posture with "dependency-free (pure Python)", and
+<code>docs/about/license.md</code> names NumPy's licence rather than claiming there are
+none to name.</p>
+<p><strong>Continuous integration.</strong> Coverage runs at release only. It cost about 6.4x
+the runtime of the suite -- 3m12s without it, 20m37s with -- and caught none of
+the defects found while writing this release, every one of which was in covered
+code. A push to main no longer re-runs the full interpreter matrix that the
+pull request just ran, and superseded runs are cancelled. Test jobs went from
+17-22 minutes to about 3, and a merge from 19.5 minutes to 4.7.</p>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>panjer_recursion</code> evaluates its inner sum as a dot product. The recursion in
-  <code>k</code> is sequential -- each aggregate probability needs every one before it --
-  but the sum over <code>j</code> inside it is a dot product between the severity weights
-  and the aggregate so far, reversed. On a 2,000 point grid that is 0.176s to
-  <strong>0.014s</strong>, with the probabilities unchanged to the bit on the cases measured.</li>
-<li><code>limited_expected_value</code> runs its 512-node midpoint rule in one call rather
-  than 512. Every layer bound of every price reaches it, so for a severity with
-  no closed form that was most of the cost of pricing anything.</li>
-<li><code>discretise_severity</code> evaluates each cell edge once. The edges are shared
-  between adjacent cells, so evaluating them per cell computed every interior
-  one twice.</li>
-<li><code>_severity_second_moment</code> does the same for its 4,096-node fallback.</li>
-<li><code>PolicyTerms.payment</code>, and <code>LayeredSeverity.cdf</code>, <code>sf</code> and <code>ppf</code>, take one
-  value or an array and mirror what they were given.</li>
-<li><code>LayeredSeverity.rvs</code> inverts its uniforms in one call. The generator is
-  untouched and draws in the same order, so a seeded sample is unchanged --
-  measured bit-identical to the loop it replaces.</li>
+<li>Tests tying the citation metadata together: <code>CITATION.cff</code> must name the
+  version in <code>pyproject.toml</code>, and the citation guidance must cite that same
+  version. Neither was checked, which is how the documentation sat a release
+  behind through all of 0.4.0.</li>
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>scripts/tail_index_study.py</code> stamped its results with the <em>installed</em>
-  package version, which an editable install keeps reporting from whenever its
-  metadata was last built. In this checkout that read <strong>0.2.0</strong> against a
-  working tree at <strong>0.4.0</strong>, so a saved study carried a version two releases
-  stale -- worse than carrying none, since a reader has no reason to doubt it.
-  It now reads <code>pyproject.toml</code> when running from a checkout, and records which
-  source the version came from.</li>
-</ul>
-<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
-<ul>
-<li>CI does not re-verify on a merge what the pull request just verified. A push
-  to main runs one interpreter and no cross-platform smoke; pull requests and
-  releases run all four and both platforms. Eighteen jobs fire per event across
-  CI, CodeQL and the benchmarks, so two events landing together left everything
-  queued for eight minutes before any of it started -- which was the rest of
-  the wait after coverage came off the merge path.</li>
-<li>Superseded runs are cancelled on any branch, main included. Merging three
-  pull requests in a row queued three full runs when only the last one's result
-  meant anything. Release runs are never cancelled, since that run publishes.</li>
-</ul>
-<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Coverage runs at release only, plus a manual dispatch. It ran on merges to
-  main and weekly, which left main amber for eleven minutes after every merge
-  -- nothing depended on it there, but it is eleven minutes of deciding whether
-  to wait. <code>publish</code> still depends on it, so a release cannot ship without the
-  gate passing, which is the moment the number has to be right.</li>
-</ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
-<ul>
-<li>The citation guidance cited <strong>0.3.0</strong>. <code>CITATION.cff</code> was advanced to 0.4.0 at
-  release and the documentation was not, so <code>docs/about/citation.md</code> handed out
-  APA, IEEE, MLA, Chicago and BibTeX entries for 0.3.0, along with the version
-  DOI of a release the reader was not running, while the file GitHub's "Cite
-  this repository" button reads said 0.4.0. Both now cite 0.4.0 and its version
-  DOI, <code>10.5281/zenodo.22062643</code>.</li>
-<li><code>CITATION.cff</code> carried a placeholder saying 0.4.0's version DOI would be
-  added once Zenodo had archived it. It had been, on 2026-08-22.</li>
-<li>The documentation described NumPy as having become a requirement "in 0.5.0",
-  a version that does not exist -- the latest release is 0.4.0. The three
-  places that said so now say it was optional through 0.4.0, which is true
-  before and after that release is cut.</li>
-</ul>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Two tests tying the citation metadata together: <code>CITATION.cff</code> must name the
-  version in <code>pyproject.toml</code>, and the citation guidance must cite that same
-  version. Nothing checked either, which is how the documentation sat a release
-  behind. Bumping the version now fails until the guidance is bumped with it.</li>
-</ul>
-<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
-<p><strong>The package no longer describes itself as pure Python, because it is not.</strong></p>
-<ul>
-<li><code>CITATION.cff</code>, <code>.zenodo.json</code>, <code>AUTHORS.md</code>, <code>mkdocs.yml</code> and the citation
-  pages carry the title <em>heavytails: A Python Library for Heavy-Tailed
-  Probability Distributions</em>. The archived 0.1.0-0.4.0 records keep the old
-  title, which is correct: those releases were pure Python.</li>
-<li><code>SECURITY.md</code> no longer justifies the security posture with
-  "dependency-free (pure Python)". It says there is one runtime dependency and
-  why that is an acceptable one to require.</li>
-<li><code>docs/about/license.md</code> names NumPy's licence rather than claiming there are
-  no third-party licences to name.</li>
-<li><code>heavytails.multivariate</code> said "the linear algebra is pure Python" after that
-  stopped being true of everything but the Cholesky factorisation.</li>
-</ul>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>tests/test_zenodo_metadata.py</code> compares the two metadata files against each
-  other instead of holding a third copy of the title. The transcription is what
-  broke when the title changed -- a test named for checking two files against
-  each other should not need editing when they both change consistently.</li>
-<li><code>heavytails.performance.vectorized_pdf_evaluation</code> and
-  <code>vectorized_cdf_evaluation</code> call the array methods directly. They went
-  through <code>np.vectorize</code>, which is a Python loop wearing an array interface,
-  and was pointless once the methods took arrays themselves.</li>
-<li><code>heavytails.extensions</code> imports NumPy unconditionally. It was guarded
-  alongside SciPy, so a missing SciPy set <code>np</code> to <code>None</code> even though NumPy was
-  installed -- harmless only because every caller raises on <code>SCIPY_AVAILABLE</code>
-  first.</li>
-<li><code>heavytails.performance</code> and <code>heavytails.vectorized</code> no longer branch on
-  NumPy being absent. It cannot be.</li>
-</ul>
-<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
-<p><strong>The multivariate distributions compute over observations, not one at a time.</strong></p>
-<ul>
-<li><code>mahalanobis</code>, <code>logpdf</code> and <code>pdf</code> take one point or an array of them and
-  mirror what they were given. Over 100,000 points the quadratic form takes
-  5.7ms against about 2.0s a point at a time, a factor of 350. The forward
-  substitution now loops over the dimension, which is small, and does each of
-  its steps across every observation at once -- the opposite of the arrangement
-  it replaced.</li>
-<li><code>fit_multivariate_t</code> is about 45x faster: 0.558s to 0.012s on 5,000
-  observations in three dimensions with <code>nu</code> fixed, and 4.371s to 0.103s when
-  <code>nu</code> is chosen over the ten candidates. Same answer -- same iteration count,
-  log-likelihood identical to ten decimals, location to 7e-17.</li>
-<li><code>rvs</code> builds its draws with one matrix product rather than n triangular ones.
-  The generator is untouched and draws in the same order, so a seeded sample
-  reproduces; the values agree with the one-at-a-time construction to about
-  4e-15, since a matrix product associates its sums differently.</li>
-<li><code>_solve_lower</code> is gone. The substitution it did now happens inside
-  <code>mahalanobis</code>, across all observations, and nothing else called it.</li>
-</ul>
-<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
-<p><strong>NumPy is now a required dependency, and every distribution method takes a
-number or an array.</strong></p>
-<p>The library was pure Python by choice, and that choice stopped paying: a density
-over a hundred thousand points cost a hundred thousand interpreter round trips.
-Evaluating one over a million points now takes about 20 milliseconds.</p>
-<ul>
-<li><code>pdf</code>, <code>cdf</code>, <code>sf</code> and <code>ppf</code> on all twelve continuous families accept a
-  number, a sequence, or an array, and return the same kind of thing they were
-  given. A number in gives a <code>float</code> out; anything array-like in gives an
-  <code>ndarray</code> out with the same shape.</li>
-<li>Each formula is written once, against NumPy, so the scalar and array results
-  come from the same expression and cannot disagree about what is computed.
-  They can still differ in the last bits, because NumPy evaluates an array
-  through vectorised routines and a scalar through libm, so the tests hold them
-  to 1e-13 relative rather than to equality.</li>
-<li><code>rvs</code> inverts its uniforms in a single call rather than one at a time, which
-  makes sampling 21x to 31x faster. The uniforms themselves are unchanged, so a
-  seeded sample is reproducible and its distribution is identical. A few
-  variates land one ULP away from what the previous version returned, because
-  NumPy's vectorised <code>log</code> and <code>pow</code> round differently from its scalar ones: for
-  Weibull(k=0.5) that is 14 values in 20,000, with the sample mean unchanged to
-  twelve digits.</li>
-<li><code>rvs</code> still returns a <code>list</code>. Returning an array would silently turn
-  <code>sample_a + sample_b</code> from concatenation into elementwise addition.</li>
-<li><code>ppf</code> checks its whole input before computing any of it, and names an
-  offending value: <code>u must be in (0,1); got 1.5</code>. The scalar version raised on
-  the value it happened to reach first.</li>
-<li><strong>A scalar call costs more than it did.</strong> <code>Pareto.pdf(0.5)</code> is about 2.6us
-  against roughly 0.2us of plain arithmetic before, because every call now goes
-  through the array dispatch. Evaluating the same ten thousand points in one
-  call takes 0.3ms, which is about eighty times less than the loop. Scalars are
-  carried as <code>numpy.float64</code> rather than 0-d arrays and guarded with an
-  ordinary conditional rather than <code>np.where</code>, which is what keeps it to 2.6us
-  instead of 5.3.</li>
-</ul>
-<p><strong>The tail index estimators too.</strong></p>
-<ul>
-<li>The core tail index estimators compute through NumPy. <code>hill_estimator</code> is
-  about 5x faster and <code>hill_plot</code> about 10x on a sample of 200,000; the plot
-  now derives every threshold from one cumulative sum instead of re-summing the
-  log-excesses for each <code>k</code>.</li>
-<li><code>hill_plot</code> and <code>hill_estimator</code> agree exactly at every <code>k</code>. Both now form
-  the log-excess as <code>log x_i - log x_k</code>, where the estimator previously used
-  <code>log(x_i / x_k)</code>; the two differ at the last bit, and the shared form is what
-  lets one cumulative sum serve every threshold.</li>
-<li><code>trimmed_hill_plot</code> uses suffix sums rather than subtracting each spacing
-  from a running total, so successive estimates do not drift apart for a reason
-  that is not the data.</li>
-<li><code>_normalised_log_spacings</code> returns an array.</li>
-<li><code>adaptive_trim_selection</code> returns a Python <code>float</code> for <code>gamma</code>, not a NumPy
-  scalar.</li>
-</ul>
-<p>Four families keep a Python loop for their probabilities. <code>LogNormal</code>,
-<code>StudentT</code>, <code>InverseGamma</code> and <code>BetaPrime</code> need the error function or an
-incomplete beta or gamma, which NumPy does not provide; their <code>cdf</code>, <code>sf</code> and
-<code>ppf</code> cost what they always did. Their densities are elementary and are
-vectorised like everything else.</p>
-<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>GeneralizedPareto.sf</code> computes the survival probability directly instead of
-  as <code>1 - cdf</code>. The subtraction returned <strong>exactly zero</strong> in the far tail: at
-  <code>xi=0.5</code>, <code>sf(1e12)</code> gave <code>0.0</code> where the true value is <code>4.0e-24</code>. This is the
-  tail the distribution exists to describe.</li>
-<li><code>streaming.py</code> no longer keeps its own transcription of the Hill and moment
-  formulas. It called them "written to match the batch version operation for
-  operation", which held only until the batch version changed its summation
-  order -- so it now calls those functions and the agreement is structural.</li>
+<li><strong><code>GeneralizedPareto.sf</code> returned exactly zero in the far tail.</strong> It computed
+  <code>1 - cdf</code>; at <code>xi=0.5</code>, <code>sf(1e12)</code> gave <code>0.0</code> where the true value is
+  <code>4.0e-24</code>. This is the tail the distribution exists to describe.</li>
+<li><code>streaming.py</code> kept its own transcription of the Hill and moment formulas,
+  described as matching the batch version "operation for operation" -- which
+  held only until the batch version changed its summation order. It calls those
+  functions now, so the agreement is structural.</li>
 <li><code>test_pickands_estimator_basic</code> drew an unseeded sample and required a single
   Pickands estimate to land in <code>(0.1, 2.0)</code>. At <code>k=20</code> on 1000 points that
   estimator has a standard deviation of about 0.44 around a true 0.5, so the
-  bound failed for <strong>18% of seeds</strong> -- a near one-in-five chance of a red build
-  on any run, on any platform. It now averages 200 replications and asserts the
-  estimator is centred on the true index, which is the property that was meant.</li>
-<li>The other two randomised tests in <code>tests/test_tail_index.py</code> draw from a
-  generator they own rather than the unseeded module-level one.</li>
+  bound failed for <strong>18% of seeds</strong>. It now averages 200 replications and
+  asserts the estimator is centred on the true index.</li>
+<li><code>scripts/tail_index_study.py</code> stamped its results with the <em>installed</em>
+  package version, which an editable install reports from whenever its metadata
+  was last built -- 0.2.0 against a working tree at 0.4.0. A saved study
+  carrying the wrong version is worse than one carrying none.</li>
+<li>The citation guidance cited <strong>0.3.0</strong> through the whole 0.4.0 release, and
+  <code>CITATION.cff</code> carried a placeholder for a DOI Zenodo had already minted.</li>
+<li><code>heavytails.performance</code> evaluated densities through <code>np.vectorize</code>, a Python
+  loop wearing an array interface, and <code>heavytails.extensions</code> guarded NumPy in
+  the same <code>try</code> as SciPy, so a missing SciPy set <code>np</code> to <code>None</code> while NumPy sat
+  installed and working.</li>
+<li><code>tests/test_zenodo_metadata.py</code> held a third copy of the citation title
+  rather than comparing the two files it was named for.</li>
 </ul>
 <h2 id="040-2026-08-22">[0.4.0] - 2026-08-22<a class="headerlink" href="#040-2026-08-22" title="Permanent link">&para;</a></h2>
 <p>Twelve new modules and estimators, and a dozen numerical corrections. The
@@ -3128,7 +2952,7 @@ returned negative probabilities.</p>
   Monte Carlo estimator always reports standard errors.</p>
 </li>
 </ul>
-<h3 id="changed_7">Changed<a class="headerlink" href="#changed_7" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>InverseGamma.ppf</code> and <code>BetaPrime.ppf</code> invert the incomplete gamma and beta
@@ -3142,7 +2966,7 @@ returned negative probabilities.</p>
   with identical accuracy.</p>
 </li>
 </ul>
-<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>GeneralizedPareto</code> returned negative probabilities below <code>mu</code> for every sign
@@ -3264,7 +3088,7 @@ returned negative probabilities.</p>
   invisible on clean data.</p>
 </li>
 </ul>
-<h3 id="changed_8">Changed<a class="headerlink" href="#changed_8" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The <code>tail_index</code> module docstring now states that every estimator returns the
@@ -3409,7 +3233,7 @@ returned negative probabilities.</p>
   review, and an executable <code>basic_usage</code> notebook.</p>
 </li>
 </ul>
-<h3 id="changed_9">Changed<a class="headerlink" href="#changed_9" title="Permanent link">&para;</a></h3>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Migrated project metadata to the PEP 621 <code>[project]</code> table.</p>
@@ -3454,7 +3278,7 @@ returned negative probabilities.</p>
   that was never generated.</p>
 </li>
 </ul>
-<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The continued-fraction branch of the regularized lower incomplete gamma was
