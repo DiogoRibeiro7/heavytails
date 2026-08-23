@@ -539,16 +539,30 @@ def main() -> int:
         critical_grid=_parse_floats(args.critical_grid),
         trace_count=args.trace_count,
     )
-    print(
-        "selected critical "
-        f"{report['selected_critical']['critical']:.3f}; "
-        "holdout k_max acceptance "
-        f"{report['holdout']['k_max_acceptance_rate']:.3f}"
-    )
+    # Write before printing. The summary reads keys out of the report, and a
+    # rename here should not be able to throw away a run that has already
+    # finished -- which is exactly what it did once.
     if args.json:
         args.json.write_text(
             json.dumps(report, indent=2, allow_nan=False), encoding="utf-8"
         )
+
+    holdout = report["holdout"]
+    selected = report["selected_critical"]
+    note = "" if report["target_met"] else "  (TARGET NOT MET on the calibration grid)"
+    print(f"selected critical {selected['critical']:.3f}{note}")
+    print(
+        "holdout joint acceptance "
+        f"{holdout['joint_acceptance_rate']:.3f} "
+        f"(target {report['configuration']['target_acceptance']:.3f}, "
+        f"{holdout['trials']} trials, every trial counted)"
+    )
+    print(f"  both folds succeeded      {holdout['both_folds_succeeded_rate']:.3f}")
+    print(f"  fold failure rate         {holdout['fold_failure_rate']:.3f}")
+    print(
+        f"  fold acceptance | success {holdout['fold_acceptance_rate_given_success']}"
+    )
+    print(f"  mean stable set size      {holdout['mean_stable_set_size']}")
     return 0
 
 

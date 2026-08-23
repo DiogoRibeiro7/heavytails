@@ -262,6 +262,11 @@ benchmark_results/
 # independent check the suite has, and regenerating it locally to make a
 # test pass is exactly what must not happen silently.
 !tests/reference_values.json
+# Research results are committed on purpose. They carry a provenance block
+# naming the commit that produced them, which is what makes a saved table
+# citable rather than a file someone found; and the earlier ones are tracked
+# already, so leaving new ones ignored would silently split the record.
+!research/**/*.json
 *.xlsx
 *.h5
 *.hdf5

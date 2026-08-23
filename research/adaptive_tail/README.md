@@ -178,3 +178,59 @@ This report calibrates candidate compatibility cutoffs on calibration seeds,
 evaluates the selected cutoff on held-out seeds, and records cross-fit fold
 traces with training thresholds, per-threshold trims, stable sets, evaluation
 trims, weights and failure stages.
+
+## Selector calibration result (n = 10,000, clean Pareto)
+
+**No compatibility cutoff reaches 95% joint acceptance while the compatibility
+test is still testing anything.** Retuning the constant cannot fix this.
+
+The calibrated quantity is the one production depends on: both cross-fit folds
+succeed *and* both reach their own scaled top threshold, with every trial in
+the denominator. `selector_diagnostics.py` writes
+`selector_calibration_n10000.json`; the cutoff sweep below is
+`selector_cutoff_sweep_n10000.json`.
+
+| critical | joint | per-fold | per-fold² | stable set / 10 |
+| --- | --- | --- | --- | --- |
+| 1.0 | 0.010 | 0.077 | 0.006 | 3.9 |
+| 2.0 | 0.530 | 0.738 | 0.545 | 8.4 |
+| 3.0 | 0.820 | 0.910 | 0.828 | 9.4 |
+| 3.5 | 0.905 | 0.953 | 0.907 | 9.7 |
+| 4.0 | 0.940 | 0.970 | 0.941 | 9.8 |
+| 5.0 | 0.990 | 0.995 | 0.990 | 10.0 |
+| 6.0 | 1.000 | 1.000 | 1.000 | **10.0** |
+
+Three things follow.
+
+**Joint acceptance is the square of the per-fold rate, everywhere.** 0.910² =
+0.828 against a measured 0.820; 0.970² = 0.941 against 0.940. The two fold
+selectors are effectively independent, so cross-fitting *squares* the
+probability of a premature stop. Reaching joint 0.95 requires per-fold 0.975 —
+a far stricter demand than the full-sample calibration in #380 was making, and
+the reason that calibration would have chosen a cutoff that does not deliver.
+
+**The cutoffs that reach the target have stopped selecting.** At `critical = 4`
+the stable set averages 9.8 of 10 thresholds; by `critical = 6` it is the whole
+grid on every trial. A compatibility test that accepts everything is not a test.
+So there is no constant that is both large enough to pass and small enough to
+mean something.
+
+**The failure-conditioning correction did not bite here, and would elsewhere.**
+Fold failure rate is 0.000 at every cutoff on clean Pareto, so joint and
+conditional differ only through the joint requirement. The distinction matters
+under contamination, where failures are not rare.
+
+Across five independent seed ranges at `critical = 3`, joint acceptance runs
+0.755 to 0.890 — so single-range figures are worth about ±0.05, and the
+calibration-to-holdout drop in `selector_calibration_n10000.json` is seed-range
+variation rather than selection bias.
+
+### What this argues for
+
+Redesigning the rule, not its constant. The current rule requires a *hard stable
+prefix*: every threshold from the smallest up to the one being accepted must
+pass. One marginal threshold anywhere in the prefix truncates the whole set, and
+cross-fitting gives that failure two chances per estimate. Candidates worth
+considering: a soft or weighted stable set, a rule that tolerates isolated
+rejections inside the prefix, or accepting on the largest stable *interval*
+rather than the prefix.
