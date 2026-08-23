@@ -49,6 +49,27 @@ def test_bootstrap_summary_reports_statistic_standard_deviation() -> None:
     assert summary["se"] != experiment._standard_error(ratios)
 
 
+def test_clean_cells_do_not_repeat_the_delta_sweep() -> None:
+    report = experiment.build_report(
+        trials=2,
+        sample_sizes=[300],
+        scenario_keys=["pareto"],
+        contamination_counts=[0, 2],
+        deltas=[1.5, 2.0],
+        k_fractions=[0.05, 0.10],
+        max_trim=4,
+        bootstrap_draws=0,
+    )
+
+    assert [
+        (row["contamination_count"], row["delta"]) for row in report["results"]
+    ] == [
+        (0, None),
+        (2, 1.5),
+        (2, 2.0),
+    ]
+
+
 def test_report_contains_provenance_configuration_and_jsonable_results() -> None:
     report = experiment.build_report(
         trials=2,
