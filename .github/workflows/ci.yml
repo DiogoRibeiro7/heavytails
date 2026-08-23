@@ -74,9 +74,17 @@ jobs:
       - name: Validate Zenodo metadata
         run: poetry run python scripts/validate_zenodo_metadata.py
 
+      # -n auto distributes the suite across the runner's cores. Coverage
+      # instrumentation costs about 6.4x here -- the suite is 3m12s without it
+      # and 20m37s with it -- and that multiplier, not the tests themselves, is
+      # what the job was spending its time on. Splitting it four ways brings it
+      # to 6m54s. pytest-cov combines the workers' data, and the totals come
+      # out identical to a serial run, so --cov-fail-under still means what it
+      # meant.
       - name: Run tests with coverage
         run: >-
           poetry run pytest tests/
+          -n auto
           --cov=heavytails
           --cov-report=xml
           --cov-report=term-missing
