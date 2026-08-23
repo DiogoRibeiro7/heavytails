@@ -2219,6 +2219,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2230,7 +2252,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2263,7 +2285,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2291,7 +2313,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2313,7 +2335,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_2" class="md-nav__link">
+  <a href="#fixed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2341,7 +2363,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2380,7 +2402,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2402,7 +2424,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_3" class="md-nav__link">
+  <a href="#fixed_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2441,7 +2463,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_3" class="md-nav__link">
+  <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2642,6 +2664,28 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The citation guidance cited <strong>0.3.0</strong>. <code>CITATION.cff</code> was advanced to 0.4.0 at
+  release and the documentation was not, so <code>docs/about/citation.md</code> handed out
+  APA, IEEE, MLA, Chicago and BibTeX entries for 0.3.0, along with the version
+  DOI of a release the reader was not running, while the file GitHub's "Cite
+  this repository" button reads said 0.4.0. Both now cite 0.4.0 and its version
+  DOI, <code>10.5281/zenodo.22062643</code>.</li>
+<li><code>CITATION.cff</code> carried a placeholder saying 0.4.0's version DOI would be
+  added once Zenodo had archived it. It had been, on 2026-08-22.</li>
+<li>The documentation described NumPy as having become a requirement "in 0.5.0",
+  a version that does not exist -- the latest release is 0.4.0. The three
+  places that said so now say it was optional through 0.4.0, which is true
+  before and after that release is cut.</li>
+</ul>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Two tests tying the citation metadata together: <code>CITATION.cff</code> must name the
+  version in <code>pyproject.toml</code>, and the citation guidance must cite that same
+  version. Nothing checked either, which is how the documentation sat a release
+  behind. Bumping the version now fails until the guidance is bumped with it.</li>
+</ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <p><strong>The package no longer describes itself as pure Python, because it is not.</strong></p>
 <ul>
@@ -2657,7 +2701,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>heavytails.multivariate</code> said "the linear algebra is pure Python" after that
   stopped being true of everything but the Cholesky factorisation.</li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>tests/test_zenodo_metadata.py</code> compares the two metadata files against each
   other instead of holding a third copy of the title. The transcription is what
@@ -2752,7 +2796,7 @@ Evaluating one over a million points now takes about 20 milliseconds.</p>
 incomplete beta or gamma, which NumPy does not provide; their <code>cdf</code>, <code>sf</code> and
 <code>ppf</code> cost what they always did. Their densities are elementary and are
 vectorised like everything else.</p>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>GeneralizedPareto.sf</code> computes the survival probability directly instead of
   as <code>1 - cdf</code>. The subtraction returned <strong>exactly zero</strong> in the far tail: at
@@ -2790,7 +2834,7 @@ returned negative probabilities.</p>
   what lets both tails be accurate; insisting on exact complementarity would
   force back the subtraction that made the lower tail return zero.</li>
 </ul>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.timeseries</code>, separating heavy tails that come from volatility
   clustering from heavy tails that come from the shocks
@@ -2977,7 +3021,7 @@ returned negative probabilities.</p>
   with identical accuracy.</p>
 </li>
 </ul>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>GeneralizedPareto</code> returned negative probabilities below <code>mu</code> for every sign
@@ -3040,7 +3084,7 @@ returned negative probabilities.</p>
 </li>
 </ul>
 <h2 id="030-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...v0.3.0">0.3.0</a> - 2026-08-21<a class="headerlink" href="#030-2026-08-21" title="Permanent link">&para;</a></h2>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>bias_reduced_hill_estimator</code>, with <code>second_order_rho</code>, <code>second_order_beta</code>
@@ -3150,7 +3194,7 @@ returned negative probabilities.</p>
 </li>
 </ul>
 <h2 id="020-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...v0.2.0">0.2.0</a> - 2026-08-21<a class="headerlink" href="#020-2026-08-21" title="Permanent link">&para;</a></h2>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>scripts/special_function_accuracy.py</code>, which sweeps both special functions
@@ -3289,7 +3333,7 @@ returned negative probabilities.</p>
   that was never generated.</p>
 </li>
 </ul>
-<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The continued-fraction branch of the regularized lower incomplete gamma was
@@ -3395,7 +3439,7 @@ returned negative probabilities.</p>
 </li>
 </ul>
 <h2 id="010-2025-10-25"><a href="https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0">0.1.0</a> - 2025-10-25<a class="headerlink" href="#010-2025-10-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Continuous heavy-tailed distributions implemented from first principles:
   Pareto, Cauchy, Student-t, Log-Normal, Weibull, Fréchet and GEV (ξ &gt; 0).</li>

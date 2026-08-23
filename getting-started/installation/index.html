@@ -2673,7 +2673,7 @@
 <li><strong>Python 3.10 or higher</strong></li>
 <li><strong>NumPy 1.24 or higher</strong></li>
 </ul>
-<p>!!! tip "One dependency" NumPy became a requirement in 0.5.0. Before that the library was pure Python, which kept it inspectable but meant evaluating a density over a hundred thousand points cost a hundred thousand interpreter round trips. The trade was worth making:</p>
+<p>!!! tip "One dependency" NumPy is required. It was optional through 0.4.0, and requiring it is why the next release is 0.5.0 rather than 0.4.1 — the library was pure Python, which kept it inspectable but meant evaluating a density over a hundred thousand points cost a hundred thousand interpreter round trips. The trade was worth making:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>- **Fast** - a density over a million points takes about 20 milliseconds
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>- **Still inspectable** - the formulas are ordinary NumPy expressions
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>- **Still few moving parts** - one dependency, and no compiler needed
