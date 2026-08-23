@@ -33,7 +33,7 @@ Citing all versions:
 ```bibtex
 @software{ribeiro_heavytails,
   author    = {Ribeiro, Diogo},
-  title     = {heavytails: A Pure-Python Library for Heavy-Tailed
+  title     = {heavytails: A Python Library for Heavy-Tailed
                Probability Distributions},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.22045594},
@@ -46,7 +46,7 @@ Citing release 0.3.0 exactly:
 ```bibtex
 @software{ribeiro_heavytails_0_3_0,
   author    = {Ribeiro, Diogo},
-  title     = {heavytails: A Pure-Python Library for Heavy-Tailed
+  title     = {heavytails: A Python Library for Heavy-Tailed
                Probability Distributions},
   year      = {2026},
   version   = {0.3.0},
@@ -62,24 +62,24 @@ Citing release 0.3.0 exactly:
 
 ### APA
 
-> Ribeiro, D. (2026). *heavytails: A Pure-Python library for heavy-tailed
+> Ribeiro, D. (2026). *heavytails: A Python library for heavy-tailed
 > probability distributions* (Version 0.3.0) [Computer software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.22050721>
 
 ### IEEE
 
-> D. Ribeiro, "heavytails: A Pure-Python Library for Heavy-Tailed Probability
+> D. Ribeiro, "heavytails: A Python Library for Heavy-Tailed Probability
 > Distributions," version 0.3.0, Zenodo, 2026. doi: 10.5281/zenodo.22050721.
 
 ### MLA
 
-> Ribeiro, Diogo. *heavytails: A Pure-Python Library for Heavy-Tailed
+> Ribeiro, Diogo. *heavytails: A Python Library for Heavy-Tailed
 > Probability Distributions*. Version 0.3.0, Zenodo, 2026,
 > doi:10.5281/zenodo.22050721.
 
 ### Chicago
 
-> Ribeiro, Diogo. 2026. "heavytails: A Pure-Python Library for Heavy-Tailed
+> Ribeiro, Diogo. 2026. "heavytails: A Python Library for Heavy-Tailed
 > Probability Distributions." Version 0.3.0. Zenodo.
 > <https://doi.org/10.5281/zenodo.22050721>.
 
@@ -129,7 +129,7 @@ alongside the software. Every one of these is listed in `CITATION.cff` and
 
 Where a citation is not appropriate:
 
-> "Computational analyses were performed using heavytails, a pure-Python
+> "Computational analyses were performed using heavytails, a Python
 > library for heavy-tailed distributions (<https://doi.org/10.5281/zenodo.22045594>)."
 
 --------------------------------------------------------------------------------

@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+**The package no longer describes itself as pure Python, because it is not.**
+
+- `CITATION.cff`, `.zenodo.json`, `AUTHORS.md`, `mkdocs.yml` and the citation
+  pages carry the title *heavytails: A Python Library for Heavy-Tailed
+  Probability Distributions*. The archived 0.1.0-0.4.0 records keep the old
+  title, which is correct: those releases were pure Python.
+- `SECURITY.md` no longer justifies the security posture with
+  "dependency-free (pure Python)". It says there is one runtime dependency and
+  why that is an acceptable one to require.
+- `docs/about/license.md` names NumPy's licence rather than claiming there are
+  no third-party licences to name.
+- `heavytails.multivariate` said "the linear algebra is pure Python" after that
+  stopped being true of everything but the Cholesky factorisation.
+
+### Fixed
+
+- `tests/test_zenodo_metadata.py` compares the two metadata files against each
+  other instead of holding a third copy of the title. The transcription is what
+  broke when the title changed -- a test named for checking two files against
+  each other should not need editing when they both change consistently.
+- `heavytails.performance.vectorized_pdf_evaluation` and
+  `vectorized_cdf_evaluation` call the array methods directly. They went
+  through `np.vectorize`, which is a Python loop wearing an array interface,
+  and was pointless once the methods took arrays themselves.
+- `heavytails.extensions` imports NumPy unconditionally. It was guarded
+  alongside SciPy, so a missing SciPy set `np` to `None` even though NumPy was
+  installed -- harmless only because every caller raises on `SCIPY_AVAILABLE`
+  first.
+- `heavytails.performance` and `heavytails.vectorized` no longer branch on
+  NumPy being absent. It cannot be.
+
+### Changed
+
 **The multivariate distributions compute over observations, not one at a time.**
 
 - `mahalanobis`, `logpdf` and `pdf` take one point or an array of them and

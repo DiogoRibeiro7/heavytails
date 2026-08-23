@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "heavytails: A Pure-Python Library for Heavy-Tailed Probability Distributions"
+title: "heavytails: A Python Library for Heavy-Tailed Probability Distributions"
 message: "If you use this library, please cite as below."
 type: software
 authors:
@@ -11,11 +11,12 @@ authors:
 repository-code: "https://github.com/DiogoRibeiro7/heavytails"
 url: "https://diogoribeiro7.github.io/heavytails"
 abstract: >
-  heavytails is a pure-Python library implementing heavy-tailed probability
-  distributions, built from first principles without third-party dependencies.
-  The library provides comprehensive support for continuous and discrete
-  heavy-tailed distributions, tail index estimation methods, and diagnostic
-  utilities for extreme value analysis, risk management, and financial modeling.
+  heavytails is a Python library implementing heavy-tailed probability
+  distributions, built from first principles with NumPy-backed vectorized
+  evaluation. The library provides comprehensive support for continuous and
+  discrete heavy-tailed distributions, tail index estimation methods, and
+  diagnostic utilities for extreme value analysis, risk management, and
+  financial modeling.
 keywords:
   - heavy tails
   - heavy-tailed distributions

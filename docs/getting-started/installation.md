@@ -198,7 +198,7 @@ poetry shell  # Activate the environment
 
 ## Optional Dependencies
 
-While HeavyTails itself has no dependencies, you may want to install these for enhanced functionality:
+Beyond NumPy, which is required, you may want to install these for enhanced functionality:
 
 ### For Visualization
 

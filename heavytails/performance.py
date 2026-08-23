@@ -12,13 +12,7 @@ import math
 import multiprocessing as mp
 from typing import Any
 
-try:
-    import numpy as np
-
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    np = None
+import numpy as np
 
 
 # NOTE: Future enhancement - Cython extensions for critical mathematical functions
@@ -40,7 +34,7 @@ def cython_special_functions():
 
     Expected speedup: 10-100x for intensive calculations.
 
-    Note: This is a future enhancement. Current pure Python implementations
+    Note: This is a future enhancement. The current NumPy implementations
     work well for most use cases.
     """
     raise NotImplementedError("Cython extensions not yet implemented")
@@ -53,15 +47,12 @@ def vectorized_pdf_evaluation(
     Vectorized PDF evaluation for array inputs.
 
     .. note::
-        This uses ``np.vectorize``, which NumPy's own documentation describes
-        as provided for convenience rather than performance -- it is a Python
-        loop wearing an array interface. Measured against a plain loop over
-        100,000 Pareto densities it is 1.1 times faster, where the kernels in
-        :mod:`heavytails.vectorized` are 9.4 times faster. Prefer
-        :func:`heavytails.vectorized.pdf`.
-
-    Provides significant speedups (10-100x) for large-scale density evaluations
-    when NumPy is available. Falls back to pure Python if NumPy is not installed.
+        This is now a thin wrapper. ``dist.pdf`` takes an array and returns one,
+        so looking a distribution up by name and handing it the points is all
+        that is left to do -- prefer calling the method directly. It used to go
+        through ``np.vectorize``, which NumPy's own documentation describes as
+        provided for convenience rather than performance, and which was a
+        Python loop either way.
 
     Args:
         distribution: Name of the distribution class (e.g., 'Pareto', 'StudentT')
@@ -91,20 +82,12 @@ def vectorized_pdf_evaluation(
     # Create distribution instance
     dist = dist_class(**params)
 
-    # Use NumPy for vectorization if available
-    if NUMPY_AVAILABLE and len(x_array) > 10:
-        # Convert to numpy array
-        x_np = np.asarray(x_array)
-
-        # Create vectorized version of the PDF function
-        # np.vectorize enables the scalar PDF to work on arrays efficiently
-        vectorized_pdf = np.vectorize(dist.pdf, otypes=[float])
-        pdf_values = vectorized_pdf(x_np)
-
-        return pdf_values.tolist()
-
-    # Fall back to pure Python list comprehension
-    return [dist.pdf(x) for x in x_array]
+    # One call. `dist.pdf` takes an array and returns one, so np.vectorize --
+    # which is a Python loop wearing an array interface -- has nothing left to
+    # do here, and the branch for NumPy being absent has nothing left to catch.
+    return [
+        float(value) for value in np.asarray(dist.pdf(np.asarray(x_array, dtype=float)))
+    ]
 
 
 def vectorized_cdf_evaluation(
@@ -114,11 +97,8 @@ def vectorized_cdf_evaluation(
     Vectorized CDF evaluation for array inputs.
 
     .. note::
-        See :func:`vectorized_pdf_evaluation`: this is a loop behind an array
-        interface. Prefer :func:`heavytails.vectorized.cdf`.
-
-    Provides significant speedups for large-scale CDF evaluations
-    when NumPy is available. Falls back to pure Python if NumPy is not installed.
+        See :func:`vectorized_pdf_evaluation`. Prefer calling ``dist.cdf``
+        directly, which takes an array.
 
     Args:
         distribution: Name of the distribution class (e.g., 'Pareto', 'StudentT')
@@ -148,20 +128,12 @@ def vectorized_cdf_evaluation(
     # Create distribution instance
     dist = dist_class(**params)
 
-    # Use NumPy for vectorization if available
-    if NUMPY_AVAILABLE and len(x_array) > 10:
-        # Convert to numpy array
-        x_np = np.asarray(x_array)
-
-        # Create vectorized version of the CDF function
-        # np.vectorize enables the scalar CDF to work on arrays efficiently
-        vectorized_cdf = np.vectorize(dist.cdf, otypes=[float])
-        cdf_values = vectorized_cdf(x_np)
-
-        return cdf_values.tolist()
-
-    # Fall back to pure Python list comprehension
-    return [dist.cdf(x) for x in x_array]
+    # One call. `dist.cdf` takes an array and returns one, so np.vectorize --
+    # which is a Python loop wearing an array interface -- has nothing left to
+    # do here, and the branch for NumPy being absent has nothing left to catch.
+    return [
+        float(value) for value in np.asarray(dist.cdf(np.asarray(x_array, dtype=float)))
+    ]
 
 
 @dataclass

@@ -10,15 +10,18 @@ from collections.abc import Callable
 import math
 from typing import Any
 
+import numpy as np
+
+# Only SciPy is optional. NumPy used to be guarded alongside it, which meant a
+# missing SciPy set ``np`` to None even though NumPy was installed and fine --
+# harmless only because every caller below raises on SCIPY_AVAILABLE first.
 try:
-    import numpy as np
     from scipy import stats
     from scipy.linalg import det, inv
 
     SCIPY_AVAILABLE = True
 except ImportError:
     SCIPY_AVAILABLE = False
-    np = None
     stats = None
 
 

@@ -25,12 +25,14 @@ integration or simulation. :meth:`MultivariateStudentT.cdf_monte_carlo` is
 offered instead, and it reports a standard error, because a probability
 estimated by simulation without one is not usable.
 
-**The linear algebra is pure Python.** Cholesky is cubic in the dimension and
-happens once per instance; each density evaluation is quadratic. That is
-comfortable at the dimensions this is for -- tail dependence is usually asked
-about a handful of series at a time -- and would be the wrong choice at
-hundreds. :mod:`heavytails.vectorized` is where a NumPy path would go if that
-ever mattered.
+**The linear algebra is NumPy's, but only just.** Cholesky is cubic in the
+dimension and the dimension here is two or three, so the factorisation is
+still written out rather than delegated -- it is the one place a hand-written
+routine can give a better error than a library one, naming the pivot that
+failed instead of reporting that a matrix was not positive definite. What is
+vectorised is everything that runs once per *observation*: the quadratic
+form, the density, the sampler and the EM step, where the sample is thousands
+of rows and the interpreter was the whole cost.
 """
 
 from __future__ import annotations

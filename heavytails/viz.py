@@ -1,7 +1,8 @@
 """Rendering for the diagnostics, using matplotlib.
 
 The rest of the library returns coordinates rather than figures, which is what
-keeps it dependency-free. That is the right default, but it means every user
+keeps matplotlib out of the requirements. That is the right default, but it
+means every user
 writes the same twenty lines of matplotlib to look at a Hill plot, and the
 documentation carries that boilerplate on several pages.
 
