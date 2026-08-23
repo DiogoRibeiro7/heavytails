@@ -8,8 +8,9 @@ the same simulated samples for four estimators:
 * the full-sample adaptive threshold aggregation;
 * the production cross-fitted adaptive estimator.
 
-The first target is an in-sample empirical decomposition baseline, not the
-out-of-sample oracle risk used by ``oracle_experiment.py``.
+The primary local baseline is selected out of sample, using the same two-fold
+Monte Carlo select/evaluate rotation as ``oracle_experiment.py``. The in-sample
+minimum is still reported as a secondary winner's-curse diagnostic.
 """
 
 # ruff: noqa: E402, I001
@@ -39,9 +40,12 @@ from research.adaptive_tail.oracle_experiment import (
     SCENARIOS,
     Candidate,
     KGridMode,
+    _admissible_max_trim,
     _candidate_estimate,
+    _evaluate_oracle_fold,
     _format_optional,
     _mse,
+    _oracle_squared_by_index,
     _parse_floats,
     _parse_ints,
     _provenance,
@@ -49,6 +53,8 @@ from research.adaptive_tail.oracle_experiment import (
     _standard_error,
     _thresholds_for_mode,
 )
+
+SPLIT_SEED_OFFSET = 1_000_000_000
 
 
 def _jsonable_pair(pair: Candidate | None) -> list[int] | None:
@@ -90,7 +96,7 @@ def _method_summary(
     *,
     truth: float,
     baseline_mse: float | None,
-) -> dict[str, float | None]:
+) -> dict[str, Any]:
     success_squared = [
         (estimate - truth) ** 2 for estimate in estimates if estimate is not None
     ]
@@ -106,7 +112,28 @@ def _method_summary(
         "success_rmse": (
             _rmse_from_squared(success_squared) if success_squared else None
         ),
-        "ratio_to_best_local": (
+        "ratio_to_best_local_oos": (
+            mse / baseline_mse
+            if mse is not None and baseline_mse is not None and baseline_mse > 0.0
+            else None
+        ),
+    }
+
+
+def _squared_error_summary(
+    squared_errors: Sequence[float] | None,
+    *,
+    baseline_mse: float | None,
+) -> dict[str, Any]:
+    mse = _mse(squared_errors) if squared_errors else None
+    return {
+        "failure_rate": 0.0 if squared_errors is not None else 1.0,
+        "mse": mse,
+        "rmse": math.sqrt(mse) if mse is not None else None,
+        "mse_se": _standard_error(squared_errors) if squared_errors else None,
+        "success_mse": mse,
+        "success_rmse": math.sqrt(mse) if mse is not None else None,
+        "ratio_to_best_local_oos": (
             mse / baseline_mse
             if mse is not None and baseline_mse is not None and baseline_mse > 0.0
             else None
@@ -140,8 +167,8 @@ def _evaluate_clean_pareto_cell(
     intermediate_min_power: float = 1.0 / 3.0,
     intermediate_max_power: float = 2.0 / 3.0,
 ) -> dict[str, Any]:
-    if trials < 1:
-        raise ValueError("at least one trial is required")
+    if trials < 2:
+        raise ValueError("at least two trials are needed for split oracle evaluation")
 
     scenario = SCENARIOS["pareto"]
     k_grid = _thresholds_for_mode(
@@ -154,8 +181,8 @@ def _evaluate_clean_pareto_cell(
     )
     min_k = k_grid[0]
     max_k = k_grid[-1]
-    r_grid = list(range(max_trim + 1))
-    adaptive_max_trim = min(max_trim, max(1, min_k // 2 - 1))
+    adaptive_max_trim = _admissible_max_trim(min_k, max_trim)
+    r_grid = list(range(adaptive_max_trim + 1))
     candidates = [(r, k) for r in r_grid for k in k_grid if r < k - 1]
 
     candidate_estimates: dict[Candidate, list[float | None]] = {
@@ -169,8 +196,9 @@ def _evaluate_clean_pareto_cell(
     stable_thresholds: list[int] = []
     stable_trims: list[int] = []
 
-    for seed in range(trials):
-        data = scenario.sample(n, seed)
+    for data_seed in range(trials):
+        data = scenario.sample(n, data_seed)
+        split_seed = SPLIT_SEED_OFFSET + data_seed
 
         for candidate in candidates:
             candidate_estimates[candidate].append(
@@ -226,33 +254,68 @@ def _evaluate_clean_pareto_cell(
                     rho=scenario.rho_used,
                     adaptive_trim=True,
                     max_trim=adaptive_max_trim,
-                    seed=seed,
+                    seed=split_seed,
                 )
             )
         except ValueError:
             crossfit_estimates.append(None)
 
-    best_pair, best_mse = _select_best_local(candidate_estimates, scenario.gamma)
-    best_local_estimates = (
-        candidate_estimates[best_pair] if best_pair is not None else [None] * trials
+    midpoint = trials // 2
+    first = list(range(midpoint))
+    second = list(range(midpoint, trials))
+    folds = [
+        _evaluate_oracle_fold(
+            candidate_estimates,
+            select_indices=first,
+            evaluate_indices=second,
+            truth=scenario.gamma,
+        ),
+        _evaluate_oracle_fold(
+            candidate_estimates,
+            select_indices=second,
+            evaluate_indices=first,
+            truth=scenario.gamma,
+        ),
+    ]
+    oos_squared = _oracle_squared_by_index(folds, trials)
+    oos_mse = _mse(oos_squared) if oos_squared is not None else None
+
+    in_sample_pair, _in_sample_mse = _select_best_local(
+        candidate_estimates, scenario.gamma
+    )
+    in_sample_estimates = (
+        candidate_estimates[in_sample_pair]
+        if in_sample_pair is not None
+        else [None] * trials
     )
     methods = {
-        "best_local_oracle": _method_summary(
-            best_local_estimates, truth=scenario.gamma, baseline_mse=best_mse
+        "best_local_oracle_oos": _squared_error_summary(
+            oos_squared, baseline_mse=oos_mse
+        ),
+        "best_local_oracle_in_sample": _method_summary(
+            in_sample_estimates, truth=scenario.gamma, baseline_mse=oos_mse
         ),
         "full_sample_selected_local": _method_summary(
-            selected_local_estimates, truth=scenario.gamma, baseline_mse=best_mse
+            selected_local_estimates, truth=scenario.gamma, baseline_mse=oos_mse
         ),
         "full_sample_adaptive_aggregation": _method_summary(
             full_sample_aggregate_estimates,
             truth=scenario.gamma,
-            baseline_mse=best_mse,
+            baseline_mse=oos_mse,
         ),
         "cross_fitted_adaptive": _method_summary(
-            crossfit_estimates, truth=scenario.gamma, baseline_mse=best_mse
+            crossfit_estimates, truth=scenario.gamma, baseline_mse=oos_mse
         ),
     }
-    methods["best_local_oracle"]["selected_pair"] = _jsonable_pair(best_pair)
+    methods["best_local_oracle_oos"]["oracle_pairs"] = [
+        _jsonable_pair(fold.selected_pair) for fold in folds
+    ]
+    methods["best_local_oracle_oos"]["oracle_selection_mse"] = [
+        fold.selection_mse for fold in folds
+    ]
+    methods["best_local_oracle_in_sample"]["selected_pair"] = _jsonable_pair(
+        in_sample_pair
+    )
 
     return {
         "scenario": scenario.key,
@@ -264,9 +327,14 @@ def _evaluate_clean_pareto_cell(
         "k_grid_mode": k_grid_mode,
         "k_grid": k_grid,
         "r_grid": r_grid,
+        "requested_max_trim": max_trim,
+        "admissible_max_trim": adaptive_max_trim,
         "adaptive_max_trim": adaptive_max_trim,
         "methods": methods,
         "full_sample_selected_local_pair_counts": _pair_counts(selected_pairs),
+        "selected_trim_frequency": _rate_counts(
+            [pair[0] for pair in selected_pairs if pair is not None]
+        ),
         "stable_set_size_mean": (
             statistics.fmean(stable_set_sizes) if stable_set_sizes else None
         ),
@@ -276,7 +344,7 @@ def _evaluate_clean_pareto_cell(
         "stable_threshold_inclusion": _inclusion_rates(
             stable_thresholds, len(stable_set_sizes)
         ),
-        "stable_trim_frequency": _rate_counts(stable_trims),
+        "stable_trim_frequency_within_stable_thresholds": _rate_counts(stable_trims),
     }
 
 
@@ -341,13 +409,26 @@ def build_report(
             "intermediate_min_power": intermediate_min_power,
             "intermediate_max_power": intermediate_max_power,
             "max_trim": max_trim,
-            "seeds": f"0..{trials - 1} per sample size",
+            "trim_envelope": (
+                "both adaptive and local oracle candidates use "
+                "min(max_trim, floor(k_min / 2) - 1)"
+            ),
+            "data_seeds": f"0..{trials - 1} per sample size",
+            "crossfit_split_seeds": (
+                f"{SPLIT_SEED_OFFSET}..{SPLIT_SEED_OFFSET + trials - 1} per sample size"
+            ),
+            "split_seed_offset": SPLIT_SEED_OFFSET,
             "target": (
                 "clean-Pareto decomposition of local oracle, selection, "
                 "aggregation and cross-fitting"
             ),
-            "best_local_oracle": (
-                "in-sample empirical MSE minimum over fixed local (r, k) candidates"
+            "best_local_oracle_oos": (
+                "two-fold Monte Carlo select/evaluate rotation over fixed "
+                "local (r, k) candidates; main ratio denominator"
+            ),
+            "best_local_oracle_in_sample": (
+                "in-sample empirical MSE minimum over fixed local (r, k) "
+                "candidates; secondary winner's-curse diagnostic"
             ),
         },
         "results": rows,
@@ -356,7 +437,7 @@ def build_report(
 
 def _print_rows(rows: list[dict[str, Any]]) -> None:
     header = (
-        f"{'n':>7}{'grid':>14}{'best':>10}{'selected':>10}"
+        f"{'n':>7}{'grid':>14}{'local_oos':>10}{'selected':>10}"
         f"{'aggregate':>10}{'crossfit':>10}"
     )
     print(header)
@@ -364,7 +445,7 @@ def _print_rows(rows: list[dict[str, Any]]) -> None:
         methods = row["methods"]
         print(
             f"{row['n']:>7}{row['k_grid_mode']:>14}"
-            f"{_format_optional(methods['best_local_oracle']['rmse'], 10)}"
+            f"{_format_optional(methods['best_local_oracle_oos']['rmse'], 10)}"
             f"{_format_optional(methods['full_sample_selected_local']['rmse'], 10)}"
             f"{_format_optional(methods['full_sample_adaptive_aggregation']['rmse'], 10)}"
             f"{_format_optional(methods['cross_fitted_adaptive']['rmse'], 10)}"

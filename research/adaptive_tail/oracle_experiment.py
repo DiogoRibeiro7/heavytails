@@ -253,6 +253,17 @@ def _thresholds_for_mode(
     raise ValueError(f"unknown k grid mode: {k_grid_mode}")
 
 
+def _admissible_max_trim(min_k: int, max_trim: int) -> int:
+    """Common trim envelope for both adaptive and oracle candidates."""
+    admissible = min(max_trim, min_k // 2 - 1)
+    if admissible < 1:
+        raise ValueError(
+            "the threshold grid leaves no positive adaptive trim envelope; "
+            "increase min_k or reduce the lower threshold power"
+        )
+    return admissible
+
+
 def _candidate_estimate(
     data: list[float], candidate: Candidate, rho: float
 ) -> float | None:
@@ -401,9 +412,10 @@ def _evaluate_cell(
     )
     min_k = k_grid[0]
     max_k = k_grid[-1]
-    r_grid = list(range(max_trim + 1))
-    adaptive_max_trim = min(max_trim, max(1, min_k // 2 - 1))
+    adaptive_max_trim = _admissible_max_trim(min_k, max_trim)
+    r_grid = list(range(adaptive_max_trim + 1))
     candidates = [(r, k) for r in r_grid for k in k_grid if r < k - 1]
+    contamination_supported = contamination_count <= adaptive_max_trim
 
     adaptive_estimates: list[float | None] = []
     candidate_estimates: dict[Candidate, list[float | None]] = {
@@ -522,7 +534,10 @@ def _evaluate_cell(
         "k_grid_mode": k_grid_mode,
         "k_grid": k_grid,
         "r_grid": r_grid,
+        "requested_max_trim": max_trim,
+        "admissible_max_trim": adaptive_max_trim,
         "adaptive_max_trim": adaptive_max_trim,
+        "contamination_supported": contamination_supported,
         "adaptive_failure_rate": failures["adaptive"] / trials,
         "adaptive_rmse_success": (
             _rmse_from_squared(adaptive_success_squared)
@@ -588,7 +603,7 @@ def run_experiment(
                             intermediate_grid_size=intermediate_grid_size,
                             intermediate_min_power=intermediate_min_power,
                             intermediate_max_power=intermediate_max_power,
-                            max_trim=max(max_trim, contamination_count),
+                            max_trim=max_trim,
                             bootstrap_draws=bootstrap_draws,
                         )
                         for delta in _deltas_for_count(contamination_count, deltas)
@@ -685,6 +700,10 @@ def build_report(
             "intermediate_min_power": intermediate_min_power,
             "intermediate_max_power": intermediate_max_power,
             "max_trim": max_trim,
+            "trim_envelope": (
+                "both adaptive and oracle candidates use "
+                "min(max_trim, floor(k_min / 2) - 1)"
+            ),
             "bootstrap_draws": bootstrap_draws,
             "seeds": f"0..{trials - 1} per cell",
             "oracle": "two-fold Monte Carlo select/evaluate rotation",
