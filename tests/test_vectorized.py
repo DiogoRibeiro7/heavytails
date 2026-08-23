@@ -288,10 +288,26 @@ class TestTheFallbackPath:
         why ``accelerated`` is asked per method rather than per family.
         """
         assert accelerated(dist, "pdf")
-        for name, function in (("pdf", pdf), ("cdf", cdf), ("sf", sf)):
-            if name != "pdf":
-                assert not accelerated(dist, name)
-            # Same implementation either way, so this is exact.
+
+        # The density is exempt from the exactness below, and this is the
+        # fourth time in this codebase that has had to be said. It is one
+        # NumPy expression, so evaluating it over an array uses NumPy's
+        # vectorised routines and evaluating it at a point uses its scalar
+        # ones, and those round differently -- on Linux, for StudentT and
+        # InverseGamma, they do.
+        np.testing.assert_allclose(
+            pdf(dist, points),
+            np.array([dist.pdf(p) for p in points]),
+            rtol=1e-13,
+            atol=1e-15,
+        )
+
+        for name, function in (("cdf", cdf), ("sf", sf)):
+            assert not accelerated(dist, name)
+            # These *are* exact. They go one element at a time through the
+            # same scalar helper either way, because NumPy has no error
+            # function and no incomplete beta or gamma, so there is only one
+            # routine to round.
             assert np.array_equal(
                 function(dist, points),
                 np.array([getattr(dist, name)(p) for p in points]),
