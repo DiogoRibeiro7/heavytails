@@ -58,7 +58,10 @@ The output reports:
   estimator's exact `(r, k)` grid.
 - `risk_ratio`: `adaptive_mse / oracle_mse`, reported only when the adaptive
   estimator has no failures.
-- `risk_ratio_bootstrap`: paired bootstrap uncertainty for the risk ratio.
+- `risk_ratio_bootstrap`: bootstrap uncertainty for the risk ratio. Each
+  bootstrap draw resamples Monte Carlo replications and reruns the oracle
+  select/evaluate split, so the interval includes oracle-selection variability
+  rather than conditioning on the originally selected oracle pairs.
 - `trim_recovery_vanishing`: probability, with a Wilson interval, that the
   adaptive trimming rule recovers the planted contamination count at the
   largest candidate threshold using the same vanishing level as the estimator.
