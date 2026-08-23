@@ -46,8 +46,12 @@ For any threshold envelope, the adaptive estimator and the local oracle use the
 same admissible trim range:
 
 ```text
-h_n = min(max_trim, floor(k_min / 2) - 1).
+h_n = min(max_trim, k_min_crossfit - 2).
 ```
+
+Here `k_min_crossfit` is the smallest threshold reached by the production
+two-fold cross-fit scaling rule. This keeps every fold-level local candidate
+inside the admissible `r < k - 1` region.
 
 Rows where `contamination_count > h_n` are labeled with
 `contamination_supported: false`; they are outside the declared trimming
@@ -146,11 +150,31 @@ This report compares:
 - `full_sample_selected_local`: the final stable local estimator selected by
   the adaptive threshold rule, without threshold aggregation.
 - `full_sample_adaptive_aggregation`: the full-sample adaptive aggregate.
-- `cross_fitted_adaptive`: the production cross-fitted adaptive estimator.
+- `cross_fitted_adaptive`: the production cross-fitted adaptive estimator,
+  using the estimator's default deterministic split.
+- `cross_fitted_adaptive_randomized`: a secondary diagnostic using independent
+  split seeds.
 
-The decomposition uses independent deterministic streams for sample generation
-and cross-fit fold assignment: data seeds are `s`, and cross-fit split seeds are
-`1_000_000_000 + s`.
+The primary cross-fit row matches `oracle_experiment.py`. The randomized
+secondary row uses data seeds `s` and split seeds `1_000_000_000 + s`.
 
 Use `--k-grid-mode intermediate` on this script to inspect the same
 decomposition under the theory-oriented threshold envelope.
+
+## Selector Diagnostics
+
+The intermediate-grid results show that clean-Pareto excess risk is dominated
+by threshold compatibility selection. Before running more contamination grids,
+trace and calibrate that selector under exact Pareto:
+
+```bash
+python research/adaptive_tail/selector_diagnostics.py \
+  --n 10000 \
+  --k-grid-mode intermediate \
+  --json selector-diagnostics.json
+```
+
+This report calibrates candidate compatibility cutoffs on calibration seeds,
+evaluates the selected cutoff on held-out seeds, and records cross-fit fold
+traces with training thresholds, per-threshold trims, stable sets, evaluation
+trims, weights and failure stages.

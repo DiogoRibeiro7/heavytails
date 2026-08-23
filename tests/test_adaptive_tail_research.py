@@ -7,6 +7,7 @@ import statistics
 
 from research.adaptive_tail import clean_pareto_decomposition as decomposition
 from research.adaptive_tail import oracle_experiment as experiment
+from research.adaptive_tail import selector_diagnostics
 
 
 def test_oracle_grid_matches_the_adaptive_log_grid() -> None:
@@ -168,11 +169,12 @@ def test_intermediate_oracle_and_adaptive_share_the_trim_envelope() -> None:
     )
 
     assert row["k_grid"][0] == 10
-    assert row["admissible_max_trim"] == 4
-    assert row["adaptive_max_trim"] == 4
-    assert row["r_grid"] == [0, 1, 2, 3, 4]
+    assert row["crossfit_min_k"] == 5
+    assert row["admissible_max_trim"] == 3
+    assert row["adaptive_max_trim"] == 3
+    assert row["r_grid"] == [0, 1, 2, 3]
     assert not row["contamination_supported"]
-    assert all(pair is None or pair[0] <= 4 for pair in row["oracle_pairs"])
+    assert all(pair is None or pair[0] <= 3 for pair in row["oracle_pairs"])
 
 
 def test_clean_pareto_decomposition_reports_the_four_layers() -> None:
@@ -191,16 +193,54 @@ def test_clean_pareto_decomposition_reports_the_four_layers() -> None:
         "full_sample_selected_local",
         "full_sample_adaptive_aggregation",
         "cross_fitted_adaptive",
+        "cross_fitted_adaptive_randomized",
     }
     assert row["methods"]["best_local_oracle_oos"]["oracle_pairs"]
     assert row["methods"]["best_local_oracle_oos"]["ratio_to_best_local_oos"] == 1.0
     assert row["methods"]["best_local_oracle_in_sample"]["selected_pair"]
     assert "ratio_to_best_local_oos" in row["methods"]["cross_fitted_adaptive"]
+    assert (
+        "ratio_to_best_local_oos" in row["methods"]["cross_fitted_adaptive_randomized"]
+    )
+    assert report["configuration"]["production_crossfit_split_seed"].startswith("None")
     assert report["configuration"]["split_seed_offset"] == 1_000_000_000
     assert row["full_sample_selected_local_pair_counts"]
     assert row["selected_trim_frequency"]
     assert row["stable_set_size_mean"] is not None
     assert "stable_trim_frequency_within_stable_thresholds" in row
+
+    json.dumps(report, allow_nan=False)
+
+
+def test_selector_diagnostics_trace_and_calibration_are_jsonable() -> None:
+    report = selector_diagnostics.build_report(
+        n=300,
+        k_grid_mode="intermediate",
+        k_fractions=[0.05, 0.10],
+        intermediate_grid_size=4,
+        intermediate_min_power=1.0 / 3.0,
+        intermediate_max_power=2.0 / 3.0,
+        max_trim=8,
+        rho=-1.0,
+        target_acceptance=0.5,
+        calibration_trials=2,
+        holdout_trials=2,
+        calibration_seed_start=100,
+        holdout_seed_start=200,
+        critical_grid=[1.0, 2.0],
+        trace_count=1,
+    )
+
+    assert report["configuration"]["crossfit_min_k"] == 4
+    assert report["configuration"]["admissible_max_trim"] == 2
+    assert report["selected_critical"]["critical"] in {1.0, 2.0}
+    assert report["holdout"]["trials"] == 2
+    assert report["traces"]
+    assert set(report["traces"][0]) == {
+        "data_seed",
+        "default_critical",
+        "calibrated_critical",
+    }
 
     json.dumps(report, allow_nan=False)
 

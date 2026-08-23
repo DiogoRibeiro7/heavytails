@@ -33,6 +33,7 @@ if str(ROOT) not in sys.path:
 
 from heavytails import BurrXII, Frechet, Pareto
 from heavytails.tail_index import (
+    _scaled_order_count,
     _threshold_grid,
     _vanishing_level,
     adaptive_trim_selection,
@@ -253,9 +254,19 @@ def _thresholds_for_mode(
     raise ValueError(f"unknown k grid mode: {k_grid_mode}")
 
 
-def _admissible_max_trim(min_k: int, max_trim: int) -> int:
-    """Common trim envelope for both adaptive and oracle candidates."""
-    admissible = min(max_trim, min_k // 2 - 1)
+def _crossfit_min_threshold(n: int, min_k: int) -> int:
+    """Smallest threshold reached when cross-fitting scales the grid."""
+    first_n = n // 2
+    second_n = n - first_n
+    return min(
+        _scaled_order_count(min_k, first_n, n),
+        _scaled_order_count(min_k, second_n, n),
+    )
+
+
+def _admissible_max_trim(n: int, min_k: int, max_trim: int) -> int:
+    """Common trim envelope valid for full-sample and cross-fit candidates."""
+    admissible = min(max_trim, _crossfit_min_threshold(n, min_k) - 2)
     if admissible < 1:
         raise ValueError(
             "the threshold grid leaves no positive adaptive trim envelope; "
@@ -412,7 +423,8 @@ def _evaluate_cell(
     )
     min_k = k_grid[0]
     max_k = k_grid[-1]
-    adaptive_max_trim = _admissible_max_trim(min_k, max_trim)
+    crossfit_min_k = _crossfit_min_threshold(n, min_k)
+    adaptive_max_trim = _admissible_max_trim(n, min_k, max_trim)
     r_grid = list(range(adaptive_max_trim + 1))
     candidates = [(r, k) for r in r_grid for k in k_grid if r < k - 1]
     contamination_supported = contamination_count <= adaptive_max_trim
@@ -534,6 +546,7 @@ def _evaluate_cell(
         "k_grid_mode": k_grid_mode,
         "k_grid": k_grid,
         "r_grid": r_grid,
+        "crossfit_min_k": crossfit_min_k,
         "requested_max_trim": max_trim,
         "admissible_max_trim": adaptive_max_trim,
         "adaptive_max_trim": adaptive_max_trim,
@@ -702,7 +715,7 @@ def build_report(
             "max_trim": max_trim,
             "trim_envelope": (
                 "both adaptive and oracle candidates use "
-                "min(max_trim, floor(k_min / 2) - 1)"
+                "min(max_trim, k_min_crossfit - 2)"
             ),
             "bootstrap_draws": bootstrap_draws,
             "seeds": f"0..{trials - 1} per cell",
