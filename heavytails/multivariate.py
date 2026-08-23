@@ -40,6 +40,8 @@ from dataclasses import dataclass, field
 import math
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
 from heavytails.heavy_tails import RNG, ParameterError, StudentT
 
 if TYPE_CHECKING:
@@ -116,16 +118,6 @@ def cholesky(matrix: Sequence[Sequence[float]]) -> Matrix:
     return lower
 
 
-def _solve_lower(lower: Matrix, vector: Sequence[float]) -> Vector:
-    """Solve ``L y = vector`` by forward substitution."""
-    size = len(lower)
-    solution = [0.0] * size
-    for i in range(size):
-        total = sum(lower[i][k] * solution[k] for k in range(i))
-        solution[i] = (vector[i] - total) / lower[i][i]
-    return solution
-
-
 def _log_determinant(lower: Matrix) -> float:
     """``log |L L'|``, which is twice the log of the diagonal product."""
     return 2.0 * sum(math.log(lower[i][i]) for i in range(len(lower)))
@@ -159,6 +151,8 @@ class Elliptical(ABC):
     mu: Vector
     sigma: Matrix
     _lower: Matrix = field(init=False, repr=False, compare=False)
+    _lower_array: Any = field(init=False, repr=False, compare=False)
+    _mu_array: Any = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if len(self.mu) != len(self.sigma):
@@ -167,36 +161,63 @@ class Elliptical(ABC):
                 f"{len(self.sigma)} by {len(self.sigma)}."
             )
         object.__setattr__(self, "_lower", cholesky(self.sigma))
+        # Array copies of both, built once. The factorisation is the expensive
+        # part of constructing one of these and it is already done above; what
+        # these avoid is rebuilding an array from lists on every call, which
+        # for a fit that evaluates the quadratic form ten thousand times per
+        # iteration is most of the work.
+        object.__setattr__(self, "_lower_array", np.array(self._lower, dtype=float))
+        object.__setattr__(self, "_mu_array", np.array(self.mu, dtype=float))
 
     @property
     def dim(self) -> int:
         """Number of components."""
         return len(self.mu)
 
-    def mahalanobis(self, x: Sequence[float]) -> float:
+    def mahalanobis(self, x: Any) -> Any:
         """
         The quadratic form ``(x - mu)' Sigma^-1 (x - mu)``.
 
         Computed by forward substitution on the Cholesky factor rather than by
         inverting the matrix, which is both faster and better conditioned.
 
+        Takes one point or many, and mirrors what it was given: a single point
+        gives a float, an ``(n, dim)`` array of them gives an array of n. The
+        substitution loops over the dimension, which is small, and does each of
+        its steps across every observation at once -- the opposite of the
+        arrangement it replaced, which looped over the observations and did
+        each one's substitution in the interpreter.
+
         Args:
-            x: A point with as many components as the distribution.
+            x: A point with as many components as the distribution, or an array
+                of such points whose last axis is the components.
 
         Returns:
             The squared Mahalanobis distance, which is non-negative.
 
         Raises:
-            ValueError: If ``x`` has the wrong length.
+            ValueError: If the last axis does not match the dimension.
         """
-        if len(x) != self.dim:
-            raise ValueError(f"x must have {self.dim} components, got {len(x)}.")
-        centred = [x[i] - self.mu[i] for i in range(self.dim)]
-        solved = _solve_lower(self._lower, centred)
-        return float(sum(value * value for value in solved))
+        points = np.asarray(x, dtype=float)
+        if points.ndim == 0 or points.shape[-1] != self.dim:
+            got = points.shape[-1] if points.ndim else 0
+            raise ValueError(f"x must have {self.dim} components, got {got}.")
+        single = points.ndim == 1
 
-    def logpdf(self, x: Sequence[float]) -> float:
-        """Log density at ``x``.
+        rows = points.reshape(-1, self.dim)
+        centred = (rows - self._mu_array).T
+        lower = self._lower_array
+        solved = np.empty_like(centred)
+        for i in range(self.dim):
+            solved[i] = (centred[i] - lower[i, :i] @ solved[:i]) / lower[i, i]
+        quadratic = np.einsum("ij,ij->j", solved, solved)
+
+        if single:
+            return float(quadratic[0])
+        return quadratic.reshape(points.shape[:-1])
+
+    def logpdf(self, x: Any) -> Any:
+        """Log density at ``x``, for one point or many.
 
         The log is the primitive rather than an afterthought: a multivariate
         density in even a few dimensions underflows to zero well before the
@@ -206,10 +227,13 @@ class Elliptical(ABC):
             self._lower
         )
 
-    def pdf(self, x: Sequence[float]) -> float:
+    def pdf(self, x: Any) -> Any:
         """Density at ``x``, or zero where it underflows."""
         value = self.logpdf(x)
-        return math.exp(value) if value > -745.0 else 0.0
+        if isinstance(value, float):
+            return math.exp(value) if value > -745.0 else 0.0
+        with np.errstate(under="ignore"):
+            return np.where(value > -745.0, np.exp(value), 0.0)
 
     def rvs(self, n: int, seed: int | None = None) -> list[Vector]:
         """
@@ -228,10 +252,32 @@ class Elliptical(ABC):
         if not isinstance(n, int) or n <= 0:
             raise ValueError("n must be a positive integer.")
         rng = RNG(seed)
-        return [self._one(rng) for _ in range(n)]
+
+        # The generator is Python's and each draw depends on the last, so the
+        # draws stay in a loop and in the order the one-at-a-time version used
+        # them: dim normals, then the mixing variable, per observation. That
+        # order is what makes a seeded sample reproduce. What moves out of the
+        # loop is the multiplication by the factor, which becomes one matrix
+        # product instead of n triangular ones.
+        normals = np.empty((n, self.dim), dtype=float)
+        scales = np.empty(n, dtype=float)
+        for index in range(n):
+            for component in range(self.dim):
+                normals[index, component] = rng.standard_normal()
+            scales[index] = math.sqrt(self._mixing(rng))
+
+        draws = self._mu_array + (normals @ self._lower_array.T) / scales[:, None]
+        return [[float(value) for value in row] for row in draws]
 
     def _one(self, rng: RNG) -> Vector:
-        """One draw, by the scale-mixture construction."""
+        """One draw, by the scale-mixture construction.
+
+        The definition, kept in the plainest form it can be written in.
+        :meth:`rvs` is the batched form of exactly this and is what callers
+        get; the two are held together by a test rather than by anyone
+        remembering, because the association order of the matrix product means
+        they agree to about 4e-15 and not to the bit.
+        """
         normal = [rng.standard_normal() for _ in range(self.dim)]
         scale = math.sqrt(self._mixing(rng))
         return [
@@ -271,9 +317,9 @@ class Elliptical(ABC):
         )
 
     @abstractmethod
-    def _log_kernel(self, quadratic: float) -> float:
+    def _log_kernel(self, quadratic: Any) -> Any:
         """Log density as a function of the quadratic form, normalisation
-        included except for the determinant."""
+        included except for the determinant. Elementwise over an array."""
 
     @abstractmethod
     def _mixing(self, rng: RNG) -> float:
@@ -304,7 +350,7 @@ class MultivariateNormal(Elliptical):
         0.159155
     """
 
-    def _log_kernel(self, quadratic: float) -> float:
+    def _log_kernel(self, quadratic: Any) -> Any:
         return -0.5 * (self.dim * math.log(2.0 * math.pi) + quadratic)
 
     def _mixing(self, _rng: RNG) -> float:
@@ -358,14 +404,22 @@ class MultivariateStudentT(Elliptical):
             raise ParameterError("MultivariateStudentT requires a finite nu > 0.")
         super().__post_init__()
 
-    def _log_kernel(self, quadratic: float) -> float:
+    def _log_kernel(self, quadratic: Any) -> Any:
         half = 0.5 * (self.nu + self.dim)
-        return (
+        constant = (
             math.lgamma(half)
             - math.lgamma(0.5 * self.nu)
             - 0.5 * self.dim * math.log(self.nu * math.pi)
-            - half * math.log1p(quadratic / self.nu)
         )
+        # np.log1p rather than math.log1p so this works elementwise; on a float
+        # it returns a numpy scalar, which the float() in mahalanobis has
+        # already made unnecessary to worry about upstream, so the result is
+        # cast back here to keep logpdf(one point) a plain float.
+        term = np.log1p(np.asarray(quadratic, dtype=float) / self.nu)
+        result = constant - half * term
+        if isinstance(quadratic, float):
+            return float(result)
+        return result
 
     def _mixing(self, rng: RNG) -> float:
         return rng.chisquare(self.nu) / self.nu
@@ -435,10 +489,9 @@ class MultivariateStudentT(Elliptical):
             raise ValueError(f"upper must have {self.dim} components.")
         if not isinstance(n, int) or n <= 0:
             raise ValueError("n must be a positive integer.")
-        hits = sum(
-            1
-            for draw in self.rvs(n, seed=seed)
-            if all(draw[i] <= upper[i] for i in range(self.dim))
+        draws = np.asarray(self.rvs(n, seed=seed), dtype=float)
+        hits = int(
+            np.count_nonzero(np.all(draws <= np.asarray(upper, dtype=float), axis=1))
         )
         probability = hits / n
         return {
@@ -584,51 +637,48 @@ def fit_multivariate_t(
         raise ValueError("nu must be positive.")
 
     n = len(rows)
-    mu = [sum(row[j] for row in rows) / n for j in range(dim)]
-    sigma = [
-        [
-            sum((row[i] - mu[i]) * (row[j] - mu[j]) for row in rows) / n
-            for j in range(dim)
-        ]
-        for i in range(dim)
-    ]
+    # One array for the whole sample, built once rather than per iteration.
+    # Every quantity below is a reduction over its rows, and each used to be a
+    # comprehension over n in the interpreter -- run once per EM step, and the
+    # whole fit run once per candidate nu when the degrees of freedom are being
+    # chosen, so the interpreter was doing the same pass some thousands of
+    # times over.
+    observations = np.array(rows, dtype=float)
+    mu_array = observations.mean(axis=0)
+    centred = observations - mu_array
+    sigma_array = centred.T @ centred / n
+
     for i in range(dim):
-        if sigma[i][i] <= 0.0:
+        if sigma_array[i, i] <= 0.0:
             raise ValueError(f"component {i} has no variation to fit.")
+
+    mu = [float(value) for value in mu_array]
+    sigma = [[float(value) for value in row] for row in sigma_array]
 
     converged = False
     iterations = 0
     for step in range(1, max_iter + 1):
         iterations = step
         current = MultivariateStudentT(nu=nu, mu=mu, sigma=sigma)
-        weights = [(nu + dim) / (nu + current.mahalanobis(row)) for row in rows]
-        total = sum(weights)
 
-        new_mu = [
-            sum(w * row[j] for w, row in zip(weights, rows, strict=True)) / total
-            for j in range(dim)
-        ]
-        new_sigma = [
-            [
-                sum(
-                    w * (row[i] - new_mu[i]) * (row[j] - new_mu[j])
-                    for w, row in zip(weights, rows, strict=True)
-                )
-                / n
-                for j in range(dim)
-            ]
-            for i in range(dim)
-        ]
+        # The quadratic form for every observation in one call.
+        weights = (nu + dim) / (nu + current.mahalanobis(observations))
+        total = float(weights.sum())
+
+        new_mu_array = (weights @ observations) / total
+        deviations = observations - new_mu_array
+        # The weighted scatter as one matrix product. Written out, this is the
+        # dim-by-dim double loop it replaces, each entry of which walked the
+        # whole sample.
+        new_sigma_array = (deviations * weights[:, None]).T @ deviations / n
 
         shift = max(
-            *(abs(a - b) for a, b in zip(new_mu, mu, strict=True)),
-            *(
-                abs(new_sigma[i][j] - sigma[i][j])
-                for i in range(dim)
-                for j in range(dim)
-            ),
+            float(np.max(np.abs(new_mu_array - mu_array))),
+            float(np.max(np.abs(new_sigma_array - sigma_array))),
         )
-        mu, sigma = new_mu, new_sigma
+        mu_array, sigma_array = new_mu_array, new_sigma_array
+        mu = [float(value) for value in mu_array]
+        sigma = [[float(value) for value in row] for row in sigma_array]
         if shift < tol:
             converged = True
             break
@@ -638,6 +688,6 @@ def fit_multivariate_t(
         "distribution": fitted,
         "nu": nu,
         "iterations": iterations,
-        "log_likelihood": sum(fitted.logpdf(row) for row in rows),
+        "log_likelihood": float(np.sum(fitted.logpdf(observations))),
         "converged": converged,
     }

@@ -24,10 +24,11 @@ from itertools import pairwise
 import math
 import statistics
 
+import numpy as np
 import pytest
 
 from heavytails import StudentT
-from heavytails.heavy_tails import ParameterError
+from heavytails.heavy_tails import RNG, ParameterError
 from heavytails.multivariate import (
     MultivariateNormal,
     MultivariateStudentT,
@@ -503,3 +504,48 @@ class TestValidation:
             sigma=[[1.0 if i == j else 0.0 for j in range(4)] for i in range(4)],
         )
         assert t.dim == 4
+
+
+class TestBatchedSamplingMatchesTheDefinition:
+    """``rvs`` is the batched form of ``_one``, and must stay that.
+
+    ``_one`` is the scale-mixture construction written out a draw at a time.
+    ``rvs`` does the same arithmetic with one matrix product instead of n
+    triangular ones, which is worth doing -- the density and the quadratic
+    form are where the time went, and this is the same idea applied to
+    sampling -- but it means there are two statements of the construction in
+    the file. This is what keeps them one statement in effect.
+
+    Not to the bit. A matrix product associates its sums differently from the
+    running total ``_one`` writes, so they agree to a few units in the last
+    place and not exactly.
+    """
+
+    @pytest.mark.parametrize(
+        "distribution",
+        [
+            MultivariateNormal(mu=[0.0, 0.0], sigma=[[1.0, 0.4], [0.4, 1.0]]),
+            MultivariateStudentT(
+                nu=4.0,
+                mu=[1.0, -2.0, 0.5],
+                sigma=[[1.0, 0.3, 0.1], [0.3, 1.0, 0.2], [0.1, 0.2, 1.0]],
+            ),
+        ],
+        ids=["normal", "student-t"],
+    )
+    def test_the_draws_agree(self, distribution: object) -> None:
+        batched = np.array(distribution.rvs(500, seed=11))
+        rng = RNG(11)
+        one_at_a_time = np.array([distribution._one(rng) for _ in range(500)])
+        np.testing.assert_allclose(batched, one_at_a_time, rtol=1e-13, atol=1e-14)
+
+    def test_a_seed_still_reproduces(self) -> None:
+        normal = MultivariateNormal(mu=[0.0, 0.0], sigma=[[1.0, 0.0], [0.0, 1.0]])
+        assert normal.rvs(20, seed=5) == normal.rvs(20, seed=5)
+
+    def test_it_still_returns_lists_of_floats(self) -> None:
+        normal = MultivariateNormal(mu=[0.0, 0.0], sigma=[[1.0, 0.0], [0.0, 1.0]])
+        sample = normal.rvs(3, seed=1)
+        assert isinstance(sample, list)
+        assert all(isinstance(row, list) for row in sample)
+        assert all(isinstance(value, float) for row in sample for value in row)
