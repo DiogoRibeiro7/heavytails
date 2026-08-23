@@ -2718,9 +2718,9 @@ then consumes the whole iteration budget while the bracket stays as wide as it
 started, so the method cannot tell whether it has converged.</p>
 <h3 id="4-estimation-and-diagnostics">4. Estimation and diagnostics<a class="headerlink" href="#4-estimation-and-diagnostics" title="Permanent link">&para;</a></h3>
 <p><code>tail_index</code> and <code>plotting</code> are deliberately thin and free of state. They take
-sequences of floats and return numbers or coordinate lists. Keeping them
-dependency-free and side-effect-free is what lets them be used from a notebook, a
-script, or the CLI without adaptation.</p>
+sequences of floats and return numbers or coordinate lists. Keeping them free of
+state and of any dependency beyond NumPy is what lets them be used from a
+notebook, a script, or the CLI without adaptation.</p>
 <h3 id="5-interfaces">5. Interfaces<a class="headerlink" href="#5-interfaces" title="Permanent link">&para;</a></h3>
 <p><code>cli.py</code> is the only module that imports third-party packages (<code>typer</code> and
 <code>rich</code>), and it does so behind a guard that produces an actionable message when

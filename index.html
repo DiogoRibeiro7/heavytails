@@ -768,10 +768,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pure-python" class="md-nav__link">
+  <a href="#scalar-or-array" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Pure Python
+        ✅ Scalar or Array
       
     </span>
   </a>
@@ -2659,9 +2659,9 @@
 
 
 <h1 id="heavytails">HeavyTails<a class="headerlink" href="#heavytails" title="Permanent link">&para;</a></h1>
-<p><strong>A pure-Python library for heavy-tailed probability distributions</strong></p>
+<p><strong>A library for heavy-tailed probability distributions, vectorised over NumPy</strong></p>
 <p><a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a> <a href="https://www.python.org/downloads/"><img alt="Python 3.8+" src="https://img.shields.io/badge/python-3.8+-blue.svg" /></a> <a href="https://diogoribeiro7.github.io/heavytails"><img alt="Documentation" src="https://img.shields.io/badge/docs-latest-brightgreen.svg" /></a></p>
-<p>HeavyTails is a comprehensive, dependency-free Python library for working with heavy-tailed probability distributions. Built using only the Python standard library, it provides transparent, mathematically rigorous implementations suitable for academic research, quantitative finance, risk management, and education.</p>
+<p>HeavyTails is a comprehensive Python library for working with heavy-tailed probability distributions. NumPy is its only dependency. Every method takes a number or an array and gives back the same kind of thing, and the formula in between is written once, which keeps the implementations transparent and mathematically rigorous while making them fast enough for academic research, quantitative finance, risk management, and education.</p>
 <h2 id="quick-start">🎯 Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">StudentT</span><span class="p">,</span> <span class="n">LogNormal</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">heavytails.tail_index</span><span class="w"> </span><span class="kn">import</span> <span class="n">hill_estimator</span>
@@ -2682,7 +2682,7 @@
 <ul>
 <li><strong>12+ Heavy-Tailed Distributions</strong>: Pareto, Student-t, Cauchy, LogNormal, Weibull, Fréchet, GEV, GPD, Burr XII, and more</li>
 <li><strong>Tail Index Estimation</strong>: Hill, Pickands, and moment estimators</li>
-<li><strong>Pure Python</strong>: No external dependencies, perfect for education and understanding</li>
+<li><strong>Scalar or Array</strong>: Every method mirrors its input, over NumPy, with one implementation per formula</li>
 <li><strong>Command-Line Interface</strong>: Full CLI for analysis and visualization</li>
 <li><strong>Financial Applications</strong>: Risk management tools for VaR, ES, and tail risk</li>
 </ul>
@@ -2795,8 +2795,8 @@
 <li><strong>🎓 Academic Collaboration</strong>: <a href="https://orcid.org/0009-0001-2022-7072">ORCID</a></li>
 </ul>
 <h2 id="key-features">🌟 Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
-<h3 id="pure-python">✅ <strong>Pure Python</strong><a class="headerlink" href="#pure-python" title="Permanent link">&para;</a></h3>
-<p>No external dependencies - perfect for understanding algorithms and educational use.</p>
+<h3 id="scalar-or-array">✅ <strong>Scalar or Array</strong><a class="headerlink" href="#scalar-or-array" title="Permanent link">&para;</a></h3>
+<p>Every method takes a number or an array and returns the same kind of thing. NumPy is the only dependency, and each formula is written once rather than twice, so the array path and the scalar path cannot disagree.</p>
 <h3 id="mathematically-rigorous">✅ <strong>Mathematically Rigorous</strong><a class="headerlink" href="#mathematically-rigorous" title="Permanent link">&para;</a></h3>
 <p>Proper implementation of special functions, numerical stability, academic references.</p>
 <h3 id="production-ready">✅ <strong>Production Ready</strong><a class="headerlink" href="#production-ready" title="Permanent link">&para;</a></h3>

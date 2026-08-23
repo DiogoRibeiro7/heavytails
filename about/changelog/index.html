@@ -2610,6 +2610,42 @@
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<p><strong>NumPy is now a required dependency, and every distribution method takes a
+number or an array.</strong></p>
+<p>The library was pure Python by choice, and that choice stopped paying: a density
+over a hundred thousand points cost a hundred thousand interpreter round trips.
+Evaluating one over a million points now takes about 20 milliseconds.</p>
+<ul>
+<li><code>pdf</code>, <code>cdf</code>, <code>sf</code> and <code>ppf</code> on all twelve continuous families accept a
+  number, a sequence, or an array, and return the same kind of thing they were
+  given. A number in gives a <code>float</code> out; anything array-like in gives an
+  <code>ndarray</code> out with the same shape.</li>
+<li>Each formula is written once, against NumPy, so the scalar and array results
+  come from the same expression and cannot disagree about what is computed.
+  They can still differ in the last bits, because NumPy evaluates an array
+  through vectorised routines and a scalar through libm, so the tests hold them
+  to 1e-13 relative rather than to equality.</li>
+<li><code>rvs</code> inverts its uniforms in a single call rather than one at a time, which
+  makes sampling 21x to 31x faster. The uniforms themselves are unchanged, so a
+  seeded sample is reproducible and its distribution is identical. A few
+  variates land one ULP away from what the previous version returned, because
+  NumPy's vectorised <code>log</code> and <code>pow</code> round differently from its scalar ones: for
+  Weibull(k=0.5) that is 14 values in 20,000, with the sample mean unchanged to
+  twelve digits.</li>
+<li><code>rvs</code> still returns a <code>list</code>. Returning an array would silently turn
+  <code>sample_a + sample_b</code> from concatenation into elementwise addition.</li>
+<li><code>ppf</code> checks its whole input before computing any of it, and names an
+  offending value: <code>u must be in (0,1); got 1.5</code>. The scalar version raised on
+  the value it happened to reach first.</li>
+<li><strong>A scalar call costs more than it did.</strong> <code>Pareto.pdf(0.5)</code> is about 2.6us
+  against roughly 0.2us of plain arithmetic before, because every call now goes
+  through the array dispatch. Evaluating the same ten thousand points in one
+  call takes 0.3ms, which is about eighty times less than the loop. Scalars are
+  carried as <code>numpy.float64</code> rather than 0-d arrays and guarded with an
+  ordinary conditional rather than <code>np.where</code>, which is what keeps it to 2.6us
+  instead of 5.3.</li>
+</ul>
+<p><strong>The tail index estimators too.</strong></p>
 <ul>
 <li>The core tail index estimators compute through NumPy. <code>hill_estimator</code> is
   about 5x faster and <code>hill_plot</code> about 10x on a sample of 200,000; the plot
@@ -2626,8 +2662,17 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>adaptive_trim_selection</code> returns a Python <code>float</code> for <code>gamma</code>, not a NumPy
   scalar.</li>
 </ul>
+<p>Four families keep a Python loop for their probabilities. <code>LogNormal</code>,
+<code>StudentT</code>, <code>InverseGamma</code> and <code>BetaPrime</code> need the error function or an
+incomplete beta or gamma, which NumPy does not provide; their <code>cdf</code>, <code>sf</code> and
+<code>ppf</code> cost what they always did. Their densities are elementary and are
+vectorised like everything else.</p>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
+<li><code>GeneralizedPareto.sf</code> computes the survival probability directly instead of
+  as <code>1 - cdf</code>. The subtraction returned <strong>exactly zero</strong> in the far tail: at
+  <code>xi=0.5</code>, <code>sf(1e12)</code> gave <code>0.0</code> where the true value is <code>4.0e-24</code>. This is the
+  tail the distribution exists to describe.</li>
 <li><code>streaming.py</code> no longer keeps its own transcription of the Hill and moment
   formulas. It called them "written to match the batch version operation for
   operation", which held only until the batch version changed its summation
