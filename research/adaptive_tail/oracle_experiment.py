@@ -25,7 +25,7 @@ from pathlib import Path
 import random
 import statistics
 import sys
-from typing import Any
+from typing import Any, Literal
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -44,6 +44,7 @@ from scripts._provenance import base_provenance
 
 Sampler = Callable[[int, int], list[float]]
 Candidate = tuple[int, int]
+KGridMode = Literal["fractions", "intermediate"]
 
 
 @dataclass(frozen=True)
@@ -213,6 +214,45 @@ def _thresholds_from_fractions(n: int, k_fractions: list[float]) -> list[int]:
     return _threshold_grid(raw[-1], raw[0], len(raw), n)
 
 
+def _thresholds_from_intermediate_powers(
+    n: int,
+    *,
+    grid_size: int,
+    min_power: float,
+    max_power: float,
+) -> list[int]:
+    """Build a logarithmic threshold grid with k/n vanishing as n grows."""
+    if not (0.0 < min_power <= max_power < 1.0):
+        raise ValueError("powers must satisfy 0 < min_power <= max_power < 1")
+    if grid_size < 1:
+        raise ValueError("grid_size must be at least 1")
+    min_k = max(2, min(n - 1, round(n**min_power)))
+    max_k = max(min_k, min(n - 1, round(n**max_power)))
+    return _threshold_grid(max_k, min_k, grid_size, n)
+
+
+def _thresholds_for_mode(
+    n: int,
+    *,
+    k_grid_mode: KGridMode,
+    k_fractions: list[float],
+    intermediate_grid_size: int,
+    intermediate_min_power: float,
+    intermediate_max_power: float,
+) -> list[int]:
+    """Select the threshold grid used by a research run."""
+    if k_grid_mode == "fractions":
+        return _thresholds_from_fractions(n, k_fractions)
+    if k_grid_mode == "intermediate":
+        return _thresholds_from_intermediate_powers(
+            n,
+            grid_size=intermediate_grid_size,
+            min_power=intermediate_min_power,
+            max_power=intermediate_max_power,
+        )
+    raise ValueError(f"unknown k grid mode: {k_grid_mode}")
+
+
 def _candidate_estimate(
     data: list[float], candidate: Candidate, rho: float
 ) -> float | None:
@@ -342,12 +382,23 @@ def _evaluate_cell(
     k_fractions: list[float],
     max_trim: int,
     bootstrap_draws: int,
+    k_grid_mode: KGridMode = "fractions",
+    intermediate_grid_size: int = 10,
+    intermediate_min_power: float = 1.0 / 3.0,
+    intermediate_max_power: float = 2.0 / 3.0,
 ) -> dict[str, Any]:
     """Evaluate one scenario/contamination/sample-size cell."""
     if trials < 2:
         raise ValueError("at least two trials are needed for split oracle evaluation")
 
-    k_grid = _thresholds_from_fractions(n, k_fractions)
+    k_grid = _thresholds_for_mode(
+        n,
+        k_grid_mode=k_grid_mode,
+        k_fractions=k_fractions,
+        intermediate_grid_size=intermediate_grid_size,
+        intermediate_min_power=intermediate_min_power,
+        intermediate_max_power=intermediate_max_power,
+    )
     min_k = k_grid[0]
     max_k = k_grid[-1]
     r_grid = list(range(max_trim + 1))
@@ -468,6 +519,7 @@ def _evaluate_cell(
         "contamination_count": contamination_count,
         "delta": delta,
         "trials": trials,
+        "k_grid_mode": k_grid_mode,
         "k_grid": k_grid,
         "r_grid": r_grid,
         "adaptive_max_trim": adaptive_max_trim,
@@ -512,6 +564,10 @@ def run_experiment(
     k_fractions: list[float],
     max_trim: int,
     bootstrap_draws: int,
+    k_grid_mode: KGridMode = "fractions",
+    intermediate_grid_size: int = 10,
+    intermediate_min_power: float = 1.0 / 3.0,
+    intermediate_max_power: float = 2.0 / 3.0,
 ) -> list[dict[str, Any]]:
     """Run the oracle-risk grid."""
     rows = []
@@ -528,6 +584,10 @@ def run_experiment(
                             delta=delta,
                             trials=trials,
                             k_fractions=k_fractions,
+                            k_grid_mode=k_grid_mode,
+                            intermediate_grid_size=intermediate_grid_size,
+                            intermediate_min_power=intermediate_min_power,
+                            intermediate_max_power=intermediate_max_power,
                             max_trim=max(max_trim, contamination_count),
                             bootstrap_draws=bootstrap_draws,
                         )
@@ -591,6 +651,10 @@ def build_report(
     k_fractions: list[float],
     max_trim: int,
     bootstrap_draws: int,
+    k_grid_mode: KGridMode = "fractions",
+    intermediate_grid_size: int = 10,
+    intermediate_min_power: float = 1.0 / 3.0,
+    intermediate_max_power: float = 2.0 / 3.0,
 ) -> dict[str, Any]:
     """Build the JSON-serializable experiment report."""
     rows = run_experiment(
@@ -600,6 +664,10 @@ def build_report(
         contamination_counts=contamination_counts,
         deltas=deltas,
         k_fractions=k_fractions,
+        k_grid_mode=k_grid_mode,
+        intermediate_grid_size=intermediate_grid_size,
+        intermediate_min_power=intermediate_min_power,
+        intermediate_max_power=intermediate_max_power,
         max_trim=max_trim,
         bootstrap_draws=bootstrap_draws,
     )
@@ -611,7 +679,11 @@ def build_report(
             "scenarios": scenario_keys,
             "contamination_counts": contamination_counts,
             "deltas": deltas,
+            "k_grid_mode": k_grid_mode,
             "k_fractions": k_fractions,
+            "intermediate_grid_size": intermediate_grid_size,
+            "intermediate_min_power": intermediate_min_power,
+            "intermediate_max_power": intermediate_max_power,
             "max_trim": max_trim,
             "bootstrap_draws": bootstrap_draws,
             "seeds": f"0..{trials - 1} per cell",
@@ -640,6 +712,15 @@ def main() -> int:
         default="0.02,0.05,0.10",
         help="Envelope fractions; the exact logarithmic adaptive grid is used.",
     )
+    parser.add_argument(
+        "--k-grid-mode",
+        choices=("fractions", "intermediate"),
+        default="fractions",
+        help="Use fixed fractions or an intermediate n^a..n^b threshold envelope.",
+    )
+    parser.add_argument("--intermediate-grid-size", type=int, default=10)
+    parser.add_argument("--intermediate-min-power", type=float, default=1.0 / 3.0)
+    parser.add_argument("--intermediate-max-power", type=float, default=2.0 / 3.0)
     parser.add_argument("--max-trim", type=int, default=8)
     parser.add_argument("--bootstrap-draws", type=int, default=200)
     parser.add_argument("--json", type=Path)
@@ -660,6 +741,10 @@ def main() -> int:
         contamination_counts=_parse_ints(args.contamination_counts),
         deltas=_parse_floats(args.deltas),
         k_fractions=_parse_floats(args.k_fractions),
+        k_grid_mode=args.k_grid_mode,
+        intermediate_grid_size=args.intermediate_grid_size,
+        intermediate_min_power=args.intermediate_min_power,
+        intermediate_max_power=args.intermediate_max_power,
         max_trim=args.max_trim,
         bootstrap_draws=args.bootstrap_draws,
     )
