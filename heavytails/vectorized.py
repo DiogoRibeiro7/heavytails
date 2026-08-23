@@ -1,62 +1,46 @@
-"""Evaluate a distribution over many points at once, using NumPy when present.
+"""Evaluate a distribution over many points at once.
 
-Evaluating a density at 100,000 points through the scalar methods means 100,000
-Python-level calls, and most of that time is interpreter overhead rather than
-arithmetic. Expressing the same formula against NumPy arrays removes it.
-
-Measured on the public call -- list in, array out, guards included -- at
-100,000 points, by ``scripts/vectorization_benchmark.py``:
-
-============================  ===========  ============  =========
-Call                          loop (ms)    fast (ms)     speedup
-============================  ===========  ============  =========
-``LogLogistic.pdf``                21.6          3.37        6.4x
-``GeneralizedPareto.cdf``          22.5          4.02        5.6x
-``Pareto.pdf``                     16.0          3.50        4.6x
-``Weibull.cdf``                    13.8          4.28        3.2x
-``Cauchy.ppf``                     14.7          7.22        2.0x
-============================  ===========  ============  =========
-
-Across the 32 accelerated calls the range is 2.1x to 6.4x, median 3.9x. An
-earlier draft of this table claimed 5x to 19x, which was measured on the bare
-NumPy expression rather than on the call a user makes: it left out converting
-the input, applying the guards, and returning an array. The benchmark script
-times the public function for exactly that reason.
-
-**The scalar methods remain the reference implementation.** Nothing here
-changes them, and every kernel below is a transcription of one. The test suite
-compares the two element by element, including across the guard regions below
-the support where a transcription slip is likeliest.
-
-The agreement is close but **platform dependent**, and it is worth stating
-precisely rather than promising more than holds. On Windows, NumPy and
-:mod:`math` call the same library and eight of the ten kernels come out
-bit-identical. On Linux they do not: NumPy dispatches ``exp``, ``log1p``,
-``expm1``, ``tan`` and ``**`` to its own SIMD routines, which round differently
-from glibc in the last bits. The tests hold every kernel to 32 units in the
-last place -- around 1e-14 relative, far tighter than any tolerance that could
-hide a formula error, and loose enough not to depend on which routines a
-platform picks.
-
-Four families have no kernel and cannot have one: LogNormal needs the error
-function, and StudentT, InverseGamma and BetaPrime need the incomplete beta or
-gamma. NumPy provides none of these -- they live in SciPy, which this library
-deliberately does not depend on. Those families fall back to the loop, which is
-correct and no slower than calling the scalar method directly.
-
-Without NumPy installed everything falls back to the loop and the results are
-lists rather than arrays. That is the only difference the caller sees.
+This module is a thin shim now. It exists because it was public in 0.4.0, and
+everything in it forwards to the distribution methods, which take an array
+directly since 0.5.0::
 
     >>> from heavytails import Pareto
     >>> from heavytails.vectorized import cdf
     >>> values = cdf(Pareto(alpha=2.0, xm=1.0), [1.0, 2.0, 10.0])
     >>> [round(float(v), 4) for v in values]
     [0.0, 0.75, 0.99]
+
+``Pareto(alpha=2.0, xm=1.0).cdf([1.0, 2.0, 10.0])`` is the same call and is
+what new code should write.
+
+**What used to be here, and why it is not.** This module held a hand-written
+NumPy kernel for each of 32 (family, method) pairs, each one a transcription of
+the scalar method with the same name, including its guards. The scalar methods
+were the reference implementation and the kernels were the fast path, and the
+test suite compared the two element by element because a transcription can drop
+a guard, mirror a branch the wrong way, or use a mathematically equal form that
+rounds differently.
+
+That arrangement cost more than it looks. The tolerance holding the two paths
+together had to be rewritten twice before it was right -- once after asserting
+bit-identity that held on Windows and failed on every Linux job, and again
+after a relative budget that a single unit in the last place of ``pow`` could
+exceed by four thousand. Neither was a bug in the formulas; both were the price
+of having two of them.
+
+The same shape has since turned up twice more in this library. ``streaming.py``
+carried a transcription of the Hill estimator described as matching it
+"operation for operation", which broke the moment the original changed its
+summation. And a metadata test held a third copy of the citation title, so it
+could not notice that the two files it compared had both moved. A transcription
+cannot tell that it has gone stale.
+
+So there is one implementation now. The formula lives in the method, the method
+takes an array, and this module forwards to it.
 """
 
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -67,276 +51,44 @@ if TYPE_CHECKING:
 __all__ = ["accelerated", "cdf", "pdf", "ppf", "sf"]
 
 
-# --------------------------- Kernels ----------------------------------------- #
+_METHODS = frozenset({"pdf", "cdf", "sf", "ppf"})
+
+# The four families whose probabilities cannot be a NumPy expression: LogNormal
+# needs the error function, and StudentT, InverseGamma and BetaPrime need the
+# incomplete beta or gamma. NumPy has none of them -- they live in SciPy, which
+# this library deliberately does not depend on -- so those methods evaluate one
+# element at a time inside `heavytails._array.elementwise`.
 #
-# Each is a transcription of the scalar method with the same name, including
-# its guards. Where the scalar version branches on the argument, the kernel
-# uses `where`, and the branch that would have raised or returned a constant is
-# computed anyway and discarded -- so intermediate warnings are suppressed
-# rather than avoided. That is the price of branchless evaluation, and it is
-# why the tests check the guard regions specifically.
-
-
-def _pareto_pdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = d.alpha * (d.xm**d.alpha) / (x ** (d.alpha + 1.0))
-    return np.where(x < d.xm, 0.0, value)
-
-
-def _pareto_cdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = 1.0 - (d.xm / x) ** d.alpha
-    return np.where(x < d.xm, 0.0, value)
-
-
-def _pareto_sf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = (d.xm / x) ** d.alpha
-    return np.where(x < d.xm, 1.0, value)
-
-
-def _pareto_ppf(d: Any, u: Any, _np: Any) -> Any:
-    return d.xm * (1.0 - u) ** (-1.0 / d.alpha)
-
-
-def _cauchy_pdf(d: Any, x: Any, _np: Any) -> Any:
-    z = (x - d.x0) / d.gamma
-    return 1.0 / (math.pi * d.gamma * (1.0 + z * z))
-
-
-def _cauchy_cdf(d: Any, x: Any, np: Any) -> Any:
-    z = (x - d.x0) / d.gamma
-    with np.errstate(divide="ignore", invalid="ignore"):
-        lower = np.arctan(-1.0 / z) / math.pi
-        upper = 1.0 - np.arctan(1.0 / z) / math.pi
-    middle = 0.5 + np.arctan(z) / math.pi
-    return np.where(z < -1.0, lower, np.where(z > 1.0, upper, middle))
-
-
-def _cauchy_sf(d: Any, x: Any, np: Any) -> Any:
-    z = (x - d.x0) / d.gamma
-    with np.errstate(divide="ignore", invalid="ignore"):
-        positive = np.arctan(1.0 / z) / math.pi
-    return np.where(z > 0.0, positive, 0.5 - np.arctan(z) / math.pi)
-
-
-def _cauchy_ppf(d: Any, u: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        low = d.x0 - d.gamma / np.tan(math.pi * u)
-        high = d.x0 + d.gamma / np.tan(math.pi * (1.0 - u))
-    middle = d.x0 + d.gamma * np.tan(math.pi * (u - 0.5))
-    return np.where(u < 0.25, low, np.where(u > 0.75, high, middle))
-
-
-def _weibull_pdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        z = (x / d.lam) ** d.k
-        value = (d.k / d.lam) * (x / d.lam) ** (d.k - 1.0) * np.exp(-z)
-    if d.k < 1.0:
-        value = np.where(x == 0.0, np.inf, value)
-    return np.where(x < 0.0, 0.0, value)
-
-
-def _weibull_cdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = -np.expm1(-((x / d.lam) ** d.k))
-    return np.where(x < 0.0, 0.0, value)
-
-
-def _weibull_sf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = np.exp(-((x / d.lam) ** d.k))
-    return np.where(x < 0.0, 1.0, value)
-
-
-def _weibull_ppf(d: Any, u: Any, np: Any) -> Any:
-    return d.lam * (-np.log1p(-u)) ** (1.0 / d.k)
-
-
-def _frechet_pdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        z = (x - d.m) / d.s
-        t = z ** (-d.alpha)
-        value = (d.alpha / d.s) * z ** (-(d.alpha + 1.0)) * np.exp(-t)
-    return np.where(x <= d.m, 0.0, value)
-
-
-def _frechet_cdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = np.exp(-(((x - d.m) / d.s) ** (-d.alpha)))
-    return np.where(x <= d.m, 0.0, value)
-
-
-def _frechet_sf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = -np.expm1(-(((x - d.m) / d.s) ** (-d.alpha)))
-    return np.where(x <= d.m, 1.0, value)
-
-
-def _frechet_ppf(d: Any, u: Any, np: Any) -> Any:
-    return d.m + d.s * (-np.log(u)) ** (-1.0 / d.alpha)
-
-
-def _gev_pdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        t = 1.0 + d.xi * ((x - d.mu) / d.sigma)
-        value = (
-            (1.0 / d.sigma) * t ** (-1.0 / d.xi - 1.0) * np.exp(-(t ** (-1.0 / d.xi)))
-        )
-    return np.where(t > 0.0, value, 0.0)
-
-
-def _gev_cdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        t = 1.0 + d.xi * ((x - d.mu) / d.sigma)
-        value = np.exp(-(t ** (-1.0 / d.xi)))
-    return np.where(t > 0.0, value, 0.0)
-
-
-def _gev_sf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        t = 1.0 + d.xi * ((x - d.mu) / d.sigma)
-        value = -np.expm1(-(t ** (-1.0 / d.xi)))
-    return np.where(t > 0.0, value, 1.0)
-
-
-def _gev_ppf(d: Any, u: Any, np: Any) -> Any:
-    return d.mu + (d.sigma / d.xi) * ((-np.log(u)) ** (-d.xi) - 1.0)
-
-
-def _gpd_pdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        z = (x - d.mu) / d.sigma
-        t = 1.0 + d.xi * z
-        value = (
-            (1.0 / d.sigma) * t ** (-1.0 / d.xi - 1.0)
-            if d.xi != 0.0
-            else (1.0 / d.sigma) * np.exp(-z)
-        )
-    return np.where((t > 0.0) & (x >= d.mu), value, 0.0)
-
-
-def _gpd_cdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        z = (x - d.mu) / d.sigma
-        t = 1.0 + d.xi * z
-        value = -np.expm1(-np.log1p(d.xi * z) / d.xi) if d.xi != 0.0 else -np.expm1(-z)
-    # Below the support the answer is 0; past the upper endpoint of a bounded
-    # (negative xi) GPD it is 1. Not the same constant, and the condition that
-    # separates them is which side of mu the point is on.
-    return np.where((t > 0.0) & (x >= d.mu), value, np.where(x < d.mu, 0.0, 1.0))
-
-
-def _gpd_sf(d: Any, x: Any, np: Any) -> Any:
-    # The scalar version is literally 1 - cdf, so this must be too, or the two
-    # would differ in the last bit exactly where sf is small.
-    return 1.0 - _gpd_cdf(d, x, np)
-
-
-def _gpd_ppf(d: Any, u: Any, np: Any) -> Any:
-    if d.xi == 0.0:
-        return d.mu - d.sigma * np.log1p(-u)
-    return d.mu + (d.sigma / d.xi) * np.expm1(-d.xi * np.log1p(-u))
-
-
-def _burr_pdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        z = (x / d.s) ** d.c
-        value = (d.c * d.k / d.s) * (x / d.s) ** (d.c - 1.0) * (1.0 + z) ** (-d.k - 1.0)
-    return np.where(x <= 0.0, 0.0, value)
-
-
-def _burr_cdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = -np.expm1(-d.k * np.log1p((x / d.s) ** d.c))
-    return np.where(x <= 0.0, 0.0, value)
-
-
-def _burr_sf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = (1.0 + (x / d.s) ** d.c) ** (-d.k)
-    return np.where(x <= 0.0, 1.0, value)
-
-
-def _burr_ppf(d: Any, u: Any, np: Any) -> Any:
-    return d.s * np.expm1(-np.log1p(-u) / d.k) ** (1.0 / d.c)
-
-
-def _loglogistic_pdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        z = (x / d.lam) ** d.kappa
-        value = (d.kappa / d.lam) * (x / d.lam) ** (d.kappa - 1.0) / (1.0 + z) ** 2
-    return np.where(x <= 0.0, 0.0, value)
-
-
-def _loglogistic_cdf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        z = (x / d.lam) ** d.kappa
-        value = z / (1.0 + z)
-    return np.where(x <= 0.0, 0.0, value)
-
-
-def _loglogistic_sf(d: Any, x: Any, np: Any) -> Any:
-    with np.errstate(divide="ignore", invalid="ignore"):
-        value = 1.0 / (1.0 + (x / d.lam) ** d.kappa)
-    return np.where(x <= 0.0, 1.0, value)
-
-
-def _loglogistic_ppf(d: Any, u: Any, _np: Any) -> Any:
-    return d.lam * (u / (1.0 - u)) ** (1.0 / d.kappa)
-
-
-_KERNELS: dict[tuple[str, str], Any] = {
-    ("Pareto", "pdf"): _pareto_pdf,
-    ("Pareto", "cdf"): _pareto_cdf,
-    ("Pareto", "sf"): _pareto_sf,
-    ("Pareto", "ppf"): _pareto_ppf,
-    ("Cauchy", "pdf"): _cauchy_pdf,
-    ("Cauchy", "cdf"): _cauchy_cdf,
-    ("Cauchy", "sf"): _cauchy_sf,
-    ("Cauchy", "ppf"): _cauchy_ppf,
-    ("Weibull", "pdf"): _weibull_pdf,
-    ("Weibull", "cdf"): _weibull_cdf,
-    ("Weibull", "sf"): _weibull_sf,
-    ("Weibull", "ppf"): _weibull_ppf,
-    ("Frechet", "pdf"): _frechet_pdf,
-    ("Frechet", "cdf"): _frechet_cdf,
-    ("Frechet", "sf"): _frechet_sf,
-    ("Frechet", "ppf"): _frechet_ppf,
-    ("GEV_Frechet", "pdf"): _gev_pdf,
-    ("GEV_Frechet", "cdf"): _gev_cdf,
-    ("GEV_Frechet", "sf"): _gev_sf,
-    ("GEV_Frechet", "ppf"): _gev_ppf,
-    ("GeneralizedPareto", "pdf"): _gpd_pdf,
-    ("GeneralizedPareto", "cdf"): _gpd_cdf,
-    ("GeneralizedPareto", "sf"): _gpd_sf,
-    ("GeneralizedPareto", "ppf"): _gpd_ppf,
-    ("BurrXII", "pdf"): _burr_pdf,
-    ("BurrXII", "cdf"): _burr_cdf,
-    ("BurrXII", "sf"): _burr_sf,
-    ("BurrXII", "ppf"): _burr_ppf,
-    ("LogLogistic", "pdf"): _loglogistic_pdf,
-    ("LogLogistic", "cdf"): _loglogistic_cdf,
-    ("LogLogistic", "sf"): _loglogistic_sf,
-    ("LogLogistic", "ppf"): _loglogistic_ppf,
-}
+# Their *densities* are elementary and are vectorised like everything else,
+# which is why this is keyed by (family, method) and not by family.
+_ELEMENTWISE = frozenset(
+    (family, method)
+    for family in ("LogNormal", "StudentT", "InverseGamma", "BetaPrime")
+    for method in ("cdf", "sf", "ppf")
+)
 
 
 def accelerated(dist: Any, method: str) -> bool:
     """
-    Report whether a NumPy kernel will be used for this call.
+    Report whether this call evaluates as a single NumPy expression.
 
     Worth checking before assuming a speedup: LogNormal, StudentT, InverseGamma
-    and BetaPrime have no kernel, because NumPy has neither the error function
-    nor the incomplete beta and gamma. Those live in SciPy, which this library
-    does not depend on.
+    and BetaPrime compute their probabilities one element at a time, because
+    NumPy has neither the error function nor the incomplete beta and gamma.
 
     Args:
         dist: A distribution instance.
         method: One of ``pdf``, ``cdf``, ``sf``, ``ppf``.
 
     Returns:
-        True if the fast path applies, False if the call will loop.
+        True if the call is a single NumPy expression, False if it loops.
+
+    Note:
+        This answers for the distributions in this library. A distribution
+        defined elsewhere, whose methods take only scalars, is reported as
+        accelerated, because there is no way to ask a method how it is written.
+        Before 0.5.0 the answer came from a table of the families this module
+        knew about, so an unknown class was reported as not accelerated.
 
     Examples:
         >>> from heavytails import LogNormal, Pareto
@@ -344,24 +96,19 @@ def accelerated(dist: Any, method: str) -> bool:
         True
         >>> accelerated(LogNormal(mu=0.0, sigma=1.0), "cdf")
         False
+        >>> accelerated(LogNormal(mu=0.0, sigma=1.0), "pdf")
+        True
+        >>> accelerated(Pareto(alpha=2.0, xm=1.0), "nonsense")
+        False
     """
-    return (type(dist).__name__, method) in _KERNELS
+    if method not in _METHODS:
+        return False
+    return (type(dist).__name__, method) not in _ELEMENTWISE
 
 
 def _evaluate(dist: Any, method: str, values: Sequence[float]) -> Any:
-    """Apply ``method`` to every element, by kernel where one exists."""
-    kernel = _KERNELS.get((type(dist).__name__, method))
-    if kernel is None:
-        # No kernel, so the loop -- which is exactly what the caller would have
-        # written, and is the reference implementation either way. It iterates
-        # `values` rather than an array built from it: converting first, then
-        # looping, costs the conversion *and* makes every element a NumPy
-        # scalar, which the scalar methods handle more slowly than a float.
-        # Doing that turned these families' calls into a 0.6x slowdown.
-        scalar = getattr(dist, method)
-        return np.asarray([scalar(value) for value in values], dtype=float)
-    array = np.asarray(values, dtype=float)
-    return np.asarray(kernel(dist, array, np), dtype=float)
+    """Apply ``method`` to every element, as one call."""
+    return np.asarray(getattr(dist, method)(values), dtype=float)
 
 
 def pdf(dist: Any, values: Sequence[float]) -> Any:
@@ -373,13 +120,12 @@ def pdf(dist: Any, values: Sequence[float]) -> Any:
         values: Points to evaluate at.
 
     Returns:
-        A NumPy array when NumPy is installed, a list otherwise. Both index and
-        iterate the same way.
+        An array of densities, in the order given.
 
     Examples:
         >>> from heavytails import Pareto
-        >>> [round(float(v), 4) for v in pdf(Pareto(alpha=2.0, xm=1.0), [0.5, 1.0, 2.0])]
-        [0.0, 2.0, 0.25]
+        >>> [round(float(v), 4) for v in pdf(Pareto(alpha=2.0, xm=1.0), [1.0, 2.0])]
+        [2.0, 0.25]
     """
     return _evaluate(dist, "pdf", values)
 
@@ -393,7 +139,12 @@ def cdf(dist: Any, values: Sequence[float]) -> Any:
         values: Points to evaluate at.
 
     Returns:
-        A NumPy array when NumPy is installed, a list otherwise.
+        An array of probabilities, in the order given.
+
+    Examples:
+        >>> from heavytails import Pareto
+        >>> [round(float(v), 4) for v in cdf(Pareto(alpha=2.0, xm=1.0), [2.0, 10.0])]
+        [0.75, 0.99]
     """
     return _evaluate(dist, "cdf", values)
 
@@ -402,12 +153,20 @@ def sf(dist: Any, values: Sequence[float]) -> Any:
     """
     Survival function at every point in ``values``.
 
+    Computed directly rather than as ``1 - cdf``, which is what keeps it
+    accurate far into the tail. See the distribution methods themselves.
+
     Args:
         dist: A distribution instance.
         values: Points to evaluate at.
 
     Returns:
-        A NumPy array when NumPy is installed, a list otherwise.
+        An array of survival probabilities, in the order given.
+
+    Examples:
+        >>> from heavytails import Pareto
+        >>> [round(float(v), 4) for v in sf(Pareto(alpha=2.0, xm=1.0), [2.0, 10.0])]
+        [0.25, 0.01]
     """
     return _evaluate(dist, "sf", values)
 
@@ -416,17 +175,12 @@ def ppf(dist: Any, probabilities: Sequence[float]) -> Any:
     """
     Quantile at every probability in ``probabilities``.
 
-    Unlike the scalar :meth:`ppf`, which raises on a probability outside the
-    open unit interval, this validates the whole input first and names the
-    offending value. A loop would have raised partway through and thrown away
-    the work already done.
-
     Args:
         dist: A distribution instance.
-        probabilities: Probabilities in the open interval (0, 1).
+        probabilities: Probabilities in (0, 1).
 
     Returns:
-        A NumPy array when NumPy is installed, a list otherwise.
+        An array of quantiles, in the order given.
 
     Raises:
         ValueError: If any probability is outside (0, 1).
@@ -436,10 +190,13 @@ def ppf(dist: Any, probabilities: Sequence[float]) -> Any:
         >>> [round(float(v), 4) for v in ppf(Pareto(alpha=2.0, xm=1.0), [0.5, 0.99])]
         [1.4142, 10.0]
     """
+    # Checked here rather than left to the method, because this function has
+    # promised this message and this wording since 0.4.0, and the methods
+    # phrase their own refusal differently.
     array = np.asarray(probabilities, dtype=float)
     bad = array[(array <= 0.0) | (array >= 1.0) | np.isnan(array)]
-    offending = bad.tolist()
-    if offending:
+    if bad.size:
+        offending = bad.tolist()
         raise ValueError(
             f"every probability must be in (0,1); got {offending[0]!r}"
             + (f" and {len(offending) - 1} other(s)" if len(offending) > 1 else "")
