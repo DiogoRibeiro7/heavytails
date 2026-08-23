@@ -7,6 +7,10 @@ on:
     branches: [main]
   release:
     types: [published]
+  schedule:
+    # Monday 04:00 UTC, for the coverage job below. Merges to main measure it
+    # too; this is so a quiet week cannot let the number go stale unnoticed.
+    - cron: "0 4 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -30,7 +34,7 @@ jobs:
   test:
     name: Test (ubuntu-latest, Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -74,24 +78,20 @@ jobs:
       - name: Validate Zenodo metadata
         run: poetry run python scripts/validate_zenodo_metadata.py
 
-      - name: Run tests with coverage
+      # No coverage here, and -n auto to use the runner's cores. The suite
+      # is 1m36s this way against 6m54s with coverage and 20m37s as this job
+      # used to run it -- coverage instrumentation traces Python bytecode, so
+      # it costs about 6.4x and is unaffected by the work having moved into
+      # NumPy. It is measured in the `coverage` job below instead, on merges
+      # to main and weekly, because it is a slowly-changing map of what is
+      # untested rather than a per-change signal: the gate sits at 80% against
+      # an actual 90%, so no single change can trip it, and the defects found
+      # in this library so far have all been in code that was covered.
+      - name: Run tests
         run: >-
           poetry run pytest tests/
-          --cov=heavytails
-          --cov-report=xml
-          --cov-report=term-missing
-          --cov-fail-under=80
+          -n auto
           --junitxml=pytest.xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
-        if: matrix.python-version == '3.12'
-        with:
-          files: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
@@ -99,6 +99,63 @@ jobs:
         with:
           name: test-results-py${{ matrix.python-version }}
           path: pytest.xml
+
+  coverage:
+    name: Coverage
+    # Not on pull requests. See the test job above for why: it is a
+    # slowly-changing map of what is untested, and measuring it on every
+    # change across every interpreter cost about five minutes a job to
+    # recompute a number that moves by fractions of a point.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.4.2
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v6
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py3.12-${{ hashFiles('poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root --with dev
+
+      - name: Install project
+        run: poetry install --no-interaction --only-root
+
+      - name: Measure coverage
+        run: >-
+          poetry run pytest tests/
+          -n auto
+          --cov=heavytails
+          --cov-report=xml
+          --cov-report=term-missing
+          --cov-fail-under=80
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   cross-platform-smoke:
     name: Smoke (${{ matrix.os }}, Python 3.12)
@@ -301,7 +358,12 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    needs: [test, lint-and-type-check, security, build]
+    # coverage is here because it used to be implicit: the gate lived inside
+    # the test job, so nothing could publish without it passing. Now that the
+    # measurement has moved off the pull-request path, naming it keeps the
+    # guarantee exactly where it matters -- a released artifact -- while pull
+    # requests stop paying five minutes a job for it.
+    needs: [test, coverage, lint-and-type-check, security, build]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     environment:
