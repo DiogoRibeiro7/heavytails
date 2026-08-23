@@ -2219,6 +2219,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#changed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2241,7 +2252,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2274,7 +2285,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2307,7 +2318,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_2" class="md-nav__link">
+  <a href="#fixed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2357,7 +2368,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_3" class="md-nav__link">
+  <a href="#fixed_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2446,7 +2457,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_4" class="md-nav__link">
+  <a href="#fixed_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2686,6 +2697,16 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>scripts/tail_index_study.py</code> stamped its results with the <em>installed</em>
+  package version, which an editable install keeps reporting from whenever its
+  metadata was last built. In this checkout that read <strong>0.2.0</strong> against a
+  working tree at <strong>0.4.0</strong>, so a saved study carried a version two releases
+  stale -- worse than carrying none, since a reader has no reason to doubt it.
+  It now reads <code>pyproject.toml</code> when running from a checkout, and records which
+  source the version came from.</li>
+</ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CI does not re-verify on a merge what the pull request just verified. A push
@@ -2706,7 +2727,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   to wait. <code>publish</code> still depends on it, so a release cannot ship without the
   gate passing, which is the moment the number has to be right.</li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>The citation guidance cited <strong>0.3.0</strong>. <code>CITATION.cff</code> was advanced to 0.4.0 at
   release and the documentation was not, so <code>docs/about/citation.md</code> handed out
@@ -2743,7 +2764,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>heavytails.multivariate</code> said "the linear algebra is pure Python" after that
   stopped being true of everything but the Cholesky factorisation.</li>
 </ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>tests/test_zenodo_metadata.py</code> compares the two metadata files against each
   other instead of holding a third copy of the title. The transcription is what
@@ -2838,7 +2859,7 @@ Evaluating one over a million points now takes about 20 milliseconds.</p>
 incomplete beta or gamma, which NumPy does not provide; their <code>cdf</code>, <code>sf</code> and
 <code>ppf</code> cost what they always did. Their densities are elementary and are
 vectorised like everything else.</p>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>GeneralizedPareto.sf</code> computes the survival probability directly instead of
   as <code>1 - cdf</code>. The subtraction returned <strong>exactly zero</strong> in the far tail: at
@@ -3063,7 +3084,7 @@ returned negative probabilities.</p>
   with identical accuracy.</p>
 </li>
 </ul>
-<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>GeneralizedPareto</code> returned negative probabilities below <code>mu</code> for every sign
@@ -3375,7 +3396,7 @@ returned negative probabilities.</p>
   that was never generated.</p>
 </li>
 </ul>
-<h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_5">Fixed<a class="headerlink" href="#fixed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The continued-fraction branch of the regularized lower incomplete gamma was
