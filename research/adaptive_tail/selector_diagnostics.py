@@ -227,40 +227,152 @@ def _selection_rate(
     trials: int,
     seed_start: int,
 ) -> dict[str, Any]:
-    hits = 0
-    failures = 0
+    """Rate at which the *production* cross-fit selector reaches its top threshold.
+
+    Two things about this are deliberate, and an earlier version of it got both
+    wrong.
+
+    **It calibrates the cross-fit path, not the full-sample selector.** The
+    production estimator does not select on the whole sample: it splits, then
+    selects independently on each training half at a scaled threshold
+    ``split_k = scale(k, n_f, n)`` with its own scaled ``min_k`` and its own
+    fold-level vanishing trim. Those selectors see half the data, a different
+    grid and a different finite-sample covariance geometry, so the full-sample
+    acceptance rate is a different quantity. Calibrating it would tune a
+    constant against a procedure nobody runs. This goes through
+    :func:`_trace_crossfit`, which walks exactly the production path.
+
+    **The denominator is every trial.** A cutoff that fails a tenth of the time
+    and accepts on the rest is not a cutoff that works 100% of the time; it is
+    usable nine times in ten. Dividing hits by successes reported the former.
+    The study treats an estimator failure as invalidating the risk ratio
+    everywhere else, and calibration follows the same rule: the indicator is
+    joint over both folds succeeding *and* both accepting, averaged over all
+    trials.
+
+    Conditional fold-level acceptance is reported alongside as a diagnostic,
+    because it says something different and is worth seeing -- but it is not
+    the number the cutoff is chosen on.
+    """
+    joint_accepted = 0
+    both_succeeded = 0
+    fold_successes = 0
+    fold_acceptances = 0
+    fold_total = 0
     stable_sizes: list[int] = []
-    max_k = k_grid[-1]
+    outcomes: list[dict[str, Any]] = []
+
     for offset in range(trials):
         data = Pareto(alpha=2.0, xm=1.0).rvs(n, seed=seed_start + offset)
-        try:
-            selection = threshold_averaged_orthogonalized_hill_selection(
-                data,
-                max_k,
-                min_k=k_grid[0],
-                grid_size=len(k_grid),
-                rho=rho,
-                adaptive_trim=True,
-                max_trim=max_trim,
-                critical=critical,
-            )
-        except ValueError:
-            failures += 1
-            continue
-        hits += int(selection["stable_thresholds"][-1] == max_k)
-        stable_sizes.append(len(selection["stable_thresholds"]))
+        trace = _trace_crossfit(
+            data,
+            k=k_grid[-1],
+            min_k=k_grid[0],
+            grid_size=len(k_grid),
+            rho=rho,
+            max_trim=max_trim,
+            critical=critical,
+            # None, as production defaults and oracle_experiment.py uses.
+            seed=None,
+        )
+        fold_total += 2
+        succeeded = [fold for fold in trace["folds"] if fold["stage"] == "success"]
+        fold_successes += len(succeeded)
 
-    successes = trials - failures
+        # A fold accepts when its stable set reaches that fold's own top
+        # threshold, which is the scaled split_k rather than the full-sample k.
+        hits = 0
+        for fold in succeeded:
+            stable = fold["training_stable_thresholds"]
+            stable_sizes.append(len(stable))
+            if stable and stable[-1] == fold["split_k"]:
+                hits += 1
+        fold_acceptances += hits
+
+        if len(succeeded) == 2:
+            both_succeeded += 1
+            if hits == 2:
+                joint_accepted += 1
+
+        # How far the shallower of the two folds got, as a fraction of its own
+        # grid. 1.0 is full acceptance; smaller is an earlier stop.
+        depths = [
+            len(fold["training_stable_thresholds"]) / len(fold["training_thresholds"])
+            for fold in succeeded
+            if fold["training_thresholds"]
+        ]
+        outcomes.append(
+            {
+                "seed": seed_start + offset,
+                "category": (
+                    "failure"
+                    if len(succeeded) < 2
+                    else "accepted"
+                    if hits == 2
+                    else "premature_stop"
+                ),
+                "folds_succeeded": len(succeeded),
+                "folds_accepted": hits,
+                "shallowest_stable_fraction": min(depths) if depths else None,
+            }
+        )
+
     return {
         "critical": critical,
         "trials": trials,
-        "successes": successes,
-        "failure_rate": failures / trials,
-        "k_max_acceptance_rate": hits / successes if successes else None,
+        # The calibration target. Every trial counts, including the failures.
+        "joint_acceptance_rate": joint_accepted / trials,
+        "both_folds_succeeded_rate": both_succeeded / trials,
+        "fold_failure_rate": 1.0 - fold_successes / fold_total,
+        # Diagnostics: what an earlier version of this reported as the target.
+        "fold_acceptance_rate_given_success": (
+            fold_acceptances / fold_successes if fold_successes else None
+        ),
         "mean_stable_set_size": (
             sum(stable_sizes) / len(stable_sizes) if stable_sizes else None
         ),
+        "outcomes": outcomes,
     }
+
+
+def _representative_seeds(outcomes: list[dict[str, Any]], count: int) -> list[int]:
+    """Choose seeds worth looking at, rather than the first few.
+
+    Tracing seeds 20000..20004 traces whatever those happened to be, and on a
+    selector that mostly works they are mostly ordinary. What is worth reading
+    is one of each outcome, and above all the *earliest* stop -- the run that
+    cut its stable set shortest is the one that shows the mechanism.
+
+    Falls back to filling from the front, so a run where everything succeeded
+    still produces traces.
+    """
+    chosen: list[int] = []
+
+    def take(seed: int) -> None:
+        if seed not in chosen and len(chosen) < count:
+            chosen.append(seed)
+
+    failures = [o for o in outcomes if o["category"] == "failure"]
+    premature = [
+        o
+        for o in outcomes
+        if o["category"] == "premature_stop"
+        and o["shallowest_stable_fraction"] is not None
+    ]
+    accepted = [o for o in outcomes if o["category"] == "accepted"]
+
+    if premature:
+        take(min(premature, key=lambda o: o["shallowest_stable_fraction"])["seed"])
+    if failures:
+        take(failures[0]["seed"])
+    if accepted:
+        take(accepted[0]["seed"])
+    # Then the next-earliest stops, which are the informative tail of the run.
+    for outcome in sorted(premature, key=lambda o: o["shallowest_stable_fraction"]):
+        take(outcome["seed"])
+    for outcome in outcomes:
+        take(outcome["seed"])
+    return chosen
 
 
 def build_report(
@@ -306,14 +418,19 @@ def build_report(
         )
         for critical in critical_grid
     ]
-    selected = next(
-        (
-            row
-            for row in calibration
-            if row["k_max_acceptance_rate"] is not None
-            and row["k_max_acceptance_rate"] >= target_acceptance
-        ),
-        calibration[-1],
+    # Say so when nothing on the grid reaches the target, rather than handing
+    # back the largest cutoff searched as though it had been calibrated. The
+    # best available is reported instead of the last, because monotonicity in
+    # `critical` is an expectation about the selector, not something this
+    # script is entitled to assume.
+    qualifying = [
+        row for row in calibration if row["joint_acceptance_rate"] >= target_acceptance
+    ]
+    target_met = bool(qualifying)
+    selected = (
+        qualifying[0]
+        if target_met
+        else max(calibration, key=lambda row: row["joint_acceptance_rate"])
     )
     holdout = _selection_rate(
         n=n,
@@ -325,7 +442,7 @@ def build_report(
         seed_start=holdout_seed_start,
     )
     traces = []
-    for seed in range(holdout_seed_start, holdout_seed_start + trace_count):
+    for seed in _representative_seeds(holdout["outcomes"], trace_count):
         data = Pareto(alpha=2.0, xm=1.0).rvs(n, seed=seed)
         traces.append(
             {
@@ -376,6 +493,7 @@ def build_report(
             "crossfit_seed": "None, matching the production estimator default",
         },
         "calibration": calibration,
+        "target_met": target_met,
         "selected_critical": selected,
         "holdout": holdout,
         "traces": traces,

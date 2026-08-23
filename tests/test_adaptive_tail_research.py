@@ -5,9 +5,15 @@ from __future__ import annotations
 import json
 import statistics
 
+import pytest
 from research.adaptive_tail import clean_pareto_decomposition as decomposition
 from research.adaptive_tail import oracle_experiment as experiment
 from research.adaptive_tail import selector_diagnostics
+
+from heavytails import Pareto
+from heavytails.tail_index import (
+    threshold_averaged_orthogonalized_hill_estimator,
+)
 
 
 def test_oracle_grid_matches_the_adaptive_log_grid() -> None:
@@ -278,3 +284,107 @@ def test_adaptive_failure_invalidates_the_primary_risk_ratio(
     assert row["adaptive_rmse_success"] == 0.0
     assert row["adaptive_rmse"] is None
     assert row["risk_ratio"] is None
+
+
+def test_the_trace_reproduces_the_production_estimate() -> None:
+    """The instrument must agree with what it is instrumenting.
+
+    ``_trace_crossfit`` walks the cross-fit path itself so it can record the
+    thresholds, trims, stable sets and weights the production estimator throws
+    away. That is a second implementation of the same procedure, which is the
+    arrangement this repository has been bitten by three times, so it is held
+    to the original rather than trusted to stay in step.
+    """
+    data = Pareto(alpha=2.0, xm=1.0).rvs(600, seed=4)
+    kwargs = {
+        "k": 60,
+        "min_k": 10,
+        "grid_size": 6,
+        "rho": -1.0,
+        "max_trim": 3,
+        "critical": 2.0,
+    }
+
+    traced = selector_diagnostics._trace_crossfit(data, seed=None, **kwargs)
+    produced = threshold_averaged_orthogonalized_hill_estimator(
+        data,
+        kwargs["k"],
+        min_k=kwargs["min_k"],
+        grid_size=kwargs["grid_size"],
+        rho=kwargs["rho"],
+        adaptive_trim=True,
+        max_trim=kwargs["max_trim"],
+        critical=kwargs["critical"],
+        crossfit=True,
+        seed=None,
+    )
+
+    assert traced["gamma"] is not None
+    assert traced["gamma"] == pytest.approx(produced, rel=1e-12, abs=0.0)
+
+
+def test_the_trace_records_a_failure_where_production_raises() -> None:
+    """When the estimator cannot produce a value, the trace says so.
+
+    It must not quietly return a different number, which is the failure mode
+    that would make the diagnostic worse than useless: a trace that disagrees
+    with production exactly where production is in trouble.
+    """
+    data = Pareto(alpha=2.0, xm=1.0).rvs(40, seed=9)
+    kwargs = {
+        "k": 30,
+        "min_k": 25,
+        "grid_size": 4,
+        "rho": -1.0,
+        "max_trim": 12,
+        "critical": 0.05,
+    }
+
+    traced = selector_diagnostics._trace_crossfit(data, seed=None, **kwargs)
+    try:
+        produced = threshold_averaged_orthogonalized_hill_estimator(
+            data,
+            kwargs["k"],
+            min_k=kwargs["min_k"],
+            grid_size=kwargs["grid_size"],
+            rho=kwargs["rho"],
+            adaptive_trim=True,
+            max_trim=kwargs["max_trim"],
+            critical=kwargs["critical"],
+            crossfit=True,
+            seed=None,
+        )
+    except ValueError:
+        assert traced["gamma"] is None
+        assert traced["failure_rate"] > 0.0
+        assert any(fold["stage"] != "success" for fold in traced["folds"])
+    else:
+        # Production managed it, so the trace must have too, and must agree.
+        assert traced["gamma"] == pytest.approx(produced, rel=1e-12, abs=0.0)
+
+
+def test_calibration_counts_every_trial_in_the_denominator() -> None:
+    """The target is joint over both folds succeeding and both accepting.
+
+    Reported conditionally -- hits over successes -- a cutoff that fails a
+    tenth of the time and accepts on the rest reads as 100%. It is usable nine
+    times in ten, and this study treats a failure as invalidating the estimate
+    everywhere else.
+    """
+    row = selector_diagnostics._selection_rate(
+        n=400,
+        k_grid=[10, 20, 40],
+        max_trim=3,
+        rho=-1.0,
+        critical=2.0,
+        trials=8,
+        seed_start=31_000,
+    )
+
+    assert 0.0 <= row["joint_acceptance_rate"] <= 1.0
+    # The joint event cannot be commoner than both folds merely succeeding.
+    assert row["joint_acceptance_rate"] <= row["both_folds_succeeded_rate"]
+    # And the conditional diagnostic can only be at least as flattering.
+    conditional = row["fold_acceptance_rate_given_success"]
+    if conditional is not None and row["fold_failure_rate"] > 0.0:
+        assert conditional >= row["joint_acceptance_rate"]
