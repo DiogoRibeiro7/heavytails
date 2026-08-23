@@ -10,6 +10,7 @@ import time
 
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+import numpy as np
 import pytest
 
 from heavytails import (
@@ -561,32 +562,67 @@ class TestPerformanceDetailed:
                 assert all(not math.isnan(x) for x in samples[:100])  # Check first 100
 
     def test_pdf_cdf_evaluation_performance(self) -> None:
-        """Benchmark PDF and CDF evaluation performance."""
-        # Test with Pareto (analytical PDF/CDF)
+        """Ten thousand points, evaluated the way the library asks for them.
+
+        This test used to hand the methods one point at a time and require the
+        ten thousand calls to finish in a tenth of a second. That is the
+        pattern the NumPy conversion exists to replace, and it measures the
+        thing that got *slower*: a scalar call now costs a few microseconds of
+        dispatch where it used to be plain arithmetic. The budget it set was
+        met by 0.05s and then missed by 0.107s, on the change that made the
+        same work eighty times faster when asked for in one call.
+
+        So the array call is what carries a tight budget here. The loop is
+        still checked, because it is still a supported thing to do and a
+        regression that made it ten times worse should be caught, but its
+        budget is set by what a dispatching call costs rather than by what
+        pure-Python arithmetic used to.
+        """
         pareto = Pareto(alpha=2.0, xm=1.0)
-
-        # Generate test points
         x_values = [1.0 + i * 0.01 for i in range(10000)]
+        x_array = np.array(x_values)
 
-        # PDF performance test
+        start_time = time.perf_counter()
+        pdf_array = pareto.pdf(x_array)
+        pdf_vector_time = time.perf_counter() - start_time
+
+        start_time = time.perf_counter()
+        cdf_array = pareto.cdf(x_array)
+        cdf_vector_time = time.perf_counter() - start_time
+
+        # Roughly 0.3ms locally. A hundredfold margin, because a shared CI
+        # runner is not a quiet machine and this should fail on a regression,
+        # not on a noisy neighbour.
+        assert pdf_vector_time < 0.03, (
+            f"PDF too slow over an array: {pdf_vector_time:.4f}s for 10K points"
+        )
+        assert cdf_vector_time < 0.03, (
+            f"CDF too slow over an array: {cdf_vector_time:.4f}s for 10K points"
+        )
+
         start_time = time.perf_counter()
         pdf_values = [pareto.pdf(x) for x in x_values]
-        pdf_time = time.perf_counter() - start_time
+        pdf_loop_time = time.perf_counter() - start_time
 
-        # CDF performance test
         start_time = time.perf_counter()
         cdf_values = [pareto.cdf(x) for x in x_values]
-        cdf_time = time.perf_counter() - start_time
+        cdf_loop_time = time.perf_counter() - start_time
 
-        # Performance targets: should evaluate 10K points in < 0.1 seconds
-        assert pdf_time < 0.1, (
-            f"PDF evaluation too slow: {pdf_time:.3f}s for 10K points"
+        # About 2.6us per call locally, so 0.026s for ten thousand.
+        assert pdf_loop_time < 0.5, (
+            f"PDF too slow one point at a time: {pdf_loop_time:.3f}s for 10K"
         )
-        assert cdf_time < 0.1, (
-            f"CDF evaluation too slow: {cdf_time:.3f}s for 10K points"
+        assert cdf_loop_time < 0.5, (
+            f"CDF too slow one point at a time: {cdf_loop_time:.3f}s for 10K"
         )
 
-        # Verify correctness
+        # The two routes must also agree, or the budget above is measuring
+        # something other than the same work.
+        # Two arms; see tests/test_array_api.py for why a relative budget
+        # alone cannot hold for a value that came out of a cancellation.
+        np.testing.assert_allclose(pdf_array, pdf_values, rtol=1e-13, atol=1e-15)
+        np.testing.assert_allclose(cdf_array, cdf_values, rtol=1e-13, atol=1e-15)
+
         assert all(p >= 0 for p in pdf_values), "Negative PDF values found"
         assert all(0 <= c <= 1 for c in cdf_values), "CDF values out of range"
 

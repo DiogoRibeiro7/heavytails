@@ -47,7 +47,7 @@ This is the part that matters most, and the part automation cannot help with.
 
 ### Numerical behaviour
 
-Pure-Python floating point in the far tail is where this library earns or loses
+Floating point in the far tail is where this library earns or loses
 its reputation.
 
 - Is there catastrophic cancellation? `1 - cdf(x)` in the far tail is the

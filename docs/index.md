@@ -1,10 +1,10 @@
 # HeavyTails
 
-**A pure-Python library for heavy-tailed probability distributions**
+**A library for heavy-tailed probability distributions, vectorised over NumPy**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/) [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://diogoribeiro7.github.io/heavytails)
 
-HeavyTails is a comprehensive, dependency-free Python library for working with heavy-tailed probability distributions. Built using only the Python standard library, it provides transparent, mathematically rigorous implementations suitable for academic research, quantitative finance, risk management, and education.
+HeavyTails is a comprehensive Python library for working with heavy-tailed probability distributions. NumPy is its only dependency. Every method takes a number or an array and gives back the same kind of thing, and the formula in between is written once, which keeps the implementations transparent and mathematically rigorous while making them fast enough for academic research, quantitative finance, risk management, and education.
 
 ## 🎯 Quick Start
 
@@ -30,7 +30,7 @@ print(f"Estimated tail index: {alpha_hat:.2f}")
 
 - **12+ Heavy-Tailed Distributions**: Pareto, Student-t, Cauchy, LogNormal, Weibull, Fréchet, GEV, GPD, Burr XII, and more
 - **Tail Index Estimation**: Hill, Pickands, and moment estimators
-- **Pure Python**: No external dependencies, perfect for education and understanding
+- **Scalar or Array**: Every method mirrors its input, over NumPy, with one implementation per formula
 - **Command-Line Interface**: Full CLI for analysis and visualization
 - **Financial Applications**: Risk management tools for VaR, ES, and tail risk
 
@@ -167,9 +167,9 @@ If you use HeavyTails in academic work, please cite:
 
 ## 🌟 Key Features
 
-### ✅ **Pure Python**
+### ✅ **Scalar or Array**
 
-No external dependencies - perfect for understanding algorithms and educational use.
+Every method takes a number or an array and returns the same kind of thing. NumPy is the only dependency, and each formula is written once rather than twice, so the array path and the scalar path cannot disagree.
 
 ### ✅ **Mathematically Rigorous**
 

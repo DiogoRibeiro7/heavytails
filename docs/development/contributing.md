@@ -193,7 +193,7 @@ Then create a Pull Request on GitHub:
 - **PEP 8** compliance (enforced by ruff)
 - **Type hints** for all public functions
 - **Docstrings** in NumPy style
-- **No external dependencies** in core library (except standard library)
+- **NumPy only** in the core library. Anything further needs a reason that outweighs another dependency for everyone who installs it.
 
 ### Example Function
 

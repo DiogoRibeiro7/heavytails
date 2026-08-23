@@ -1,8 +1,18 @@
 # Benchmarking
 
-`heavytails` is pure Python, so performance is a design constraint rather than an
-afterthought: there is no C extension to hide behind. This page covers how
-performance is measured, tracked, and defended against regressions.
+`heavytails` computes through NumPy, so the thing to watch is whether work is
+being done in one call or one element at a time. The difference is not marginal:
+inverting 50,000 uniforms in a single call takes about 0.8ms, and inverting them
+one at a time takes about 0.30s. This page covers how performance is measured,
+tracked, and defended against regressions.
+
+Two places still run a Python loop, and both are deliberate. `LogNormal`,
+`StudentT`, `InverseGamma` and `BetaPrime` need the error function or an
+incomplete beta or gamma for their probabilities; NumPy has none of those, so
+those methods go through `_array.elementwise`. Their densities are elementary
+and are vectorised normally. And sampling draws its uniforms in a loop, because
+the generator is Python's `random` and each draw depends on the last -- only the
+transform afterwards is batched.
 
 ## Running the benchmark suite
 
