@@ -42,6 +42,7 @@ from research.adaptive_tail.oracle_experiment import (
     KGridMode,
     _admissible_max_trim,
     _candidate_estimate,
+    _crossfit_min_threshold,
     _evaluate_oracle_fold,
     _format_optional,
     _mse,
@@ -181,7 +182,8 @@ def _evaluate_clean_pareto_cell(
     )
     min_k = k_grid[0]
     max_k = k_grid[-1]
-    adaptive_max_trim = _admissible_max_trim(min_k, max_trim)
+    crossfit_min_k = _crossfit_min_threshold(n, min_k)
+    adaptive_max_trim = _admissible_max_trim(n, min_k, max_trim)
     r_grid = list(range(adaptive_max_trim + 1))
     candidates = [(r, k) for r in r_grid for k in k_grid if r < k - 1]
 
@@ -191,6 +193,7 @@ def _evaluate_clean_pareto_cell(
     selected_local_estimates: list[float | None] = []
     full_sample_aggregate_estimates: list[float | None] = []
     crossfit_estimates: list[float | None] = []
+    randomized_crossfit_estimates: list[float | None] = []
     selected_pairs: list[Candidate | None] = []
     stable_set_sizes: list[int] = []
     stable_thresholds: list[int] = []
@@ -254,11 +257,26 @@ def _evaluate_clean_pareto_cell(
                     rho=scenario.rho_used,
                     adaptive_trim=True,
                     max_trim=adaptive_max_trim,
-                    seed=split_seed,
                 )
             )
         except ValueError:
             crossfit_estimates.append(None)
+
+        try:
+            randomized_crossfit_estimates.append(
+                threshold_averaged_orthogonalized_hill_estimator(
+                    data,
+                    max_k,
+                    min_k=min_k,
+                    grid_size=len(k_grid),
+                    rho=scenario.rho_used,
+                    adaptive_trim=True,
+                    max_trim=adaptive_max_trim,
+                    seed=split_seed,
+                )
+            )
+        except ValueError:
+            randomized_crossfit_estimates.append(None)
 
     midpoint = trials // 2
     first = list(range(midpoint))
@@ -306,6 +324,9 @@ def _evaluate_clean_pareto_cell(
         "cross_fitted_adaptive": _method_summary(
             crossfit_estimates, truth=scenario.gamma, baseline_mse=oos_mse
         ),
+        "cross_fitted_adaptive_randomized": _method_summary(
+            randomized_crossfit_estimates, truth=scenario.gamma, baseline_mse=oos_mse
+        ),
     }
     methods["best_local_oracle_oos"]["oracle_pairs"] = [
         _jsonable_pair(fold.selected_pair) for fold in folds
@@ -327,6 +348,7 @@ def _evaluate_clean_pareto_cell(
         "k_grid_mode": k_grid_mode,
         "k_grid": k_grid,
         "r_grid": r_grid,
+        "crossfit_min_k": crossfit_min_k,
         "requested_max_trim": max_trim,
         "admissible_max_trim": adaptive_max_trim,
         "adaptive_max_trim": adaptive_max_trim,
@@ -411,10 +433,13 @@ def build_report(
             "max_trim": max_trim,
             "trim_envelope": (
                 "both adaptive and local oracle candidates use "
-                "min(max_trim, floor(k_min / 2) - 1)"
+                "min(max_trim, k_min_crossfit - 2)"
             ),
             "data_seeds": f"0..{trials - 1} per sample size",
-            "crossfit_split_seeds": (
+            "production_crossfit_split_seed": (
+                "None, matching oracle_experiment.py and the estimator default"
+            ),
+            "randomized_crossfit_split_seeds": (
                 f"{SPLIT_SEED_OFFSET}..{SPLIT_SEED_OFFSET + trials - 1} per sample size"
             ),
             "split_seed_offset": SPLIT_SEED_OFFSET,
@@ -429,6 +454,10 @@ def build_report(
             "best_local_oracle_in_sample": (
                 "in-sample empirical MSE minimum over fixed local (r, k) "
                 "candidates; secondary winner's-curse diagnostic"
+            ),
+            "cross_fitted_adaptive_randomized": (
+                "secondary diagnostic using independent split seeds; not the "
+                "primary oracle-experiment estimand"
             ),
         },
         "results": rows,
