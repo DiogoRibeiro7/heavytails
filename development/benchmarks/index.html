@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Pure-Python heavy-tailed probability distributions for research, teaching, and simulation">
+        <meta name="description" content="Heavy-tailed probability distributions, vectorized over NumPy, for research, teaching, and simulation">
       
       
         <meta name="author" content="Diogo Ribeiro">
@@ -2557,8 +2557,8 @@ to be comparable to yesterday's.</p>
 <p>Because the baseline is per interpreter version, a slowdown introduced by a new
 Python release is visible separately from one introduced by a code change.</p>
 <h2 id="writing-a-benchmark-that-means-something">Writing a benchmark that means something<a class="headerlink" href="#writing-a-benchmark-that-means-something" title="Permanent link">&para;</a></h2>
-<p>Timing pure-Python numerical code is easy to get wrong. The rules the existing
-suite follows:</p>
+<p>Timing numerical code is easy to get wrong, whether it runs in the
+interpreter or in NumPy. The rules the existing suite follows:</p>
 <p><strong>Use <code>time.perf_counter()</code>, never <code>time.time()</code>.</strong> <code>time.time()</code> has roughly
 16 ms resolution on Windows, so anything faster than that measures as exactly
 zero — and any throughput calculation then divides by zero. This has bitten the
@@ -2597,12 +2597,19 @@ like.</p>
 <li><strong>Special functions</strong> — incomplete gamma and incomplete beta — dominate the
   Student-t, Inverse-Gamma and Beta-Prime families. <code>heavytails.performance</code>
   caches where the arguments repeat.</li>
-<li><strong>Attribute lookup and function call overhead</strong> are a real fraction of the cost
-  in tight pure-Python loops. Hoisting a bound method out of a loop is a
-  legitimate and measurable optimisation.</li>
+<li><strong>Attribute lookup and function call overhead</strong> are a real fraction of the
+  cost wherever a loop remains -- the four families whose probabilities need a
+  special function, and the samplers, which draw their uniforms one at a time.
+  Hoisting a bound method out of such a loop is a legitimate and measurable
+  optimisation. Everywhere else the question is not how fast the loop is but
+  whether there should be one: a scalar call costs about 2.6us of dispatch,
+  and the same points passed as an array cost that once.</li>
 </ul>
 <h2 id="before-optimising">Before optimising<a class="headerlink" href="#before-optimising" title="Permanent link">&para;</a></h2>
-<p>Profile first; intuition about pure-Python hot spots is unreliable.</p>
+<p>Profile first; intuition about hot spots is unreliable. The clearest example
+in this project's history: the test suite was assumed to be slow because the
+library was, and it was actually spending 6.4x its runtime inside coverage
+instrumentation, which no amount of vectorisation could touch.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>cProfile<span class="w"> </span>-s<span class="w"> </span>cumtime<span class="w"> </span>benchmarks/performance_tests.py<span class="w"> </span>--output<span class="w"> </span>/dev/null
 </span></code></pre></div>
 <p>For line-level detail, <code>line-profiler</code> and <code>memory-profiler</code> are in the

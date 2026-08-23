@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Pure-Python heavy-tailed probability distributions for research, teaching, and simulation">
+        <meta name="description" content="Heavy-tailed probability distributions, vectorized over NumPy, for research, teaching, and simulation">
       
       
         <meta name="author" content="Diogo Ribeiro">
@@ -2230,6 +2230,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2241,7 +2252,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2280,7 +2302,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_2" class="md-nav__link">
+  <a href="#changed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2291,7 +2313,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2330,7 +2352,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_3" class="md-nav__link">
+  <a href="#changed_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2369,7 +2391,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_4" class="md-nav__link">
+  <a href="#changed_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2380,7 +2402,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed_2" class="md-nav__link">
+  <a href="#fixed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2621,6 +2643,38 @@
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<p><strong>The package no longer describes itself as pure Python, because it is not.</strong></p>
+<ul>
+<li><code>CITATION.cff</code>, <code>.zenodo.json</code>, <code>AUTHORS.md</code>, <code>mkdocs.yml</code> and the citation
+  pages carry the title <em>heavytails: A Python Library for Heavy-Tailed
+  Probability Distributions</em>. The archived 0.1.0-0.4.0 records keep the old
+  title, which is correct: those releases were pure Python.</li>
+<li><code>SECURITY.md</code> no longer justifies the security posture with
+  "dependency-free (pure Python)". It says there is one runtime dependency and
+  why that is an acceptable one to require.</li>
+<li><code>docs/about/license.md</code> names NumPy's licence rather than claiming there are
+  no third-party licences to name.</li>
+<li><code>heavytails.multivariate</code> said "the linear algebra is pure Python" after that
+  stopped being true of everything but the Cholesky factorisation.</li>
+</ul>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>tests/test_zenodo_metadata.py</code> compares the two metadata files against each
+  other instead of holding a third copy of the title. The transcription is what
+  broke when the title changed -- a test named for checking two files against
+  each other should not need editing when they both change consistently.</li>
+<li><code>heavytails.performance.vectorized_pdf_evaluation</code> and
+  <code>vectorized_cdf_evaluation</code> call the array methods directly. They went
+  through <code>np.vectorize</code>, which is a Python loop wearing an array interface,
+  and was pointless once the methods took arrays themselves.</li>
+<li><code>heavytails.extensions</code> imports NumPy unconditionally. It was guarded
+  alongside SciPy, so a missing SciPy set <code>np</code> to <code>None</code> even though NumPy was
+  installed -- harmless only because every caller raises on <code>SCIPY_AVAILABLE</code>
+  first.</li>
+<li><code>heavytails.performance</code> and <code>heavytails.vectorized</code> no longer branch on
+  NumPy being absent. It cannot be.</li>
+</ul>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <p><strong>The multivariate distributions compute over observations, not one at a time.</strong></p>
 <ul>
 <li><code>mahalanobis</code>, <code>logpdf</code> and <code>pdf</code> take one point or an array of them and
@@ -2640,7 +2694,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>_solve_lower</code> is gone. The substitution it did now happens inside
   <code>mahalanobis</code>, across all observations, and nothing else called it.</li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <p><strong>NumPy is now a required dependency, and every distribution method takes a
 number or an array.</strong></p>
 <p>The library was pure Python by choice, and that choice stopped paying: a density
@@ -2698,7 +2752,7 @@ Evaluating one over a million points now takes about 20 milliseconds.</p>
 incomplete beta or gamma, which NumPy does not provide; their <code>cdf</code>, <code>sf</code> and
 <code>ppf</code> cost what they always did. Their densities are elementary and are
 vectorised like everything else.</p>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>GeneralizedPareto.sf</code> computes the survival probability directly instead of
   as <code>1 - cdf</code>. The subtraction returned <strong>exactly zero</strong> in the far tail: at
@@ -2909,7 +2963,7 @@ returned negative probabilities.</p>
   Monte Carlo estimator always reports standard errors.</p>
 </li>
 </ul>
-<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>InverseGamma.ppf</code> and <code>BetaPrime.ppf</code> invert the incomplete gamma and beta
@@ -2923,7 +2977,7 @@ returned negative probabilities.</p>
   with identical accuracy.</p>
 </li>
 </ul>
-<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>GeneralizedPareto</code> returned negative probabilities below <code>mu</code> for every sign
@@ -3045,7 +3099,7 @@ returned negative probabilities.</p>
   invisible on clean data.</p>
 </li>
 </ul>
-<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The <code>tail_index</code> module docstring now states that every estimator returns the
@@ -3190,7 +3244,7 @@ returned negative probabilities.</p>
   review, and an executable <code>basic_usage</code> notebook.</p>
 </li>
 </ul>
-<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Migrated project metadata to the PEP 621 <code>[project]</code> table.</p>
@@ -3235,7 +3289,7 @@ returned negative probabilities.</p>
   that was never generated.</p>
 </li>
 </ul>
-<h3 id="fixed_2">Fixed<a class="headerlink" href="#fixed_2" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_3">Fixed<a class="headerlink" href="#fixed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The continued-fraction branch of the regularized lower incomplete gamma was

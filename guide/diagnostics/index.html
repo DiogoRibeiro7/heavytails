@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Pure-Python heavy-tailed probability distributions for research, teaching, and simulation">
+        <meta name="description" content="Heavy-tailed probability distributions, vectorized over NumPy, for research, teaching, and simulation">
       
       
         <meta name="author" content="Diogo Ribeiro">
@@ -2521,8 +2521,8 @@ diagnostics composes normally:</p>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">plot_qq</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">plot_hill</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">true_gamma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </span></code></pre></div>
-<p>The coordinate-returning functions stay available and dependency-free, so the
-library itself never requires matplotlib.</p>
+<p>The coordinate-returning functions return plain numbers and pull in nothing
+beyond NumPy, so the library itself never requires matplotlib.</p>
 <h3 id="reading-the-plot">Reading the plot<a class="headerlink" href="#reading-the-plot" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
