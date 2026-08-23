@@ -80,6 +80,10 @@ JSON output is structured as:
 }
 ```
 
+The provenance block records `heavytails_version`, `version_source`,
+`git_commit`, `python_version` and `numpy_version`, so frozen result artifacts
+can be traced to the working tree and numerical runtime that produced them.
+
 For exact Pareto scenarios, `rho_true` is `null` and `rho_used` records the
 orthogonalization tuning value. This avoids treating an exact Pareto tail as if
 it had an identified second-order parameter.

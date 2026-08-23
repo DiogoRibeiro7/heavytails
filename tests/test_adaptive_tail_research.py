@@ -87,6 +87,16 @@ def test_report_contains_provenance_configuration_and_jsonable_results() -> None
         "two-fold Monte Carlo select/evaluate rotation"
     )
     assert report["provenance"]["python_version"]
+    assert report["provenance"]["heavytails_version"]
+    assert report["provenance"]["heavytails_version_source"] in {
+        "pyproject.toml",
+        "installed distribution metadata",
+    }
+    assert report["provenance"]["version_source"] in {
+        "pyproject.toml",
+        "installed distribution metadata",
+    }
+    assert report["provenance"]["numpy_version"]
 
     row = report["results"][0]
     assert row["rho_true"] is None

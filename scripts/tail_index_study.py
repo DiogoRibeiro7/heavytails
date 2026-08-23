@@ -21,11 +21,10 @@ import json
 import math
 from pathlib import Path
 import random
-import re
 import sys
 from typing import Any, Literal
 
-import heavytails
+from _provenance import base_provenance
 from heavytails import Frechet, Pareto
 from heavytails.tail_index import (
     adaptive_trimmed_hill_estimator,
@@ -183,75 +182,6 @@ def _supports_scenario(estimator: EstimatorSpec, scenario: Scenario) -> bool:
     return estimator.gamma_domain == "any" or scenario.gamma > 0.0
 
 
-def _git_commit() -> str | None:
-    """Return the checked-out commit, or None if this is not a git checkout.
-
-    The package version alone is not reliable provenance for a run made from a
-    working tree: ``importlib.metadata`` reports what is *installed*, which
-    silently lags behind after a version bump in an editable install. The
-    commit is unambiguous.
-
-    Read from the .git directory directly rather than by invoking git, so this
-    needs no subprocess and no git on PATH.
-    """
-    git_dir = Path(__file__).resolve().parent.parent / ".git"
-    head = git_dir / "HEAD"
-    if not head.is_file():
-        return None
-    try:
-        content = head.read_text(encoding="utf-8").strip()
-        if not content.startswith("ref:"):
-            return content or None  # detached HEAD
-        ref = content.removeprefix("ref:").strip()
-        ref_file = git_dir / ref
-        if ref_file.is_file():
-            return ref_file.read_text(encoding="utf-8").strip() or None
-        # Packed refs, which is how a freshly cloned repository stores them.
-        packed = git_dir / "packed-refs"
-        if packed.is_file():
-            for line in packed.read_text(encoding="utf-8").splitlines():
-                if line.endswith(f" {ref}"):
-                    return line.split()[0]
-    except OSError:
-        return None
-    return None
-
-
-def _package_version() -> tuple[str, str]:
-    """The version, and where it was read from.
-
-    ``heavytails.__version__`` comes from ``importlib.metadata``, which reports
-    what is *installed*. In an editable install that is whatever the metadata
-    said when it was last built, so it lags a working tree after a version
-    bump: a study run from a 0.3.0 checkout was stamped 0.2.0, and a saved
-    table carrying the wrong version is worse than one carrying none.
-
-    ``pyproject.toml`` is the working tree's own answer, so it wins when this
-    is running from a checkout. Which source was used is returned alongside,
-    because provenance that cannot be questioned is not provenance.
-    """
-    pyproject = Path(__file__).resolve().parent.parent / "pyproject.toml"
-    if pyproject.is_file():
-        try:
-            text = pyproject.read_text(encoding="utf-8")
-        except OSError:
-            text = None
-        if text is not None:
-            try:
-                import tomllib  # noqa: PLC0415
-
-                version = tomllib.loads(text).get("project", {}).get("version")
-            except ModuleNotFoundError:
-                # tomllib is 3.11+; this project supports 3.10.
-                match = re.search(r'^version\s*=\s*"([^"]+)"', text, re.MULTILINE)
-                version = match.group(1) if match else None
-            except ValueError:
-                version = None
-            if isinstance(version, str) and version:
-                return version, "pyproject.toml"
-    return heavytails.__version__, "installed distribution metadata"
-
-
 def _provenance(trials: int) -> dict[str, Any]:
     """Describe the run, so a results file can be traced back to its code.
 
@@ -262,12 +192,8 @@ def _provenance(trials: int) -> dict[str, Any]:
     The version, where it came from, and the git commit are all recorded. The
     commit is the unambiguous one; the version is what a reader will quote.
     """
-    version, version_source = _package_version()
     return {
-        "heavytails_version": version,
-        "heavytails_version_source": version_source,
-        "git_commit": _git_commit(),
-        "python_version": sys.version.split()[0],
+        **base_provenance(Path(__file__).resolve().parent.parent),
         "trials": trials,
         "sample_sizes": list(SAMPLE_SIZES),
         "estimators": sorted(ESTIMATORS),
