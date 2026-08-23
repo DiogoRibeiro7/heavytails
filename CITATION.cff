@@ -33,8 +33,8 @@ keywords:
   - simulation
   - teaching
 license: MIT
-version: 0.4.0
-date-released: 2026-08-22
+version: 0.5.0
+date-released: 2026-08-23
 doi: "10.5281/zenodo.22045594"
 identifiers:
   - type: doi
@@ -43,9 +43,11 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.22062643"
     description: >-
-      Version DOI for release 0.4.0, the version this file describes. Each
-      release gets its own; 0.3.0 is 10.5281/zenodo.22050721, 0.2.0 is
-      10.5281/zenodo.22047617 and 0.1.0 is 10.5281/zenodo.22045595.
+      Version DOI for release 0.4.0. Each release gets its own, minted when
+      Zenodo archives it: 0.3.0 is 10.5281/zenodo.22050721, 0.2.0 is
+      10.5281/zenodo.22047617 and 0.1.0 is 10.5281/zenodo.22045595. The one for
+      0.5.0 is added here once Zenodo has archived this release; until then the
+      concept DOI above resolves to it as the most recent version.
 references:
   - type: book
     title: "Extreme Value Theory: An Introduction"
