@@ -429,3 +429,10 @@ the first without the second.
 A future selector earns attention by beating the `c = 100` benchmark under the
 estimator's actual loss. Until it does, its rejection behaviour is not evidence
 for it.
+
+The protocol that judgement rests on is written up separately in
+[evaluating-a-selector.md](evaluating-a-selector.md): the order of the stages,
+what does not count as evidence, which script implements each stage, and the
+risk property a future selector would need. It is worth reading before
+proposing one, because several of the wrong ways to judge a selector looked
+reasonable while this work was doing them.
