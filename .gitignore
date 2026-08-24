@@ -358,6 +358,10 @@ yarn-error.log*
 *.synctex.gz
 *.toc
 
+# Local research artifacts and manuscripts
+/research/
+/tests/test_adaptive_tail_research.py
+
 # Experimental/dev files
 scratch/
 experiments/
