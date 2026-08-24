@@ -320,3 +320,73 @@ by discrimination alone.** A soft or tolerant prefix will look better on both
 while doing nothing for the estimate. Any candidate should be compared at
 matched clean-Pareto size, against no selection, on the error of the estimator
 it feeds.
+
+## The same closure at n = 50,000
+
+**The balance does not tip. It moves further the other way.** At n = 10,000 the
+decisive cell — Burr ρ = -1/4, the slowest second-order decay here and the
+alternative the rule detects best — was indistinguishable from taking every
+threshold, with the point estimate mildly favouring selection. At n = 50,000 it
+is measurably worse, and so is every other scenario.
+
+Artifact: `selector_scale_n50000.json`. Design held fixed from the n = 10,000
+closure: the cutoff is calibrated per ρ on exact Pareto to 95% joint
+acceptance, each scenario is run at the cutoff calibrated for *its* ρ, and the
+comparison against no selection is paired by seed with a bootstrap interval.
+Calibration and evaluation use disjoint seed ranges.
+
+### Calibration tightens with n, as it should
+
+| ρ | c at n = 50,000 | clean-Pareto acceptance |
+| --- | --- | --- |
+| -1 | 3.5 | 0.960 |
+| -1/2 | 4.5 | 0.963 |
+| -1/4 | 4.5 | 0.953 |
+
+Against roughly 4 to 5 at n = 10,000. The null distribution concentrates, so a
+correctly sized rule can afford to be tighter.
+
+### Paired ΔMSE against taking every threshold
+
+| scenario | c | ΔMSE | 95% CI | |
+| --- | --- | --- | --- | --- |
+| pareto | 3.5 | +0.00026 | [+0.00006, +0.00053] | selection hurts |
+| hall ρ=-1/2 | 4.5 | +0.00023 | [+0.00002, +0.00052] | selection hurts |
+| burr ρ=-1/2 | 4.5 | +0.00046 | [+0.00014, +0.00085] | selection hurts |
+| **burr ρ=-1/4** | 4.5 | **+0.00161** | **[+0.00036, +0.00299]** | **selection hurts** |
+
+All four intervals exclude zero on the wrong side. At n = 10,000 three did and
+the fourth contained zero; at n = 50,000 the fourth has joined them.
+
+### Why it goes this way
+
+The rule still has power: Burr ρ = -1/4 accepts the full grid on 0.858 of
+samples against 0.953 under the matched null, and when it does truncate it
+truncates hard — the tenth percentile of the run-level stable fraction is
+0.298. The discrimination is real and survives calibration at both sample
+sizes.
+
+What does not survive is the arithmetic. Truncating buys almost no bias:
+-0.0800 against -0.0829 with no selection, about 0.003. It costs RMSE 0.1211 →
+0.1276, about 0.0065. The bias available to be removed at the top of an
+intermediate grid is small even for the slowest second-order decay tested,
+while the variance of throwing thresholds away is not — and as n grows the
+estimator's own variance falls, so the same truncation costs relatively more
+against a bias gain that does not grow with it.
+
+That is the reverse of the tipping argument, and it is the argument's own
+mechanism running backwards.
+
+### Status
+
+Frozen under squared-error loss. Two sample sizes, four scenarios, matched
+null sizes, paired intervals: at n = 10,000 selection is worse in three
+scenarios and indistinguishable in the fourth; at n = 50,000 it is worse in all
+four. A future selector should be measured against taking every threshold, on
+the error of the estimator it feeds, before its rejection behaviour is
+discussed at all.
+
+This does not say threshold-compatibility selection is worthless under a
+different loss, at a different grid, or against second-order decay slower than
+ρ = -1/4. It does say that tuning this rule further, under squared error, on
+these alternatives, is not where the value is.

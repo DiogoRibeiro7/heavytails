@@ -13,7 +13,9 @@ from research.adaptive_tail import (
     selector_closure,
     selector_diagnostics,
     selector_power,
+    selector_scale,
 )
+from research.adaptive_tail.oracle_experiment import SCENARIOS
 from scripts._provenance import _git_commit
 
 from heavytails import Pareto
@@ -579,3 +581,78 @@ def test_the_rho_used_for_the_weights_can_be_overridden() -> None:
     assert default["rho_used_is_scenario_default"]
     assert overridden["rho_used"] == -0.25
     assert not overridden["rho_used_is_scenario_default"]
+
+
+class TestPerRhoCalibration:
+    """The cutoff is chosen per rho, and which qualifying one matters.
+
+    The null distribution of the compatibility statistic moves with the rho the
+    orthogonalized weights are built from, so a single cutoff shared across
+    scenarios would compare sizes as well as laws -- which is the confound
+    #389 had to separate out after the fact.
+    """
+
+    def _curve(self, rates: dict[float, float]) -> list[dict[str, float]]:
+        return [
+            {"critical": c, "joint_acceptance_rate": rate} for c, rate in rates.items()
+        ]
+
+    def test_the_smallest_qualifying_cutoff_is_chosen(self, monkeypatch) -> None:
+        """Among correctly sized rules the tightest keeps the most power.
+
+        Taking a looser one would bias the experiment towards finding no
+        effect, by making the selector do less.
+        """
+        rates = {3.0: 0.80, 4.0: 0.93, 5.0: 0.96, 6.0: 0.99}
+        calls = iter(self._curve(rates))
+        monkeypatch.setattr(
+            selector_scale, "_selection_rate", lambda **kwargs: dict(next(calls))
+        )
+
+        result = selector_scale._calibrate(
+            n=1000,
+            k_grid=[10, 20],
+            max_trim=3,
+            rho=-1.0,
+            critical_grid=[3.0, 4.0, 5.0, 6.0],
+            target=0.95,
+            trials=1,
+            seed_start=0,
+        )
+        assert result["target_met"]
+        assert result["calibrated_critical"] == 5.0
+        assert result["calibrated_acceptance"] == 0.96
+
+    def test_when_nothing_qualifies_the_best_is_reported_and_flagged(
+        self, monkeypatch
+    ) -> None:
+        rates = {3.0: 0.60, 4.0: 0.88, 5.0: 0.91, 6.0: 0.90}
+        calls = iter(self._curve(rates))
+        monkeypatch.setattr(
+            selector_scale, "_selection_rate", lambda **kwargs: dict(next(calls))
+        )
+
+        result = selector_scale._calibrate(
+            n=1000,
+            k_grid=[10, 20],
+            max_trim=3,
+            rho=-1.0,
+            critical_grid=[3.0, 4.0, 5.0, 6.0],
+            target=0.95,
+            trials=1,
+            seed_start=0,
+        )
+        assert not result["target_met"]
+        # The best available, not the largest searched.
+        assert result["calibrated_critical"] == 5.0
+        assert result["calibrated_acceptance"] == 0.91
+
+    def test_each_rho_is_calibrated_separately(self) -> None:
+        """Scenarios sharing a rho share a cutoff; differing rhos do not."""
+        rhos = {
+            key: SCENARIOS[key].rho_used
+            for key in ("pareto", "hall_rho_half", "burr_rho_half", "burr_rho_quarter")
+        }
+        assert rhos["hall_rho_half"] == rhos["burr_rho_half"]
+        assert rhos["pareto"] != rhos["burr_rho_quarter"]
+        assert len(set(rhos.values())) == 3
