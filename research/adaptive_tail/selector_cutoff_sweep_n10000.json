@@ -3,7 +3,7 @@
     "heavytails_version": "0.5.0",
     "heavytails_version_source": "pyproject.toml",
     "version_source": "pyproject.toml",
-    "git_commit": null,
+    "git_commit": "5c51b44cf9f68b4c9d41652a92e046d3fb8dfa3d",
     "python_version": "3.13.5",
     "numpy_version": "2.5.2"
   },
@@ -157,5 +157,5 @@
       "fold_acceptance_rate_given_success": 0.9375
     }
   ],
-  "finding": "No cutoff reaches the target while the compatibility test is still testing anything. Joint acceptance equals the square of the per-fold rate throughout, so the folds are independent and cross-fitting squares the miss probability: joint 0.95 needs per-fold 0.975. The cutoffs that deliver it accept 9.8 of 10 thresholds on average, and by critical=6 the whole grid every time. Retuning the constant cannot fix this; the hard stable-prefix rule is what wants redesigning."
+  "finding": "The original cutoff is severely under-calibrated for the cross-fit geometry: c around 4 to 5 is required for nominal clean-Pareto joint acceptance, against the heuristic sqrt(2 log M). Whether that calibration leaves useful power against second-order alternatives is a separate question, measured in the power study."
 }

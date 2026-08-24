@@ -29,19 +29,35 @@ def _git_commit(repo_root: Path) -> str | None:
         else:
             git_dir = git_entry
 
+        # A linked worktree has its own HEAD but shares refs with the
+        # repository it was created from, which it names in `commondir`.
+        # Looking only in the worktree's git directory finds the HEAD and then
+        # no ref, and the whole helper returns None -- which is how two result
+        # files came to be written with `"git_commit": null` while sitting in
+        # a perfectly ordinary checkout.
+        common_dir = git_dir
+        commondir_file = git_dir / "commondir"
+        if commondir_file.is_file():
+            common_dir = (
+                git_dir / commondir_file.read_text(encoding="utf-8").strip()
+            ).resolve()
+
         head = git_dir / "HEAD"
         content = head.read_text(encoding="utf-8").strip()
         if not content.startswith("ref:"):
             return content or None
         ref = content.removeprefix("ref:").strip()
-        ref_file = git_dir / ref
-        if ref_file.is_file():
-            return ref_file.read_text(encoding="utf-8").strip() or None
-        packed = git_dir / "packed-refs"
-        if packed.is_file():
-            for line in packed.read_text(encoding="utf-8").splitlines():
-                if line.endswith(f" {ref}"):
-                    return line.split()[0]
+
+        for directory in (git_dir, common_dir):
+            ref_file = directory / ref
+            if ref_file.is_file():
+                return ref_file.read_text(encoding="utf-8").strip() or None
+        for directory in (git_dir, common_dir):
+            packed = directory / "packed-refs"
+            if packed.is_file():
+                for line in packed.read_text(encoding="utf-8").splitlines():
+                    if line.endswith(f" {ref}"):
+                        return line.split()[0]
     except OSError:
         return None
     return None
