@@ -30,19 +30,8 @@ except (
     ) from _exc
 
 from heavytails import (
-    BetaPrime,
-    BurrXII,
-    Cauchy,
-    Frechet,
-    GeneralizedPareto,
-    GEV_Frechet,
-    InverseGamma,
-    LogLogistic,
-    LogNormal,
-    Pareto,
-    StudentT,
-    Weibull,
     __version__,
+    registry,
 )
 from heavytails.roadmap import fit_mle, model_comparison
 from heavytails.tail_index import hill_estimator, moment_estimator, pickands_estimator
@@ -80,19 +69,11 @@ def _root(
 
 
 # Distribution mapping
-DISTRIBUTIONS = {
-    "pareto": Pareto,
-    "cauchy": Cauchy,
-    "student-t": StudentT,
-    "lognormal": LogNormal,
-    "weibull": Weibull,
-    "frechet": Frechet,
-    "gev": GEV_Frechet,
-    "gpd": GeneralizedPareto,
-    "burr": BurrXII,
-    "loglogistic": LogLogistic,
-    "invgamma": InverseGamma,
-    "betaprime": BetaPrime,
+# Built from the registry, so adding a family there adds it here. The keys the
+# CLI has always accepted -- "student-t", "gpd", "gev" and the rest -- are
+# registry aliases now, which is why they still work.
+DISTRIBUTIONS: dict[str, type] = {
+    name: family.cls for family in registry.families() for name in family.all_names()
 }
 
 

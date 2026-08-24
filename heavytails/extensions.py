@@ -161,7 +161,7 @@ class StudentTCopula(HeavyTailCopula):
         if product_univariate == 0:
             return 0.0
 
-        return multivariate_t_density / product_univariate
+        return float(multivariate_t_density / product_univariate)
 
     def cdf(self, u: list[float]) -> float:
         """
@@ -296,7 +296,7 @@ class ExtremeValueCopula(HeavyTailCopula):
             term = u_val ** (-self.theta) + v_val ** (-self.theta) - 1
             if term <= 0:
                 return 0.0
-            return term ** (-1.0 / self.theta)
+            return float(term ** (-1.0 / self.theta))
 
         elif self.copula_type == "frank":
             # C(u,v) = -1/θ * ln(1 + (e^(-θu)-1)(e^(-θv)-1)/(e^(-θ)-1))
@@ -348,7 +348,7 @@ class ExtremeValueCopula(HeavyTailCopula):
             term3 = A**theta + theta - 1
 
             pdf_val = C * term1 * term2 * term3 / (u_val * v_val)
-            return pdf_val
+            return float(pdf_val)
 
         elif self.copula_type == "clayton":
             # PDF for Clayton copula (derived from CDF)
@@ -364,7 +364,7 @@ class ExtremeValueCopula(HeavyTailCopula):
                 * (u_val * v_val) ** (-1 - theta)
                 * sum_term ** (-1.0 / theta - 2)
             )
-            return pdf_val
+            return float(pdf_val)
 
         elif self.copula_type == "frank":
             # PDF for Frank copula (derived from CDF)
@@ -389,7 +389,7 @@ class ExtremeValueCopula(HeavyTailCopula):
                 return 0.0
 
             pdf_val = numerator / denominator
-            return pdf_val
+            return float(pdf_val)
 
         else:
             raise ValueError(f"Unknown copula type: {self.copula_type}")
