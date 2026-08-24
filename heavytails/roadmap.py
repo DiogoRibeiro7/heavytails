@@ -559,7 +559,7 @@ def _calculate_log_likelihood(
     data: list[float], distribution: str, params: dict[str, float]
 ) -> float:
     """Calculate log-likelihood for a fitted distribution."""
-    import heavytails  # noqa: PLC0415
+    from heavytails import registry  # noqa: PLC0415
 
     try:
         # Map distribution names to class names
@@ -581,7 +581,7 @@ def _calculate_log_likelihood(
         class_name = dist_name_map.get(dist_lower, distribution.title())
 
         # Get distribution class
-        dist_class = getattr(heavytails, class_name)
+        dist_class = registry.resolve(class_name)
 
         # Create distribution instance
         dist = dist_class(**params)

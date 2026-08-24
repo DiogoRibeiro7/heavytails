@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `heavytails.registry`: one place mapping a name to a distribution (#383).
+  Names resolved in at least four ways before — a table in `cli.py`,
+  `getattr(heavytails, name)` in `performance.py` and `roadmap.py`, and if/elif
+  chains in `validation.py` and `utilities.py`, the chain repeated five times
+  in `validation.py` alone. They disagreed: the CLI took `student-t` and `gpd`,
+  the chains took `studentt` and had no entry for the generalized Pareto,
+  `getattr` took only the class name. Every name any of them accepted is a
+  registry alias, so nothing that worked stops working, and the CLI's table is
+  now a view of the registry rather than a second list.
+
+### Changed
+
+- `heavytails.performance`, `extensions`, `utilities` and `validation` are
+  type-checked (#384). Their `ignore_errors` suppressions are gone. Most of the
+  47 errors were the lookup chains rebinding one variable to five distribution
+  types; the registry removed those, and the rest were missing annotations.
+- `PerformanceBenchmarks.benchmark_sampling` declares
+  `dict[int, dict[str, Any]]`. It returns one entry per sample size, keyed by
+  that size, and previously claimed `dict[str, Any]`.
+
 ### Removed
 
 **The 59 shipped functions that raised `NotImplementedError`** (#312). A module
