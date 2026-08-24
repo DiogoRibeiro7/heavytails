@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 import statistics
 
 import pytest
 from research.adaptive_tail import clean_pareto_decomposition as decomposition
 from research.adaptive_tail import oracle_experiment as experiment
 from research.adaptive_tail import selector_diagnostics
+from scripts._provenance import _git_commit
 
 from heavytails import Pareto
 from heavytails.tail_index import (
@@ -388,3 +390,59 @@ def test_calibration_counts_every_trial_in_the_denominator() -> None:
     conditional = row["fold_acceptance_rate_given_success"]
     if conditional is not None and row["fold_failure_rate"] > 0.0:
         assert conditional >= row["joint_acceptance_rate"]
+
+
+class TestProvenanceInALinkedWorktree:
+    """A linked worktree keeps its own HEAD and shares refs with its origin.
+
+    Two result files were written with ``"git_commit": null`` from an ordinary
+    checkout because of this: the helper resolved the worktree's git directory,
+    found HEAD naming ``refs/heads/...``, looked for that ref beside it, and
+    gave up. The ref lives in the repository named by ``commondir``.
+    """
+
+    def _worktree(self, tmp_path, ref: str, sha: str, *, packed: bool):
+        common = tmp_path / "main" / ".git"
+        (common / "refs" / "heads").mkdir(parents=True)
+        linked = common / "worktrees" / "wt"
+        linked.mkdir(parents=True)
+        (linked / "HEAD").write_text(f"ref: {ref}\n", encoding="utf-8")
+        # Relative, exactly as git writes it.
+        (linked / "commondir").write_text("../..\n", encoding="utf-8")
+        if packed:
+            (common / "packed-refs").write_text(
+                f"# pack-refs with: peeled\n{sha} {ref}\n", encoding="utf-8"
+            )
+        else:
+            (common / ref).write_text(f"{sha}\n", encoding="utf-8")
+        root = tmp_path / "checkout"
+        root.mkdir()
+        (root / ".git").write_text(f"gitdir: {linked}\n", encoding="utf-8")
+        return root
+
+    def test_the_loose_ref_is_found_in_the_common_directory(self, tmp_path) -> None:
+        sha = "a" * 40
+        root = self._worktree(tmp_path, "refs/heads/topic", sha, packed=False)
+        assert _git_commit(root) == sha
+
+    def test_the_packed_ref_is_found_in_the_common_directory(self, tmp_path) -> None:
+        sha = "b" * 40
+        root = self._worktree(tmp_path, "refs/heads/topic", sha, packed=True)
+        assert _git_commit(root) == sha
+
+    def test_a_detached_head_still_reports_its_commit(self, tmp_path) -> None:
+        root = tmp_path / "checkout"
+        root.mkdir()
+        git_dir = tmp_path / "gitdir"
+        git_dir.mkdir()
+        sha = "c" * 40
+        (git_dir / "HEAD").write_text(f"{sha}\n", encoding="utf-8")
+        (root / ".git").write_text(f"gitdir: {git_dir}\n", encoding="utf-8")
+        assert _git_commit(root) == sha
+
+    def test_this_very_checkout_reports_a_commit(self) -> None:
+        """Whether or not the suite is being run from a linked worktree."""
+        commit = _git_commit(Path(__file__).resolve().parents[1])
+        assert commit is not None, "provenance would be written as null"
+        assert len(commit) == 40
+        assert all(c in "0123456789abcdef" for c in commit)

@@ -3,7 +3,7 @@
     "heavytails_version": "0.5.0",
     "heavytails_version_source": "pyproject.toml",
     "version_source": "pyproject.toml",
-    "git_commit": null,
+    "git_commit": "5c51b44cf9f68b4c9d41652a92e046d3fb8dfa3d",
     "python_version": "3.13.5",
     "numpy_version": "2.5.2"
   },
