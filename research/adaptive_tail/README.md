@@ -184,12 +184,15 @@ trims, weights and failure stages.
 **The original compatibility cutoff is severely under-calibrated for the
 cross-fit geometry: `c` of roughly 4 to 5 is needed for nominal clean-Pareto
 joint acceptance, against the heuristic `sqrt(2 log M)` of about 2.15 at
-M = 10.** Once calibrated the rule keeps real discriminating power against
-second-order bias — but that power does not improve the estimate.
+M = 10. The calibrated selector has genuine discrimination, but at n = 10,000
+that discrimination does not improve squared-error risk** — in three of four
+scenarios it measurably worsens it, and in the fourth it is indistinguishable
+from taking every threshold.
 
 Artifacts: `selector_calibration_n10000.json`,
-`selector_cutoff_sweep_n10000.json`, `selector_power_n10000.json` and
-`selector_power_noselection_n10000.json`.
+`selector_cutoff_sweep_n10000.json`, `selector_power_n10000.json`,
+`selector_power_noselection_n10000.json` and `selector_closure_n10000.json`
+(matched null sizes across ρ, and paired loss differences).
 
 ### The null curve
 
@@ -240,9 +243,18 @@ Measured at r = 0, 200 trials per cell. `p10 frac` is the tenth percentile of
 | burr ρ=-1/4 | 5.0 | 0.765 | 0.711 | 0.2059 | -0.117 |
 
 **The rule has power.** At `c = 4`, Pareto accepts the full grid 95% of the
-time and Burr with ρ = -1/4 only 62%, and the bottom decile of those Burr runs
-cuts the grid to a third of its span while Pareto's stays at 1. That is exactly
-the intended behaviour, and it survives calibration.
+time and Burr with ρ = -1/4 only 62%. Taking the shallower of the two folds per
+replication, the bottom decile of Burr runs cuts the grid to **0.259** of its
+span while Pareto's stays at 1. (The `p10 frac` column above pools the folds
+and reads 0.362; the run-level figure is the one to quote about a
+*replication*.) That is the intended behaviour, and it survives calibration.
+
+**And it is the law, not the tuning.** Each scenario carries its own
+`rho_used`, so Pareto at ρ = -1 against Burr at ρ = -1/4 moves the law and the
+weights together. Running exact Pareto at each ρ separates them: at `c = 4`,
+null acceptance is 0.943 at ρ = -1, 0.912 at ρ = -1/2 and 0.927 at ρ = -1/4. So
+of the gap down to Burr's 0.615, the tuning accounts for **0.015** and the law
+for **0.312**.
 
 ### But the power does not buy accuracy
 
@@ -256,19 +268,39 @@ accepted):
 | burr ρ=-1/2 | 0.0928 | 0.0828 | 0.0791 | **0.0789** |
 | burr ρ=-1/4 | 0.2198 | **0.2059** | 0.2078 | 0.2080 |
 
-RMSE falls monotonically as the cutoff loosens, and no cutoff beats no
-selection by more than Monte Carlo noise. The one apparent win — Burr ρ = -1/4
-at `c = 5`, 0.2059 against 0.2080 — is a difference of 0.002 where the standard
-error of an RMSE from 200 trials is about 0.007.
+For Pareto, Hall and Burr ρ = -1/2, RMSE falls towards the no-selection
+benchmark as the cutoff is relaxed. Burr ρ = -1/4 is **not** monotone: it has a
+shallow minimum at `c = 5`, 0.2059 against 0.2080 with no selection.
+
+That 0.002 cannot be judged against the standard error of an RMSE, because
+every cutoff is evaluated on the same seeds and the comparison is paired. The
+right quantity is the per-replication loss difference, and with 400 trials and
+a paired bootstrap it comes out sharper than the marginal reading suggested:
+
+| scenario | c | ΔMSE vs no selection | 95% CI | |
+| --- | --- | --- | --- | --- |
+| pareto | 4 | +0.00107 | [+0.00039, +0.00189] | selection **hurts** |
+| pareto | 5 | +0.00055 | [+0.00002, +0.00131] | hurts |
+| hall ρ=-1/2 | 4 | +0.00107 | [+0.00040, +0.00186] | hurts |
+| hall ρ=-1/2 | 5 | +0.00055 | [+0.00013, +0.00110] | hurts |
+| burr ρ=-1/2 | 4 | +0.00176 | [+0.00075, +0.00284] | hurts |
+| burr ρ=-1/2 | 5 | +0.00082 | [+0.00023, +0.00152] | hurts |
+| burr ρ=-1/4 | 4 | -0.00113 | [-0.00536, +0.00328] | indistinguishable |
+| burr ρ=-1/4 | 5 | -0.00056 | [-0.00386, +0.00301] | indistinguishable |
+
+In three of the four scenarios the interval excludes zero on the wrong side:
+selection is measurably *worse* than taking every threshold. In the fourth --
+the alternative it detects best -- the point estimate favours selection and the
+interval contains zero comfortably.
 
 Bias tells the same story. Cutting the grid short on Burr ρ = -1/4 at `c = 4`
 removes about 0.004 of bias (-0.112 against -0.117 at `c = 5`) and costs enough
 variance to raise RMSE by 0.014.
 
 So the rejections the rule makes are correct rejections — it really is finding
-the biased configurations — and they still cost more in variance than the bias
-they avoid. The same ordering holds under contamination: at r = 1, Δ = 10 on
-Pareto, RMSE runs 0.147, 0.112, 0.107 across `c` = 4, 4.5, 5.
+the biased configurations — and they still do not pay for themselves. The same
+ordering holds under contamination: at r = 1, Δ = 10 on Pareto, RMSE runs
+0.147, 0.112, 0.107 across `c` = 4, 4.5, 5.
 
 ### What this does and does not establish
 
@@ -277,10 +309,11 @@ a calibrated constant exists; and at n = 10,000 the calibrated rule retains
 genuine discrimination against second-order bias.
 
 Not established: that threshold-compatibility selection is worthless in
-general. This is one sample size, one estimator, four scenarios, and RMSE of
-the threshold-averaged estimate as the criterion. A rule that discriminates
-without improving RMSE may still be worth having where the loss is not squared
-error, and larger n or stronger second-order bias may change the balance.
+general. This is one sample size, one estimator, four scenarios, and squared
+error of the threshold-averaged estimate as the criterion. A rule that
+discriminates without improving squared-error risk may still be worth having
+under a different loss, and larger n or stronger second-order bias may change
+the balance.
 
 What it does argue is that **no redesign should be judged by null acceptance or
 by discrimination alone.** A soft or tolerant prefix will look better on both

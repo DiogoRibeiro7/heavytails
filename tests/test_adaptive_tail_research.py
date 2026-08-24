@@ -9,7 +9,11 @@ import statistics
 import pytest
 from research.adaptive_tail import clean_pareto_decomposition as decomposition
 from research.adaptive_tail import oracle_experiment as experiment
-from research.adaptive_tail import selector_diagnostics, selector_power
+from research.adaptive_tail import (
+    selector_closure,
+    selector_diagnostics,
+    selector_power,
+)
 from scripts._provenance import _git_commit
 
 from heavytails import Pareto
@@ -493,3 +497,85 @@ def test_contamination_is_planted_before_the_split() -> None:
     assert sorted(contaminated, reverse=True)[:2] == [50.0, 40.0]
     assert sorted(contaminated)[:3] == [1.0, 2.0, 3.0]
     assert selector_power._contaminate(sample, 0, 10.0) == sample
+
+
+def test_the_paired_difference_is_paired_by_seed() -> None:
+    """A cutoff comparison run on the same seeds is a paired comparison.
+
+    Judging it against the standard error of either RMSE ignores that the two
+    estimates are highly correlated, and overstates the uncertainty of their
+    difference by a large factor. Replications where either side failed are
+    dropped from both, so the difference is over a common set.
+    """
+    treatment = [
+        {"seed": 1, "squared_error": 0.10},
+        {"seed": 2, "squared_error": 0.20},
+        {"seed": 3, "squared_error": None},
+        {"seed": 4, "squared_error": 0.40},
+    ]
+    reference = [
+        {"seed": 1, "squared_error": 0.05},
+        {"seed": 2, "squared_error": 0.30},
+        {"seed": 3, "squared_error": 0.10},
+        {"seed": 5, "squared_error": 0.90},
+    ]
+
+    result = selector_closure._paired_difference(
+        treatment, reference, draws=200, seed=3
+    )
+    assert result is not None
+    # Seed 3 dropped (treatment failed), seed 4 and 5 unmatched.
+    assert result["paired_replications"] == 2
+    assert result["mean_mse_difference"] == pytest.approx(
+        ((0.10 - 0.05) + (0.20 - 0.30)) / 2
+    )
+    assert result["bootstrap_lower"] <= result["mean_mse_difference"]
+    assert result["mean_mse_difference"] <= result["bootstrap_upper"]
+
+
+def test_a_cutoff_compared_with_itself_shows_no_difference() -> None:
+    """The reference against itself must be exactly zero, interval included."""
+    rows = [{"seed": s, "squared_error": 0.1 * s} for s in range(1, 12)]
+    result = selector_closure._paired_difference(rows, rows, draws=200, seed=5)
+    assert result is not None
+    assert result["mean_mse_difference"] == 0.0
+    assert result["bootstrap_lower"] == 0.0
+    assert result["bootstrap_upper"] == 0.0
+    assert result["interval_contains_zero"]
+    assert not result["favours_selection"]
+
+
+def test_the_rho_used_for_the_weights_can_be_overridden() -> None:
+    """Null size has to be matchable on the tuning, not just the law.
+
+    Each scenario carries its own ``rho_used``, so comparing Pareto against
+    Burr moves the law and the orthogonalized weights together. Separating
+    them is what makes the power claim about the law.
+    """
+    default = selector_power._cell(
+        scenario_key="pareto",
+        n=400,
+        k_grid=[10, 20, 40],
+        max_trim=3,
+        critical=4.0,
+        contamination=0,
+        delta=0.0,
+        trials=3,
+        seed_start=82_000,
+    )
+    overridden = selector_power._cell(
+        scenario_key="pareto",
+        n=400,
+        k_grid=[10, 20, 40],
+        max_trim=3,
+        critical=4.0,
+        contamination=0,
+        delta=0.0,
+        trials=3,
+        seed_start=82_000,
+        rho_used=-0.25,
+    )
+    assert default["rho_used"] == -1.0
+    assert default["rho_used_is_scenario_default"]
+    assert overridden["rho_used"] == -0.25
+    assert not overridden["rho_used_is_scenario_default"]

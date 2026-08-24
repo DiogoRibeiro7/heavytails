@@ -80,15 +80,25 @@ def _cell(
     delta: float,
     trials: int,
     seed_start: int,
+    rho_used: float | None = None,
 ) -> dict[str, Any]:
     scenario = SCENARIOS[scenario_key]
     max_k = k_grid[-1]
+    # Each scenario carries its own rho_used, so comparing Pareto against Burr
+    # changes the law *and* the tuning the orthogonalized weights are built
+    # from. Overriding it is how the null size gets matched on the geometry.
+    rho = scenario.rho_used if rho_used is None else rho_used
 
     fractions: list[float] = []
+    run_fractions: list[float] = []
     accepted_full = 0
     both_succeeded = 0
     errors: list[float] = []
     failures = 0
+    # Per replication, so cutoffs evaluated on the same seeds can be compared
+    # as paired losses. They are highly correlated, and the uncertainty of the
+    # difference is much smaller than the uncertainty of either RMSE.
+    replications: list[dict[str, Any]] = []
 
     for offset in range(trials):
         seed = seed_start + offset
@@ -99,7 +109,7 @@ def _cell(
             k=max_k,
             min_k=k_grid[0],
             grid_size=len(k_grid),
-            rho=scenario.rho_used,
+            rho=rho,
             max_trim=max_trim,
             critical=critical,
             seed=None,
@@ -110,17 +120,28 @@ def _cell(
             continue
         both_succeeded += 1
 
-        # How far up its own grid each fold's stable set reached.
-        for fold in succeeded:
-            stable = fold["training_stable_thresholds"]
-            fractions.append(stable[-1] / fold["split_k"] if stable else 0.0)
-        accepted_full += int(
+        # How far up its own grid each fold's stable set reached. Pooled
+        # across folds for the fold-level view, and reduced to the shallower
+        # of the two for a statement about the replication itself.
+        per_fold = [
+            (
+                fold["training_stable_thresholds"][-1] / fold["split_k"]
+                if fold["training_stable_thresholds"]
+                else 0.0
+            )
+            for fold in succeeded
+        ]
+        fractions.extend(per_fold)
+        run_fraction = min(per_fold)
+        run_fractions.append(run_fraction)
+        full = int(
             all(
                 fold["training_stable_thresholds"]
                 and fold["training_stable_thresholds"][-1] == fold["split_k"]
                 for fold in succeeded
             )
         )
+        accepted_full += full
 
         try:
             gamma = threshold_averaged_orthogonalized_hill_estimator(
@@ -128,7 +149,7 @@ def _cell(
                 max_k,
                 min_k=k_grid[0],
                 grid_size=len(k_grid),
-                rho=scenario.rho_used,
+                rho=rho,
                 adaptive_trim=True,
                 max_trim=max_trim,
                 critical=critical,
@@ -137,8 +158,20 @@ def _cell(
             )
         except ValueError:
             failures += 1
+            replications.append(
+                {"seed": seed, "squared_error": None, "run_fraction": run_fraction}
+            )
             continue
-        errors.append(gamma - scenario.gamma)
+        error = gamma - scenario.gamma
+        errors.append(error)
+        replications.append(
+            {
+                "seed": seed,
+                "squared_error": error * error,
+                "run_fraction": run_fraction,
+                "accepted_full": bool(full),
+            }
+        )
 
     def summary(values: list[float]) -> dict[str, float] | None:
         if not values:
@@ -157,7 +190,8 @@ def _cell(
         "label": scenario.label,
         "gamma": scenario.gamma,
         "rho_true": scenario.rho_true,
-        "rho_used": scenario.rho_used,
+        "rho_used": rho,
+        "rho_used_is_scenario_default": rho_used is None,
         "critical": critical,
         "contamination_count": contamination,
         "delta": delta if contamination else None,
@@ -165,9 +199,13 @@ def _cell(
         "failure_rate": failures / trials,
         "joint_full_acceptance_rate": accepted_full / trials,
         "both_folds_succeeded_rate": both_succeeded / trials,
-        # The diagnostic: where the stable set stopped, as a fraction of the
-        # fold's own top threshold.
+        # Where the stable set stopped, as a fraction of the fold's own top
+        # threshold. `stable_fraction` pools the folds; `run_stable_fraction`
+        # takes the shallower of the two, so a statement about it is a
+        # statement about the replication rather than about a fold.
         "stable_fraction": summary(fractions),
+        "run_stable_fraction": summary(run_fractions),
+        "replications": replications,
         "bias": statistics.fmean(errors) if errors else None,
         "rmse": math.sqrt(statistics.fmean([e * e for e in errors]))
         if errors
