@@ -1,0 +1,420 @@
+{
+  "provenance": {
+    "heavytails_version": "0.5.0",
+    "heavytails_version_source": "pyproject.toml",
+    "version_source": "pyproject.toml",
+    "git_commit": "7accab7b5c8fa4862fbe03371b20578a532e46b0",
+    "python_version": "3.13.5",
+    "numpy_version": "2.5.2"
+  },
+  "purpose": "Power of the calibrated compatibility rule. High acceptance under exact Pareto is correct type-I behaviour, since the best threshold there is the largest one; what decides whether the rule is useful is whether it still cuts the grid short under second-order bias.",
+  "configuration": {
+    "n": 10000,
+    "k_grid": [
+      22,
+      31,
+      43,
+      61,
+      85,
+      120,
+      168,
+      236,
+      331,
+      464
+    ],
+    "requested_max_trim": 8,
+    "admissible_max_trim": 8,
+    "critical_grid": [
+      4.0,
+      5.0,
+      6.0,
+      100.0
+    ],
+    "scenarios": [
+      "pareto",
+      "hall_rho_half",
+      "burr_rho_half",
+      "burr_rho_quarter"
+    ],
+    "contamination_counts": [
+      0
+    ],
+    "deltas": [
+      2.0,
+      10.0
+    ],
+    "trials_per_cell": 200,
+    "seed_start": 70000,
+    "crossfit_seed": "None, matching the production estimator default"
+  },
+  "cells": [
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "critical": 4.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.95,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9746012931034482,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.9725
+      },
+      "bias": -0.0030777476381625025,
+      "rmse": 0.06264266358604463
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 4.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.94,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9721336206896553,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.9675
+      },
+      "bias": -0.00782651898508122,
+      "rmse": 0.07808624401131724
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 4.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.875,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9452047413793103,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.935
+      },
+      "bias": -0.011310447592953354,
+      "rmse": 0.09284463726936111
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "critical": 4.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.615,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.8779849137931035,
+        "median": 1.0,
+        "p10": 0.3620689655172414,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.785
+      },
+      "bias": -0.11206924354843528,
+      "rmse": 0.2197785087000747
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "critical": 5.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.995,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9976616379310345,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.9975
+      },
+      "bias": 0.00012955181519507225,
+      "rmse": 0.04850776305090903
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 5.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.98,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9915732758620689,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.99
+      },
+      "bias": -0.006285420014557056,
+      "rmse": 0.0711865505560703
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 5.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.95,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9790086206896552,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.975
+      },
+      "bias": -0.01040536990038076,
+      "rmse": 0.08284156457307323
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "critical": 5.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.765,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9436745689655173,
+        "median": 1.0,
+        "p10": 0.7112068965517241,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.8775
+      },
+      "bias": -0.11648256559322123,
+      "rmse": 0.2058771514539077
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "critical": 6.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.995,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9976616379310345,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.9975
+      },
+      "bias": 0.00012955181519507225,
+      "rmse": 0.04850776305090903
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 6.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.995,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9979633620689655,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.9975
+      },
+      "bias": -0.00428257092736474,
+      "rmse": 0.06789668283117105
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 6.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.985,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9943318965517242,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.9925
+      },
+      "bias": -0.007903169368636682,
+      "rmse": 0.07908628227217776
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "critical": 6.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 0.87,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 0.9759375,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.935
+      },
+      "bias": -0.1203013142351113,
+      "rmse": 0.207799851628862
+    },
+    {
+      "scenario": "pareto",
+      "label": "Exact Pareto(alpha=2), rho_used=-1",
+      "gamma": 0.5,
+      "rho_true": null,
+      "rho_used": -1.0,
+      "critical": 100.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 1.0,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 1.0,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 1.0
+      },
+      "bias": 0.0008996163415727565,
+      "rmse": 0.047383421758484194
+    },
+    {
+      "scenario": "hall_rho_half",
+      "label": "Hall(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 100.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 1.0,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 1.0,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 1.0
+      },
+      "bias": -0.004373975403504707,
+      "rmse": 0.06793955497657239
+    },
+    {
+      "scenario": "burr_rho_half",
+      "label": "BurrXII(gamma=0.5,rho=-0.5)",
+      "gamma": 0.5,
+      "rho_true": -0.5,
+      "rho_used": -0.5,
+      "critical": 100.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 1.0,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 1.0,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 1.0
+      },
+      "bias": -0.007755090362223721,
+      "rmse": 0.07893650469622845
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "label": "BurrXII(gamma=0.5,rho=-0.25)",
+      "gamma": 0.5,
+      "rho_true": -0.25,
+      "rho_used": -0.25,
+      "critical": 100.0,
+      "contamination_count": 0,
+      "delta": null,
+      "trials": 200,
+      "failure_rate": 0.0,
+      "joint_full_acceptance_rate": 1.0,
+      "both_folds_succeeded_rate": 1.0,
+      "stable_fraction": {
+        "mean": 1.0,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 1.0
+      },
+      "bias": -0.12343417893460637,
+      "rmse": 0.20796971624599367
+    }
+  ]
+}

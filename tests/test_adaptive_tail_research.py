@@ -9,7 +9,7 @@ import statistics
 import pytest
 from research.adaptive_tail import clean_pareto_decomposition as decomposition
 from research.adaptive_tail import oracle_experiment as experiment
-from research.adaptive_tail import selector_diagnostics
+from research.adaptive_tail import selector_diagnostics, selector_power
 from scripts._provenance import _git_commit
 
 from heavytails import Pareto
@@ -446,3 +446,50 @@ class TestProvenanceInALinkedWorktree:
         assert commit is not None, "provenance would be written as null"
         assert len(commit) == 40
         assert all(c in "0123456789abcdef" for c in commit)
+
+
+def test_selector_power_report_is_jsonable_and_separates_null_from_alternative() -> (
+    None
+):
+    """The power study must record the diagnostic the calibration cannot.
+
+    Null acceptance alone says nothing about whether the rule discriminates,
+    because under exact Pareto the best threshold is the largest one and a
+    correctly sized test should accept the whole grid. What distinguishes a
+    working rule from a disabled one is the stable-set fraction under an
+    alternative, so the report has to carry it.
+    """
+    report = selector_power.build_report(
+        n=400,
+        critical_grid=[4.0],
+        scenarios=["pareto", "burr_rho_quarter"],
+        contaminations=[0],
+        deltas=[2.0],
+        trials=4,
+        seed_start=81_000,
+        max_trim=3,
+    )
+    json.dumps(report, allow_nan=False)
+
+    assert report["provenance"]["git_commit"] is not None
+    assert len(report["cells"]) == 2
+    for cell in report["cells"]:
+        assert 0.0 <= cell["joint_full_acceptance_rate"] <= 1.0
+        fraction = cell["stable_fraction"]
+        assert fraction is not None
+        # A fraction of the fold's own top threshold, so bounded by one.
+        assert 0.0 <= fraction["p10"] <= fraction["median"] <= 1.0
+        assert cell["rmse"] is None or cell["rmse"] >= 0.0
+
+
+def test_contamination_is_planted_before_the_split() -> None:
+    """On the largest observations, so the folds share it dependently.
+
+    That is why the clean-data identity joint = per-fold squared must not be
+    carried over to contaminated samples.
+    """
+    sample = [1.0, 5.0, 2.0, 4.0, 3.0]
+    contaminated = selector_power._contaminate(sample, 2, 10.0)
+    assert sorted(contaminated, reverse=True)[:2] == [50.0, 40.0]
+    assert sorted(contaminated)[:3] == [1.0, 2.0, 3.0]
+    assert selector_power._contaminate(sample, 0, 10.0) == sample
