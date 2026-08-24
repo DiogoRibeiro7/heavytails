@@ -179,58 +179,111 @@ evaluates the selected cutoff on held-out seeds, and records cross-fit fold
 traces with training thresholds, per-threshold trims, stable sets, evaluation
 trims, weights and failure stages.
 
-## Selector calibration result (n = 10,000, clean Pareto)
+## Selector calibration and power (n = 10,000)
 
-**No compatibility cutoff reaches 95% joint acceptance while the compatibility
-test is still testing anything.** Retuning the constant cannot fix this.
+**The original compatibility cutoff is severely under-calibrated for the
+cross-fit geometry: `c` of roughly 4 to 5 is needed for nominal clean-Pareto
+joint acceptance, against the heuristic `sqrt(2 log M)` of about 2.15 at
+M = 10.** Once calibrated the rule keeps real discriminating power against
+second-order bias — but that power does not improve the estimate.
+
+Artifacts: `selector_calibration_n10000.json`,
+`selector_cutoff_sweep_n10000.json`, `selector_power_n10000.json` and
+`selector_power_noselection_n10000.json`.
+
+### The null curve
 
 The calibrated quantity is the one production depends on: both cross-fit folds
-succeed *and* both reach their own scaled top threshold, with every trial in
-the denominator. `selector_diagnostics.py` writes
-`selector_calibration_n10000.json`; the cutoff sweep below is
-`selector_cutoff_sweep_n10000.json`.
+succeed *and* both reach their own scaled top threshold, every trial in the
+denominator.
 
 | critical | joint | per-fold | per-fold² | stable set / 10 |
 | --- | --- | --- | --- | --- |
-| 1.0 | 0.010 | 0.077 | 0.006 | 3.9 |
 | 2.0 | 0.530 | 0.738 | 0.545 | 8.4 |
 | 3.0 | 0.820 | 0.910 | 0.828 | 9.4 |
-| 3.5 | 0.905 | 0.953 | 0.907 | 9.7 |
 | 4.0 | 0.940 | 0.970 | 0.941 | 9.8 |
 | 5.0 | 0.990 | 0.995 | 0.990 | 10.0 |
-| 6.0 | 1.000 | 1.000 | 1.000 | **10.0** |
 
-Three things follow.
+Joint acceptance is the square of the per-fold rate throughout. That is what
+theory predicts and is best read as a validation check: the split is
+value-independent and the folds hold disjoint independent observations, so
+`P(A1 ∩ A2) ≈ p²` on clean IID data. It does still impose a real cost —
+joint 0.95 needs per-fold 0.975 — and it is the reason the full-sample
+calibration was measuring an easier quantity. It should **not** be assumed to
+carry over to contaminated samples, where contamination planted before the
+split is shared between the folds dependently.
 
-**Joint acceptance is the square of the per-fold rate, everywhere.** 0.910² =
-0.828 against a measured 0.820; 0.970² = 0.941 against 0.940. The two fold
-selectors are effectively independent, so cross-fitting *squares* the
-probability of a premature stop. Reaching joint 0.95 requires per-fold 0.975 —
-a far stricter demand than the full-sample calibration in #380 was making, and
-the reason that calibration would have chosen a cutoff that does not deliver.
+Across five independent seed ranges at `c = 3`, joint acceptance runs 0.755 to
+0.890, so single-range figures at 200 trials are worth about ±0.05.
 
-**The cutoffs that reach the target have stopped selecting.** At `critical = 4`
-the stable set averages 9.8 of 10 thresholds; by `critical = 6` it is the whole
-grid on every trial. A compatibility test that accepts everything is not a test.
-So there is no constant that is both large enough to pass and small enough to
-mean something.
+### High null acceptance is not a loss of selectivity
 
-**The failure-conditioning correction did not bite here, and would elsewhere.**
-Fold failure rate is 0.000 at every cutoff on clean Pareto, so joint and
-conditional differ only through the joint requirement. The distinction matters
-under contamination, where failures are not rare.
+An earlier version of this section claimed that the cutoffs reaching the target
+"have stopped selecting", on the grounds that the stable set then averages 9.8
+of 10 thresholds. That inference is wrong. Under exact Pareto the best threshold
+**is** the largest one, so a correctly sized test *should* accept essentially
+the whole grid. Near-total null acceptance is type-I calibration. Only the power
+curve can say whether the rule still discriminates, and it was not measured.
 
-Across five independent seed ranges at `critical = 3`, joint acceptance runs
-0.755 to 0.890 — so single-range figures are worth about ±0.05, and the
-calibration-to-holdout drop in `selector_calibration_n10000.json` is seed-range
-variation rather than selection bias.
+### The power curve
 
-### What this argues for
+Measured at r = 0, 200 trials per cell. `p10 frac` is the tenth percentile of
+`K_final / k_max`, where `K_final` is the top of the stable set.
 
-Redesigning the rule, not its constant. The current rule requires a *hard stable
-prefix*: every threshold from the smallest up to the one being accepted must
-pass. One marginal threshold anywhere in the prefix truncates the whole set, and
-cross-fitting gives that failure two chances per estimate. Candidates worth
-considering: a soft or weighted stable set, a rule that tolerates isolated
-rejections inside the prefix, or accepting on the largest stable *interval*
-rather than the prefix.
+| scenario | c | full-grid | p10 frac | rmse | bias |
+| --- | --- | --- | --- | --- | --- |
+| pareto | 4.0 | 0.950 | 1.000 | 0.0626 | -0.003 |
+| hall ρ=-1/2 | 4.0 | 0.940 | 1.000 | 0.0781 | -0.008 |
+| burr ρ=-1/2 | 4.0 | 0.875 | 1.000 | 0.0928 | -0.011 |
+| **burr ρ=-1/4** | 4.0 | **0.615** | **0.362** | 0.2198 | -0.112 |
+| pareto | 5.0 | 0.995 | 1.000 | 0.0485 | 0.000 |
+| burr ρ=-1/4 | 5.0 | 0.765 | 0.711 | 0.2059 | -0.117 |
+
+**The rule has power.** At `c = 4`, Pareto accepts the full grid 95% of the
+time and Burr with ρ = -1/4 only 62%, and the bottom decile of those Burr runs
+cuts the grid to a third of its span while Pareto's stays at 1. That is exactly
+the intended behaviour, and it survives calibration.
+
+### But the power does not buy accuracy
+
+Against no compatibility selection at all (`c = 100`, the whole grid always
+accepted):
+
+| scenario | c=4 | c=5 | c=6 | no selection |
+| --- | --- | --- | --- | --- |
+| pareto | 0.0626 | 0.0485 | 0.0485 | **0.0474** |
+| hall ρ=-1/2 | 0.0781 | 0.0712 | 0.0679 | **0.0679** |
+| burr ρ=-1/2 | 0.0928 | 0.0828 | 0.0791 | **0.0789** |
+| burr ρ=-1/4 | 0.2198 | **0.2059** | 0.2078 | 0.2080 |
+
+RMSE falls monotonically as the cutoff loosens, and no cutoff beats no
+selection by more than Monte Carlo noise. The one apparent win — Burr ρ = -1/4
+at `c = 5`, 0.2059 against 0.2080 — is a difference of 0.002 where the standard
+error of an RMSE from 200 trials is about 0.007.
+
+Bias tells the same story. Cutting the grid short on Burr ρ = -1/4 at `c = 4`
+removes about 0.004 of bias (-0.112 against -0.117 at `c = 5`) and costs enough
+variance to raise RMSE by 0.014.
+
+So the rejections the rule makes are correct rejections — it really is finding
+the biased configurations — and they still cost more in variance than the bias
+they avoid. The same ordering holds under contamination: at r = 1, Δ = 10 on
+Pareto, RMSE runs 0.147, 0.112, 0.107 across `c` = 4, 4.5, 5.
+
+### What this does and does not establish
+
+Established: the heuristic constant is far too aggressive under cross-fitting;
+a calibrated constant exists; and at n = 10,000 the calibrated rule retains
+genuine discrimination against second-order bias.
+
+Not established: that threshold-compatibility selection is worthless in
+general. This is one sample size, one estimator, four scenarios, and RMSE of
+the threshold-averaged estimate as the criterion. A rule that discriminates
+without improving RMSE may still be worth having where the loss is not squared
+error, and larger n or stronger second-order bias may change the balance.
+
+What it does argue is that **no redesign should be judged by null acceptance or
+by discrimination alone.** A soft or tolerant prefix will look better on both
+while doing nothing for the estimate. Any candidate should be compared at
+matched clean-Pareto size, against no selection, on the error of the estimator
+it feeds.
