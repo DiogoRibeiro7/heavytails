@@ -132,14 +132,15 @@ class DataIO:
                                 continue
                 else:
                     # No header, read all rows and take first numerical value
-                    reader = csv.reader(csv_file)
+                    # A different reader type from the header branch above.
+                    plain_reader = csv.reader(csv_file)
                     data = []
-                    for row in reader:
+                    for fields in plain_reader:
                         # Skip empty rows
-                        if not row:
+                        if not fields:
                             continue
 
-                        for value in row:
+                        for value in fields:
                             if not value:  # Skip empty strings
                                 continue
                             try:
@@ -317,7 +318,7 @@ class DataIO:
         filepath = Path(filepath)
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
-        content = {"data": data}
+        content: dict[str, Any] = {"data": data}
         if metadata:
             content["metadata"] = metadata
 

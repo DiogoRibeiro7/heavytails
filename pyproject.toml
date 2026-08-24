@@ -251,31 +251,6 @@ ignore_missing_imports = true
 # numpy is a runtime dependency, but its stubs use `type` statement syntax that
 # mypy rejects while python_version is pinned to the lowest supported
 # interpreter. Keep analysing the project code and skip traversing numpy stubs.
-# These four kept `ignore_errors` because they were largely empty signatures.
-# The signatures are gone (#312); what remains is working code that was never
-# annotated -- 47 errors, of which 18 are assignment, 11 missing type
-# arguments, 10 returning Any and 6 undeclared returns. None of them is a
-# defect: the two that look like one are a dict widened after its first
-# assignment and a variable reused across two branches of a reader.
-#
-# Annotating them is its own piece of work, tracked on #312. Removing the
-# suppression before doing it would only mean turning it back on.
-[[tool.mypy.overrides]]
-module = "heavytails.performance"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "heavytails.extensions"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "heavytails.validation"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "heavytails.utilities"
-ignore_errors = true
-
 [[tool.mypy.overrides]]
 module = "numpy.*"
 ignore_missing_imports = true

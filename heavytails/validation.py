@@ -8,6 +8,20 @@ and property-based testing for all distributions.
 import math
 from typing import Any
 
+from heavytails.registry import create
+
+# Parameters that put each family in a comfortable part of its own range, for
+# checks that are about the family rather than about a particular fit. Kept
+# here rather than in the registry: they are this module's choice of what
+# "representative" means, not a property of the distributions.
+_REPRESENTATIVE: dict[str, dict[str, float]] = {
+    "pareto": {"alpha": 2.5, "xm": 1.0},
+    "lognormal": {"mu": 0.0, "sigma": 1.0},
+    "cauchy": {"x0": 0.0, "gamma": 1.0},
+    "studentt": {"nu": 5.0},
+    "weibull": {"k": 2.0, "lam": 1.0},
+}
+
 # Try to import scipy for validation (optional dependency)
 try:
     import scipy.stats as scipy_stats
@@ -174,25 +188,13 @@ class NumericalValidation:
 
     def _create_heavytails_distribution(
         self, distribution: str, params: dict[str, float]
-    ):
+    ) -> Any:
         """Create heavytails distribution instance."""
-        import heavytails  # noqa: PLC0415
+        return create(distribution, **params)
 
-        dist_map = {
-            "pareto": heavytails.Pareto,
-            "lognormal": heavytails.LogNormal,
-            "cauchy": heavytails.Cauchy,
-            "studentt": heavytails.StudentT,
-            "weibull": heavytails.Weibull,
-            "frechet": heavytails.Frechet,
-        }
-
-        if distribution not in dist_map:
-            raise ValueError(f"Unknown distribution: {distribution}")
-
-        return dist_map[distribution](**params)
-
-    def _create_scipy_distribution(self, distribution: str, params: dict[str, float]):
+    def _create_scipy_distribution(
+        self, distribution: str, params: dict[str, float]
+    ) -> Any:
         """Create equivalent scipy distribution."""
         if not SCIPY_AVAILABLE:
             return None
@@ -404,8 +406,6 @@ class PropertyBasedTests:
                 "property": "pdf_nonnegativity",
             }
 
-        import heavytails  # noqa: PLC0415
-
         violations = []
 
         try:
@@ -417,17 +417,9 @@ class PropertyBasedTests:
             for params, x_values in test_cases:
                 try:
                     # Create distribution
-                    if dist_lower == "pareto":
-                        dist = heavytails.Pareto(**params)
-                    elif dist_lower == "lognormal":
-                        dist = heavytails.LogNormal(**params)
-                    elif dist_lower == "cauchy":
-                        dist = heavytails.Cauchy(**params)
-                    elif dist_lower == "studentt":
-                        dist = heavytails.StudentT(**params)
-                    elif dist_lower == "weibull":
-                        dist = heavytails.Weibull(**params)
-                    else:
+                    try:
+                        dist = create(dist_lower, **params)
+                    except ValueError:
                         continue
 
                     # Test PDF non-negativity
@@ -479,8 +471,6 @@ class PropertyBasedTests:
                 "property": "cdf_monotonicity",
             }
 
-        import heavytails  # noqa: PLC0415
-
         violations = []
 
         try:
@@ -490,17 +480,9 @@ class PropertyBasedTests:
             for params, x_values in test_cases:
                 try:
                     # Create distribution
-                    if dist_lower == "pareto":
-                        dist = heavytails.Pareto(**params)
-                    elif dist_lower == "lognormal":
-                        dist = heavytails.LogNormal(**params)
-                    elif dist_lower == "cauchy":
-                        dist = heavytails.Cauchy(**params)
-                    elif dist_lower == "studentt":
-                        dist = heavytails.StudentT(**params)
-                    elif dist_lower == "weibull":
-                        dist = heavytails.Weibull(**params)
-                    else:
+                    try:
+                        dist = create(dist_lower, **params)
+                    except ValueError:
                         continue
 
                     # Test monotonicity: CDF(x1) <= CDF(x2) for x1 < x2
@@ -549,7 +531,6 @@ class PropertyBasedTests:
         Returns:
             Dictionary with test results
         """
-        import heavytails  # noqa: PLC0415
 
         violations = []
 
@@ -563,17 +544,9 @@ class PropertyBasedTests:
             for params, _ in test_cases:
                 try:
                     # Create distribution
-                    if dist_lower == "pareto":
-                        dist = heavytails.Pareto(**params)
-                    elif dist_lower == "lognormal":
-                        dist = heavytails.LogNormal(**params)
-                    elif dist_lower == "cauchy":
-                        dist = heavytails.Cauchy(**params)
-                    elif dist_lower == "studentt":
-                        dist = heavytails.StudentT(**params)
-                    elif dist_lower == "weibull":
-                        dist = heavytails.Weibull(**params)
-                    else:
+                    try:
+                        dist = create(dist_lower, **params)
+                    except ValueError:
                         continue
 
                     # Test CDF(PPF(u)) ≈ u
@@ -684,27 +657,18 @@ def convergence_validation(distribution: str, method: str = "ppf") -> dict[str, 
         >>> "converged" in result
         True
     """
-    import heavytails  # noqa: PLC0415
 
     try:
         dist_lower = distribution.lower()
 
-        # Create distribution with default parameters
-        if dist_lower == "pareto":
-            dist = heavytails.Pareto(alpha=2.5, xm=1.0)
-        elif dist_lower == "lognormal":
-            dist = heavytails.LogNormal(mu=0.0, sigma=1.0)
-        elif dist_lower == "cauchy":
-            dist = heavytails.Cauchy(x0=0.0, gamma=1.0)
-        elif dist_lower == "studentt":
-            dist = heavytails.StudentT(nu=5.0)
-        elif dist_lower == "weibull":
-            dist = heavytails.Weibull(k=2.0, lam=1.0)
-        else:
+        # A representative instance of the family, for a check that does not
+        # depend on the particular parameters.
+        if dist_lower not in _REPRESENTATIVE:
             return {
                 "converged": False,
                 "error": f"Unknown distribution: {distribution}",
             }
+        dist = create(dist_lower, **_REPRESENTATIVE[dist_lower])
 
         if method == "ppf":
             # Test PPF convergence for various quantiles
@@ -918,7 +882,7 @@ def _anderson_darling_cdf(z: float) -> float:
     if z <= 0.0:
         return 0.0
     if z < 2.0:
-        return (
+        return float(
             z**-0.5
             * math.exp(-1.2337141 / z)
             * (
