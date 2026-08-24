@@ -3,7 +3,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import math
+from typing import Any
 
+import numpy as np
+
+from heavytails._array import as_array, check_probabilities, elementwise, restore
 from heavytails.heavy_tails import RNG, ParameterError, Samplable
 
 
@@ -40,34 +44,51 @@ class Zipf(Samplable):
     s: float
     kmax: int = 10_000
     _Z: float = field(init=False, repr=False)
+    _cumulative: Any = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
-        """Validate parameters and compute normalization constant."""
+        """Validate parameters and build the distribution over the support."""
         if self.s <= 1:
             raise ParameterError("Zipf requires s>1.")
-        # Compute the Riemann zeta function approximation (truncated at kmax)
-        zeta_s = sum(n ** (-self.s) for n in range(1, self.kmax + 1))
-        object.__setattr__(self, "_Z", zeta_s)
+        # The truncated zeta, with the running distribution function beside it.
+        # The constructor already walked the whole support once to normalise;
+        # keeping the cumulative sums turns `cdf` from a sum over k terms into
+        # a lookup, and `ppf` from a scan over the support into a search.
+        weights = np.arange(1, self.kmax + 1, dtype=float) ** (-self.s)
+        object.__setattr__(self, "_Z", float(weights.sum()))
+        object.__setattr__(self, "_cumulative", np.cumsum(weights) / self._Z)
 
-    def pmf(self, k: int) -> float:
-        return float((k ** (-self.s)) / self._Z) if 1 <= k <= self.kmax else 0.0
+    def pmf(self, k: Any) -> Any:
+        values, scalar = as_array(k)
+        inside = (values >= 1) & (values <= self.kmax)
+        safe = np.where(inside, values, 1.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            mass = safe ** (-self.s) / self._Z
+        return restore(np.where(inside, mass, 0.0), scalar)
 
-    def cdf(self, k: int) -> float:
-        k = min(max(1, k), self.kmax)
-        return float(sum(n ** (-self.s) for n in range(1, k + 1)) / self._Z)
+    def cdf(self, k: Any) -> Any:
+        values, scalar = as_array(k)
+        index = np.clip(np.floor(values), 1, self.kmax).astype(int) - 1
+        probability = self._cumulative[index]
+        return restore(np.where(values < 1, 0.0, probability), scalar)
 
-    def ppf(self, u: float) -> int:
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        c, _total = 0.0, 0
-        for n in range(1, self.kmax + 1):
-            c += n ** (-self.s)
-            if c / self._Z >= u:
-                return n
-        return self.kmax
+    def ppf(self, u: Any) -> Any:
+        """Smallest k with ``cdf(k) >= u``, by search rather than by scanning.
+
+        The scan this replaces walked the support one k at a time, so a
+        quantile in the far tail of a kmax of ten thousand cost ten thousand
+        steps -- and `rvs` pays that per draw.
+        """
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        found = np.searchsorted(self._cumulative, values, side="left") + 1
+        quantile = np.minimum(found, self.kmax)
+        return int(quantile) if scalar else quantile.astype(int)
 
     def _rvs_one(self, rng: RNG) -> int:
-        return self.ppf(rng.uniform_0_1())
+        # ppf mirrors its input, so a scalar in gives an int out; the cast
+        # says so to the type checker, which sees the array-or-scalar type.
+        return int(self.ppf(rng.uniform_0_1()))
 
 
 @dataclass(frozen=True)
@@ -95,13 +116,21 @@ class YuleSimon(Samplable):
         if self.rho <= 0:
             raise ParameterError("rho>0 required.")
 
-    def pmf(self, k: int) -> float:
-        """Probability mass function.
+    def pmf(self, k: Any) -> Any:
+        """Probability mass function, for one value or many.
 
         Evaluated through ``lgamma`` rather than ``gamma``. The individual
         gamma factors overflow for k around 170 even though their ratio stays
         far below one, and k that large is entirely ordinary for a heavy tail.
+
+        NumPy has no ``lgamma``, so this goes one element at a time, as
+        LogNormal and StudentT do for the same reason. The interface is the
+        same as every other family's; the speed is not.
         """
+        values, scalar = as_array(k)
+        return restore(elementwise(self._pmf_one, values), scalar)
+
+    def _pmf_one(self, k: float) -> float:
         if k < 1:
             return 0.0
         log_pmf = (
@@ -112,33 +141,40 @@ class YuleSimon(Samplable):
         )
         return float(math.exp(log_pmf))
 
-    def sf(self, k: int) -> float:
-        """Survival function P(X > k), in closed form.
+    def sf(self, k: Any) -> Any:
+        """Survival function P(X > k), in closed form, for one value or many.
 
         For the Yule-Simon law ``P(X > k) = k * B(k, rho + 1)``, which is
         ``k * pmf(k) / rho``. Using it avoids both the O(k) summation and the
         cancellation that ``1 - cdf(k)`` suffers in the tail.
         """
-        if k < 1:
-            return 1.0
-        return float(k * self.pmf(k) / self.rho)
+        values, scalar = as_array(k)
+        mass = np.asarray(self.pmf(values), dtype=float)
+        survival = np.where(values < 1, 1.0, values * mass / self.rho)
+        return restore(survival, scalar)
 
-    def cdf(self, k: int) -> float:
-        """Cumulative distribution function P(X <= k)."""
-        if k < 1:
-            return 0.0
-        return float(1.0 - self.sf(k))
+    def cdf(self, k: Any) -> Any:
+        """Cumulative distribution function P(X <= k), for one value or many."""
+        values, scalar = as_array(k)
+        survival = np.asarray(self.sf(values), dtype=float)
+        return restore(np.where(values < 1, 0.0, 1.0 - survival), scalar)
 
-    def ppf(self, u: float) -> int:
-        """Smallest k with ``cdf(k) >= u``.
+    def ppf(self, u: Any) -> Any:
+        """Smallest k with ``cdf(k) >= u``, for one probability or many.
 
         Found by doubling to bracket the answer and then bisecting, so the cost
         is logarithmic in k rather than linear. A linear scan is untenable here
         because the tail reaches very large k for modest u.
-        """
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
 
+        Unlike Zipf and DiscretePareto this support is unbounded, so there is
+        no cumulative table to search; the bracket is still per probability.
+        """
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        quantile = elementwise(self._ppf_one, values)
+        return int(quantile) if scalar else quantile.astype(int)
+
+    def _ppf_one(self, u: float) -> float:
         # Double until the bracket contains the quantile.
         hi = 1
         while self.cdf(hi) < u:
@@ -154,10 +190,12 @@ class YuleSimon(Samplable):
                 lo = mid + 1
             else:
                 hi = mid
-        return int(max(lo, 1))
+        return float(max(lo, 1))
 
     def _rvs_one(self, rng: RNG) -> int:
-        return self.ppf(rng.uniform_0_1())
+        # ppf mirrors its input, so a scalar in gives an int out; the cast
+        # says so to the type checker, which sees the array-or-scalar type.
+        return int(self.ppf(rng.uniform_0_1()))
 
 
 @dataclass(frozen=True)
@@ -195,6 +233,7 @@ class DiscretePareto(Samplable):
     k_min: int = 1
     k_max: int = 10_000
     _H: float = field(init=False, repr=False)
+    _cumulative: Any = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         """Validate parameters and compute normalization constant."""
@@ -205,29 +244,38 @@ class DiscretePareto(Samplable):
             (k / self.k_min) ** (-self.alpha) for k in range(self.k_min, self.k_max + 1)
         )
         object.__setattr__(self, "_H", H_alpha)
+        # The running distribution function over the support. See Zipf: the
+        # normalisation already walks it once, and keeping the cumulative sums
+        # is what lets `ppf` search instead of scan.
+        support = np.arange(self.k_min, self.k_max + 1, dtype=float)
+        weights = (support / self.k_min) ** (-self.alpha)
+        object.__setattr__(self, "_cumulative", np.cumsum(weights) / self._H)
 
-    def pmf(self, k: int) -> float:
-        if k < self.k_min or k > self.k_max:
-            return 0.0
-        return float(((k / self.k_min) ** (-self.alpha)) / self._H)
+    def pmf(self, k: Any) -> Any:
+        values, scalar = as_array(k)
+        inside = (values >= self.k_min) & (values <= self.k_max)
+        safe = np.where(inside, values, self.k_min)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            mass = (safe / self.k_min) ** (-self.alpha) / self._H
+        return restore(np.where(inside, mass, 0.0), scalar)
 
-    def cdf(self, k: int) -> float:
-        k = min(max(self.k_min, k), self.k_max)
-        return float(
-            sum(((n / self.k_min) ** (-self.alpha)) for n in range(self.k_min, k + 1))
-            / self._H
+    def cdf(self, k: Any) -> Any:
+        values, scalar = as_array(k)
+        index = (
+            np.clip(np.floor(values), self.k_min, self.k_max).astype(int) - self.k_min
         )
+        probability = self._cumulative[index]
+        return restore(np.where(values < self.k_min, 0.0, probability), scalar)
 
     def _rvs_one(self, rng: RNG) -> int:
-        return self.ppf(rng.uniform_0_1())
+        # ppf mirrors its input, so a scalar in gives an int out; the cast
+        # says so to the type checker, which sees the array-or-scalar type.
+        return int(self.ppf(rng.uniform_0_1()))
 
-    def ppf(self, u: float) -> int:
-        """Smallest k with ``cdf(k) >= u``."""
-        if not (0.0 < u < 1.0):
-            raise ValueError("u must be in (0,1).")
-        c = 0.0
-        for k in range(self.k_min, self.k_max + 1):
-            c += ((k / self.k_min) ** (-self.alpha)) / self._H
-            if c >= u:
-                return k
-        return self.k_max
+    def ppf(self, u: Any) -> Any:
+        """Smallest k with ``cdf(k) >= u``, by search rather than by scanning."""
+        values, scalar = as_array(u)
+        check_probabilities(values)
+        found = np.searchsorted(self._cumulative, values, side="left") + self.k_min
+        quantile = np.minimum(found, self.k_max)
+        return int(quantile) if scalar else quantile.astype(int)

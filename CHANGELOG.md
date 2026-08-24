@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **The discrete distribution functions were not zero below their support.**
+  `Zipf.cdf` clamped its argument up to 1 before summing, so `cdf(0)` -- and
+  `cdf(-5)` -- returned P(X = 1), which for `Zipf(s=1.5)` is **0.387** rather
+  than 0. `DiscretePareto.cdf` did the same at `k_min`: with `k_min = 3`,
+  `cdf(2)` returned 0.165. Clamping the upper end is right, since the support
+  is truncated there; clamping the lower end is not, because below the support
+  the answer is zero and not the first atom.
+
+### Changed
+
+- `Zipf`, `YuleSimon` and `DiscretePareto` take a number or an array and
+  mirror what they were given, as the continuous families have since 0.5.0.
+  `ppf` returns an integer, or an integer array.
+- `Zipf.ppf` and `DiscretePareto.ppf` find the quantile by searching a
+  cumulative table instead of walking the support one k at a time. The scan
+  was fine near the median and ruinous in the tail, which is where this
+  library is used: at `Zipf(s=1.1, kmax=100_000)`, 200 calls to `ppf(0.99)`
+  took **2.31s** and now take **2.0ms**; 20,000 quantiles took 9.24s and now
+  take 2.0ms. Values are unchanged -- the same k for every probability tested,
+  and seeded samples identical.
+
 ### Added
 
 - `heavytails.registry`: one place mapping a name to a distribution (#383).
