@@ -1,0 +1,378 @@
+{
+  "provenance": {
+    "heavytails_version": "0.5.0",
+    "heavytails_version_source": "pyproject.toml",
+    "version_source": "pyproject.toml",
+    "git_commit": "0b0a9d0ad33a17f11f30994fcb69def7580415e2",
+    "python_version": "3.13.5",
+    "numpy_version": "2.5.2"
+  },
+  "purpose": "Whether the calibrated compatibility rule begins to pay under squared-error loss at a larger sample size, where the variance cost of truncating the grid falls but the second-order bias it avoids does not.",
+  "configuration": {
+    "n": 50000,
+    "k_grid": [
+      37,
+      55,
+      82,
+      123,
+      183,
+      274,
+      408,
+      609,
+      909,
+      1357
+    ],
+    "admissible_max_trim": 8,
+    "scenarios": [
+      "pareto",
+      "hall_rho_half",
+      "burr_rho_half",
+      "burr_rho_quarter"
+    ],
+    "critical_grid": [
+      3.0,
+      3.5,
+      4.0,
+      4.5,
+      5.0,
+      5.5,
+      6.0
+    ],
+    "target_acceptance": 0.95,
+    "calibration_trials": 300,
+    "evaluation_trials": 400,
+    "calibration_seed_start": 110000,
+    "evaluation_seed_start": 120000,
+    "bootstrap_draws": 2000,
+    "no_selection_critical": 100.0,
+    "crossfit_seed": "None, matching the production estimator default"
+  },
+  "calibration_by_rho": [
+    {
+      "rho": -1.0,
+      "target": 0.95,
+      "target_met": true,
+      "calibrated_critical": 3.5,
+      "calibrated_acceptance": 0.96,
+      "curve": [
+        {
+          "critical": 3.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.8866666666666667,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9433333333333334,
+          "mean_stable_set_size": 9.675
+        },
+        {
+          "critical": 3.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.96,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.98,
+          "mean_stable_set_size": 9.875
+        },
+        {
+          "critical": 4.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9833333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9916666666666667,
+          "mean_stable_set_size": 9.95
+        },
+        {
+          "critical": 4.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9933333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9966666666666667,
+          "mean_stable_set_size": 9.97
+        },
+        {
+          "critical": 5.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9933333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9966666666666667,
+          "mean_stable_set_size": 9.971666666666666
+        },
+        {
+          "critical": 5.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9966666666666667,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9983333333333333,
+          "mean_stable_set_size": 9.986666666666666
+        },
+        {
+          "critical": 6.0,
+          "trials": 300,
+          "joint_acceptance_rate": 1.0,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 1.0,
+          "mean_stable_set_size": 10.0
+        }
+      ]
+    },
+    {
+      "rho": -0.5,
+      "target": 0.95,
+      "target_met": true,
+      "calibrated_critical": 4.5,
+      "calibrated_acceptance": 0.9633333333333334,
+      "curve": [
+        {
+          "critical": 3.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.7933333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.8916666666666667,
+          "mean_stable_set_size": 9.223333333333333
+        },
+        {
+          "critical": 3.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.8633333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.93,
+          "mean_stable_set_size": 9.45
+        },
+        {
+          "critical": 4.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9233333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.96,
+          "mean_stable_set_size": 9.7
+        },
+        {
+          "critical": 4.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9633333333333334,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9816666666666667,
+          "mean_stable_set_size": 9.863333333333333
+        },
+        {
+          "critical": 5.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9866666666666667,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9933333333333333,
+          "mean_stable_set_size": 9.953333333333333
+        },
+        {
+          "critical": 5.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9933333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9966666666666667,
+          "mean_stable_set_size": 9.976666666666667
+        },
+        {
+          "critical": 6.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9966666666666667,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9983333333333333,
+          "mean_stable_set_size": 9.988333333333333
+        }
+      ]
+    },
+    {
+      "rho": -0.25,
+      "target": 0.95,
+      "target_met": true,
+      "calibrated_critical": 4.5,
+      "calibrated_acceptance": 0.9533333333333334,
+      "curve": [
+        {
+          "critical": 3.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.77,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.8783333333333333,
+          "mean_stable_set_size": 9.31
+        },
+        {
+          "critical": 3.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.8666666666666667,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9316666666666666,
+          "mean_stable_set_size": 9.63
+        },
+        {
+          "critical": 4.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9333333333333333,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.965,
+          "mean_stable_set_size": 9.823333333333334
+        },
+        {
+          "critical": 4.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9533333333333334,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9766666666666667,
+          "mean_stable_set_size": 9.891666666666667
+        },
+        {
+          "critical": 5.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9766666666666667,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9883333333333333,
+          "mean_stable_set_size": 9.95
+        },
+        {
+          "critical": 5.5,
+          "trials": 300,
+          "joint_acceptance_rate": 0.98,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.99,
+          "mean_stable_set_size": 9.958333333333334
+        },
+        {
+          "critical": 6.0,
+          "trials": 300,
+          "joint_acceptance_rate": 0.9866666666666667,
+          "both_folds_succeeded_rate": 1.0,
+          "fold_failure_rate": 0.0,
+          "fold_acceptance_rate_given_success": 0.9933333333333333,
+          "mean_stable_set_size": 9.975
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "scenario": "pareto",
+      "rho_used": -1.0,
+      "calibrated_critical": 3.5,
+      "calibrated_null_acceptance": 0.96,
+      "full_grid_acceptance": 0.96,
+      "run_stable_fraction": {
+        "mean": 0.9635213864306784,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.96
+      },
+      "rmse_selected": 0.031747524432636565,
+      "rmse_no_selection": 0.02732444510398979,
+      "bias_selected": 0.00032671069200721674,
+      "bias_no_selection": 0.0006774744625619135,
+      "paired_vs_no_selection": {
+        "paired_replications": 400,
+        "mean_mse_difference": 0.0002612800073599044,
+        "standard_error": 0.00012267706234555265,
+        "bootstrap_lower": 6.108402317048017e-05,
+        "bootstrap_upper": 0.0005301168488740888,
+        "interval_contains_zero": false,
+        "favours_selection": false
+      }
+    },
+    {
+      "scenario": "hall_rho_half",
+      "rho_used": -0.5,
+      "calibrated_critical": 4.5,
+      "calibrated_null_acceptance": 0.9633333333333334,
+      "full_grid_acceptance": 0.98,
+      "run_stable_fraction": {
+        "mean": 0.9810140117994101,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.98
+      },
+      "rmse_selected": 0.041602959761634105,
+      "rmse_no_selection": 0.03873466952988207,
+      "bias_selected": -0.0015723823002435349,
+      "bias_no_selection": -0.0025792355025164937,
+      "paired_vs_no_selection": {
+        "paired_replications": 400,
+        "mean_mse_difference": 0.00023043163733897225,
+        "standard_error": 0.00012643073860845992,
+        "bootstrap_lower": 2.3780090992096547e-05,
+        "bootstrap_upper": 0.0005176588114134937,
+        "interval_contains_zero": false,
+        "favours_selection": false
+      }
+    },
+    {
+      "scenario": "burr_rho_half",
+      "rho_used": -0.5,
+      "calibrated_critical": 4.5,
+      "calibrated_null_acceptance": 0.9633333333333334,
+      "full_grid_acceptance": 0.9575,
+      "run_stable_fraction": {
+        "mean": 0.9604424778761061,
+        "median": 1.0,
+        "p10": 1.0,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.9575
+      },
+      "rmse_selected": 0.048346882495071034,
+      "rmse_no_selection": 0.04334355038375762,
+      "bias_selected": -0.002662097065963085,
+      "bias_no_selection": -0.004398279505016795,
+      "paired_vs_no_selection": {
+        "paired_replications": 400,
+        "mean_mse_difference": 0.00045875768712287115,
+        "standard_error": 0.00018059925652506208,
+        "bootstrap_lower": 0.0001352164393789249,
+        "bootstrap_upper": 0.0008549332177066787,
+        "interval_contains_zero": false,
+        "favours_selection": false
+      }
+    },
+    {
+      "scenario": "burr_rho_quarter",
+      "rho_used": -0.25,
+      "calibrated_critical": 4.5,
+      "calibrated_null_acceptance": 0.9533333333333334,
+      "full_grid_acceptance": 0.8575,
+      "run_stable_fraction": {
+        "mean": 0.8952396755162242,
+        "median": 1.0,
+        "p10": 0.29793510324483774,
+        "p90": 1.0,
+        "fraction_at_full_grid": 0.8575
+      },
+      "rmse_selected": 0.12755876302087074,
+      "rmse_no_selection": 0.12108694797216642,
+      "bias_selected": -0.0799899214728082,
+      "bias_no_selection": -0.08290032641155032,
+      "paired_vs_no_selection": {
+        "paired_replications": 400,
+        "mean_mse_difference": 0.001609189054200526,
+        "standard_error": 0.00065828654532446,
+        "bootstrap_lower": 0.0003642013776015082,
+        "bootstrap_upper": 0.0029866486021390905,
+        "interval_contains_zero": false,
+        "favours_selection": false
+      }
+    }
+  ]
+}
