@@ -107,7 +107,7 @@ mkdocs-literate-nav = "^0.6.1"
 mkdocs-section-index = "^0.3.9"
 mkdocs-gallery = "^0.10.3"
 # Required by mkdocs-jupyter to execute notebooks during the docs build
-ipykernel = "^6.29.5"
+ipykernel = "^7.3.0"
 
 [tool.poetry.group.examples.dependencies]
 matplotlib = "^3.9.2"
