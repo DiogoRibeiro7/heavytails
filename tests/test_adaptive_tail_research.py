@@ -601,7 +601,9 @@ class TestPerRhoCalibration:
         """Among correctly sized rules the tightest keeps the most power.
 
         Taking a looser one would bias the experiment towards finding no
-        effect, by making the selector do less.
+        effect, by making the selector do less -- and "selection does not
+        help" is the conclusion under test, so the experiment must not be the
+        thing that hands it over.
         """
         rates = {3.0: 0.80, 4.0: 0.93, 5.0: 0.96, 6.0: 0.99}
         calls = iter(self._curve(rates))
@@ -646,6 +648,32 @@ class TestPerRhoCalibration:
         # The best available, not the largest searched.
         assert result["calibrated_critical"] == 5.0
         assert result["calibrated_acceptance"] == 0.91
+
+    def test_a_cutoff_below_the_bound_never_qualifies(self, monkeypatch) -> None:
+        """95% is a lower bound, not a symmetric target.
+
+        0.947 does not qualify by being nearer to 0.95 than 0.960 is. A
+        mis-sized rule compared against no selection would confound size with
+        risk, which is the confound this whole design exists to avoid.
+        """
+        rates = {4.0: 0.947, 5.0: 0.960}
+        calls = iter(self._curve(rates))
+        monkeypatch.setattr(
+            selector_scale, "_selection_rate", lambda **kwargs: dict(next(calls))
+        )
+
+        result = selector_scale._calibrate(
+            n=1000,
+            k_grid=[10, 20],
+            max_trim=3,
+            rho=-1.0,
+            critical_grid=[4.0, 5.0],
+            target=0.95,
+            trials=1,
+            seed_start=0,
+        )
+        assert result["target_met"]
+        assert result["calibrated_critical"] == 5.0
 
     def test_each_rho_is_calibrated_separately(self) -> None:
         """Scenarios sharing a rho share a cutoff; differing rhos do not."""

@@ -62,9 +62,23 @@ def _calibrate(
 ) -> dict[str, Any]:
     """Smallest cutoff on the grid reaching ``target`` clean-Pareto acceptance.
 
-    Smallest rather than largest: among cutoffs that are correctly sized, the
-    tightest is the one that retains the most power, and the question is
-    whether a correctly sized rule helps at all.
+    A constrained minimisation::
+
+        minimise   c
+        subject to P_Pareto,rho(joint full acceptance | c) >= target
+
+    Larger ``c`` makes the compatibility rule more permissive, so the smallest
+    qualifying cutoff is the rule with the most remaining power subject to
+    correct null size. Any larger qualifying cutoff would weaken selection for
+    nothing, and would make it easier to conclude that selection has no
+    benefit -- which is the conclusion this experiment is testing, so the
+    experiment must not be the one to hand it over.
+
+    Note what this is *not*: the cutoff closest to ``target`` from either side.
+    95% is a lower bound on clean-null acceptance, not a symmetric target, so
+    0.947 does not qualify merely by being nearer to it than 0.960 is. A cutoff
+    below the bound is mis-sized, and comparing a mis-sized rule against no
+    selection would confound size with risk.
     """
     curve = []
     for critical in critical_grid:

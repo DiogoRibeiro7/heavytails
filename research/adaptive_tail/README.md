@@ -366,16 +366,16 @@ truncates hard — the tenth percentile of the run-level stable fraction is
 0.298. The discrimination is real and survives calibration at both sample
 sizes.
 
-What does not survive is the arithmetic. Truncating buys almost no bias:
--0.0800 against -0.0829 with no selection, about 0.003. It costs RMSE 0.1211 →
-0.1276, about 0.0065. The bias available to be removed at the top of an
-intermediate grid is small even for the slowest second-order decay tested,
-while the variance of throwing thresholds away is not — and as n grows the
-estimator's own variance falls, so the same truncation costs relatively more
-against a bias gain that does not grow with it.
+What does not survive is the balance. Truncating buys almost no bias: -0.0800
+against -0.0829 with no selection, about 0.003. It costs RMSE 0.1211 → 0.1276,
+about 0.0065. The reduction in bias from truncating stays too small relative to
+the variance introduced by estimating from fewer tail observations.
 
-That is the reverse of the tipping argument, and it is the argument's own
-mechanism running backwards.
+Both components can shrink with n, and this says nothing about which shrinks
+faster — an earlier draft claimed the variance cost grows with n, which these
+data do not show. What they do show is that the balance is against truncation
+at both sample sizes tested, and that the ambiguous case at n = 10,000 lands on
+the harmful side at n = 50,000.
 
 ### Status
 
@@ -390,3 +390,42 @@ This does not say threshold-compatibility selection is worthless under a
 different loss, at a different grid, or against second-order decay slower than
 ρ = -1/4. It does say that tuning this rule further, under squared error, on
 these alternatives, is not where the value is.
+
+### Why the smallest qualifying cutoff
+
+Calibration is a constrained minimisation:
+
+    minimise   c
+    subject to P_Pareto,ρ(joint full acceptance | c) ≥ 0.95
+
+Larger `c` is more permissive, so the smallest qualifying cutoff is the rule
+with the most remaining power subject to correct null size. That matters for
+reading the result: the selector was given its best reasonable chance —
+**maximum selectivity subject to correct null calibration** — and still lost
+under squared error in all four scenarios at n = 50,000. A looser qualifying
+cutoff would have weakened selection for nothing and made the negative
+conclusion easier to reach.
+
+The rule is not "closest to 0.95 from either side". 95% is a lower bound on
+clean-null acceptance, not a symmetric target, so 0.947 does not qualify by
+being nearer to it than 0.960 is. Comparing a mis-sized rule against no
+selection would confound size with risk.
+
+## Status of this line: frozen
+
+Hard-prefix compatibility selection is frozen under squared-error loss. The
+record is two sample sizes, null calibration matched by ρ, demonstrated power,
+paired risk comparisons against taking every threshold, and the slowest tested
+second-order regime moving from inconclusive to significantly harmful.
+
+**The next work here is not another experiment.** Not n = 100,000, not another
+cutoff grid, not a tolerant-prefix variant. The question has been answered for
+this selector, and the consequence is methodological: an adaptive threshold
+rule needs an oracle or risk argument, not merely consistency at detecting
+threshold instability. Detecting instability correctly and improving the
+estimate are different properties, and this line of work is a worked example of
+the first without the second.
+
+A future selector earns attention by beating the `c = 100` benchmark under the
+estimator's actual loss. Until it does, its rejection behaviour is not evidence
+for it.
