@@ -156,6 +156,12 @@ select = [
 ignore = [
     "E501",   # line too long (handled by formatter)
     "PLR0913", # too many arguments
+    # The positional-only form of PLR0913 above. Ruff stabilized it in 0.16,
+    # so selecting "PL" began enforcing a call-signature policy this project
+    # had already declined. The alternative was making parameters of
+    # `return_level` keyword-only, which would break callers to satisfy a
+    # linter.
+    "PLR0917", # too many positional arguments
     "PLR2004", # magic value used in comparison
     "TRY003",  # avoid specifying long messages outside exception class
     "TRY301",  # abstract raise to inner function
