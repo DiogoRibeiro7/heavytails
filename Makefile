@@ -5,7 +5,7 @@ RUN    := $(POETRY) run
 
 .PHONY: help install install-dev hooks test test-fast coverage lint format \
         format-check type-check security audit check docs docs-serve \
-        build clean
+        build clean release-check release-preflight
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -47,7 +47,13 @@ security:  ## Run the static security linter
 audit:  ## Check installed dependencies for known vulnerabilities
 	$(RUN) pip-audit --skip-editable
 
-check: lint format-check type-check test security  ## Run every check that CI runs
+check: lint format-check type-check test security release-check  ## Run every check that CI runs
+
+release-check:  ## Verify the five files agree on which release this is
+	$(RUN) python -m scripts.check_release
+
+release-preflight:  ## release-check, plus refuse a tag that is already spent
+	$(RUN) python -m scripts.check_release --pre-tag
 
 docs:  ## Build the documentation (fails on broken links)
 	$(RUN) mkdocs build --strict
