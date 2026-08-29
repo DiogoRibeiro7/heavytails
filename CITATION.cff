@@ -41,14 +41,13 @@ identifiers:
     value: "10.5281/zenodo.22045594"
     description: "Concept DOI, resolving to all versions of the software."
   - type: doi
-    value: "10.5281/zenodo.22062643"
+    value: "10.5281/zenodo.22166257"
     description: >-
-      Version DOI for release 0.4.0. Each release gets its own, minted when
-      Zenodo archives it: 0.3.0 is 10.5281/zenodo.22050721, 0.2.0 is
-      10.5281/zenodo.22047617 and 0.1.0 is 10.5281/zenodo.22045595. The ones for
-      0.5.0, 0.6.0 and 0.6.1 are added here once Zenodo has archived those
-      releases;
-      until then the concept DOI above resolves to the most recent version.
+      Version DOI for release 0.6.1, the release this file describes. Each
+      release gets its own, minted when Zenodo archives it: 0.6.0 is
+      10.5281/zenodo.22161110, 0.5.0 is 10.5281/zenodo.22070996, 0.4.0 is
+      10.5281/zenodo.22062643, 0.3.0 is 10.5281/zenodo.22050721, 0.2.0 is
+      10.5281/zenodo.22047617 and 0.1.0 is 10.5281/zenodo.22045595.
 references:
   - type: book
     title: "Extreme Value Theory: An Introduction"

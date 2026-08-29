@@ -8,8 +8,8 @@ opportunities to leave one behind.
 
 Most of those couplings already have tests. The problem was never that they went
 unchecked -- it was *when* they were checked. They run in the CI ``test`` job,
-and the ``publish`` job has ``needs: test``, so a release commit that misses one
-file still tags cleanly, still cuts a GitHub release, and simply never reaches
+one of the five ``publish`` waits on, so a release commit that misses one file
+still tags cleanly, still cuts a GitHub release, and simply never reaches
 PyPI. The failure is silent at the only moment anyone is watching, and by the
 time it is visible the tag is already spent: PyPI will not accept a re-upload of
 a version, so the fix costs a whole patch release. That is how 0.6.0 was lost.
@@ -62,6 +62,7 @@ def collect_problems(root: Path = REPO_ROOT, *, pre_tag: bool = False) -> list[s
 
     _check_version_agreement(package_version, citation_version, problems)
     _check_citation_docs(root, citation_version, problems)
+    _check_version_doi(root, problems)
     _check_changelog(root, citation_version, citation_date, problems)
     _check_zenodo(root, problems)
 
@@ -118,6 +119,49 @@ def _check_citation_docs(root: Path, version: str, problems: list[str]) -> None:
         )
         if stale:
             problems.append(f"{name} cites {stale}, but the release is {version}.")
+
+
+def _check_version_doi(root: Path, problems: list[str]) -> None:
+    """The citation guidance must quote the version DOI CITATION.cff names.
+
+    Zenodo mints two kinds of DOI, and the difference is the whole point of
+    that page: a concept DOI resolves to whatever is newest, a version DOI to
+    one release. So a citation block that pins a version while quoting the
+    concept DOI pins nothing at all.
+
+    That is exactly what the block titled "Citing release X exactly" did until
+    0.6.1 -- the failure its own page warns about two sections earlier. It went
+    unnoticed because the version DOI does not exist yet when the release is
+    cut; Zenodo mints it on archiving, and updating the docs afterwards is a
+    step nothing enforced.
+
+    This does not require the DOI to correspond to the current version. It
+    cannot: between a release and Zenodo archiving it, CITATION.cff still
+    holds the previous release's version DOI, correctly. What it requires is
+    that the two files agree, which is the part that silently drifts.
+    """
+    citation_path = root / "CITATION.cff"
+    doc_path = root / CITATION_DOCS[0]
+    if not citation_path.exists() or not doc_path.exists():
+        return
+
+    text = citation_path.read_text(encoding="utf-8")
+    concept = re.search(r'^doi:\s*"([^"]+)"', text, re.MULTILINE)
+    listed = re.findall(r'^\s+value:\s*"(10\.\d{4,}/[^"]+)"', text, re.MULTILINE)
+    if concept is None or not listed:
+        return
+
+    version_dois = {doi for doi in listed if doi != concept.group(1)}
+    if len(version_dois) != 1:
+        return  # no single version DOI to check against
+
+    version_doi = version_dois.pop()
+    if version_doi not in doc_path.read_text(encoding="utf-8"):
+        problems.append(
+            f"CITATION.cff names version DOI {version_doi}, but "
+            f"{CITATION_DOCS[0]} does not cite it. An exact-release citation "
+            f"that quotes the concept DOI resolves to whatever is newest."
+        )
 
 
 def _check_changelog(

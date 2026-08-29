@@ -197,3 +197,31 @@ def _cff_date(repo: Path) -> str:
     )
     assert match is not None
     return match.group(1)
+
+
+def _version_doi(repo: Path) -> str:
+    """The identifier that is not the concept DOI."""
+    text = (repo / "CITATION.cff").read_text(encoding="utf-8")
+    concept = re.search(r'^doi:\s*"([^"]+)"', text, re.MULTILINE)
+    listed = re.findall(r'^\s+value:\s*"(10\.\d{4,}/[^"]+)"', text, re.MULTILINE)
+    assert concept is not None
+    version_dois = {doi for doi in listed if doi != concept.group(1)}
+    assert len(version_dois) == 1, version_dois
+    return version_dois.pop()
+
+
+def test_it_catches_citation_guidance_that_lost_the_version_doi(repo: Path) -> None:
+    """An exact-release citation quoting the concept DOI pins nothing.
+
+    The block titled "Citing release X exactly" carried the concept DOI until
+    0.6.1 -- the failure the same page warns about two sections earlier. It
+    survived because the version DOI does not exist when the release is cut;
+    Zenodo mints it on archiving, and updating the docs afterwards was a step
+    nothing enforced.
+    """
+    doi = _version_doi(repo)
+    _edit(repo / "docs/about/citation.md", doi, "10.5281/zenodo.99999999")
+
+    problems = collect_problems(repo)
+
+    assert any(f"names version DOI {doi}" in problem for problem in problems), problems

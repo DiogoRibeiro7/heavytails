@@ -35,13 +35,15 @@ make release-preflight
    no need to fix one and run it again.
 
    This step exists because skipping it is expensive. The same couplings are
-   enforced by the CI `test` job, and the `publish` job has `needs: test` -- so
-   a release commit that misses one of these files still tags cleanly, still
-   cuts a GitHub release, and simply never reaches PyPI. Nothing fails loudly
-   at the moment anyone is watching. Since PyPI will not accept a re-upload of
-   a version, recovering costs a whole patch release. That is how 0.6.0 was
-   lost: it missed steps 3 and 4, which this checklist did not previously
-   mention.
+   enforced by the CI `test` job, and `publish` waits on five jobs -- `test`,
+   `coverage`, `lint-and-type-check`, `security` and `build` -- so a release
+   commit that misses one of these files still tags cleanly, still cuts a
+   GitHub release, and simply never reaches PyPI. Nothing fails loudly at the
+   moment anyone is watching. Note that `coverage` runs only on releases and
+   on `main`: no pull request exercises that gate, so it is first tested by
+   the release itself. Since PyPI will not accept a re-upload of a version,
+   recovering costs a whole patch release. That is how 0.6.0 was lost: it
+   missed steps 3 and 4, which this checklist did not previously mention.
 
 8. Run the regular quality checks:
 
@@ -97,5 +99,9 @@ Each GitHub release should include:
 2. Confirm Zenodo created a new archived version.
 3. Confirm the Zenodo record uses the `.zenodo.json` title, creator ORCID,
    license, references, keywords, and related identifiers.
-4. Update documentation and badges with the minted DOI if this was the first
-   archived release.
+4. Copy the new version DOI into `CITATION.cff` and `docs/about/citation.md`.
+   Zenodo mints it only on archiving, so it cannot be filled in before the
+   release, and `make release-check` fails while the two files disagree. The
+   "Citing release X exactly" block must carry the *version* DOI: the concept
+   DOI resolves to whatever is newest, so quoting it there pins nothing.
+5. Update badges with the minted DOI if this was the first archived release.

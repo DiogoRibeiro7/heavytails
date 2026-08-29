@@ -23,6 +23,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only `pyproject.toml` and `CITATION.cff`, which is why 0.6.0 was released
   with a stale changelog and stale citation guidance.
 
+### Fixed
+
+- The "Citing release X exactly" block in `docs/about/citation.md` quoted the
+  *concept* DOI, which by that same page's table "always resolves to the most
+  recent release". The block that exists to pin a version pinned nothing. It
+  now carries the version DOI, and `check_release.py` fails when the DOI named
+  in `CITATION.cff` is not the one the citation guidance quotes. The gap
+  survived because a version DOI does not exist when a release is cut --
+  Zenodo mints it on archiving, and updating the docs afterwards was a step
+  nothing enforced.
+
+### Changed
+
+- `CITATION.cff` now names the version DOI for the release it describes, and
+  lists all seven minted DOIs. The three that were pending have been minted:
+  0.6.1 is 10.5281/zenodo.22166257, 0.6.0 is 10.5281/zenodo.22161110 and
+  0.5.0 is 10.5281/zenodo.22070996.
+- `docs/development/releasing.md` records that `publish` waits on five jobs,
+  not one, and that `coverage` runs only on releases and `main` -- so no pull
+  request exercises that gate before a release depends on it.
+
 ## [0.6.1] - 2026-08-29
 
 ### Fixed
