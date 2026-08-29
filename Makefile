@@ -5,7 +5,7 @@ RUN    := $(POETRY) run
 
 .PHONY: help install install-dev hooks test test-fast coverage lint format \
         format-check type-check security audit check docs docs-serve \
-        build clean release-check release-preflight
+        build clean release-check release-preflight verify-release
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -54,6 +54,9 @@ release-check:  ## Verify the five files agree on which release this is
 
 release-preflight:  ## release-check, plus refuse a tag that is already spent
 	$(RUN) python -m scripts.check_release --pre-tag
+
+verify-release:  ## Verify VERSION=x.y.z reached GitHub, PyPI and Zenodo
+	$(RUN) python -m scripts.verify_release $(VERSION)
 
 docs:  ## Build the documentation (fails on broken links)
 	$(RUN) mkdocs build --strict

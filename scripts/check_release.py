@@ -29,7 +29,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -40,6 +40,9 @@ from scripts.validate_zenodo_metadata import (  # noqa: E402
     validate_against_citation,
     validate_metadata,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 FINAL_VERSION = re.compile(r"\d+\.\d+\.\d+")
 
@@ -62,7 +65,7 @@ def collect_problems(root: Path = REPO_ROOT, *, pre_tag: bool = False) -> list[s
 
     _check_version_agreement(package_version, citation_version, problems)
     _check_citation_docs(root, citation_version, problems)
-    _check_version_doi(root, problems)
+    _check_version_doi(root, citation_version, problems)
     _check_changelog(root, citation_version, citation_date, problems)
     _check_zenodo(root, problems)
 
@@ -121,7 +124,7 @@ def _check_citation_docs(root: Path, version: str, problems: list[str]) -> None:
             problems.append(f"{name} cites {stale}, but the release is {version}.")
 
 
-def _check_version_doi(root: Path, problems: list[str]) -> None:
+def _check_version_doi(root: Path, version: str, problems: list[str]) -> None:
     """The citation guidance must quote the version DOI CITATION.cff names.
 
     Zenodo mints two kinds of DOI, and the difference is the whole point of
@@ -162,6 +165,85 @@ def _check_version_doi(root: Path, problems: list[str]) -> None:
             f"{CITATION_DOCS[0]} does not cite it. An exact-release citation "
             f"that quotes the concept DOI resolves to whatever is newest."
         )
+
+    _check_versioned_citations(root, version, version_doi, problems)
+
+
+def _check_versioned_citations(
+    root: Path, version: str, version_doi: str, problems: list[str]
+) -> None:
+    """Any citation that names a version must cite that version's DOI.
+
+    Checking that the version DOI appears *somewhere* is too weak. It passed
+    on a page where one BibTeX block was correct and the APA, IEEE, MLA and
+    Chicago renderings below it all said "Version 0.6.1" beside the concept
+    DOI -- a DOI that, as the same page explains, resolves to whatever is
+    newest. A reader following it in a year gets a different release than the
+    one the citation names.
+
+    The rule is the one the page already teaches, applied mechanically:
+
+        names a version  -> cite that version's DOI
+        cites the concept DOI -> claim no particular version
+    """
+    for name in CITATION_DOCS:
+        path = root / name
+        if not path.exists():
+            continue
+
+        for line_number, block in _citation_blocks(path.read_text(encoding="utf-8")):
+            if version not in block:
+                continue
+            cited = set(re.findall(r"10\.\d{4,}/zenodo\.\d+", block))
+            if not cited or version_doi in cited:
+                continue
+            problems.append(
+                f"{name}:{line_number} names {version} but cites "
+                f"{sorted(cited)}; a citation naming a version must use that "
+                f"version's DOI, {version_doi}."
+            )
+
+
+def _citation_blocks(text: str) -> Iterator[tuple[int, str]]:
+    """Yield ``(line number, text)`` for each unit a citation can occupy.
+
+    A citation is not a line. The APA rendering puts the version on one line
+    and the DOI on the next, and BibTeX spreads both over a fenced block, so
+    line-by-line reading would miss exactly the cases that matter. Fenced
+    blocks and runs of blockquote lines are therefore kept whole, while
+    everything else stays a line -- which keeps the rows of a Markdown table
+    separate, so the row explaining the concept DOI is not read as part of the
+    row naming the version.
+    """
+    lines = text.splitlines()
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+
+        if line.startswith("```"):
+            start = index
+            block = [line]
+            index += 1
+            while index < len(lines):
+                block.append(lines[index])
+                if lines[index].startswith("```"):
+                    index += 1
+                    break
+                index += 1
+            yield start + 1, "\n".join(block)
+            continue
+
+        if line.lstrip().startswith(">"):
+            start = index
+            block = []
+            while index < len(lines) and lines[index].lstrip().startswith(">"):
+                block.append(lines[index])
+                index += 1
+            yield start + 1, "\n".join(block)
+            continue
+
+        yield index + 1, line
+        index += 1
 
 
 def _check_changelog(
@@ -242,15 +324,15 @@ def _check_tag_is_free(root: Path, version: str, problems: list[str]) -> None:
     better to learn that here than after cutting the release.
     """
     tag = f"v{version}"
-    if _tag_exists(root, tag):
+    if tag_sha(root, tag) is not None:
         problems.append(
             f"Tag {tag} already exists. PyPI will not accept a re-upload of "
             f"{version}, so this release needs a new version number."
         )
 
 
-def _tag_exists(root: Path, tag: str) -> bool:
-    """Return whether ``tag`` is present, reading refs rather than shelling out.
+def tag_sha(root: Path, tag: str) -> str | None:
+    """Return what ``tag`` points at, reading refs rather than shelling out.
 
     ``scripts/_provenance.py`` reads git state off the filesystem for the same
     reasons: it needs no subprocess, it works when git is not on PATH, and it
@@ -264,12 +346,12 @@ def _tag_exists(root: Path, tag: str) -> bool:
         if git_entry.is_file():
             content = git_entry.read_text(encoding="utf-8").strip()
             if not content.startswith("gitdir:"):
-                return False
+                return None
             git_dir = (root / content.removeprefix("gitdir:").strip()).resolve()
         elif git_entry.is_dir():
             git_dir = git_entry
         else:
-            return False  # not a git checkout; nothing to say
+            return None  # not a git checkout; nothing to say
 
         directories = [git_dir]
         commondir_file = git_dir / "commondir"
@@ -279,16 +361,17 @@ def _tag_exists(root: Path, tag: str) -> bool:
 
         ref = f"refs/tags/{tag}"
         for directory in directories:
-            if (directory / ref).is_file():
-                return True
+            ref_file = directory / ref
+            if ref_file.is_file():
+                return ref_file.read_text(encoding="utf-8").strip() or None
             packed = directory / "packed-refs"
             if packed.is_file():
                 for line in packed.read_text(encoding="utf-8").splitlines():
                     if line.endswith(f" {ref}"):
-                        return True
+                        return line.split()[0]
     except OSError:
-        return False
-    return False
+        return None
+    return None
 
 
 def _pyproject_version(root: Path, problems: list[str]) -> str | None:
