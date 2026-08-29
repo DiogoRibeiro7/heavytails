@@ -162,7 +162,7 @@ In addition to the general code of conduct, we encourage:
 If you experience or witness unacceptable behavior, please report it by contacting:
 
 - **Primary contact**: Diogo Ribeiro at [dfr@esmad.ipp.pt](mailto:dfr@esmad.ipp.pt)
-- **Institution**: ESMAD - Escola Superior de Média Arte e Design
+- **Institution**: Faculty of Media Arts and Design, Technical University of Porto
 - **Academic ethics**: Reports can also be made through institutional channels if preferred
 
 All reports will be handled with discretion and confidentiality.
