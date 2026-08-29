@@ -8,7 +8,7 @@ HeavyTails is developed and maintained by researchers and practitioners interest
 
 ### Diogo F. Ribeiro
 
-**Position:** Assistant Professor **Affiliation:** ESMAD - Polytechnic Institute of Porto, Portugal **Email:** <dfr@esmad.ipp.pt> **ORCID:** [0009-0001-2022-7072](https://orcid.org/0009-0001-2022-7072) **GitHub:** [@diogoribeiro7](https://github.com/diogoribeiro7)
+**Position:** Assistant Professor **Affiliation:** Faculty of Media Arts and Design, Technical University of Porto, Portugal **Email:** <dfr@esmad.ipp.pt> **ORCID:** [0009-0001-2022-7072](https://orcid.org/0009-0001-2022-7072) **GitHub:** [@diogoribeiro7](https://github.com/diogoribeiro7)
 
 **Research Interests:**
 
@@ -74,7 +74,7 @@ HeavyTails draws inspiration from several excellent libraries and resources:
 
 Development of HeavyTails has been supported by:
 
-- **ESMAD - Polytechnic Institute of Porto** - Providing academic environment and resources
+- **Faculty of Media Arts and Design, Technical University of Porto** - Providing academic environment and resources
 
 --------------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@ This file lists the contributors to the HeavyTails project.
 
 - Email: [dfr@esmad.ipp.pt](mailto:dfr@esmad.ipp.pt)
 - ORCID: [0009-0001-2022-7072](https://orcid.org/0009-0001-2022-7072)
-- Affiliation: ESMAD - Escola Superior de Média Arte e Design; Mysense.ai
+- Affiliation: Faculty of Media Arts and Design, Technical University of Porto
 - GitHub: [@diogoribeiro7](https://github.com/diogoribeiro7)
 
 **Contributions:**
