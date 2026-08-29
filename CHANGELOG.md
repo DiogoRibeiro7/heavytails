@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `make release-check` and `make release-preflight`, backed by
+  `scripts/check_release.py`, verify that the five files carrying the release
+  identity agree before a release is tagged. The version lives in
+  `pyproject.toml`, `CITATION.cff`, `CHANGELOG.md`, `docs/about/citation.md`
+  and `README.md`; the date lives in `CITATION.cff`, `.zenodo.json` and
+  `CHANGELOG.md`. Most of those couplings already had tests, but they ran in
+  CI, and the publish job depends on the test job -- so a release commit that
+  missed a file still tagged cleanly and simply never reached PyPI. The
+  changelog was checked by nothing at all. `--pre-tag` additionally refuses a
+  version whose tag is already spent, since PyPI will not accept a re-upload.
+- `docs/development/releasing.md` now lists all five files. It previously named
+  only `pyproject.toml` and `CITATION.cff`, which is why 0.6.0 was released
+  with a stale changelog and stale citation guidance.
+
 ## [0.6.1] - 2026-08-29
 
 ### Fixed
