@@ -2461,13 +2461,15 @@ aligned for each public release.</p>
 <p>Do not tag until this passes. It reports every problem at once, so there is
    no need to fix one and run it again.</p>
 <p>This step exists because skipping it is expensive. The same couplings are
-   enforced by the CI <code>test</code> job, and the <code>publish</code> job has <code>needs: test</code> -- so
-   a release commit that misses one of these files still tags cleanly, still
-   cuts a GitHub release, and simply never reaches PyPI. Nothing fails loudly
-   at the moment anyone is watching. Since PyPI will not accept a re-upload of
-   a version, recovering costs a whole patch release. That is how 0.6.0 was
-   lost: it missed steps 3 and 4, which this checklist did not previously
-   mention.</p>
+   enforced by the CI <code>test</code> job, and <code>publish</code> waits on five jobs -- <code>test</code>,
+   <code>coverage</code>, <code>lint-and-type-check</code>, <code>security</code> and <code>build</code> -- so a release
+   commit that misses one of these files still tags cleanly, still cuts a
+   GitHub release, and simply never reaches PyPI. Nothing fails loudly at the
+   moment anyone is watching. Note that <code>coverage</code> runs only on releases and
+   on <code>main</code>: no pull request exercises that gate, so it is first tested by
+   the release itself. Since PyPI will not accept a re-upload of a version,
+   recovering costs a whole patch release. That is how 0.6.0 was lost: it
+   missed steps 3 and 4, which this checklist did not previously mention.</p>
 <ol>
 <li>Run the regular quality checks:</li>
 </ol>
@@ -2514,8 +2516,12 @@ the source of truth for shared citation fields.</p>
 <li>Confirm Zenodo created a new archived version.</li>
 <li>Confirm the Zenodo record uses the <code>.zenodo.json</code> title, creator ORCID,
    license, references, keywords, and related identifiers.</li>
-<li>Update documentation and badges with the minted DOI if this was the first
-   archived release.</li>
+<li>Copy the new version DOI into <code>CITATION.cff</code> and <code>docs/about/citation.md</code>.
+   Zenodo mints it only on archiving, so it cannot be filled in before the
+   release, and <code>make release-check</code> fails while the two files disagree. The
+   "Citing release X exactly" block must carry the <em>version</em> DOI: the concept
+   DOI resolves to whatever is newest, so quoting it there pins nothing.</li>
+<li>Update badges with the minted DOI if this was the first archived release.</li>
 </ol>
 
 
