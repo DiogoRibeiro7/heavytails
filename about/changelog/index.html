@@ -2215,6 +2215,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2280,7 +2297,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2363,7 +2380,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2402,7 +2419,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2452,7 +2469,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_3" class="md-nav__link">
+  <a href="#added_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2491,7 +2508,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_4" class="md-nav__link">
+  <a href="#added_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2552,7 +2569,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_5" class="md-nav__link">
+  <a href="#added_6" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -2753,6 +2770,22 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>make release-check</code> and <code>make release-preflight</code>, backed by
+  <code>scripts/check_release.py</code>, verify that the five files carrying the release
+  identity agree before a release is tagged. The version lives in
+  <code>pyproject.toml</code>, <code>CITATION.cff</code>, <code>CHANGELOG.md</code>, <code>docs/about/citation.md</code>
+  and <code>README.md</code>; the date lives in <code>CITATION.cff</code>, <code>.zenodo.json</code> and
+  <code>CHANGELOG.md</code>. Most of those couplings already had tests, but they ran in
+  CI, and the publish job depends on the test job -- so a release commit that
+  missed a file still tagged cleanly and simply never reached PyPI. The
+  changelog was checked by nothing at all. <code>--pre-tag</code> additionally refuses a
+  version whose tag is already spent, since PyPI will not accept a re-upload.</li>
+<li><code>docs/development/releasing.md</code> now lists all five files. It previously named
+  only <code>pyproject.toml</code> and <code>CITATION.cff</code>, which is why 0.6.0 was released
+  with a stale changelog and stale citation guidance.</li>
+</ul>
 <h2 id="061-2026-08-29"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.0...v0.6.1">0.6.1</a> - 2026-08-29<a class="headerlink" href="#061-2026-08-29" title="Permanent link">&para;</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
@@ -2787,7 +2820,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   take 2.0ms. Values are unchanged -- the same k for every probability tested,
   and seeded samples identical.</li>
 </ul>
-<h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
+<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.registry</code>: one place mapping a name to a distribution (<a class="magiclink magiclink-github magiclink-issue" href="https://github.com/diogoribeiro7/heavytails/issues/383" title="GitHub Issue: diogoribeiro7/heavytails #383">#383</a>).
   Names resolved in at least four ways before — a table in <code>cli.py</code>,
@@ -2939,7 +2972,7 @@ the defects found while writing this release, every one of which was in covered
 code. A push to main no longer re-runs the full interpreter matrix that the
 pull request just ran, and superseded runs are cancelled. Test jobs went from
 17-22 minutes to about 3, and a merge from 19.5 minutes to 4.7.</p>
-<h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">&para;</a></h3>
+<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Tests tying the citation metadata together: <code>CITATION.cff</code> must name the
   version in <code>pyproject.toml</code>, and the citation guidance must cite that same
@@ -2992,7 +3025,7 @@ returned negative probabilities.</p>
   what lets both tails be accurate; insisting on exact complementarity would
   force back the subtraction that made the lower tail return zero.</li>
 </ul>
-<h3 id="added_2">Added<a class="headerlink" href="#added_2" title="Permanent link">&para;</a></h3>
+<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.timeseries</code>, separating heavy tails that come from volatility
   clustering from heavy tails that come from the shocks
@@ -3242,7 +3275,7 @@ returned negative probabilities.</p>
 </li>
 </ul>
 <h2 id="030-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.2.0...v0.3.0">0.3.0</a> - 2026-08-21<a class="headerlink" href="#030-2026-08-21" title="Permanent link">&para;</a></h2>
-<h3 id="added_3">Added<a class="headerlink" href="#added_3" title="Permanent link">&para;</a></h3>
+<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>bias_reduced_hill_estimator</code>, with <code>second_order_rho</code>, <code>second_order_beta</code>
@@ -3352,7 +3385,7 @@ returned negative probabilities.</p>
 </li>
 </ul>
 <h2 id="020-2026-08-21"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.1.0...v0.2.0">0.2.0</a> - 2026-08-21<a class="headerlink" href="#020-2026-08-21" title="Permanent link">&para;</a></h2>
-<h3 id="added_4">Added<a class="headerlink" href="#added_4" title="Permanent link">&para;</a></h3>
+<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>scripts/special_function_accuracy.py</code>, which sweeps both special functions
@@ -3597,7 +3630,7 @@ returned negative probabilities.</p>
 </li>
 </ul>
 <h2 id="010-2025-10-25"><a href="https://github.com/DiogoRibeiro7/heavytails/releases/tag/v0.1.0">0.1.0</a> - 2025-10-25<a class="headerlink" href="#010-2025-10-25" title="Permanent link">&para;</a></h2>
-<h3 id="added_5">Added<a class="headerlink" href="#added_5" title="Permanent link">&para;</a></h3>
+<h3 id="added_6">Added<a class="headerlink" href="#added_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Continuous heavy-tailed distributions implemented from first principles:
   Pareto, Cauchy, Student-t, Log-Normal, Weibull, Fréchet and GEV (ξ &gt; 0).</li>

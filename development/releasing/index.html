@@ -2436,17 +2436,38 @@
 aligned for each public release.</p>
 <hr />
 <h2 id="before-tagging">Before Tagging<a class="headerlink" href="#before-tagging" title="Permanent link">&para;</a></h2>
+<p>Five files carry the release identity. The version appears in
+<code>pyproject.toml</code>, <code>CITATION.cff</code>, <code>CHANGELOG.md</code>, <code>docs/about/citation.md</code> and
+<code>README.md</code>; the date appears in <code>CITATION.cff</code>, <code>.zenodo.json</code> and
+<code>CHANGELOG.md</code>. Nothing writes them together, so update all of them:</p>
 <ol>
 <li>Update the package version in <code>pyproject.toml</code>.</li>
 <li>Update <code>CITATION.cff</code> with the same version and release date.</li>
+<li>Roll <code>CHANGELOG.md</code>: turn <code>## [Unreleased]</code> into a dated
+   <code>## [&lt;version&gt;] - &lt;date&gt;</code> section, open a fresh empty <code>## [Unreleased]</code>
+   above it, add the <code>[&lt;version&gt;]</code> link reference, and repoint the
+   <code>[Unreleased]</code> comparison at <code>v&lt;version&gt;</code>.</li>
+<li>Update the citation guidance in <code>docs/about/citation.md</code> and <code>README.md</code>.
+   Both name the version in running text and in the BibTeX, APA, IEEE, MLA and
+   Chicago entries.</li>
 <li>Update <code>CITATION.cff</code> when the title, authors, affiliations, keywords,
    references, license, or release date change.</li>
 <li>Update <code>.zenodo.json</code> only when Zenodo-specific fields change. The validator
    checks that shared citation fields stay aligned with <code>CITATION.cff</code>.</li>
-<li>Run the metadata validator:</li>
+<li>Confirm every file agrees and the tag is still free:</li>
 </ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>scripts/validate_zenodo_metadata.py
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>make<span class="w"> </span>release-preflight
 </span></code></pre></div>
+<p>Do not tag until this passes. It reports every problem at once, so there is
+   no need to fix one and run it again.</p>
+<p>This step exists because skipping it is expensive. The same couplings are
+   enforced by the CI <code>test</code> job, and the <code>publish</code> job has <code>needs: test</code> -- so
+   a release commit that misses one of these files still tags cleanly, still
+   cuts a GitHub release, and simply never reaches PyPI. Nothing fails loudly
+   at the moment anyone is watching. Since PyPI will not accept a re-upload of
+   a version, recovering costs a whole patch release. That is how 0.6.0 was
+   lost: it missed steps 3 and 4, which this checklist did not previously
+   mention.</p>
 <ol>
 <li>Run the regular quality checks:</li>
 </ol>
@@ -2487,7 +2508,9 @@ the source of truth for shared citation fields.</p>
 <hr />
 <h2 id="after-release">After Release<a class="headerlink" href="#after-release" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Confirm the GitHub release triggered the PyPI publish workflow.</li>
+<li>Confirm the GitHub release triggered the PyPI publish workflow, and
+   that it ran rather than being skipped. <code>publish</code> depends on <code>test</code>; if
+   <code>test</code> failed, the release is tagged and public but not on PyPI.</li>
 <li>Confirm Zenodo created a new archived version.</li>
 <li>Confirm the Zenodo record uses the <code>.zenodo.json</code> title, creator ORCID,
    license, references, keywords, and related identifiers.</li>
