@@ -13,7 +13,7 @@ interchangeable and the difference matters for reproducibility.
 | DOI | Resolves to | Cite it when |
 | --- | --- | --- |
 | [10.5281/zenodo.22045594](https://doi.org/10.5281/zenodo.22045594) | **All versions** — always the most recent release | You mean "this software", and the exact version is not part of the claim |
-| the DOI under "Versions" on the [Zenodo record](https://doi.org/10.5281/zenodo.22045594) | **One release only.** Each is minted when Zenodo archives that release, so 0.6.1's appears there shortly after it is published | A result depends on the version you ran, which for numerical work it usually does |
+| [10.5281/zenodo.22166257](https://doi.org/10.5281/zenodo.22166257) | **One release only** — 0.6.1, and nothing else. Each release gets its own, minted when Zenodo archives it; earlier ones are listed under "Versions" on the concept record | A result depends on the version you ran, which for numerical work it usually does |
 
 The first is the *concept DOI*. It is the one to use by default, and the one on
 the badge in the README.
@@ -51,8 +51,8 @@ Citing release 0.6.1 exactly:
   year      = {2026},
   version   = {0.6.1},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.22045594},
-  url       = {https://doi.org/10.5281/zenodo.22045594}
+  doi       = {10.5281/zenodo.22166257},
+  url       = {https://doi.org/10.5281/zenodo.22166257}
 }
 ```
 
