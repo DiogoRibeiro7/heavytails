@@ -33,7 +33,7 @@ keywords:
   - simulation
   - teaching
 license: MIT
-version: 0.6.0
+version: 0.6.1
 date-released: 2026-08-29
 doi: "10.5281/zenodo.22045594"
 identifiers:
@@ -46,7 +46,8 @@ identifiers:
       Version DOI for release 0.4.0. Each release gets its own, minted when
       Zenodo archives it: 0.3.0 is 10.5281/zenodo.22050721, 0.2.0 is
       10.5281/zenodo.22047617 and 0.1.0 is 10.5281/zenodo.22045595. The ones for
-      0.5.0 and 0.6.0 are added here once Zenodo has archived those releases;
+      0.5.0, 0.6.0 and 0.6.1 are added here once Zenodo has archived those
+      releases;
       until then the concept DOI above resolves to the most recent version.
 references:
   - type: book

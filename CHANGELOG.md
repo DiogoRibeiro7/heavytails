@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-08-29
+
+### Fixed
+
+- `.zenodo.json` carried `publication_date: 2026-08-23` while `CITATION.cff`
+  had been moved to 2026-08-29. `scripts/validate_zenodo_metadata.py` requires the
+  two to agree, so the CI test job failed on every Python version and the
+  release job, which depends on it, never published 0.6.0 to PyPI. The dates
+  now agree. There is no code change: 0.6.1 is 0.6.0 with metadata that
+  passes its own validator.
+
 ## [0.6.0] - 2026-08-29
 
 ### Fixed
@@ -785,7 +796,8 @@ returned negative probabilities.
 - `heavytails` command-line interface.
 - Documentation site built with MkDocs Material.
 
-[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.3.0...v0.4.0

@@ -189,7 +189,7 @@ If you use this package in research or teaching, please cite it. GitHub's
 "Cite this repository" button reads [CITATION.cff](CITATION.cff), or use:
 
 > Ribeiro, D. (2026). *heavytails: A Python Library for Heavy-Tailed
-> Probability Distributions* (Version 0.5.0) [Computer software]. Zenodo.
+> Probability Distributions* (Version 0.6.1) [Computer software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.22045594>
 
 **Which DOI to use.** [`10.5281/zenodo.22045594`](https://doi.org/10.5281/zenodo.22045594)
