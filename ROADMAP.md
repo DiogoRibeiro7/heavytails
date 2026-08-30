@@ -44,6 +44,16 @@ vectorisation benchmarks, accuracy tests for the incomplete beta and gamma
 implementations against independent references, and a test suite in the
 thousands run across Python 3.10–3.13 on Linux, macOS and Windows.
 
+**Release lifecycle.** `make release-check` verifies that the five files
+carrying the release identity agree before anything is tagged, and
+`release-preflight` adds that the tag is still free. `make verify-release`
+asks the other question afterwards --- whether the tag, the GitHub release,
+PyPI and the Zenodo archive all describe the same version --- because a
+release can be tagged and published and still never reach PyPI, which is how
+0.6.0 was lost. The replication archive is checked as an artifact rather than
+as source: its manifest verifies, and the scripts it ships still run from the
+layout they are deposited in.
+
 --------------------------------------------------------------------------------
 
 ## Next
@@ -81,16 +91,45 @@ reference page.
 **6. Rare-event simulation.** Importance sampling for tail probabilities beyond
 the range where naive Monte Carlo returns anything but zero.
 
+### Release and replication tooling
+
+Two gaps with a known cost, both found by review rather than by CI.
+
+**Archive-versus-manifest verification.** `verify_release` establishes that a
+version is public --- tag, release, PyPI, a Zenodo DOI that resolves --- but
+not that the archive at that DOI *contains* the replication package the
+manuscript cites. Those came apart once: a 31-file archive was cited by a
+33-file package, and every existing check passed while it was true. The
+comparison that caught it is a download and a manifest diff, and it is
+currently done by hand.
+
+**A cross-platform reproduction path.** `REPRODUCE.md` asks for `gunzip`,
+`sha256sum`, `diff` and a shell loop, while the environment record the same
+archive ships says Windows. A small Python verifier doing the decompression,
+the JSON comparison and the checksums would make the documented environment
+and the documented workflow the same environment.
+
 --------------------------------------------------------------------------------
 
 ## Research
 
 The repository carries the replication package for *Sparse Contamination in
 Tail-Index Estimation: Detectability, Negligibility, and Risk* under
-`research/sparse_contamination/replication_package/`, archived with each
-release. It is a study of when a handful of contaminated order statistics can
-be detected, when they can be ignored, and when they change a risk number ---
-using this library's spacing scan and harmonic-moment estimators.
+`research/sparse_contamination/replication_package/`. It is a study of when a
+handful of contaminated order statistics can be detected, when they can be
+ignored, and when they change a risk number --- using this library's spacing
+scan and harmonic-moment estimators.
+
+The package is archived with each release, so the version DOI of the release
+that carries it is what the manuscript cites. That keeps one object serving two
+lifecycles, and the seams show: the archive changes whenever the software
+around it does, and the manuscript bundled inside an archive cannot cite that
+archive's own DOI, because the DOI does not exist until the deposit is made. A
+dedicated deposit with a reserved DOI would separate them; the current
+arrangement is a deliberate choice to avoid a second record, not an oversight.
+
+The frozen results record what produced them --- `heavytails` 0.5.0 at commit
+`755e6ad` --- independently of whatever version the library has since reached.
 
 --------------------------------------------------------------------------------
 
