@@ -1,10 +1,12 @@
 """Build Online Resource 1: the compact reproduction guide for the journal.
 
 The full replication archive is large, mostly because of the per-replicate
-export, and belongs in a public repository with its own DOI.  What the journal
-carries alongside the paper is this small bundle: the manifest of that archive,
-the run configuration and provenance, a map from each table and figure to the
-file that produces it, and the archive's identifier.
+export, so it is not what travels with the manuscript.  It lives in the
+project's public repository and is archived with each release, which is what
+gives it a citable identifier.  What the journal carries alongside the paper is
+this small bundle: the manifest of that archive, the run configuration and
+provenance, a map from each table and figure to the file that produces it, and
+the archive's identifier.
 
 Usage::
 
@@ -78,11 +80,12 @@ University of Porto, Porto, Portugal
 
 This bundle is the compact companion to the paper.  The **complete replication
 archive** --- simulation drivers, analysis-only scripts, the frozen summary and
-per-replicate losses, and the manuscript sources --- is deposited separately at
+per-replicate losses, and the manuscript sources --- is archived at
 
     {doi}
 
-because the per-replicate export alone is {replicates_mb:.0f} MB.  This bundle
+which is the software release that carries it; the per-replicate export alone is
+{replicates_mb:.0f} MB, which is why it is not attached to the article.  This bundle
 contains what a reader needs to check the archive's integrity and to find the
 file behind any number in the paper.
 
@@ -121,6 +124,24 @@ Verify the archive against `MANIFEST.txt` before use.
 """
 
 
+def _locate_package() -> Path | None:
+    """Find the replication package from wherever this script is running.
+
+    This script is archived *inside* the package it reads, at
+    ``replication_package/scripts/``, so the working-tree assumption --- that
+    the package sits next to the script --- resolves to
+    ``replication_package/scripts/replication_package`` once deposited, which
+    does not exist. The script that generates the journal supplement could not
+    be run from the deposit it was supplied in.
+
+    Both layouts are checked, identified by the manifest rather than by name.
+    """
+    for candidate in (HERE / "replication_package", HERE.parent):
+        if (candidate / "MANIFEST.txt").is_file():
+            return candidate
+    return None
+
+
 def main() -> None:
     """Assemble the Online Resource bundle."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -135,11 +156,20 @@ def main() -> None:
         help="corresponding author address, as it appears on the title page",
     )
     parser.add_argument("--outdir", type=Path, default=HERE / "online_resource_1")
+    parser.add_argument(
+        "--package-root",
+        type=Path,
+        default=None,
+        help="the replication package to read (default: locate it)",
+    )
     args = parser.parse_args()
 
-    package = HERE / "replication_package"
-    if not package.is_dir():
-        raise SystemExit("run build_replication_package.py first")
+    package = args.package_root or _locate_package()
+    if package is None or not package.is_dir():
+        raise SystemExit(
+            "cannot find the replication package; run build_replication_package.py "
+            "first, or pass --package-root"
+        )
 
     if args.outdir.exists():
         shutil.rmtree(args.outdir)

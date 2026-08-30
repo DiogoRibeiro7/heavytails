@@ -37,15 +37,23 @@ import csv
 import json
 import math
 from pathlib import Path
+import sys
 import time
 from typing import Any
 
 import numpy as np
-from sparse_experiment import (  # frozen driver: reuse its exact machinery
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+from sparse_experiment import (  # noqa: E402  frozen driver: exact machinery
     _adaptive_selection,
     _harmonic_from_spacings,
     _trimmed_from_spacings,
 )
+
+from _provenance import base_provenance  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 GAMMA = 0.5
@@ -346,6 +354,10 @@ def main() -> None:
         "self_check": checks,
         "rows": len(rows),
         "seconds": time.time() - started,
+        # The primary run has always recorded this; the stress run did not, so
+        # half the paper's simulations shipped without a record of the code
+        # that produced them.
+        "provenance": base_provenance(REPO_ROOT),
     }
     (args.outdir / "stress_report.json").write_text(
         json.dumps(report, indent=2), encoding="utf-8"
