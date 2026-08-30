@@ -39,6 +39,13 @@ extreme-value analysis.
 - **Parameter fitting** by maximum likelihood and method of moments, with
   AIC/BIC model comparison.
 - **Diagnostics** for log–log tail plots and QQ plots.
+- **Applied extreme value theory** — peaks-over-threshold selection with mean
+  residual life and parameter-stability diagnostics, generalized Pareto fitting,
+  return levels, tail-risk measures, actuarial frequency and severity models,
+  and streaming estimators for data that does not fit in memory.
+- **Dependent extremes** — elliptical and multivariate Student-t models with
+  fitting, the tail dependence coefficient, Gaussian, Student-t, Gumbel and
+  Galambos copulas, GARCH fitting, the extremal index and declustering.
 - **A command-line interface** for sampling, fitting, comparison and
   benchmarking.
 - **Typed throughout**, with a `py.typed` marker so downstream type checkers see
@@ -138,13 +145,21 @@ discrete family provides `pmf`, `cdf`, `ppf` and `rvs`.
 
 ### Estimation and diagnostics
 
-| Module       | Contents                                              |
-| ------------ | ----------------------------------------------------- |
-| `tail_index` | Hill-family, robust, bias-reduced and POT estimators   |
-| `plotting`   | Log–log tail plots and QQ plots                        |
-| `utilities`  | Data I/O, automatic fitting and model comparison       |
-| `validation` | Mathematical and numerical validation of the families  |
-| `cli`        | Command-line entry point                               |
+| Module         | Contents                                                   |
+| -------------- | ---------------------------------------------------------- |
+| `tail_index`   | Hill-family, robust, bias-reduced and POT estimators        |
+| `threshold`    | Mean residual life, parameter stability, GPD fits, return levels |
+| `risk`         | Value at risk, expected shortfall, tail conditional expectation |
+| `actuarial`    | Frequency models, policy terms, layered severity, limited expected values |
+| `streaming`    | Top-k, streaming and windowed tail-index estimation         |
+| `multivariate` | Elliptical models, multivariate Student-t, tail dependence  |
+| `copula`       | Gaussian, Student-t, Gumbel and Galambos copulas            |
+| `timeseries`   | GARCH fitting, the extremal index, declustering             |
+| `registry`     | Name-to-family lookup for generic code                      |
+| `plotting`     | Log–log tail plots and QQ plots                             |
+| `utilities`    | Data I/O, automatic fitting and model comparison            |
+| `validation`   | Mathematical and numerical validation of the families       |
+| `cli`          | Command-line entry point                                    |
 
 ---
 
@@ -158,6 +173,22 @@ To build it locally:
 ```bash
 make docs-serve
 ```
+
+---
+
+## Research
+
+The repository carries the replication package for *Sparse Contamination in
+Tail-Index Estimation: Detectability, Negligibility, and Risk* at
+[`research/sparse_contamination/replication_package/`](research/sparse_contamination/replication_package/),
+archived with each release. It studies when a handful of contaminated order
+statistics can be detected, when they can be ignored, and when they change a
+risk number, using this library's spacing scan and harmonic-moment estimators.
+
+The package holds the simulation drivers, the analysis-only scripts, the frozen
+results, the provenance records and a SHA-256 manifest over every file.
+`REPRODUCE.md` inside it reproduces every reported number from the frozen
+artifacts, without re-running the simulation.
 
 ---
 

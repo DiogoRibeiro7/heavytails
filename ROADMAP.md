@@ -1,84 +1,100 @@
 # heavytails Roadmap
 
-This roadmap outlines the planned development phases for the **heavytails** project, focusing on expanding its scope from a pure heavy-tailed distribution library to a comprehensive framework for tail-risk modeling, simulation, and diagnostics.
+What is built, and what is worth building next.
 
----
+This file was previously organised into phases, which stopped describing the
+project some releases ago: it listed the documentation site, the benchmarks,
+the distribution registry, the multivariate models, the copulas and the GARCH
+work as future plans while all of them were shipping. A roadmap that
+understates what exists misleads anyone deciding whether to depend on the
+library, so it is now written against the current tree.
 
-## 🧭 Phase 1 — Core Implementation ✅ *(Completed)*
+--------------------------------------------------------------------------------
 
-**Goal:** Build a solid mathematical foundation of continuous heavy-tailed distributions.
+## Shipped
 
-* [x] Implement Pareto, Cauchy, Student-t, LogNormal, Weibull (k<1), Fréchet, GEV (ξ>0)
-* [x] Implement deterministic RNG wrapper and helper utilities
-* [x] Add closed-form PDF, CDF, SF, and PPF methods for all distributions
-* [x] Add `extra_distributions.py` with GPD, Burr XII, LogLogistic, Inverse-Gamma, and BetaPrime
-* [x] Add repository structure, Poetry packaging, and full README
+**Distributions.** Continuous heavy-tailed families and the discrete ones
+(Zipf, Yule–Simon, Discrete Pareto), with array-aware evaluation throughout and
+quantile functions that search rather than approximate where no closed form
+exists. `heavytails.registry` maps a name to a family, so callers can work
+generically.
 
----
+**Tail-index estimation.** Hill, Pickands and moment estimators, the
+generalized Hill and the Resnick–Stărică smoothed Hill, bias correction and
+variance estimation, harmonic-moment (t-Hill) estimators, and adaptive trimming
+driven by a conservative spacing scan.
 
-## 🧩 Phase 2 — Expansion & Validation *(In Progress)*
+**Peaks over threshold.** Mean residual life and parameter-stability
+diagnostics, threshold selection, generalized Pareto fitting and return levels.
 
-**Goal:** Extend functionality beyond continuous distributions, add validation layers, and prepare for publication.
+**Risk and actuarial.** Value at risk, expected shortfall, tail conditional
+expectation, Monte Carlo tail risk; Poisson, negative-binomial and binomial
+frequency models, policy terms, layered severity and limited expected values.
 
-### Implemented
+**Dependent extremes.** Elliptical models including the multivariate normal and
+Student-t with fitting, the tail dependence coefficient; Gaussian, Student-t,
+Gumbel and Galambos copulas with empirical tail dependence; GARCH fitting, the
+extremal index and declustering.
 
-* [x] Discrete heavy-tailed distributions (Zipf, Yule–Simon, Discrete Pareto)
-* [x] Tail index estimators (Hill, Pickands, Moment)
-* [x] Plotting utilities (log–log tail plots, QQ plots)
-* [x] Unit test suite for continuous and discrete families
-* [x] CI pipeline integration with GitHub Actions
+**Streaming.** Top-k maintenance and tail-index estimation over streams and
+sliding windows, for data that does not fit in memory.
 
-### Next Steps
+**Infrastructure.** A documentation site built under `--strict`, sampling and
+vectorisation benchmarks, accuracy tests for the incomplete beta and gamma
+implementations against independent references, and a test suite in the
+thousands run across Python 3.10–3.13 on Linux, macOS and Windows.
 
-* [ ] Validate numerical stability of incomplete beta/gamma implementations
-* [ ] Extend test coverage with edge cases and numerical comparisons
-* [ ] Add benchmarks for sampling performance and asymptotic accuracy
+--------------------------------------------------------------------------------
 
----
+## Next
 
-## 📈 Phase 3 — Analytical Tools *(Upcoming)*
+Ordered by how much each would add for someone doing applied extreme value
+work. Each is absent today, not partially present.
 
-**Goal:** Move from modeling to inference and diagnostics.
+**1. A block-maxima workflow.** `GEV_Frechet` exists as a distribution, but
+nothing extracts block maxima, fits a GEV to them, or produces return levels
+and confidence intervals from that fit. Block maxima is one of the two standard
+EVT routes and the library currently offers only the other one. This is the
+largest gap between what the package contains and what a practitioner expects.
 
-* [x] Implement additional tail-index estimators (Generalized Hill, Resnick–Stărică smoothed Hill)
-* [x] Add bias-correction and variance estimation tools
-* [x] Develop tail QQ and Hill plot visual diagnostics (optional matplotlib support)
-* [x] Implement EVT-based threshold selection and excess fitting
+**2. Unified fit and result objects.** Estimators return bare numbers or
+tuples, so the threshold that produced an estimate, its standard error and its
+diagnostics travel separately from the estimate itself, or not at all. A common
+result type would let return levels, plots and comparisons take a fit rather
+than a scattering of arguments.
 
----
+**3. Inference for multivariate extremal dependence.** The models and the
+coefficients are implemented; the inference around them is not. Estimating
+dependence with uncertainty, and testing asymptotic independence, is what turns
+those models into something a paper can rest on.
 
-## 🧠 Phase 4 — Simulation & Applications *(Planned)*
+**4. Return levels that know how the threshold was chosen.** Intervals
+currently condition on the threshold as if it were given. It was estimated, and
+ignoring that understates the uncertainty in exactly the quantity most often
+reported.
 
-**Goal:** Provide applied modules for risk analysis and extreme-event simulation.
+**5. Worked examples on real data.** The documentation demonstrates the API on
+simulated data. Reproducible analyses of public datasets would show the
+diagnostics deciding something, which is the part that is hard to learn from a
+reference page.
 
-* [x] Monte Carlo simulation utilities for heavy-tail risk estimation
-* [x] Tail-risk metrics (VaR, ES, tail conditional expectation)
-* [x] Actuarial layer: aggregate-loss models and compound distributions
-* [ ] Integration with log-based or empirical tail fitting (e.g., datasets)
+**6. Rare-event simulation.** Importance sampling for tail probabilities beyond
+the range where naive Monte Carlo returns anything but zero.
 
----
+--------------------------------------------------------------------------------
 
-## 📚 Phase 5 — Documentation & Dissemination *(Planned)*
+## Research
 
-**Goal:** Make `heavytails` reproducible, documented, and publishable.
+The repository carries the replication package for *Sparse Contamination in
+Tail-Index Estimation: Detectability, Negligibility, and Risk* under
+`research/sparse_contamination/replication_package/`, archived with each
+release. It is a study of when a handful of contaminated order statistics can
+be detected, when they can be ignored, and when they change a risk number ---
+using this library's spacing scan and harmonic-moment estimators.
 
-* [ ] Full API documentation using MkDocs or Sphinx
-* [ ] Add theoretical appendix (mathematical definitions, tail proofs)
-* [ ] Write and release technical report / whitepaper
-* [ ] Submit paper to *The R Journal* or *Journal of Open Source Software* (JOSS)
+--------------------------------------------------------------------------------
 
----
-
-## 🧩 Long-Term Vision
-
-* Extend library to **multivariate heavy-tailed models** (Elliptical, Student-t Copulas)
-* Integrate **time-series tail modeling** (ARCH/GARCH, stable innovations)
-* Develop **tail simulation kernels** in Rust or Fortran for performance
-* Expose a unified Python API for both distribution modeling and tail inference
-
----
-
-## 💡 Considered, Not Committed
+## Considered, Not Committed
 
 These shipped as empty signatures raising `NotImplementedError` and were removed
 in #312. A module of empty signatures is indistinguishable from a module of
@@ -88,21 +104,9 @@ promise nothing.
 **Plausible for a statistics library, unscheduled.** Regime-switching models;
 survival analysis with heavy-tailed hazards; Bayesian parameter estimation and
 MCMC; spatial processes and kriging; distribution classification by machine
-learning; GPU-accelerated sampling; vine copulas; tail geometry via convex hulls
-and Voronoi diagrams; interoperability shims for NumPy and scikit-learn.
+learning; vine copulas.
 
-**Infrastructure worth building.** A distribution registry, to replace the
-string-keyed lookups the CLI and `AutoFit` both rely on — this is the one piece
-of #312 kept as work rather than dropped. Alongside it, data-quality assessment
-and configuration management.
-
-**Deliberately out of scope.** Web scraping for financial data, an interactive
-tutorial system, a plugin loader, unit conversion, a citation manager, a web
-service. These belong in a project that uses this library, not in a
-distributions library.
-
----
-
-**Maintainer:** Diogo Ribeiro
-**License:** MIT
-**Repository:** [https://github.com/DiogoRibeiro7/heavytails](https://github.com/DiogoRibeiro7/heavytails)
+**Deliberately out of scope.** Native extensions in Rust or Fortran. The
+vectorised NumPy paths carry the performance-critical work, and a second
+toolchain would cost more in build and packaging complexity than the remaining
+speedup is worth.
