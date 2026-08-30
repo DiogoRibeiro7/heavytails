@@ -39,13 +39,26 @@ make release-preflight
    `coverage`, `lint-and-type-check`, `security` and `build` -- so a release
    commit that misses one of these files still tags cleanly, still cuts a
    GitHub release, and simply never reaches PyPI. Nothing fails loudly at the
-   moment anyone is watching. Note that `coverage` runs only on releases and
-   on `main`: no pull request exercises that gate, so it is first tested by
-   the release itself. Since PyPI will not accept a re-upload of a version,
+   moment anyone is watching. Since PyPI will not accept a re-upload of a version,
    recovering costs a whole patch release. That is how 0.6.0 was lost: it
    missed steps 3 and 4, which this checklist did not previously mention.
 
-8. Run the regular quality checks:
+8. Dispatch the coverage job and wait for it to pass:
+
+```bash
+gh workflow run CI --ref main
+```
+
+   `coverage` runs on a release or a manual dispatch and on nothing else --
+   not on pushes, not on pull requests. But `publish` waits on it, so on an
+   ordinary release the first time it ever runs against the code being shipped
+   is *after* the tag is public. If it fails there, for any reason including a
+   tooling change rather than a real coverage drop, the tag and the GitHub
+   release are already spent and the recovery is another version number. That
+   is the same shape of failure as 0.6.0. Dispatching it here moves the one
+   unexercised gate in front of the irreversible step.
+
+9. Run the regular quality checks:
 
 ```bash
 poetry run ruff check .
@@ -93,9 +106,10 @@ Each GitHub release should include:
 
 ## After Release
 
-1. Confirm the GitHub release triggered the PyPI publish workflow, and
-   that it ran rather than being skipped. `publish` depends on `test`; if
-   `test` failed, the release is tagged and public but not on PyPI.
+1. Confirm the GitHub release triggered the PyPI publish workflow, and that
+   it ran rather than being skipped. `publish` waits on `test`, `coverage`,
+   `lint-and-type-check`, `security` and `build`; if any of them failed, the
+   release is tagged and public but not on PyPI.
 2. Confirm Zenodo created a new archived version.
 3. Confirm the Zenodo record uses the `.zenodo.json` title, creator ORCID,
    license, references, keywords, and related identifiers.

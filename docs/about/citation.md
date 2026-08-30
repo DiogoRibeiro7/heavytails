@@ -64,24 +64,24 @@ Citing release 0.6.1 exactly:
 
 > Ribeiro, D. (2026). *heavytails: A Python library for heavy-tailed
 > probability distributions* (Version 0.6.1) [Computer software]. Zenodo.
-> <https://doi.org/10.5281/zenodo.22045594>
+> <https://doi.org/10.5281/zenodo.22166257>
 
 ### IEEE
 
 > D. Ribeiro, "heavytails: A Python Library for Heavy-Tailed Probability
-> Distributions," version 0.6.1, Zenodo, 2026. doi: 10.5281/zenodo.22045594.
+> Distributions," version 0.6.1, Zenodo, 2026. doi: 10.5281/zenodo.22166257.
 
 ### MLA
 
 > Ribeiro, Diogo. *heavytails: A Python Library for Heavy-Tailed
 > Probability Distributions*. Version 0.6.1, Zenodo, 2026,
-> doi:10.5281/zenodo.22045594.
+> doi:10.5281/zenodo.22166257.
 
 ### Chicago
 
 > Ribeiro, Diogo. 2026. "heavytails: A Python Library for Heavy-Tailed
 > Probability Distributions." Version 0.6.1. Zenodo.
-> <https://doi.org/10.5281/zenodo.22045594>.
+> <https://doi.org/10.5281/zenodo.22166257>.
 
 --------------------------------------------------------------------------------
 

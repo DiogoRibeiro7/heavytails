@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `make verify-release VERSION=x.y.z`, backed by `scripts/verify_release.py`,
+  asks whether a released version is actually public: tag, GitHub release,
+  PyPI and the Zenodo archive, plus the local metadata that names it. The
+  preflight cannot answer this, because half of a release does not exist when
+  it runs -- Zenodo mints the version DOI only on archiving. Run against
+  0.6.0 it reports the incident exactly: tagged, released on GitHub, absent
+  from PyPI.
+
 - `make release-check` and `make release-preflight`, backed by
   `scripts/check_release.py`, verify that the five files carrying the release
   identity agree before a release is tagged. The version lives in
@@ -24,6 +32,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with a stale changelog and stale citation guidance.
 
 ### Fixed
+
+- The APA, IEEE, MLA and Chicago citations in `docs/about/citation.md`, and the
+  suggested citation in `README.md`, each said "Version 0.6.1" beside the
+  *concept* DOI, which resolves to whatever is newest. Five citations named a
+  version they did not pin. `check_release.py` now reads citations by block --
+  a fenced snippet or a run of blockquote lines, since the version and the DOI
+  are rarely on the same line -- and requires any block naming a version to
+  cite that version's DOI.
+- Two false statements in `docs/development/releasing.md`. `coverage` does not
+  run "on releases and on `main`"; it runs on a release or a manual dispatch
+  and on nothing else. And the After Release checklist still said `publish`
+  depends on `test` alone, which the Before Tagging section had already been
+  corrected away from in the same file.
+
+### Changed
+
+- Releasing now dispatches `coverage` before tagging. It is the one gate no
+  pull request exercises, `publish` waits on it, and on an ordinary release it
+  first runs against the shipped code *after* the tag is public -- so a
+  failure there costs a version number for the same reason 0.6.0 did.
 
 - The "Citing release X exactly" block in `docs/about/citation.md` quoted the
   *concept* DOI, which by that same page's table "always resolves to the most

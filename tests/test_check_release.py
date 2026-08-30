@@ -225,3 +225,33 @@ def test_it_catches_citation_guidance_that_lost_the_version_doi(repo: Path) -> N
     problems = collect_problems(repo)
 
     assert any(f"names version DOI {doi}" in problem for problem in problems), problems
+
+
+def _concept_doi(repo: Path) -> str:
+    """The DOI that resolves to whatever is newest."""
+    match = re.search(
+        r'^doi:\s*"([^"]+)"',
+        (repo / "CITATION.cff").read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    assert match is not None
+    return match.group(1)
+
+
+def test_it_catches_a_versioned_citation_using_the_concept_doi(repo: Path) -> None:
+    """A citation that names a version must pin that version.
+
+    Requiring the version DOI to appear *somewhere* was too weak. It passed on
+    a page whose APA, IEEE, MLA and Chicago renderings each said "Version
+    0.6.1" beside the concept DOI -- which, as the same page explains,
+    resolves to whatever is newest. Five citations named a release they did
+    not pin, and the earlier check saw one correct BibTeX block and stopped.
+    """
+    _edit(repo / "README.md", _version_doi(repo), _concept_doi(repo))
+
+    problems = collect_problems(repo)
+
+    assert any(
+        "README.md" in problem and "must use that version" in problem
+        for problem in problems
+    ), problems

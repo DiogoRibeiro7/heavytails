@@ -190,14 +190,16 @@ If you use this package in research or teaching, please cite it. GitHub's
 
 > Ribeiro, D. (2026). *heavytails: A Python Library for Heavy-Tailed
 > Probability Distributions* (Version 0.6.1) [Computer software]. Zenodo.
-> <https://doi.org/10.5281/zenodo.22045594>
+> <https://doi.org/10.5281/zenodo.22166257>
 
-**Which DOI to use.** [`10.5281/zenodo.22045594`](https://doi.org/10.5281/zenodo.22045594)
-is the concept DOI: it always resolves to the most recent release, and citing
-it means "this software, any version". Use it unless the exact version
-matters. When reproducibility depends on the version you ran, cite that
-version's own DOI instead. Every release gets one, minted when Zenodo
+**Which DOI to use.** The citation above names a version, so it uses that
+release's own DOI: [`10.5281/zenodo.22166257`](https://doi.org/10.5281/zenodo.22166257)
+resolves to 0.6.1 and nothing else. Every release gets one, minted when Zenodo
 archives it and listed under "Versions" on the record.
+[`10.5281/zenodo.22045594`](https://doi.org/10.5281/zenodo.22045594) is the
+*concept* DOI, which always resolves to the most recent release; cite it when
+you mean "this software, any version" and the exact version is not part of the
+claim.
 
 ```bibtex
 @software{ribeiro_heavytails,
