@@ -190,10 +190,10 @@ If you use this package in research or teaching, please cite it. GitHub's
 
 > Ribeiro, D. (2026). *heavytails: A Python Library for Heavy-Tailed
 > Probability Distributions* (Version 0.6.2) [Computer software]. Zenodo.
-> <https://doi.org/10.5281/zenodo.22166257>
+> <https://doi.org/10.5281/zenodo.22171166>
 
 **Which DOI to use.** The citation above names a version, so it uses that
-release's own DOI: [`10.5281/zenodo.22166257`](https://doi.org/10.5281/zenodo.22166257)
+release's own DOI: [`10.5281/zenodo.22171166`](https://doi.org/10.5281/zenodo.22171166)
 resolves to 0.6.2 and nothing else. Every release gets one, minted when Zenodo
 archives it and listed under "Versions" on the record.
 [`10.5281/zenodo.22045594`](https://doi.org/10.5281/zenodo.22045594) is the
