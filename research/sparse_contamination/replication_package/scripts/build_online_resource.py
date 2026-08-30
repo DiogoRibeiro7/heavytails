@@ -121,6 +121,24 @@ Verify the archive against `MANIFEST.txt` before use.
 """
 
 
+def _locate_package() -> Path | None:
+    """Find the replication package from wherever this script is running.
+
+    This script is archived *inside* the package it reads, at
+    ``replication_package/scripts/``, so the working-tree assumption --- that
+    the package sits next to the script --- resolves to
+    ``replication_package/scripts/replication_package`` once deposited, which
+    does not exist. The script that generates the journal supplement could not
+    be run from the deposit it was supplied in.
+
+    Both layouts are checked, identified by the manifest rather than by name.
+    """
+    for candidate in (HERE / "replication_package", HERE.parent):
+        if (candidate / "MANIFEST.txt").is_file():
+            return candidate
+    return None
+
+
 def main() -> None:
     """Assemble the Online Resource bundle."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -135,11 +153,20 @@ def main() -> None:
         help="corresponding author address, as it appears on the title page",
     )
     parser.add_argument("--outdir", type=Path, default=HERE / "online_resource_1")
+    parser.add_argument(
+        "--package-root",
+        type=Path,
+        default=None,
+        help="the replication package to read (default: locate it)",
+    )
     args = parser.parse_args()
 
-    package = HERE / "replication_package"
-    if not package.is_dir():
-        raise SystemExit("run build_replication_package.py first")
+    package = args.package_root or _locate_package()
+    if package is None or not package.is_dir():
+        raise SystemExit(
+            "cannot find the replication package; run build_replication_package.py "
+            "first, or pass --package-root"
+        )
 
     if args.outdir.exists():
         shutil.rmtree(args.outdir)

@@ -15,9 +15,13 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import importlib
 import json
 from pathlib import Path
+import platform
+import re
 import shutil
+import subprocess
 
 HERE = Path(__file__).resolve().parent
 
@@ -102,13 +106,17 @@ near-duplicate signal points collapsed at tolerance {tolerance}.
   and for independent auditing.
 - `results/primary_report.json` — configuration, seed and provenance of the run.
 - `results/frozen_run_analysis.json` — the digest of quoted numbers.
+- `ENVIRONMENT.txt` — the versions the analysis and the manuscript build
+  were run with, including the TeX tooling.
 - `paper/main.tex`, `paper/main.pdf` and `paper/generated/` — the manuscript,
   the build it produces, and the generated table and figure fragments it
   inputs.
 
 ## Reproducing the reported numbers
 
-From this directory, with Python {python}, `pandas` and `matplotlib` available:
+From this directory, with the versions recorded in `ENVIRONMENT.txt` ---
+Python, NumPy, pandas, matplotlib and the TeX tooling the archived PDF was
+built with:
 
 ```bash
 gunzip -k results/primary_replicates.csv.gz
@@ -151,13 +159,21 @@ and the `\\input{{generated/...}}` paths resolve:
 latexmk -pdf -cd paper/main.tex
 ```
 
-The result should match the shipped `paper/main.pdf`.  PDF bytes are not
-reproducible across runs, so compare the extracted text instead; it is
-byte-identical:
+PDF bytes are not reproducible across runs --- timestamps and font subset
+identifiers differ --- so the extracted text is what is compared.  Note that
+the build above has already overwritten `paper/main.pdf`, so hashing that file
+now would only hash the rebuild.  Compare against the expected value shipped
+with the archive instead:
 
 ```bash
-pdftotext paper/main.pdf - | sha256sum
+pdftotext paper/main.pdf - > rebuilt.txt
+sha256sum -c paper/main.txt.sha256
 ```
+
+`paper/main.txt.sha256` names `rebuilt.txt`, so this succeeds only if the text
+your build produces matches the text the archived PDF was made from.  The
+manuscript carries a fixed `\\date`, so the comparison does not decay with the
+calendar.
 
 ## Re-running the simulation itself
 
@@ -180,6 +196,88 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1 << 20), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _heavytails_version() -> str:
+    """The version in the tree, not the one the installed metadata claims.
+
+    ``heavytails.__version__`` comes from ``importlib.metadata``, which reads
+    the dist-info written when the environment was last installed. In an
+    editable checkout that goes stale silently: this recorded 0.2.0 while the
+    tree was at 0.6.2. ``scripts/_provenance.py`` prefers pyproject.toml for
+    the same reason, and an environment record that names the wrong version is
+    worse than one that admits it does not know.
+    """
+    pyproject = HERE.parents[1] / "pyproject.toml"
+    if pyproject.is_file():
+        match = re.search(
+            r'^version\s*=\s*"([^"]+)"',
+            pyproject.read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
+        if match:
+            return f"{match.group(1)}  (from pyproject.toml)"
+    try:
+        return importlib.import_module("heavytails").__version__
+    except (ImportError, AttributeError):
+        return "unknown"
+
+
+def _environment_record() -> str:
+    """Pin what the analysis scripts were run with.
+
+    The reproduction notes asked for "`pandas` and `matplotlib` available",
+    which names neither version. Those two do the plotting and the table
+    arithmetic, so "available" is not a specification -- a reader on different
+    majors can reproduce different output and have no way to tell.
+    """
+    lines = ["# component  version", ""]
+    for name in ("numpy", "pandas", "matplotlib"):
+        try:
+            module = importlib.import_module(name)
+        except ImportError:
+            lines.append(f"{name}  not installed")
+            continue
+        lines.append(f"{name}  {getattr(module, '__version__', 'unknown')}")
+    lines.append(f"heavytails  {_heavytails_version()}")
+    lines.append(f"python  {platform.python_version()}")
+    lines.append(f"platform  {platform.platform()}")
+
+    lines.extend(
+        f"{tool}  {_tool_version(tool)}" for tool in ("latexmk", "pdftex", "pdftotext")
+    )
+    return "\n".join(lines) + "\n"
+
+
+def _tool_version(tool: str) -> str:
+    """First line of ``tool --version``, or a note that it is absent."""
+    try:
+        result = subprocess.run(
+            [tool, "--version"], capture_output=True, check=False, text=True
+        )
+    except OSError:
+        return "not found"
+    output = (result.stdout or result.stderr).strip().splitlines()
+    return output[0] if output else "unknown"
+
+
+def _pdf_text_digest(pdf: Path) -> str | None:
+    """SHA-256 of the manuscript's extracted text, or None without pdftotext.
+
+    The archive claims the extracted text is reproducible where the PDF bytes
+    are not. That claim was unfalsifiable: nothing recorded what the text
+    should hash to, so the instructions could only print a number the reader
+    had nothing to compare against.
+    """
+    try:
+        result = subprocess.run(
+            ["pdftotext", str(pdf), "-"],
+            capture_output=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return hashlib.sha256(result.stdout).hexdigest()
 
 
 def main() -> None:
@@ -205,7 +303,15 @@ def main() -> None:
             raise SystemExit(f"missing artifact: {source}")
         target = args.outdir / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        with source.open("rb") as raw, gzip.open(target, "wb", compresslevel=6) as out:
+        # mtime=0 rather than gzip.open's default of "now". Without it the
+        # container embeds a timestamp, so rebuilding the package from
+        # unchanged data produces different bytes -- a new 49 MB blob in git
+        # history and a manifest that says the data changed when it did not.
+        with (
+            source.open("rb") as raw,
+            target.open("wb") as fh,
+            gzip.GzipFile(fileobj=fh, mode="wb", compresslevel=6, mtime=0) as out,
+        ):
             shutil.copyfileobj(raw, out, length=1 << 20)
         written.append(target)
 
@@ -238,6 +344,27 @@ def main() -> None:
         encoding="utf-8",
     )
     written.append(readme)
+
+    text_digest = _pdf_text_digest(args.outdir / "paper" / "main.pdf")
+    if text_digest is not None:
+        # REPRODUCE.md tells the reader to check a rebuild against this. The
+        # name on the right is what `sha256sum -c` will look for, so it has to
+        # be the file those instructions create, not the PDF.
+        expected = args.outdir / "paper" / "main.txt.sha256"
+        # newline="" keeps this LF on Windows too. `sha256sum -c` reads the
+        # filename to the end of the line, so a CR makes it look for a file
+        # called "rebuilt.txt\r", which no build produces -- the check then
+        # fails on a manuscript that reproduced perfectly.
+        expected.write_text(
+            f"{text_digest}  rebuilt.txt\n", encoding="utf-8", newline=""
+        )
+        written.append(expected)
+    else:
+        print("warning: pdftotext unavailable, no expected text digest shipped")
+
+    environment = args.outdir / "ENVIRONMENT.txt"
+    environment.write_text(_environment_record(), encoding="utf-8", newline="")
+    written.append(environment)
 
     lines = ["# path  sha256  bytes", ""]
     for path in sorted(written, key=lambda p: p.relative_to(args.outdir).as_posix()):

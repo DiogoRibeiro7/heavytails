@@ -1,0 +1,11 @@
+# component  version
+
+numpy  2.5.2
+pandas  2.3.3
+matplotlib  3.11.1
+heavytails  0.6.2  (from pyproject.toml)
+python  3.13.5
+platform  Windows-11-10.0.26200-SP0
+latexmk  Latexmk, John Collins, 15 June 2025. Version 4.87
+pdftex  MiKTeX-pdfTeX 4.21 (MiKTeX 25.4)
+pdftotext  pdftotext version 4.00

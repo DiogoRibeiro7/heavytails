@@ -53,13 +53,17 @@ near-duplicate signal points collapsed at tolerance 1e-10.
   and for independent auditing.
 - `results/primary_report.json` — configuration, seed and provenance of the run.
 - `results/frozen_run_analysis.json` — the digest of quoted numbers.
+- `ENVIRONMENT.txt` — the versions the analysis and the manuscript build
+  were run with, including the TeX tooling.
 - `paper/main.tex`, `paper/main.pdf` and `paper/generated/` — the manuscript,
   the build it produces, and the generated table and figure fragments it
   inputs.
 
 ## Reproducing the reported numbers
 
-From this directory, with Python 3.13.5, `pandas` and `matplotlib` available:
+From this directory, with the versions recorded in `ENVIRONMENT.txt` ---
+Python, NumPy, pandas, matplotlib and the TeX tooling the archived PDF was
+built with:
 
 ```bash
 gunzip -k results/primary_replicates.csv.gz
@@ -102,13 +106,21 @@ and the `\input{generated/...}` paths resolve:
 latexmk -pdf -cd paper/main.tex
 ```
 
-The result should match the shipped `paper/main.pdf`.  PDF bytes are not
-reproducible across runs, so compare the extracted text instead; it is
-byte-identical:
+PDF bytes are not reproducible across runs --- timestamps and font subset
+identifiers differ --- so the extracted text is what is compared.  Note that
+the build above has already overwritten `paper/main.pdf`, so hashing that file
+now would only hash the rebuild.  Compare against the expected value shipped
+with the archive instead:
 
 ```bash
-pdftotext paper/main.pdf - | sha256sum
+pdftotext paper/main.pdf - > rebuilt.txt
+sha256sum -c paper/main.txt.sha256
 ```
+
+`paper/main.txt.sha256` names `rebuilt.txt`, so this succeeds only if the text
+your build produces matches the text the archived PDF was made from.  The
+manuscript carries a fixed `\date`, so the comparison does not decay with the
+calendar.
 
 ## Re-running the simulation itself
 
