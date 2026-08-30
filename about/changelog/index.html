@@ -2251,6 +2251,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2308,7 +2319,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2330,7 +2341,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_2" class="md-nav__link">
+  <a href="#changed_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2391,7 +2402,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_3" class="md-nav__link">
+  <a href="#changed_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2452,7 +2463,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_4" class="md-nav__link">
+  <a href="#changed_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2502,7 +2513,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_5" class="md-nav__link">
+  <a href="#changed_6" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2541,7 +2552,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed_6" class="md-nav__link">
+  <a href="#changed_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -2794,7 +2805,17 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>make release-check</code> and <code>make release-preflight</code>, backed by
+<li>
+<p><code>make verify-release VERSION=x.y.z</code>, backed by <code>scripts/verify_release.py</code>,
+  asks whether a released version is actually public: tag, GitHub release,
+  PyPI and the Zenodo archive, plus the local metadata that names it. The
+  preflight cannot answer this, because half of a release does not exist when
+  it runs -- Zenodo mints the version DOI only on archiving. Run against
+  0.6.0 it reports the incident exactly: tagged, released on GitHub, absent
+  from PyPI.</p>
+</li>
+<li>
+<p><code>make release-check</code> and <code>make release-preflight</code>, backed by
   <code>scripts/check_release.py</code>, verify that the five files carrying the release
   identity agree before a release is tagged. The version lives in
   <code>pyproject.toml</code>, <code>CITATION.cff</code>, <code>CHANGELOG.md</code>, <code>docs/about/citation.md</code>
@@ -2803,23 +2824,47 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   CI, and the publish job depends on the test job -- so a release commit that
   missed a file still tagged cleanly and simply never reached PyPI. The
   changelog was checked by nothing at all. <code>--pre-tag</code> additionally refuses a
-  version whose tag is already spent, since PyPI will not accept a re-upload.</li>
+  version whose tag is already spent, since PyPI will not accept a re-upload.</p>
+</li>
 <li><code>docs/development/releasing.md</code> now lists all five files. It previously named
   only <code>pyproject.toml</code> and <code>CITATION.cff</code>, which is why 0.6.0 was released
   with a stale changelog and stale citation guidance.</li>
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>The "Citing release X exactly" block in <code>docs/about/citation.md</code> quoted the
+<li>The APA, IEEE, MLA and Chicago citations in <code>docs/about/citation.md</code>, and the
+  suggested citation in <code>README.md</code>, each said "Version 0.6.1" beside the
+  <em>concept</em> DOI, which resolves to whatever is newest. Five citations named a
+  version they did not pin. <code>check_release.py</code> now reads citations by block --
+  a fenced snippet or a run of blockquote lines, since the version and the DOI
+  are rarely on the same line -- and requires any block naming a version to
+  cite that version's DOI.</li>
+<li>Two false statements in <code>docs/development/releasing.md</code>. <code>coverage</code> does not
+  run "on releases and on <code>main</code>"; it runs on a release or a manual dispatch
+  and on nothing else. And the After Release checklist still said <code>publish</code>
+  depends on <code>test</code> alone, which the Before Tagging section had already been
+  corrected away from in the same file.</li>
+</ul>
+<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Releasing now dispatches <code>coverage</code> before tagging. It is the one gate no
+  pull request exercises, <code>publish</code> waits on it, and on an ordinary release it
+  first runs against the shipped code <em>after</em> the tag is public -- so a
+  failure there costs a version number for the same reason 0.6.0 did.</p>
+</li>
+<li>
+<p>The "Citing release X exactly" block in <code>docs/about/citation.md</code> quoted the
   <em>concept</em> DOI, which by that same page's table "always resolves to the most
   recent release". The block that exists to pin a version pinned nothing. It
   now carries the version DOI, and <code>check_release.py</code> fails when the DOI named
   in <code>CITATION.cff</code> is not the one the citation guidance quotes. The gap
   survived because a version DOI does not exist when a release is cut --
   Zenodo mints it on archiving, and updating the docs afterwards was a step
-  nothing enforced.</li>
+  nothing enforced.</p>
+</li>
 </ul>
-<h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
+<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>CITATION.cff</code> now names the version DOI for the release it describes, and
   lists all seven minted DOIs. The three that were pending have been minted:
@@ -2850,7 +2895,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   is truncated there; clamping the lower end is not, because below the support
   the answer is zero and not the first atom.</li>
 </ul>
-<h3 id="changed_1">Changed<a class="headerlink" href="#changed_1" title="Permanent link">&para;</a></h3>
+<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>Zipf</code>, <code>YuleSimon</code> and <code>DiscretePareto</code> take a number or an array and
   mirror what they were given, as the continuous families have since 0.5.0.
@@ -2875,7 +2920,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   registry alias, so nothing that worked stops working, and the CLI's table is
   now a view of the registry rather than a second list.</li>
 </ul>
-<h3 id="changed_2">Changed<a class="headerlink" href="#changed_2" title="Permanent link">&para;</a></h3>
+<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>heavytails.performance</code>, <code>extensions</code>, <code>utilities</code> and <code>validation</code> are
   type-checked (<a class="magiclink magiclink-github magiclink-issue" href="https://github.com/diogoribeiro7/heavytails/issues/384" title="GitHub Issue: diogoribeiro7/heavytails #384">#384</a>). Their <code>ignore_errors</code> suppressions are gone. Most of the
@@ -2961,7 +3006,7 @@ that cannot have NumPy will no longer work.</p>
   function. It also reports <code>True</code> for a distribution defined outside this
   library, because there is no longer a table of known families to consult.</li>
 </ul>
-<h3 id="changed_3">Changed<a class="headerlink" href="#changed_3" title="Permanent link">&para;</a></h3>
+<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
 <p><strong>The distributions.</strong> <code>pdf</code>, <code>cdf</code>, <code>sf</code> and <code>ppf</code> on all twelve continuous
 families accept a number, a sequence or an array and return the same kind of
 thing they were given. Each formula is written once, against NumPy, so the
@@ -3241,7 +3286,7 @@ returned negative probabilities.</p>
   Monte Carlo estimator always reports standard errors.</p>
 </li>
 </ul>
-<h3 id="changed_4">Changed<a class="headerlink" href="#changed_4" title="Permanent link">&para;</a></h3>
+<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p><code>InverseGamma.ppf</code> and <code>BetaPrime.ppf</code> invert the incomplete gamma and beta
@@ -3377,7 +3422,7 @@ returned negative probabilities.</p>
   invisible on clean data.</p>
 </li>
 </ul>
-<h3 id="changed_5">Changed<a class="headerlink" href="#changed_5" title="Permanent link">&para;</a></h3>
+<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>The <code>tail_index</code> module docstring now states that every estimator returns the
@@ -3522,7 +3567,7 @@ returned negative probabilities.</p>
   review, and an executable <code>basic_usage</code> notebook.</p>
 </li>
 </ul>
-<h3 id="changed_6">Changed<a class="headerlink" href="#changed_6" title="Permanent link">&para;</a></h3>
+<h3 id="changed_7">Changed<a class="headerlink" href="#changed_7" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>Migrated project metadata to the PEP 621 <code>[project]</code> table.</p>

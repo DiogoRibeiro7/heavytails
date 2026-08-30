@@ -2465,19 +2465,30 @@ aligned for each public release.</p>
    <code>coverage</code>, <code>lint-and-type-check</code>, <code>security</code> and <code>build</code> -- so a release
    commit that misses one of these files still tags cleanly, still cuts a
    GitHub release, and simply never reaches PyPI. Nothing fails loudly at the
-   moment anyone is watching. Note that <code>coverage</code> runs only on releases and
-   on <code>main</code>: no pull request exercises that gate, so it is first tested by
-   the release itself. Since PyPI will not accept a re-upload of a version,
+   moment anyone is watching. Since PyPI will not accept a re-upload of a version,
    recovering costs a whole patch release. That is how 0.6.0 was lost: it
    missed steps 3 and 4, which this checklist did not previously mention.</p>
 <ol>
+<li>Dispatch the coverage job and wait for it to pass:</li>
+</ol>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>CI<span class="w"> </span>--ref<span class="w"> </span>main
+</span></code></pre></div>
+<p><code>coverage</code> runs on a release or a manual dispatch and on nothing else --
+   not on pushes, not on pull requests. But <code>publish</code> waits on it, so on an
+   ordinary release the first time it ever runs against the code being shipped
+   is <em>after</em> the tag is public. If it fails there, for any reason including a
+   tooling change rather than a real coverage drop, the tag and the GitHub
+   release are already spent and the recovery is another version number. That
+   is the same shape of failure as 0.6.0. Dispatching it here moves the one
+   unexercised gate in front of the irreversible step.</p>
+<ol>
 <li>Run the regular quality checks:</li>
 </ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>poetry<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>heavytails/<span class="w"> </span>scripts/
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>poetry<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>poetry<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>poetry<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>heavytails/<span class="w"> </span>scripts/
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>poetry<span class="w"> </span>run<span class="w"> </span>pytest
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>poetry<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict
 </span></code></pre></div>
 <hr />
 <h2 id="zenodo-setup">Zenodo Setup<a class="headerlink" href="#zenodo-setup" title="Permanent link">&para;</a></h2>
@@ -2510,9 +2521,10 @@ the source of truth for shared citation fields.</p>
 <hr />
 <h2 id="after-release">After Release<a class="headerlink" href="#after-release" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Confirm the GitHub release triggered the PyPI publish workflow, and
-   that it ran rather than being skipped. <code>publish</code> depends on <code>test</code>; if
-   <code>test</code> failed, the release is tagged and public but not on PyPI.</li>
+<li>Confirm the GitHub release triggered the PyPI publish workflow, and that
+   it ran rather than being skipped. <code>publish</code> waits on <code>test</code>, <code>coverage</code>,
+   <code>lint-and-type-check</code>, <code>security</code> and <code>build</code>; if any of them failed, the
+   release is tagged and public but not on PyPI.</li>
 <li>Confirm Zenodo created a new archived version.</li>
 <li>Confirm the Zenodo record uses the <code>.zenodo.json</code> title, creator ORCID,
    license, references, keywords, and related identifiers.</li>
