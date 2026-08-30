@@ -8,6 +8,15 @@ meant to travel with the paper as supplementary material.
 Usage::
 
     python build_replication_package.py
+
+Run from the working tree only.  The copy of this file inside the archive is a
+provenance record, not a working builder: its source map reads ``HERE /
+"primary_summary.csv"`` and ``HERE / "paper" / "main.tex"``, which describe the
+research workspace, not the deposited layout where those files sit one level
+above ``scripts/``.  ``build_online_resource.py`` was made relocation-aware
+because the journal supplement has to be buildable from the deposit; this one
+does not, because rebuilding the archive from inside itself is not a thing
+anyone should do.
 """
 
 from __future__ import annotations
@@ -19,7 +28,6 @@ import importlib
 import json
 from pathlib import Path
 import platform
-import re
 import shutil
 import subprocess
 
@@ -106,8 +114,10 @@ near-duplicate signal points collapsed at tolerance {tolerance}.
   and for independent auditing.
 - `results/primary_report.json` — configuration, seed and provenance of the run.
 - `results/frozen_run_analysis.json` — the digest of quoted numbers.
-- `ENVIRONMENT.txt` — the versions the analysis and the manuscript build
-  were run with, including the TeX tooling.
+- `PACKAGING_ENVIRONMENT.txt` — two sections. What produced the frozen
+  results, read back from the run's own provenance record and therefore fixed;
+  and a snapshot of the machine that assembled this archive and built the PDF,
+  which is not the same thing and is labelled as such.
 - `paper/main.tex`, `paper/main.pdf` and `paper/generated/` — the manuscript,
   the build it produces, and the generated table and figure fragments it
   inputs.
@@ -136,7 +146,8 @@ paper's claims, but they are not audited to the same depth as the primary run.
 
 ## Reproducing the reported numbers
 
-From this directory, with the versions recorded in `ENVIRONMENT.txt` ---
+From this directory, with the versions recorded in
+`PACKAGING_ENVIRONMENT.txt` ---
 Python, NumPy, pandas, matplotlib and the TeX tooling the archived PDF was
 built with:
 
@@ -220,40 +231,44 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _heavytails_version() -> str:
-    """The version in the tree, not the one the installed metadata claims.
+def _environment_record(outdir: Path) -> str:
+    """What produced the results, and separately what assembled the package.
 
-    ``heavytails.__version__`` comes from ``importlib.metadata``, which reads
-    the dist-info written when the environment was last installed. In an
-    editable checkout that goes stale silently: this recorded 0.2.0 while the
-    tree was at 0.6.2. ``scripts/_provenance.py`` prefers pyproject.toml for
-    the same reason, and an environment record that names the wrong version is
-    worse than one that admits it does not know.
+    These are different things and were previously conflated. The record read
+    ``heavytails`` from the current pyproject, so an ordinary version bump
+    rewrote a supposedly frozen archive even though no result, analysis or
+    manuscript had changed --- moving the tree to 0.6.3.dev0 was enough to
+    mutate it.
+
+    The run section is therefore read back from the frozen artifact's own
+    provenance, which is fixed for good. The packaging section is a snapshot of
+    the machine that assembled this archive and built the PDF, and is labelled
+    as such rather than presented as the analysis environment.
     """
-    pyproject = HERE.parents[1] / "pyproject.toml"
-    if pyproject.is_file():
-        match = re.search(
-            r'^version\s*=\s*"([^"]+)"',
-            pyproject.read_text(encoding="utf-8"),
-            re.MULTILINE,
+    lines = ["# What produced the frozen results", ""]
+    report = outdir / "results" / "primary_report.json"
+    if report.is_file():
+        provenance = json.loads(report.read_text(encoding="utf-8")).get(
+            "provenance", {}
         )
-        if match:
-            return f"{match.group(1)}  (from pyproject.toml)"
-    try:
-        return importlib.import_module("heavytails").__version__
-    except (ImportError, AttributeError):
-        return "unknown"
+        for key, label in (
+            ("heavytails_version", "heavytails"),
+            ("python_version", "python"),
+            ("numpy_version", "numpy"),
+            ("git_commit", "commit"),
+        ):
+            lines.append(f"{label}  {provenance.get(key, 'not recorded')}")
+    else:
+        lines.append("not available: results/primary_report.json is missing")
 
-
-def _environment_record() -> str:
-    """Pin what the analysis scripts were run with.
-
-    The reproduction notes asked for "`pandas` and `matplotlib` available",
-    which names neither version. Those two do the plotting and the table
-    arithmetic, so "available" is not a specification -- a reader on different
-    majors can reproduce different output and have no way to tell.
-    """
-    lines = ["# component  version", ""]
+    lines += [
+        "",
+        "# What assembled this package and built the PDF",
+        "# A snapshot of this machine, not the analysis environment. Where the",
+        "# two sections disagree, the section above is the one the results",
+        "# depend on.",
+        "",
+    ]
     for name in ("numpy", "pandas", "matplotlib"):
         try:
             module = importlib.import_module(name)
@@ -261,10 +276,8 @@ def _environment_record() -> str:
             lines.append(f"{name}  not installed")
             continue
         lines.append(f"{name}  {getattr(module, '__version__', 'unknown')}")
-    lines.append(f"heavytails  {_heavytails_version()}")
     lines.append(f"python  {platform.python_version()}")
     lines.append(f"platform  {platform.platform()}")
-
     lines.extend(
         f"{tool}  {_tool_version(tool)}" for tool in ("latexmk", "pdftex", "pdftotext")
     )
@@ -384,8 +397,10 @@ def main() -> None:
     else:
         print("warning: pdftotext unavailable, no expected text digest shipped")
 
-    environment = args.outdir / "ENVIRONMENT.txt"
-    environment.write_text(_environment_record(), encoding="utf-8", newline="")
+    environment = args.outdir / "PACKAGING_ENVIRONMENT.txt"
+    environment.write_text(
+        _environment_record(args.outdir), encoding="utf-8", newline=""
+    )
     written.append(environment)
 
     lines = ["# path  sha256  bytes", ""]

@@ -53,8 +53,10 @@ near-duplicate signal points collapsed at tolerance 1e-10.
   and for independent auditing.
 - `results/primary_report.json` — configuration, seed and provenance of the run.
 - `results/frozen_run_analysis.json` — the digest of quoted numbers.
-- `ENVIRONMENT.txt` — the versions the analysis and the manuscript build
-  were run with, including the TeX tooling.
+- `PACKAGING_ENVIRONMENT.txt` — two sections. What produced the frozen
+  results, read back from the run's own provenance record and therefore fixed;
+  and a snapshot of the machine that assembled this archive and built the PDF,
+  which is not the same thing and is labelled as such.
 - `paper/main.tex`, `paper/main.pdf` and `paper/generated/` — the manuscript,
   the build it produces, and the generated table and figure fragments it
   inputs.
@@ -83,7 +85,8 @@ paper's claims, but they are not audited to the same depth as the primary run.
 
 ## Reproducing the reported numbers
 
-From this directory, with the versions recorded in `ENVIRONMENT.txt` ---
+From this directory, with the versions recorded in
+`PACKAGING_ENVIRONMENT.txt` ---
 Python, NumPy, pandas, matplotlib and the TeX tooling the archived PDF was
 built with:
 

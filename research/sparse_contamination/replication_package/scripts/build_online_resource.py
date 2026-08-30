@@ -17,6 +17,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from pathlib import Path
 import shutil
@@ -213,11 +214,16 @@ def main() -> None:
         args.outdir / "stress_configuration.json",
     )
 
-    rows = ["object,description,script,artifact"]
-    rows += [",".join(r) for r in PROVENANCE]
-    (args.outdir / "object_provenance.csv").write_text(
-        "\n".join(rows) + "\n", encoding="utf-8"
-    )
+    # csv.writer rather than ",".join: one description is "detection
+    # transition, fine grid", so joining produced a five-field row under a
+    # four-field header. The file is a journal supplement nobody parses, which
+    # is exactly why the defect survived.
+    with (args.outdir / "object_provenance.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["object", "description", "script", "artifact"])
+        writer.writerows(PROVENANCE)
 
     primary = json.loads((package / "results" / "primary_report.json").read_text())
     stress = json.loads((package / "results" / "stress_report.json").read_text())

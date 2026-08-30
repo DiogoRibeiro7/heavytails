@@ -48,8 +48,10 @@ extreme-value analysis.
   Galambos copulas, GARCH fitting, the extremal index and declustering.
 - **A command-line interface** for sampling, fitting, comparison and
   benchmarking.
-- **Typed throughout**, with a `py.typed` marker so downstream type checkers see
-  the annotations.
+- **Ships type annotations** and a `py.typed` marker, so downstream type
+  checkers see them. Note that NumPy's stubs are not followed by this project's
+  own mypy configuration, so the array boundary is annotated but not verified
+  against NumPy's types.
 
 ---
 
@@ -187,8 +189,10 @@ risk number, using this library's spacing scan and harmonic-moment estimators.
 
 The package holds the simulation drivers, the analysis-only scripts, the frozen
 results, the provenance records and a SHA-256 manifest over every file.
-`REPRODUCE.md` inside it reproduces every reported number from the frozen
-artifacts, without re-running the simulation.
+`REPRODUCE.md` inside it regenerates every manuscript table and figure from the
+archived artifacts, without re-running the simulation. It also states where the
+evidence is thinner: the post-specified stress layer ships summaries only, so
+its Monte Carlo standard errors can be read but not independently recomputed.
 
 ---
 
