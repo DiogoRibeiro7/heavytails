@@ -358,8 +358,19 @@ yarn-error.log*
 *.synctex.gz
 *.toc
 
-# Local research artifacts and manuscripts
-/research/
+# Local research artifacts and manuscripts. Working notes, drafts and scratch
+# runs stay out of the repository; the one exception is the curated replication
+# package for the sparse-contamination paper, which has to be here so that the
+# GitHub release tarball Zenodo archives actually contains it. Git needs each
+# level un-ignored in turn to reach into an ignored directory.
+/research/*
+!/research/sparse_contamination/
+/research/sparse_contamination/*
+!/research/sparse_contamination/replication_package/
+# The global *.csv rule above would otherwise strip the frozen summaries
+# the analysis scripts read, leaving an archive whose own MANIFEST.txt
+# could not be satisfied.
+!/research/sparse_contamination/replication_package/**/*.csv
 /tests/test_adaptive_tail_research.py
 
 # Experimental/dev files

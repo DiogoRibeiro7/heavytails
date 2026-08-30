@@ -1,0 +1,16 @@
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{cccccccc}
+\toprule
+$n$ & reps & $\Pp(\widehat r=0)$ $[95\%]$ & unit & adaptive & $\beta{=}0.5$ & $\beta{=}1$ & $\beta{=}2$\\
+\midrule
+$10^3$ & $20000$ & $0.9768$ $[0.9746,0.9787]$ & $10^{-3}$ & $-0.26\pm0.02$ & $-0.59\pm0.03$ & $-1.53\pm0.06$ & $-3.89\pm0.11$\\
+$10^4$ & $20000$ & $0.9892$ $[0.9877,0.9905]$ & $10^{-4}$ & $-0.07\pm0.03$ & $-1.30\pm0.08$ & $-3.67\pm0.14$ & $-9.64\pm0.26$\\
+$5{\times}10^4$ & $20000$ & $0.9917$ $[0.9903,0.9928]$ & $10^{-4}$ & $-0.01\pm0.01$ & $-0.54\pm0.03$ & $-1.54\pm0.06$ & $-4.02\pm0.11$\\
+\bottomrule
+\end{tabular}
+\caption{Clean control.  At $S=0$ the contamination factor is $\Delta=1$, so the true contamination count is $r=0$ and the four nominal $r$ values of the frozen grid describe one design point drawn four times independently.  The draws are pooled into a single canonical control.  The reported rate is the correct no-trim rate $\Pp(\widehat r=0)$ with a Wilson $95\%$ interval.  The remaining columns give each estimator's paired benefit against Hill on this uncontaminated sample, in the unit shown, which is exactly the efficiency cost it pays for its robustness: every value is negative, and they order as the family's aggressiveness does.  Oracle trimming is degenerate here and is omitted, since with nothing to remove it coincides with contaminated Hill in every replicate.}
+\label{tab:clean-cell}
+\end{table}

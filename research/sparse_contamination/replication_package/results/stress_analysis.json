@@ -1,0 +1,558 @@
+{
+  "source": "stress_summary.csv",
+  "post_specified": true,
+  "detection_transition": [
+    {
+      "signal_over_D": 0.4,
+      "detection": [
+        "$0.027$",
+        "$0.079$",
+        "$0.023$",
+        "$0.084$"
+      ]
+    },
+    {
+      "signal_over_D": 0.6,
+      "detection": [
+        "$0.076$",
+        "$0.152$",
+        "$0.065$",
+        "$0.168$"
+      ]
+    },
+    {
+      "signal_over_D": 0.7,
+      "detection": [
+        "$0.139$",
+        "$0.231$",
+        "$0.129$",
+        "$0.234$"
+      ]
+    },
+    {
+      "signal_over_D": 0.8,
+      "detection": [
+        "$0.269$",
+        "$0.372$",
+        "$0.241$",
+        "$0.378$"
+      ]
+    },
+    {
+      "signal_over_D": 0.9,
+      "detection": [
+        "$0.466$",
+        "$0.574$",
+        "$0.493$",
+        "$0.603$"
+      ]
+    },
+    {
+      "signal_over_D": 1.0,
+      "detection": [
+        "$0.734$",
+        "$0.792$",
+        "$0.810$",
+        "$0.863$"
+      ]
+    },
+    {
+      "signal_over_D": 1.1,
+      "detection": [
+        "$0.909$",
+        "$0.938$",
+        "$0.974$",
+        "$0.986$"
+      ]
+    },
+    {
+      "signal_over_D": 1.2,
+      "detection": [
+        "$0.983$",
+        "$0.990$",
+        "$0.999$",
+        "$1.000$"
+      ]
+    },
+    {
+      "signal_over_D": 1.3,
+      "detection": [
+        "$0.998$",
+        "$0.999$",
+        "$1.000$",
+        "$1.000$"
+      ]
+    },
+    {
+      "signal_over_D": 1.5,
+      "detection": [
+        "$1.000$",
+        "$1.000$",
+        "$1.000$",
+        "$1.000$"
+      ]
+    },
+    {
+      "signal_over_D": 2.0,
+      "detection": [
+        "$1.000$",
+        "$1.000$",
+        "$1.000$",
+        "$1.000$"
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "n": 10000,
+      "r": 3,
+      "signal_over_D": 0.5,
+      "detection_equal": 0.0426,
+      "detection_spread": 0.0184,
+      "cost_equal": 0.0002918850123525,
+      "cost_spread": 0.0002586708906661,
+      "benefit_equal": -5.583139716088501e-05,
+      "benefit_spread": -2.8184482135040872e-05
+    },
+    {
+      "n": 10000,
+      "r": 3,
+      "signal_over_D": 1.0,
+      "detection_equal": 0.723,
+      "detection_spread": 0.052,
+      "cost_equal": 0.001194422202489,
+      "cost_spread": 0.0011134010640457,
+      "benefit_equal": 9.39278349446586e-05,
+      "benefit_spread": 1.7801383842777694e-06
+    },
+    {
+      "n": 10000,
+      "r": 3,
+      "signal_over_D": 1.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.2176,
+      "cost_equal": 0.002600444919278,
+      "cost_spread": 0.0026321188685772,
+      "benefit_equal": 0.0025192666581971,
+      "benefit_spread": 7.994641929314632e-05
+    },
+    {
+      "n": 10000,
+      "r": 3,
+      "signal_over_D": 2.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.9938,
+      "cost_equal": 0.0070944335086946,
+      "cost_spread": 0.006946472857985,
+      "benefit_equal": 0.0069989580867072,
+      "benefit_spread": 0.0066977204350811
+    },
+    {
+      "n": 10000,
+      "r": 5,
+      "signal_over_D": 0.5,
+      "detection_equal": 0.0346,
+      "detection_spread": 0.0198,
+      "cost_equal": 0.0002795880253573,
+      "cost_spread": 0.0002696297139152,
+      "benefit_equal": -2.4839397471031363e-05,
+      "benefit_spread": -8.058513734217764e-06
+    },
+    {
+      "n": 10000,
+      "r": 5,
+      "signal_over_D": 1.0,
+      "detection_equal": 0.7334,
+      "detection_spread": 0.0278,
+      "cost_equal": 0.0010757608302449,
+      "cost_spread": 0.0011187830276506,
+      "benefit_equal": 5.243322793530703e-06,
+      "benefit_spread": -1.1951619855186696e-05
+    },
+    {
+      "n": 10000,
+      "r": 5,
+      "signal_over_D": 1.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.0648,
+      "cost_equal": 0.0025181758052752,
+      "cost_spread": 0.002577162931266,
+      "benefit_equal": 0.0023711754922536,
+      "benefit_spread": 5.057755849624491e-05
+    },
+    {
+      "n": 10000,
+      "r": 5,
+      "signal_over_D": 2.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.3578,
+      "cost_equal": 0.0070118182777207,
+      "cost_spread": 0.0069253974084143,
+      "benefit_equal": 0.0068582301351792,
+      "benefit_spread": 0.0010651082042664
+    },
+    {
+      "n": 10000,
+      "r": 10,
+      "signal_over_D": 0.5,
+      "detection_equal": 0.0398,
+      "detection_spread": 0.016,
+      "cost_equal": 0.0003232534527605,
+      "cost_spread": 0.0002706095892201,
+      "benefit_equal": -2.646832867918917e-05,
+      "benefit_spread": -2.0717760038039394e-06
+    },
+    {
+      "n": 10000,
+      "r": 10,
+      "signal_over_D": 1.0,
+      "detection_equal": 0.7246,
+      "detection_spread": 0.0214,
+      "cost_equal": 0.0011287355126193,
+      "cost_spread": 0.0011675956053427,
+      "benefit_equal": -1.3122683342255147e-05,
+      "benefit_spread": 1.0446213191052144e-05
+    },
+    {
+      "n": 10000,
+      "r": 10,
+      "signal_over_D": 1.5,
+      "detection_equal": 0.9998,
+      "detection_spread": 0.0294,
+      "cost_equal": 0.0026989390487285,
+      "cost_spread": 0.0026191475940588,
+      "benefit_equal": 0.0023933082751959,
+      "benefit_spread": 4.553379295954874e-05
+    },
+    {
+      "n": 10000,
+      "r": 10,
+      "signal_over_D": 2.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.0602,
+      "cost_equal": 0.0069184785583822,
+      "cost_spread": 0.0073044458976233,
+      "benefit_equal": 0.0066619994659178,
+      "benefit_spread": 0.0002999071729646
+    },
+    {
+      "n": 50000,
+      "r": 3,
+      "signal_over_D": 0.5,
+      "detection_equal": 0.0396,
+      "detection_spread": 0.0138,
+      "cost_equal": 6.362992627673989e-05,
+      "cost_spread": 6.367456820485586e-05,
+      "benefit_equal": -1.3269336762782616e-05,
+      "benefit_spread": 1.058867968680484e-06
+    },
+    {
+      "n": 50000,
+      "r": 3,
+      "signal_over_D": 1.0,
+      "detection_equal": 0.8166,
+      "detection_spread": 0.047,
+      "cost_equal": 0.0002561445838599,
+      "cost_spread": 0.0002410242181941,
+      "benefit_equal": 2.092642822667987e-05,
+      "benefit_spread": -1.4712928320453991e-05
+    },
+    {
+      "n": 50000,
+      "r": 3,
+      "signal_over_D": 1.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.1916,
+      "cost_equal": 0.0005770128003171,
+      "cost_spread": 0.0005928439478825,
+      "benefit_equal": 0.0005545105657888,
+      "benefit_spread": 2.0032241765318395e-05
+    },
+    {
+      "n": 50000,
+      "r": 3,
+      "signal_over_D": 2.5,
+      "detection_equal": 1.0,
+      "detection_spread": 1.0,
+      "cost_equal": 0.0015995249161057,
+      "cost_spread": 0.001607023802282,
+      "benefit_equal": 0.0015883713319052,
+      "benefit_spread": 0.001588669147873
+    },
+    {
+      "n": 50000,
+      "r": 5,
+      "signal_over_D": 0.5,
+      "detection_equal": 0.0352,
+      "detection_spread": 0.0138,
+      "cost_equal": 5.37220317098488e-05,
+      "cost_spread": 5.1735283025632375e-05,
+      "benefit_equal": -8.625662053879802e-06,
+      "benefit_spread": -6.054937381005818e-06
+    },
+    {
+      "n": 50000,
+      "r": 5,
+      "signal_over_D": 1.0,
+      "detection_equal": 0.8272,
+      "detection_spread": 0.0252,
+      "cost_equal": 0.0002421327439601,
+      "cost_spread": 0.0002447119123562,
+      "benefit_equal": 2.085973942528121e-05,
+      "benefit_spread": -6.247066134923304e-06
+    },
+    {
+      "n": 50000,
+      "r": 5,
+      "signal_over_D": 1.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.0518,
+      "cost_equal": 0.0005590461558,
+      "cost_spread": 0.0005520935609101,
+      "benefit_equal": 0.0005304724308885,
+      "benefit_spread": 1.5512297176265702e-05
+    },
+    {
+      "n": 50000,
+      "r": 5,
+      "signal_over_D": 2.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.3716,
+      "cost_equal": 0.0015609987422993,
+      "cost_spread": 0.00152994124399,
+      "benefit_equal": 0.0015364239534222,
+      "benefit_spread": 0.0002265135042429
+    },
+    {
+      "n": 50000,
+      "r": 10,
+      "signal_over_D": 0.5,
+      "detection_equal": 0.0402,
+      "detection_spread": 0.013,
+      "cost_equal": 6.228800286763888e-05,
+      "cost_spread": 6.249052224506304e-05,
+      "benefit_equal": -7.352747630501139e-06,
+      "benefit_spread": -2.2089100882920382e-06
+    },
+    {
+      "n": 50000,
+      "r": 10,
+      "signal_over_D": 1.0,
+      "detection_equal": 0.808,
+      "detection_spread": 0.0162,
+      "cost_equal": 0.0002560288906027,
+      "cost_spread": 0.0002443333434252,
+      "benefit_equal": -5.43397766555568e-06,
+      "benefit_spread": -1.803817003369811e-06
+    },
+    {
+      "n": 50000,
+      "r": 10,
+      "signal_over_D": 1.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.0246,
+      "cost_equal": 0.0005579704722153,
+      "cost_spread": 0.0005589364252548,
+      "benefit_equal": 0.0005047657836617,
+      "benefit_spread": 1.0485486538749063e-05
+    },
+    {
+      "n": 50000,
+      "r": 10,
+      "signal_over_D": 2.5,
+      "detection_equal": 1.0,
+      "detection_spread": 0.0552,
+      "cost_equal": 0.0015503575603514,
+      "cost_spread": 0.0015493561712654,
+      "benefit_equal": 0.001501169138541,
+      "benefit_spread": 6.994591671083918e-05
+    }
+  ],
+  "profile_summary": {
+    "cells_at_or_above_1.5D": 12,
+    "max_cost_discrepancy": 0.05578789266803095,
+    "min_spread_detection_at_1.5D": 0.0246
+  },
+  "second_order": [
+    {
+      "n": 10000,
+      "rho": -1.0,
+      "signal_over_D": 0.0,
+      "hill_mse": 0.0026001641550658,
+      "detection": 0.0126,
+      "benefit_adaptive": -1.1184565053656038e-05,
+      "benefit_oracle": -0.0001295486646522,
+      "contamination_cost": 0.0
+    },
+    {
+      "n": 10000,
+      "rho": -1.0,
+      "signal_over_D": 0.5,
+      "hill_mse": 0.0029246342898388,
+      "detection": 0.04,
+      "benefit_adaptive": -1.616532019266845e-05,
+      "benefit_oracle": 0.0003167228998131,
+      "contamination_cost": 0.0004163089309255
+    },
+    {
+      "n": 10000,
+      "rho": -1.0,
+      "signal_over_D": 1.5,
+      "hill_mse": 0.0052275213185587,
+      "detection": 1.0,
+      "benefit_adaptive": 0.0026048224066741,
+      "benefit_oracle": 0.0026029790737351,
+      "contamination_cost": 0.0027542440989799
+    },
+    {
+      "n": 10000,
+      "rho": -0.5,
+      "signal_over_D": 0.0,
+      "hill_mse": 0.0040122973327106,
+      "detection": 0.0084,
+      "benefit_adaptive": 1.271609678359697e-05,
+      "benefit_oracle": -0.0002741624929343,
+      "contamination_cost": 0.0
+    },
+    {
+      "n": 10000,
+      "rho": -0.5,
+      "signal_over_D": 0.5,
+      "hill_mse": 0.0055718550409236,
+      "detection": 0.029,
+      "benefit_adaptive": 3.0178909733431475e-05,
+      "benefit_oracle": 0.0012359101240721,
+      "contamination_cost": 0.0015018162699496
+    },
+    {
+      "n": 10000,
+      "rho": -0.5,
+      "signal_over_D": 1.5,
+      "hill_mse": 0.0103536287140183,
+      "detection": 0.9994,
+      "benefit_adaptive": 0.0059483842548357,
+      "benefit_oracle": 0.0059462934467068,
+      "contamination_cost": 0.0062403617120329
+    },
+    {
+      "n": 10000,
+      "rho": -0.25,
+      "signal_over_D": 0.0,
+      "hill_mse": 0.0337279521459307,
+      "detection": 0.0034,
+      "benefit_adaptive": 3.439588549393932e-05,
+      "benefit_oracle": -0.0021334556638909,
+      "contamination_cost": 0.0
+    },
+    {
+      "n": 10000,
+      "rho": -0.25,
+      "signal_over_D": 0.5,
+      "hill_mse": 0.0398296495669532,
+      "detection": 0.0114,
+      "benefit_adaptive": 0.0001713147667917,
+      "benefit_oracle": 0.0039514135363053,
+      "contamination_cost": 0.0061140741804978
+    },
+    {
+      "n": 10000,
+      "rho": -0.25,
+      "signal_over_D": 1.5,
+      "hill_mse": 0.0543522627508152,
+      "detection": 0.9074,
+      "benefit_adaptive": 0.0158473224997836,
+      "benefit_oracle": 0.0178682138654239,
+      "contamination_cost": 0.0200984165360967
+    },
+    {
+      "n": 50000,
+      "rho": -1.0,
+      "signal_over_D": 0.0,
+      "hill_mse": 0.0011216116851249,
+      "detection": 0.0102,
+      "benefit_adaptive": -1.0111312785820117e-06,
+      "benefit_oracle": -1.1558306055264757e-05,
+      "contamination_cost": 0.0
+    },
+    {
+      "n": 50000,
+      "rho": -1.0,
+      "signal_over_D": 0.5,
+      "hill_mse": 0.0012124057438235,
+      "detection": 0.0388,
+      "benefit_adaptive": -7.657227393013829e-06,
+      "benefit_oracle": 4.1234603171824416e-05,
+      "contamination_cost": 7.381447462494351e-05
+    },
+    {
+      "n": 50000,
+      "rho": -1.0,
+      "signal_over_D": 1.5,
+      "hill_mse": 0.0016919825775906,
+      "detection": 1.0,
+      "benefit_adaptive": 0.0005833279154498,
+      "benefit_oracle": 0.0005828854794165,
+      "contamination_cost": 0.0006089101926018
+    },
+    {
+      "n": 50000,
+      "rho": -0.5,
+      "signal_over_D": 0.0,
+      "hill_mse": 0.0018052770066264,
+      "detection": 0.0058,
+      "benefit_adaptive": 2.4841473817525933e-06,
+      "benefit_oracle": -4.152419486598608e-05,
+      "contamination_cost": 0.0
+    },
+    {
+      "n": 50000,
+      "rho": -0.5,
+      "signal_over_D": 0.5,
+      "hill_mse": 0.0022679648597244,
+      "detection": 0.0312,
+      "benefit_adaptive": 2.1661287352618884e-05,
+      "benefit_oracle": 0.0003946404148573,
+      "contamination_cost": 0.0004493564853151
+    },
+    {
+      "n": 50000,
+      "rho": -0.5,
+      "signal_over_D": 1.5,
+      "hill_mse": 0.0033962427662565,
+      "detection": 1.0,
+      "benefit_adaptive": 0.0016128975048608,
+      "benefit_oracle": 0.0016122329349197,
+      "contamination_cost": 0.0016599317197351
+    },
+    {
+      "n": 50000,
+      "rho": -0.25,
+      "signal_over_D": 0.0,
+      "hill_mse": 0.0190560111003842,
+      "detection": 0.0038,
+      "benefit_adaptive": 1.3568930784231424e-05,
+      "benefit_oracle": -0.0006167354269051,
+      "contamination_cost": 0.0
+    },
+    {
+      "n": 50000,
+      "rho": -0.25,
+      "signal_over_D": 0.5,
+      "hill_mse": 0.0215287266320777,
+      "detection": 0.0084,
+      "benefit_adaptive": 4.284785404671901e-05,
+      "benefit_oracle": 0.0015429311531935,
+      "contamination_cost": 0.0021692617446886
+    },
+    {
+      "n": 50000,
+      "rho": -0.25,
+      "signal_over_D": 1.5,
+      "hill_mse": 0.0257538141947477,
+      "detection": 0.9996,
+      "benefit_adaptive": 0.0062430272217181,
+      "benefit_oracle": 0.0062319237072366,
+      "contamination_cost": 0.0068234754690017
+    }
+  ]
+}

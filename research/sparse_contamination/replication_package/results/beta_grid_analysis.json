@@ -1,0 +1,372 @@
+{
+  "cells": [
+    {
+      "n": 10000,
+      "signal": "0.5I",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -5.9149240204042135,
+      "harmonic_moment_beta_1": -10.971771973596297,
+      "harmonic_moment_beta_2": -16.875349880286343
+    },
+    {
+      "n": 10000,
+      "signal": "0.5I",
+      "r": 3,
+      "harmonic_moment_beta_0.5": -5.520460629336384,
+      "harmonic_moment_beta_1": -11.343559314203917,
+      "harmonic_moment_beta_2": -18.670232007834144
+    },
+    {
+      "n": 10000,
+      "signal": "0.5I",
+      "r": 5,
+      "harmonic_moment_beta_0.5": -6.206309181931837,
+      "harmonic_moment_beta_1": -12.144562703911948,
+      "harmonic_moment_beta_2": -18.93933369155067
+    },
+    {
+      "n": 10000,
+      "signal": "0.5I",
+      "r": 10,
+      "harmonic_moment_beta_0.5": -3.3637605779408473,
+      "harmonic_moment_beta_1": -8.99948785590114,
+      "harmonic_moment_beta_2": -16.468385645305023
+    },
+    {
+      "n": 10000,
+      "signal": "1.5I",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -3.9693419474022287,
+      "harmonic_moment_beta_1": -10.75674506066155,
+      "harmonic_moment_beta_2": -18.313071151242315
+    },
+    {
+      "n": 10000,
+      "signal": "1.5I",
+      "r": 3,
+      "harmonic_moment_beta_0.5": 0.9550206753836971,
+      "harmonic_moment_beta_1": -6.37362395867863,
+      "harmonic_moment_beta_2": -15.417766053598786
+    },
+    {
+      "n": 10000,
+      "signal": "1.5I",
+      "r": 5,
+      "harmonic_moment_beta_0.5": 6.09916095965265,
+      "harmonic_moment_beta_1": -2.049517171926316,
+      "harmonic_moment_beta_2": -12.741544964880307
+    },
+    {
+      "n": 10000,
+      "signal": "0.5D",
+      "r": 1,
+      "harmonic_moment_beta_0.5": 9.193690325452284,
+      "harmonic_moment_beta_1": -0.2915534977163562,
+      "harmonic_moment_beta_2": -11.912206786730328
+    },
+    {
+      "n": 10000,
+      "signal": "0.5D",
+      "r": 3,
+      "harmonic_moment_beta_0.5": 8.224063165829978,
+      "harmonic_moment_beta_1": -0.08706425832140298,
+      "harmonic_moment_beta_2": -10.886755735098404
+    },
+    {
+      "n": 10000,
+      "signal": "0.5D",
+      "r": 5,
+      "harmonic_moment_beta_0.5": 6.728598664128918,
+      "harmonic_moment_beta_1": -1.1691390066250946,
+      "harmonic_moment_beta_2": -11.892373451923003
+    },
+    {
+      "n": 10000,
+      "signal": "0.5D",
+      "r": 10,
+      "harmonic_moment_beta_0.5": 4.276713696736067,
+      "harmonic_moment_beta_1": -1.7117043926735505,
+      "harmonic_moment_beta_2": -11.165538179260523
+    },
+    {
+      "n": 10000,
+      "signal": "1.5D",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -5.202410282690246,
+      "harmonic_moment_beta_1": -10.47102404915481,
+      "harmonic_moment_beta_2": -17.44881320327157
+    },
+    {
+      "n": 10000,
+      "signal": "1.5D",
+      "r": 3,
+      "harmonic_moment_beta_0.5": -10.722152521784942,
+      "harmonic_moment_beta_1": -10.076181158249982,
+      "harmonic_moment_beta_2": -17.92198007623524
+    },
+    {
+      "n": 10000,
+      "signal": "1.5D",
+      "r": 5,
+      "harmonic_moment_beta_0.5": -13.352460601665415,
+      "harmonic_moment_beta_1": -9.292573415964421,
+      "harmonic_moment_beta_2": -16.238766791435285
+    },
+    {
+      "n": 10000,
+      "signal": "1.5D",
+      "r": 10,
+      "harmonic_moment_beta_0.5": -16.921488652935015,
+      "harmonic_moment_beta_1": -10.367224668767554,
+      "harmonic_moment_beta_2": -13.635364026986661
+    },
+    {
+      "n": 10000,
+      "signal": "0.5R",
+      "r": 1,
+      "harmonic_moment_beta_0.5": 22.01287575043779,
+      "harmonic_moment_beta_1": 9.970539603043028,
+      "harmonic_moment_beta_2": -3.89799801675246
+    },
+    {
+      "n": 10000,
+      "signal": "0.5R",
+      "r": 3,
+      "harmonic_moment_beta_0.5": 21.28068974644394,
+      "harmonic_moment_beta_1": 10.839027842773083,
+      "harmonic_moment_beta_2": -3.3607410119278054
+    },
+    {
+      "n": 10000,
+      "signal": "0.5R",
+      "r": 5,
+      "harmonic_moment_beta_0.5": 19.399792808141644,
+      "harmonic_moment_beta_1": 10.222914203594344,
+      "harmonic_moment_beta_2": -3.592036560427538
+    },
+    {
+      "n": 10000,
+      "signal": "1.5R",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -6.336935561047932,
+      "harmonic_moment_beta_1": -11.26987704187265,
+      "harmonic_moment_beta_2": -17.89261634737035
+    },
+    {
+      "n": 10000,
+      "signal": "1.5R",
+      "r": 3,
+      "harmonic_moment_beta_0.5": -14.513587574823715,
+      "harmonic_moment_beta_1": -9.93207907979088,
+      "harmonic_moment_beta_2": -17.272378922119582
+    },
+    {
+      "n": 10000,
+      "signal": "1.5R",
+      "r": 5,
+      "harmonic_moment_beta_0.5": -20.291764254164192,
+      "harmonic_moment_beta_1": -11.53438184402693,
+      "harmonic_moment_beta_2": -16.562606861663152
+    },
+    {
+      "n": 10000,
+      "signal": "1.5R",
+      "r": 10,
+      "harmonic_moment_beta_0.5": -27.082759893543546,
+      "harmonic_moment_beta_1": -15.136451396371978,
+      "harmonic_moment_beta_2": -14.83179023885123
+    },
+    {
+      "n": 50000,
+      "signal": "0.5I",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -7.57817759475862,
+      "harmonic_moment_beta_1": -12.475703918293062,
+      "harmonic_moment_beta_2": -18.725851568713654
+    },
+    {
+      "n": 50000,
+      "signal": "0.5I",
+      "r": 3,
+      "harmonic_moment_beta_0.5": -5.883603024061593,
+      "harmonic_moment_beta_1": -11.490768989767872,
+      "harmonic_moment_beta_2": -18.776688977442408
+    },
+    {
+      "n": 50000,
+      "signal": "0.5I",
+      "r": 5,
+      "harmonic_moment_beta_0.5": -6.821488159596757,
+      "harmonic_moment_beta_1": -12.356089208712548,
+      "harmonic_moment_beta_2": -19.420034360417596
+    },
+    {
+      "n": 50000,
+      "signal": "0.5I",
+      "r": 10,
+      "harmonic_moment_beta_0.5": -5.9394342069442345,
+      "harmonic_moment_beta_1": -11.26144886605154,
+      "harmonic_moment_beta_2": -18.121281623853925
+    },
+    {
+      "n": 50000,
+      "signal": "1.5I",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -4.01764599161384,
+      "harmonic_moment_beta_1": -10.349225875627493,
+      "harmonic_moment_beta_2": -18.112680879622104
+    },
+    {
+      "n": 50000,
+      "signal": "1.5I",
+      "r": 3,
+      "harmonic_moment_beta_0.5": -1.7641974384442805,
+      "harmonic_moment_beta_1": -8.449088047725523,
+      "harmonic_moment_beta_2": -16.465795525739683
+    },
+    {
+      "n": 50000,
+      "signal": "1.5I",
+      "r": 5,
+      "harmonic_moment_beta_0.5": 0.3183088147602145,
+      "harmonic_moment_beta_1": -6.365879547761078,
+      "harmonic_moment_beta_2": -14.902500115347884
+    },
+    {
+      "n": 50000,
+      "signal": "1.5I",
+      "r": 10,
+      "harmonic_moment_beta_0.5": 8.78176277840229,
+      "harmonic_moment_beta_1": 1.366414848998523,
+      "harmonic_moment_beta_2": -8.822843850474662
+    },
+    {
+      "n": 50000,
+      "signal": "0.5D",
+      "r": 1,
+      "harmonic_moment_beta_0.5": 2.1012294173688963,
+      "harmonic_moment_beta_1": -5.924801584580993,
+      "harmonic_moment_beta_2": -15.353915484695058
+    },
+    {
+      "n": 50000,
+      "signal": "0.5D",
+      "r": 3,
+      "harmonic_moment_beta_0.5": 1.4364172766948768,
+      "harmonic_moment_beta_1": -6.348206054770005,
+      "harmonic_moment_beta_2": -15.608713630675018
+    },
+    {
+      "n": 50000,
+      "signal": "0.5D",
+      "r": 5,
+      "harmonic_moment_beta_0.5": 1.6345631098577655,
+      "harmonic_moment_beta_1": -5.680732526093492,
+      "harmonic_moment_beta_2": -14.755105760101268
+    },
+    {
+      "n": 50000,
+      "signal": "0.5D",
+      "r": 10,
+      "harmonic_moment_beta_0.5": 0.2171102220525376,
+      "harmonic_moment_beta_1": -6.4732561175752155,
+      "harmonic_moment_beta_2": -15.354552337765448
+    },
+    {
+      "n": 50000,
+      "signal": "1.5D",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -7.7831438936100446,
+      "harmonic_moment_beta_1": -13.191509697946064,
+      "harmonic_moment_beta_2": -19.607713112067394
+    },
+    {
+      "n": 50000,
+      "signal": "1.5D",
+      "r": 3,
+      "harmonic_moment_beta_0.5": -7.682925952465965,
+      "harmonic_moment_beta_1": -10.901685364979604,
+      "harmonic_moment_beta_2": -17.729817770556263
+    },
+    {
+      "n": 50000,
+      "signal": "1.5D",
+      "r": 5,
+      "harmonic_moment_beta_0.5": -8.947369444134335,
+      "harmonic_moment_beta_1": -11.1774060371755,
+      "harmonic_moment_beta_2": -18.98690401669854
+    },
+    {
+      "n": 50000,
+      "signal": "1.5D",
+      "r": 10,
+      "harmonic_moment_beta_0.5": -9.383212896105947,
+      "harmonic_moment_beta_1": -9.293342494925627,
+      "harmonic_moment_beta_2": -16.858719805719982
+    },
+    {
+      "n": 50000,
+      "signal": "0.5R",
+      "r": 1,
+      "harmonic_moment_beta_0.5": 4.993638107582981,
+      "harmonic_moment_beta_1": -4.430724539035016,
+      "harmonic_moment_beta_2": -15.041305313583267
+    },
+    {
+      "n": 50000,
+      "signal": "0.5R",
+      "r": 3,
+      "harmonic_moment_beta_0.5": 6.31619550786777,
+      "harmonic_moment_beta_1": -1.15994084594039,
+      "harmonic_moment_beta_2": -11.984926596113201
+    },
+    {
+      "n": 50000,
+      "signal": "0.5R",
+      "r": 5,
+      "harmonic_moment_beta_0.5": 4.755658270805663,
+      "harmonic_moment_beta_1": -1.602139627371212,
+      "harmonic_moment_beta_2": -12.826301528842064
+    },
+    {
+      "n": 50000,
+      "signal": "0.5R",
+      "r": 10,
+      "harmonic_moment_beta_0.5": 3.3627335600036408,
+      "harmonic_moment_beta_1": -0.09922755028210496,
+      "harmonic_moment_beta_2": -10.93193540686195
+    },
+    {
+      "n": 50000,
+      "signal": "1.5R",
+      "r": 1,
+      "harmonic_moment_beta_0.5": -7.3561366929365315,
+      "harmonic_moment_beta_1": -12.58523802660332,
+      "harmonic_moment_beta_2": -18.951185923082754
+    },
+    {
+      "n": 50000,
+      "signal": "1.5R",
+      "r": 3,
+      "harmonic_moment_beta_0.5": -8.25281806939112,
+      "harmonic_moment_beta_1": -10.282512456564673,
+      "harmonic_moment_beta_2": -17.86493464848055
+    },
+    {
+      "n": 50000,
+      "signal": "1.5R",
+      "r": 5,
+      "harmonic_moment_beta_0.5": -14.542127021650682,
+      "harmonic_moment_beta_1": -10.597483116482366,
+      "harmonic_moment_beta_2": -17.71350552704381
+    },
+    {
+      "n": 50000,
+      "signal": "1.5R",
+      "r": 10,
+      "harmonic_moment_beta_0.5": -22.220059018925962,
+      "harmonic_moment_beta_1": -12.678636505879322,
+      "harmonic_moment_beta_2": -17.478158023055535
+    }
+  ]
+}

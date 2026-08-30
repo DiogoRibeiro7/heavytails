@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{cccccc}
+\toprule
+$n$ & $S$ & $S/D_n$ & $\beta{=}0.5$ & $\beta{=}1$ & $\beta{=}2$\\
+\midrule
+$10^4$ & $0.5I$ & $0.170$ & $-6.2$ & $-12.1$ & $-18.9$\\
+$10^4$ & $1.5I$ & $0.510$ & $6.1$ & $-2.0$ & $-12.7$\\
+$10^4$ & $0.5D$ & $0.500$ & $6.7$ & $-1.2$ & $-11.9$\\
+$10^4$ & $1.5D$ & $1.500$ & $-13.4$ & $-9.3$ & $-16.2$\\
+$10^4$ & $0.5R$ & $0.741$ & $19.4$ & $10.2$ & $-3.6$\\
+$10^4$ & $1.5R$ & $2.224$ & $-20.3$ & $-11.5$ & $-16.6$\\
+\midrule
+$5{\times}10^4$ & $0.5I$ & $0.160$ & $-6.8$ & $-12.4$ & $-19.4$\\
+$5{\times}10^4$ & $1.5I$ & $0.480$ & $0.3$ & $-6.4$ & $-14.9$\\
+$5{\times}10^4$ & $0.5D$ & $0.500$ & $1.6$ & $-5.7$ & $-14.8$\\
+$5{\times}10^4$ & $1.5D$ & $1.500$ & $-8.9$ & $-11.2$ & $-19.0$\\
+$5{\times}10^4$ & $0.5R$ & $1.057$ & $4.8$ & $-1.6$ & $-12.8$\\
+$5{\times}10^4$ & $1.5R$ & $3.170$ & $-14.5$ & $-10.6$ & $-17.7$\\
+\bottomrule
+\end{tabular}
+\caption{Paired comparison of each frozen bounded-influence member against adaptive trimming at $r=5$.  Entries are paired $t$ statistics for the replicate loss differences $d_i=(\ghat_{A,i}^\star-\gamma)^2-(\ghat_{\beta,i}^\star-\gamma)^2$, so $t>0$ favours bounded influence and $t<0$ favours adaptive trimming.  The advantages claimed for bounded influence in the undetectable region exceed two Monte Carlo standard errors at some cells and not at others, which is why Section \ref{sec:first-run} claims only that bounded influence \emph{can} pay there rather than that it dominates.}
+\label{tab:beta-contrasts}
+\end{table}

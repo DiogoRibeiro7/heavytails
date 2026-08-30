@@ -1,0 +1,30 @@
+{
+  "configuration": {
+    "trials": 5000,
+    "seed": 20260828,
+    "gamma": 0.5,
+    "h": 10,
+    "betas": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "post_specified": true
+  },
+  "self_check": {
+    "target_mean": 0.5,
+    "target_var": 0.25,
+    "pareto_mean": 0.4992002897095958,
+    "pareto_var": 0.24961636399156797,
+    "burr_tau8_mean": 0.4985012761529524,
+    "burr_tau8_hill_bias": -0.0014987238470475783,
+    "burr_tau4_mean": 0.4999077998578161,
+    "burr_tau4_hill_bias": -9.220014218391803e-05,
+    "burr_tau2_mean": 0.5027532298525538,
+    "burr_tau2_hill_bias": 0.0027532298525537735,
+    "burr_tau1_mean": 0.5353339742161559,
+    "burr_tau1_hill_bias": 0.03533397421615592
+  },
+  "rows": 172,
+  "seconds": 16.35753846168518
+}
