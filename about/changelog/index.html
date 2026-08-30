@@ -2215,7 +2215,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Unreleased">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#062-2026-08-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.6.2 - 2026-08-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.6.2 - 2026-08-30">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2802,9 +2813,21 @@
 <p>All notable changes to this project are documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="unreleased"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.2...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="062-2026-08-30"><a href="https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...v0.6.2">0.6.2</a> - 2026-08-30<a class="headerlink" href="#062-2026-08-30" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
 <ul>
+<li>
+<p>The replication package for the sparse-contamination paper is now tracked at
+  <code>research/sparse_contamination/replication_package/</code>: simulation drivers,
+  analysis-only scripts, the frozen summary and per-replicate losses, the
+  configuration and provenance records, the manuscript with its generated
+  fragments, and a SHA-256 manifest over all 31 files. The paper promised a
+  deposited archive; keeping it here means the release tarball Zenodo archives
+  contains it, so it is citable without a separate deposit. It is excluded
+  from the PyPI distributions, which ship only the package, tests and two
+  metadata files.</p>
+</li>
 <li>
 <p><code>make verify-release VERSION=x.y.z</code>, backed by <code>scripts/verify_release.py</code>,
   asks whether a released version is actually public: tag, GitHub release,
