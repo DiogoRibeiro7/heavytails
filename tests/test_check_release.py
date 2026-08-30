@@ -55,6 +55,24 @@ def _version(repo: Path) -> str:
     return match.group(1).strip()
 
 
+def _pyproject_version(repo: Path) -> str:
+    """The version in the fixture's pyproject, which is not the citation one.
+
+    Between releases these deliberately differ -- pyproject moves to the next
+    version's .devN while CITATION.cff goes on naming the last release. Two
+    tests here built their search string from the citation version, so they
+    passed only while a release was current and broke the moment main moved
+    on. That is the same assumption the checker exists to reject.
+    """
+    match = re.search(
+        r'^version\s*=\s*"([^"]+)"',
+        (repo / "pyproject.toml").read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    assert match is not None
+    return match.group(1)
+
+
 def test_the_repository_is_release_consistent() -> None:
     """The tree as committed must pass its own preflight."""
     assert collect_problems(REPO_ROOT) == []
@@ -116,7 +134,11 @@ def test_it_catches_a_missing_changelog_entry(repo: Path) -> None:
 
 def test_it_catches_a_citation_ahead_of_the_package(repo: Path) -> None:
     """CITATION.cff must never name a version that does not exist yet."""
-    _edit(repo / "pyproject.toml", f'version = "{_version(repo)}"', 'version = "0.1.0"')
+    _edit(
+        repo / "pyproject.toml",
+        f'version = "{_pyproject_version(repo)}"',
+        'version = "0.1.0"',
+    )
 
     problems = collect_problems(repo)
 
@@ -133,7 +155,7 @@ def test_a_development_version_may_lead_the_citation(repo: Path) -> None:
     """
     _edit(
         repo / "pyproject.toml",
-        f'version = "{_version(repo)}"',
+        f'version = "{_pyproject_version(repo)}"',
         'version = "9.9.9.dev0"',
     )
 

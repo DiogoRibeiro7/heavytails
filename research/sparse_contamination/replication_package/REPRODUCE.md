@@ -59,6 +59,28 @@ near-duplicate signal points collapsed at tolerance 1e-10.
   the build it produces, and the generated table and figure fragments it
   inputs.
 
+### What the stress artifacts do not carry
+
+Two asymmetries between the primary and the stress evidence, stated here rather
+than left for a reader to discover.
+
+`results/stress_report.json` records the configuration, the self-checks, the row
+count and the runtime, but **no software provenance** --- no Python, NumPy or
+`heavytails` version and no commit. The primary run has always recorded those.
+The stress driver writes them now, but the artifact shipped here predates that
+change and the values were not captured when it ran. They are not reconstructed
+after the fact: a provenance record assembled later would assert something
+nobody observed. Reproducing the stress rows exactly therefore depends on an
+environment this archive does not pin, and the numbers are reported on that
+basis.
+
+There is also no stress replicate-level export. The primary study ships
+`primary_replicates.csv.gz`, so its paired standard errors can be recomputed
+from the archived data; the stress layer ships summaries only, so the Monte
+Carlo standard errors in `stress_summary.csv` can be read but not independently
+reconstructed. The stress results are post-specified and secondary to the
+paper's claims, but they are not audited to the same depth as the primary run.
+
 ## Reproducing the reported numbers
 
 From this directory, with the versions recorded in `ENVIRONMENT.txt` ---
