@@ -1,0 +1,20 @@
+# What produced the frozen results
+
+heavytails  0.5.0
+python  3.13.5
+numpy  2.3.5
+commit  755e6ade3a84a77f68f561e0e506b02eb729b1b7
+
+# What assembled this package and built the PDF
+# A snapshot of this machine, not the analysis environment. Where the
+# two sections disagree, the section above is the one the results
+# depend on.
+
+numpy  2.5.2
+pandas  2.3.3
+matplotlib  3.11.1
+python  3.13.5
+platform  Windows-11-10.0.26200-SP0
+latexmk  Latexmk, John Collins, 15 June 2025. Version 4.87
+pdftex  MiKTeX-pdfTeX 4.21 (MiKTeX 25.4)
+pdftotext  pdftotext version 4.00
