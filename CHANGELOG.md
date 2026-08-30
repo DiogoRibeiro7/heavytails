@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-08-30
+
+Cut so that the corrected replication package reaches an archived record.
+0.6.2 archived a 31-file package; #409 and #411 changed it materially, so the
+DOI the paper cited no longer described the package in the repository.
+
+### Fixed
+
+- `pyproject.toml` claimed the released version while main carried commits past
+  the tag, so a wheel built from main would have announced itself as an already
+  published release from a different tree. After a release main now moves to the
+  next `.devN` while `CITATION.cff` goes on naming the last release.
+- `build_online_resource.py` printed a note and exited 0 when the DOI or the
+  corresponding e-mail was still a placeholder, after writing a complete-looking
+  journal supplement. It refuses before writing anything now, with
+  `--allow-placeholders` for drafts.
+
+### Changed
+
+- The replication notes state two asymmetries rather than leaving them to be
+  discovered: the frozen stress artifact carries no software provenance, and the
+  stress layer ships no replicate-level export, so its Monte Carlo standard
+  errors can be read but not independently recomputed.
+- `ROADMAP.md` and `README.md` describe the package that exists. Both listed as
+  future work things that ship, and the README's module table named five modules
+  of thirteen.
+
 ## [0.6.2] - 2026-08-30
 
 ### Added
@@ -873,7 +900,8 @@ returned negative probabilities.
 - `heavytails` command-line interface.
 - Documentation site built with MkDocs Material.
 
-[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.3...HEAD
+[0.6.3]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.5.0...v0.6.0
