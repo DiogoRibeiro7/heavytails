@@ -1,10 +1,12 @@
 """Build Online Resource 1: the compact reproduction guide for the journal.
 
 The full replication archive is large, mostly because of the per-replicate
-export, and belongs in a public repository with its own DOI.  What the journal
-carries alongside the paper is this small bundle: the manifest of that archive,
-the run configuration and provenance, a map from each table and figure to the
-file that produces it, and the archive's identifier.
+export, so it is not what travels with the manuscript.  It lives in the
+project's public repository and is archived with each release, which is what
+gives it a citable identifier.  What the journal carries alongside the paper is
+this small bundle: the manifest of that archive, the run configuration and
+provenance, a map from each table and figure to the file that produces it, and
+the archive's identifier.
 
 Usage::
 
@@ -78,11 +80,12 @@ University of Porto, Porto, Portugal
 
 This bundle is the compact companion to the paper.  The **complete replication
 archive** --- simulation drivers, analysis-only scripts, the frozen summary and
-per-replicate losses, and the manuscript sources --- is deposited separately at
+per-replicate losses, and the manuscript sources --- is archived at
 
     {doi}
 
-because the per-replicate export alone is {replicates_mb:.0f} MB.  This bundle
+which is the software release that carries it; the per-replicate export alone is
+{replicates_mb:.0f} MB, which is why it is not attached to the article.  This bundle
 contains what a reader needs to check the archive's integrity and to find the
 file behind any number in the paper.
 
