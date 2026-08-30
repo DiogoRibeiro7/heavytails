@@ -13,7 +13,7 @@ interchangeable and the difference matters for reproducibility.
 | DOI | Resolves to | Cite it when |
 | --- | --- | --- |
 | [10.5281/zenodo.22045594](https://doi.org/10.5281/zenodo.22045594) | **All versions** — always the most recent release | You mean "this software", and the exact version is not part of the claim |
-| [10.5281/zenodo.22166257](https://doi.org/10.5281/zenodo.22166257) | **One release only** — 0.6.1, and nothing else. Each release gets its own, minted when Zenodo archives it; earlier ones are listed under "Versions" on the concept record | A result depends on the version you ran, which for numerical work it usually does |
+| [10.5281/zenodo.22166257](https://doi.org/10.5281/zenodo.22166257) | **One release only** — 0.6.2, and nothing else. Each release gets its own, minted when Zenodo archives it; earlier ones are listed under "Versions" on the concept record | A result depends on the version you ran, which for numerical work it usually does |
 
 The first is the *concept DOI*. It is the one to use by default, and the one on
 the badge in the README.
@@ -41,7 +41,7 @@ Citing all versions:
 }
 ```
 
-Citing release 0.6.1 exactly:
+Citing release 0.6.2 exactly:
 
 ```bibtex
 @software{ribeiro_heavytails_0_6_1,
@@ -49,7 +49,7 @@ Citing release 0.6.1 exactly:
   title     = {heavytails: A Python Library for Heavy-Tailed
                Probability Distributions},
   year      = {2026},
-  version   = {0.6.1},
+  version   = {0.6.2},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.22166257},
   url       = {https://doi.org/10.5281/zenodo.22166257}
@@ -63,24 +63,24 @@ Citing release 0.6.1 exactly:
 ### APA
 
 > Ribeiro, D. (2026). *heavytails: A Python library for heavy-tailed
-> probability distributions* (Version 0.6.1) [Computer software]. Zenodo.
+> probability distributions* (Version 0.6.2) [Computer software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.22166257>
 
 ### IEEE
 
 > D. Ribeiro, "heavytails: A Python Library for Heavy-Tailed Probability
-> Distributions," version 0.6.1, Zenodo, 2026. doi: 10.5281/zenodo.22166257.
+> Distributions," version 0.6.2, Zenodo, 2026. doi: 10.5281/zenodo.22166257.
 
 ### MLA
 
 > Ribeiro, Diogo. *heavytails: A Python Library for Heavy-Tailed
-> Probability Distributions*. Version 0.6.1, Zenodo, 2026,
+> Probability Distributions*. Version 0.6.2, Zenodo, 2026,
 > doi:10.5281/zenodo.22166257.
 
 ### Chicago
 
 > Ribeiro, Diogo. 2026. "heavytails: A Python Library for Heavy-Tailed
-> Probability Distributions." Version 0.6.1. Zenodo.
+> Probability Distributions." Version 0.6.2. Zenodo.
 > <https://doi.org/10.5281/zenodo.22166257>.
 
 --------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ Citing release 0.6.1 exactly:
 - "Tail indices were estimated with the Hill estimator (Hill, 1975) as
   implemented in heavytails (Ribeiro, 2026)."
 - "Aggregate losses were computed by Panjer recursion (Panjer, 1981) using
-  heavytails 0.6.1 (Ribeiro, 2026)."
+  heavytails 0.6.2 (Ribeiro, 2026)."
 
 --------------------------------------------------------------------------------
 

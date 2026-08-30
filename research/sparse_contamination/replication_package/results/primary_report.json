@@ -1,0 +1,77 @@
+{
+  "provenance": {
+    "heavytails_version": "0.5.0",
+    "heavytails_version_source": "pyproject.toml",
+    "version_source": "pyproject.toml",
+    "git_commit": "755e6ade3a84a77f68f561e0e506b02eb729b1b7",
+    "python_version": "3.13.5",
+    "numpy_version": "2.3.5"
+  },
+  "configuration": {
+    "trials": 5000,
+    "seed": 20260826,
+    "gamma": 0.5,
+    "n_values": [
+      1000,
+      10000,
+      50000
+    ],
+    "r_values": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "h": 10,
+    "betas": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "signal_rules": [
+      {
+        "label": "0",
+        "scale": "zero",
+        "factor": 0.0
+      },
+      {
+        "label": "0.5I",
+        "scale": "I",
+        "factor": 0.5
+      },
+      {
+        "label": "1.5I",
+        "scale": "I",
+        "factor": 1.5
+      },
+      {
+        "label": "0.5D",
+        "scale": "D",
+        "factor": 0.5
+      },
+      {
+        "label": "1.5D",
+        "scale": "D",
+        "factor": 1.5
+      },
+      {
+        "label": "0.5R",
+        "scale": "R",
+        "factor": 0.5
+      },
+      {
+        "label": "1.5R",
+        "scale": "R",
+        "factor": 1.5
+      }
+    ],
+    "duplicate_signal_tolerance": 1e-10,
+    "paired_replicates": true
+  },
+  "outputs": {
+    "summary_csv": "research\\sparse_contamination\\primary_summary.csv",
+    "replicates_csv": "research\\sparse_contamination\\primary_replicates.csv"
+  },
+  "rows": 498,
+  "seconds": 330.32155442237854
+}

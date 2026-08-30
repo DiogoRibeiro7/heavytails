@@ -1,0 +1,32 @@
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{cccccccc}
+\toprule
+$n$ & $\rho$ & $S/D_n$ & $\operatorname{MSE}(\ghat_H^\star)$ & detection & unit & adaptive & oracle\\
+\midrule
+$10^4$ & $-1.00$ & $0.0$ & $2.60{\times}10^{-3}$ & $0.013$ & $10^{-4}$ & $-0.11\pm0.07$ & $-1.30\pm0.17$\\
+$10^4$ & $-1.00$ & $0.5$ & $2.92{\times}10^{-3}$ & $0.040$ & $10^{-4}$ & $-0.16\pm0.11$ & $3.17\pm0.28$\\
+$10^4$ & $-1.00$ & $1.5$ & $5.23{\times}10^{-3}$ & $1.000$ & $10^{-3}$ & $2.60\pm0.07$ & $2.60\pm0.07$\\
+$10^4$ & $-0.50$ & $0.0$ & $4.01{\times}10^{-3}$ & $0.008$ & $10^{-4}$ & $0.13\pm0.06$ & $-2.74\pm0.23$\\
+$10^4$ & $-0.50$ & $0.5$ & $5.57{\times}10^{-3}$ & $0.029$ & $10^{-3}$ & $0.03\pm0.01$ & $1.24\pm0.03$\\
+$10^4$ & $-0.50$ & $1.5$ & $1.04{\times}10^{-2}$ & $0.999$ & $10^{-3}$ & $5.95\pm0.08$ & $5.95\pm0.08$\\
+$10^4$ & $-0.25$ & $0.0$ & $3.37{\times}10^{-2}$ & $0.003$ & $10^{-3}$ & $0.03\pm0.01$ & $-2.13\pm0.07$\\
+$10^4$ & $-0.25$ & $0.5$ & $3.98{\times}10^{-2}$ & $0.011$ & $10^{-3}$ & $0.17\pm0.03$ & $3.95\pm0.07$\\
+$10^4$ & $-0.25$ & $1.5$ & $5.44{\times}10^{-2}$ & $0.907$ & $10^{-2}$ & $1.58\pm0.01$ & $1.79\pm0.01$\\
+\midrule
+$5{\times}10^4$ & $-1.00$ & $0.0$ & $1.12{\times}10^{-3}$ & $0.010$ & $10^{-5}$ & $-0.10\pm0.20$ & $-1.16\pm0.50$\\
+$5{\times}10^4$ & $-1.00$ & $0.5$ & $1.21{\times}10^{-3}$ & $0.039$ & $10^{-5}$ & $-0.77\pm0.33$ & $4.12\pm0.91$\\
+$5{\times}10^4$ & $-1.00$ & $1.5$ & $1.69{\times}10^{-3}$ & $1.000$ & $10^{-4}$ & $5.83\pm0.23$ & $5.83\pm0.23$\\
+$5{\times}10^4$ & $-0.50$ & $0.0$ & $1.81{\times}10^{-3}$ & $0.006$ & $10^{-5}$ & $0.25\pm0.12$ & $-4.15\pm0.63$\\
+$5{\times}10^4$ & $-0.50$ & $0.5$ & $2.27{\times}10^{-3}$ & $0.031$ & $10^{-4}$ & $0.22\pm0.04$ & $3.95\pm0.10$\\
+$5{\times}10^4$ & $-0.50$ & $1.5$ & $3.40{\times}10^{-3}$ & $1.000$ & $10^{-3}$ & $1.61\pm0.02$ & $1.61\pm0.02$\\
+$5{\times}10^4$ & $-0.25$ & $0.0$ & $1.91{\times}10^{-2}$ & $0.004$ & $10^{-4}$ & $0.14\pm0.04$ & $-6.17\pm0.22$\\
+$5{\times}10^4$ & $-0.25$ & $0.5$ & $2.15{\times}10^{-2}$ & $0.008$ & $10^{-3}$ & $0.04\pm0.01$ & $1.54\pm0.02$\\
+$5{\times}10^4$ & $-0.25$ & $1.5$ & $2.58{\times}10^{-2}$ & $1.000$ & $10^{-3}$ & $6.24\pm0.03$ & $6.23\pm0.03$\\
+\bottomrule
+\end{tabular}
+\caption{Post-specified second-order stress test at $r=5$, sampling a Burr law with second-order parameter $\rho$ rather than exact Pareto, so the normalized spacings are only approximately exponential and ordinary Hill carries threshold bias.  The detection transition survives: detection stays near its clean level at $0.5D_n$ and is essentially complete at $1.5D_n$ for every $\rho$, and above $D_n$ adaptive trimming approaches the trim-count oracle as recovery becomes nearly complete.  What changes is the relative importance of the contamination: at $\rho=-0.25$ the bias term dominates $\operatorname{MSE}(\ghat_H^\star)$, so the contamination question is secondary to threshold choice.}
+\label{tab:stress-second-order}
+\end{table}

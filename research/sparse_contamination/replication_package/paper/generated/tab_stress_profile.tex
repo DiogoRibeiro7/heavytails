@@ -1,0 +1,39 @@
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{cccccccc}
+\toprule
+$n$ & $r$ & $S/D_n$ & \multicolumn{2}{c}{detection} & unit & \multicolumn{2}{c}{$\widehat B_n^{(A)}$}\\
+ & & & equal & spread & & equal & spread\\
+\midrule
+$10^4$ & $3$ & $0.5$ & $0.043$ & $0.018$ & $10^{-5}$ & $-5.58\pm1.03$ & $-2.82\pm0.95$\\
+$10^4$ & $3$ & $1.0$ & $0.723$ & $0.052$ & $10^{-5}$ & $9.39\pm4.02$ & $0.18\pm1.65$\\
+$10^4$ & $3$ & $1.5$ & $1.000$ & $0.218$ & $10^{-3}$ & $2.52\pm0.07$ & $0.08\pm0.04$\\
+$10^4$ & $3$ & $2.5$ & $1.000$ & $0.994$ & $10^{-3}$ & $7.00\pm0.12$ & $6.70\pm0.12$\\
+$10^4$ & $5$ & $0.5$ & $0.035$ & $0.020$ & $10^{-5}$ & $-2.48\pm0.97$ & $-0.81\pm0.99$\\
+$10^4$ & $5$ & $1.0$ & $0.733$ & $0.028$ & $10^{-5}$ & $0.52\pm4.13$ & $-1.20\pm1.30$\\
+$10^4$ & $5$ & $1.5$ & $1.000$ & $0.065$ & $10^{-3}$ & $2.37\pm0.07$ & $0.05\pm0.02$\\
+$10^4$ & $5$ & $2.5$ & $1.000$ & $0.358$ & $10^{-3}$ & $6.86\pm0.12$ & $1.07\pm0.08$\\
+$10^4$ & $10$ & $0.5$ & $0.040$ & $0.016$ & $10^{-5}$ & $-2.65\pm1.19$ & $-0.21\pm0.80$\\
+$10^4$ & $10$ & $1.0$ & $0.725$ & $0.021$ & $10^{-5}$ & $-1.31\pm4.37$ & $1.04\pm1.02$\\
+$10^4$ & $10$ & $1.5$ & $1.000$ & $0.029$ & $10^{-3}$ & $2.39\pm0.08$ & $0.05\pm0.02$\\
+$10^4$ & $10$ & $2.5$ & $1.000$ & $0.060$ & $10^{-3}$ & $6.66\pm0.12$ & $0.30\pm0.03$\\
+\midrule
+$5{\times}10^4$ & $3$ & $0.5$ & $0.040$ & $0.014$ & $10^{-5}$ & $-1.33\pm0.36$ & $0.11\pm0.25$\\
+$5{\times}10^4$ & $3$ & $1.0$ & $0.817$ & $0.047$ & $10^{-5}$ & $2.09\pm1.33$ & $-1.47\pm0.50$\\
+$5{\times}10^4$ & $3$ & $1.5$ & $1.000$ & $0.192$ & $10^{-4}$ & $5.55\pm0.23$ & $0.20\pm0.12$\\
+$5{\times}10^4$ & $3$ & $2.5$ & $1.000$ & $1.000$ & $10^{-3}$ & $1.59\pm0.04$ & $1.59\pm0.04$\\
+$5{\times}10^4$ & $5$ & $0.5$ & $0.035$ & $0.014$ & $10^{-6}$ & $-8.63\pm3.14$ & $-6.05\pm2.43$\\
+$5{\times}10^4$ & $5$ & $1.0$ & $0.827$ & $0.025$ & $10^{-5}$ & $2.09\pm1.39$ & $-0.62\pm0.34$\\
+$5{\times}10^4$ & $5$ & $1.5$ & $1.000$ & $0.052$ & $10^{-4}$ & $5.30\pm0.23$ & $0.16\pm0.07$\\
+$5{\times}10^4$ & $5$ & $2.5$ & $1.000$ & $0.372$ & $10^{-3}$ & $1.54\pm0.04$ & $0.23\pm0.02$\\
+$5{\times}10^4$ & $10$ & $0.5$ & $0.040$ & $0.013$ & $10^{-6}$ & $-7.35\pm3.00$ & $-2.21\pm1.82$\\
+$5{\times}10^4$ & $10$ & $1.0$ & $0.808$ & $0.016$ & $10^{-5}$ & $-0.54\pm1.44$ & $-0.18\pm0.28$\\
+$5{\times}10^4$ & $10$ & $1.5$ & $1.000$ & $0.025$ & $10^{-4}$ & $5.05\pm0.24$ & $0.10\pm0.05$\\
+$5{\times}10^4$ & $10$ & $2.5$ & $1.000$ & $0.055$ & $10^{-3}$ & $1.50\pm0.04$ & $0.07\pm0.01$\\
+\bottomrule
+\end{tabular}
+\caption{Post-specified comparison of contamination profiles at matched Hill bias.  The equal-factor profile places the whole signal on spacing $r$; the spread profile uses unequal factors chosen so that, by Lemma \ref{lem:unequal}, the shifts $jc$ fall on all of $j=1,\ldots,r$ and the total, hence the contaminated-Hill MSE, is unchanged.  The two profiles damage Hill identically but are not equally detectable: at $S=1.5D_n$ the equal-factor signal is detected in every replicate while the spread signal is detected in a few percent of them, and the adaptive benefit falls with it.  $D_n$ is therefore a detection scale for spacing-localized contamination, not for contamination of a given magnitude.}
+\label{tab:stress-profile}
+\end{table}

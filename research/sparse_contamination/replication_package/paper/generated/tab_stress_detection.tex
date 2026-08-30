@@ -1,0 +1,24 @@
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ccccc}
+\toprule
+$S/D_n$ & \multicolumn{2}{c}{$n=10^4$} & \multicolumn{2}{c}{$n=5{\times}10^4$}\\
+ & vanishing & fixed & vanishing & fixed\\
+\midrule
+$0.4$ & $0.027$ & $0.079$ & $0.023$ & $0.084$\\
+$0.6$ & $0.076$ & $0.152$ & $0.065$ & $0.168$\\
+$0.7$ & $0.139$ & $0.231$ & $0.129$ & $0.234$\\
+$0.8$ & $0.269$ & $0.372$ & $0.241$ & $0.378$\\
+$0.9$ & $0.466$ & $0.574$ & $0.493$ & $0.603$\\
+$1.0$ & $0.734$ & $0.792$ & $0.810$ & $0.863$\\
+$1.1$ & $0.909$ & $0.938$ & $0.974$ & $0.986$\\
+$1.2$ & $0.983$ & $0.990$ & $0.999$ & $1.000$\\
+$1.3$ & $0.998$ & $0.999$ & $1.000$ & $1.000$\\
+$1.5$ & $1.000$ & $1.000$ & $1.000$ & $1.000$\\
+$2.0$ & $1.000$ & $1.000$ & $1.000$ & $1.000$\\
+\bottomrule
+\end{tabular}
+\caption{Post-specified detection transition at $r=5$.  Entries are $\Pp(\widehat r>0)$ on a grid in $S/D_n$, under the vanishing family-wise level $\alpha_n=\min\{0.05,1/\log^2n\}$ of the primary design and under a fixed $\alpha=0.05$.  Each column normalizes by its own $D_n$.  The transition is centred slightly below $S/D_n=1$ and is complete by $S/D_n\approx1.2$ in both regimes, so the normalized finite-sample transition is similar under fixed and vanishing levels.  The vanishing level additionally supplies the asymptotic $I^{T}_{r,k}\ll D_n$ separation and the vanishing false-rejection probability that Theorem \ref{thm:exact-recovery} assumes.}
+\label{tab:stress-detection}
+\end{table}

@@ -1,0 +1,26 @@
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{ccccccccc}
+\toprule
+$n$ & $S$ & $S/D_n$ & unit & adaptive & $\beta{=}0.5$ & $\beta{=}1$ & $\beta{=}2$ & oracle\\
+\midrule
+$10^4$ & $0.5I$ & $0.170$ & $10^{-4}$ & $-0.22\pm0.07$ & $-1.26\pm0.16$ & $-3.67\pm0.29$ & $-9.58\pm0.50$ & $-0.79\pm0.19$\\
+$10^4$ & $1.5I$ & $0.510$ & $10^{-4}$ & $-0.51\pm0.11$ & $0.67\pm0.19$ & $-1.13\pm0.31$ & $-6.84\pm0.50$ & $1.49\pm0.28$\\
+$10^4$ & $0.5D$ & $0.500$ & $10^{-4}$ & $-0.38\pm0.13$ & $0.93\pm0.19$ & $-0.73\pm0.31$ & $-6.20\pm0.50$ & $1.43\pm0.29$\\
+$10^4$ & $1.5D$ & $1.500$ & $10^{-3}$ & $2.40\pm0.07$ & $1.87\pm0.04$ & $2.08\pm0.06$ & $1.63\pm0.08$ & $2.40\pm0.07$\\
+$10^4$ & $0.5R$ & $0.741$ & $10^{-4}$ & $-1.62\pm0.21$ & $3.04\pm0.23$ & $1.87\pm0.36$ & $-3.48\pm0.55$ & $4.74\pm0.38$\\
+$10^4$ & $1.5R$ & $2.224$ & $10^{-3}$ & $5.51\pm0.11$ & $4.45\pm0.06$ & $5.06\pm0.09$ & $4.66\pm0.10$ & $5.51\pm0.11$\\
+\midrule
+$5{\times}10^4$ & $0.5I$ & $0.160$ & $10^{-4}$ & $-0.01\pm0.02$ & $-0.48\pm0.07$ & $-1.47\pm0.12$ & $-3.98\pm0.21$ & $-0.19\pm0.05$\\
+$5{\times}10^4$ & $1.5I$ & $0.480$ & $10^{-4}$ & $-0.02\pm0.03$ & $0.00\pm0.08$ & $-0.86\pm0.13$ & $-3.21\pm0.22$ & $0.40\pm0.08$\\
+$5{\times}10^4$ & $0.5D$ & $0.500$ & $10^{-4}$ & $-0.06\pm0.03$ & $0.07\pm0.08$ & $-0.81\pm0.14$ & $-3.24\pm0.22$ & $0.45\pm0.09$\\
+$5{\times}10^4$ & $1.5D$ & $1.500$ & $10^{-4}$ & $5.31\pm0.23$ & $4.26\pm0.16$ & $3.90\pm0.22$ & $1.48\pm0.29$ & $5.32\pm0.23$\\
+$5{\times}10^4$ & $0.5R$ & $1.057$ & $10^{-4}$ & $1.12\pm0.15$ & $1.61\pm0.11$ & $0.91\pm0.17$ & $-1.56\pm0.24$ & $2.22\pm0.16$\\
+$5{\times}10^4$ & $1.5R$ & $3.170$ & $10^{-3}$ & $2.51\pm0.05$ & $2.26\pm0.03$ & $2.36\pm0.04$ & $2.13\pm0.05$ & $2.50\pm0.05$\\
+\bottomrule
+\end{tabular}
+\caption{Detection-and-removal against the full pre-specified bounded-influence family at $r=5$.  Entries are paired benefits against contaminated Hill with Monte Carlo standard errors, each row written in the unit given in its fourth column; positive values beat contaminated Hill.  The harmonic-moment columns are the three frozen values of $\beta$, with $\beta=1$ the named t-Hill estimator.  Increasing $\beta$ bounds influence more aggressively but carries a larger clean-sample efficiency cost: $\beta=2$ is the weakest column almost everywhere, and no single $\beta$ is best across the grid.  Paired tests of each $\beta$ against adaptive trimming are in Table \ref{tab:beta-contrasts}.}
+\label{tab:estimator-crossover}
+\end{table}

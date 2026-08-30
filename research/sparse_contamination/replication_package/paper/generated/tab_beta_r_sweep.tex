@@ -1,0 +1,33 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{cccccc}
+\toprule
+$n$ & $S$ & $r$ cells & $\beta{=}0.5$ & $\beta{=}1$ & $\beta{=}2$\\
+\midrule
+$10^3$ & $0.5I$ & $4$ & $0$ & $0$ & $0$\\
+$10^3$ & $1.5I$ & $4$ & $4$ & $3$ & $2$\\
+$10^3$ & $0.5D$ & $4$ & $3$ & $3$ & $0$\\
+$10^3$ & $1.5D$ & $4$ & $0$ & $0$ & $0$\\
+$10^3$ & $0.5R$ & $4$ & $3$ & $3$ & $0$\\
+$10^3$ & $1.5R$ & $4$ & $1$ & $2$ & $2$\\
+\midrule
+$10^4$ & $0.5I$ & $4$ & $0$ & $0$ & $0$\\
+$10^4$ & $1.5I$ & $3$ & $2$ & $0$ & $0$\\
+$10^4$ & $1.5I{=}0.5R$ & $1$ & $1$ & $1$ & $0$\\
+$10^4$ & $0.5D$ & $4$ & $4$ & $0$ & $0$\\
+$10^4$ & $1.5D$ & $4$ & $0$ & $0$ & $0$\\
+$10^4$ & $0.5R$ & $3$ & $3$ & $3$ & $0$\\
+$10^4$ & $1.5R$ & $4$ & $0$ & $0$ & $0$\\
+\midrule
+$5{\times}10^4$ & $0.5I$ & $4$ & $0$ & $0$ & $0$\\
+$5{\times}10^4$ & $1.5I$ & $4$ & $2$ & $1$ & $0$\\
+$5{\times}10^4$ & $0.5D$ & $4$ & $4$ & $0$ & $0$\\
+$5{\times}10^4$ & $1.5D$ & $4$ & $0$ & $0$ & $0$\\
+$5{\times}10^4$ & $0.5R$ & $4$ & $4$ & $0$ & $0$\\
+$5{\times}10^4$ & $1.5R$ & $4$ & $0$ & $0$ & $0$\\
+\bottomrule
+\end{tabular}
+\caption{Bounded influence against adaptive trimming across the whole frozen grid.  For each design point, the last three columns count the contamination counts $r\in\{1,3,5,10\}$ at which that harmonic-moment member has the larger paired benefit against contaminated Hill.  This is the evidence behind the family-level statements of Section \ref{sec:first-run}, which Tables \ref{tab:estimator-crossover} and \ref{tab:beta-contrasts} report at $r=5$ only.  At $n\ge10^4$ the most aggressively bounded member, $\beta=2$, never beats adaptive trimming; the four cells where it does are all in the pre-asymptotic $n=10^3$ row.}
+\label{tab:beta-r-sweep}
+\end{table}

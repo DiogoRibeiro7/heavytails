@@ -33,8 +33,8 @@ keywords:
   - simulation
   - teaching
 license: MIT
-version: 0.6.1
-date-released: 2026-08-29
+version: 0.6.2
+date-released: 2026-08-30
 doi: "10.5281/zenodo.22045594"
 identifiers:
   - type: doi

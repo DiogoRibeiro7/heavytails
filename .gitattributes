@@ -38,3 +38,9 @@ poetry.lock  text eol=lf -diff linguist-generated
 docs/**      linguist-documentation
 examples/**  linguist-documentation
 site/**      linguist-generated
+
+# The sparse-contamination replication package ships a SHA-256 manifest
+# covering every file in it. Line-ending normalisation rewrites bytes, so the
+# rules above would make 26 of its 31 checksums fail on any fresh clone -- an
+# archive that looks intact and is not. Store it exactly as deposited.
+research/sparse_contamination/replication_package/** -text
