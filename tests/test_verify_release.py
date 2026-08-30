@@ -11,10 +11,13 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from scripts.verify_release import GITHUB_REPO, PACKAGE, verify
+from scripts.verify_release import GITHUB_REPO, PACKAGE, _version_doi, verify
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -78,6 +81,20 @@ def _tag_object(repo: Path) -> str:
     return result.stdout.strip()
 
 
+def _zenodo_url(repo: Path) -> str:
+    """The record the verifier will ask about, read from the fixture.
+
+    This was hardcoded to 22166257, and a release changed the version DOI in
+    CITATION.cff to 22171166. The fake then answered nothing for the URL the
+    verifier requested, so the suite went red on main for a release that was
+    entirely correct -- a test asserting a value the release process is
+    designed to change.
+    """
+    doi = _version_doi(repo)
+    assert doi is not None, "the fixture has no version DOI"
+    return f"https://zenodo.org/api/records/{doi.rsplit('.', 1)[-1]}"
+
+
 def _world(repo: Path, *, on_pypi: bool = True) -> dict[str, Any]:
     """Everything published, unless a case says otherwise."""
     world = {
@@ -89,7 +106,7 @@ def _world(repo: Path, *, on_pypi: bool = True) -> dict[str, Any]:
         f"https://api.github.com/repos/{GITHUB_REPO}/git/ref/tags/{TAG}": {
             "object": {"sha": _tag_object(repo)}
         },
-        "https://zenodo.org/api/records/22166257": {"metadata": {"version": TAG}},
+        _zenodo_url(repo): {"metadata": {"version": TAG}},
     }
     if on_pypi:
         world[f"https://pypi.org/pypi/{PACKAGE}/{VERSION}/json"] = {
@@ -98,8 +115,10 @@ def _world(repo: Path, *, on_pypi: bool = True) -> dict[str, Any]:
     return world
 
 
-def _fetch(world: dict[str, Any]):
-    return lambda url: world.get(url)
+def _fetch(world: dict[str, Any]) -> Callable[[str], Any | None]:
+    """Answer from a dictionary; unknown URLs come back as None, as a dead
+    index would."""
+    return world.get
 
 
 def _by_label(checks) -> dict[str, Any]:
@@ -176,9 +195,7 @@ def test_a_tag_that_moved_after_release_is_caught(repo: Path) -> None:
 
 def test_zenodo_archiving_the_wrong_version_is_caught(repo: Path) -> None:
     world = _world(repo)
-    world["https://zenodo.org/api/records/22166257"] = {
-        "metadata": {"version": "v1.2.3"}
-    }
+    world[_zenodo_url(repo)] = {"metadata": {"version": "v1.2.3"}}
 
     checks = _by_label(verify(VERSION, root=repo, fetch=_fetch(world)))
 
