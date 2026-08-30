@@ -124,6 +124,18 @@ Verify the archive against `MANIFEST.txt` before use.
 """
 
 
+def _pending_placeholders(args: argparse.Namespace) -> list[str]:
+    """Which required values are still placeholders."""
+    return [
+        f"{name} ({flag})"
+        for name, value, flag in (
+            ("DOI", args.doi, "--doi"),
+            ("corresponding e-mail", args.email, "--email"),
+        )
+        if value.startswith("[")
+    ]
+
+
 def _locate_package() -> Path | None:
     """Find the replication package from wherever this script is running.
 
@@ -157,12 +169,29 @@ def main() -> None:
     )
     parser.add_argument("--outdir", type=Path, default=HERE / "online_resource_1")
     parser.add_argument(
+        "--allow-placeholders",
+        action="store_true",
+        help="build a draft even with an unresolved DOI or e-mail",
+    )
+    parser.add_argument(
         "--package-root",
         type=Path,
         default=None,
         help="the replication package to read (default: locate it)",
     )
     args = parser.parse_args()
+
+    # Fail closed, and before anything is written. This builds the supplement
+    # that goes to the journal; it used to print a note and exit 0, so an
+    # unresolved DOI produced a complete-looking five-file bundle that reported
+    # success. Checking after the write would still leave that bundle on disk.
+    pending = _pending_placeholders(args)
+    if pending and not args.allow_placeholders:
+        raise SystemExit(
+            "refusing to build a supplement with unresolved "
+            + ", ".join(pending)
+            + "\npass --allow-placeholders to build a draft anyway"
+        )
 
     package = args.package_root or _locate_package()
     if package is None or not package.is_dir():
@@ -211,16 +240,8 @@ def main() -> None:
     total = sum(p.stat().st_size for p in args.outdir.iterdir())
     print(f"wrote {args.outdir}")
     print(f"{len(list(args.outdir.iterdir()))} files, {total / 1024:.0f} KB")
-    pending = [
-        name
-        for name, value, flag in (
-            ("DOI", args.doi, "--doi"),
-            ("corresponding e-mail", args.email, "--email"),
-        )
-        if value.startswith("[")
-    ]
-    if pending:
-        print(f"NOTE: still placeholders: {', '.join(pending)}")
+    if _pending_placeholders(args):
+        print("NOTE: draft only, placeholders remain")
 
 
 if __name__ == "__main__":
