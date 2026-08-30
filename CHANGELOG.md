@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-08-30
+
 ### Added
+
+- The replication package for the sparse-contamination paper is now tracked at
+  `research/sparse_contamination/replication_package/`: simulation drivers,
+  analysis-only scripts, the frozen summary and per-replicate losses, the
+  configuration and provenance records, the manuscript with its generated
+  fragments, and a SHA-256 manifest over all 31 files. The paper promised a
+  deposited archive; keeping it here means the release tarball Zenodo archives
+  contains it, so it is citable without a separate deposit. It is excluded
+  from the PyPI distributions, which ship only the package, tests and two
+  metadata files.
 
 - `make verify-release VERSION=x.y.z`, backed by `scripts/verify_release.py`,
   asks whether a released version is actually public: tag, GitHub release,
@@ -861,7 +873,8 @@ returned negative probabilities.
 - `heavytails` command-line interface.
 - Documentation site built with MkDocs Material.
 
-[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/DiogoRibeiro7/heavytails/compare/v0.4.0...v0.5.0
