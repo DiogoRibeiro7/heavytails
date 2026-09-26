@@ -113,7 +113,7 @@ ipykernel = "^7.3.0"
 matplotlib = "^3.9.2"
 seaborn = "^0.13.2"
 pandas = "^2.2.3"
-notebook = ">=7.2,<8.0"
+notebook = ">=7.6.3,<8.0"
 plotly = "^6.5.0"
 
 [tool.poetry.group.benchmarks.dependencies]
