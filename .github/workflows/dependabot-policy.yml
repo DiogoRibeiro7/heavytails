@@ -1,0 +1,32 @@
+name: Dependabot Policy
+
+on:
+  pull_request:
+    paths:
+      - ".github/dependabot.yml"
+      - "pyproject.toml"
+      - "poetry.lock"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/dependabot-policy.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/dependabot.yml"
+      - "pyproject.toml"
+      - "poetry.lock"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/dependabot-policy.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Validate Dependabot policy
+        uses: DiogoRibeiro7/safe-dependabot@v1
