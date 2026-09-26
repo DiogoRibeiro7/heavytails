@@ -129,8 +129,9 @@ def _lognormal(mu: float, sigma: float) -> dict[str, Any]:
     return {
         "cdf": lambda x: (1 + mp.erf((mp.log(x) - m) / (s * root2))) / 2,
         "sf": lambda x: mp.erfc((mp.log(x) - m) / (s * root2)) / 2,
-        "pdf": lambda x: mp.exp(-((mp.log(x) - m) ** 2) / (2 * s * s))
-        / (x * s * mp.sqrt(2 * mp.pi)),
+        "pdf": lambda x: (
+            mp.exp(-((mp.log(x) - m) ** 2) / (2 * s * s)) / (x * s * mp.sqrt(2 * mp.pi))
+        ),
         "ppf": lambda u: mp.exp(m + s * root2 * mp.erfinv(2 * mp.mpf(u) - 1)),
     }
 
@@ -140,9 +141,11 @@ def _weibull(k: float, lam: float) -> dict[str, Any]:
     return {
         "cdf": lambda x: 1 - mp.exp(-((x / scale) ** shape)),
         "sf": lambda x: mp.exp(-((x / scale) ** shape)),
-        "pdf": lambda x: (shape / scale)
-        * (x / scale) ** (shape - 1)
-        * mp.exp(-((x / scale) ** shape)),
+        "pdf": lambda x: (
+            (shape / scale)
+            * (x / scale) ** (shape - 1)
+            * mp.exp(-((x / scale) ** shape))
+        ),
         "ppf": lambda u: scale * (-mp.log(1 - mp.mpf(u))) ** (1 / shape),
     }
 
@@ -152,9 +155,11 @@ def _frechet(alpha: float, s: float, m: float) -> dict[str, Any]:
     return {
         "cdf": lambda x: mp.exp(-(((x - loc) / scale) ** -a)),
         "sf": lambda x: 1 - mp.exp(-(((x - loc) / scale) ** -a)),
-        "pdf": lambda x: (a / scale)
-        * ((x - loc) / scale) ** (-1 - a)
-        * mp.exp(-(((x - loc) / scale) ** -a)),
+        "pdf": lambda x: (
+            (a / scale)
+            * ((x - loc) / scale) ** (-1 - a)
+            * mp.exp(-(((x - loc) / scale) ** -a))
+        ),
         "ppf": lambda u: loc + scale * (-mp.log(mp.mpf(u))) ** (-1 / a),
     }
 
@@ -188,9 +193,9 @@ def _burr(c: float, k: float, s: float) -> dict[str, Any]:
     return {
         "cdf": lambda x: 1 - (1 + (x / ss) ** cc) ** -kk,
         "sf": lambda x: (1 + (x / ss) ** cc) ** -kk,
-        "pdf": lambda x: (cc * kk / ss)
-        * (x / ss) ** (cc - 1)
-        * (1 + (x / ss) ** cc) ** (-kk - 1),
+        "pdf": lambda x: (
+            (cc * kk / ss) * (x / ss) ** (cc - 1) * (1 + (x / ss) ** cc) ** (-kk - 1)
+        ),
         "ppf": lambda u: ss * ((1 - mp.mpf(u)) ** (-1 / kk) - 1) ** (1 / cc),
     }
 
@@ -234,12 +239,12 @@ def _beta_prime(a: float, b: float, s: float) -> dict[str, Any]:
         # I_{1-z}(b,a), whose argument s/(x+s) is computed rather than
         # subtracted -- the same reason the implementation does it this way.
         "sf": lambda x: mp.betainc(bb, aa, 0, ss / (x + ss), regularized=True),
-        "pdf": lambda x: (x / ss) ** (aa - 1)
-        * (1 + x / ss) ** (-aa - bb)
-        / (ss * mp.beta(aa, bb)),
-        "ppf": lambda u: ss
-        * _beta_quantile(aa, bb, u)
-        / (1 - _beta_quantile(aa, bb, u)),
+        "pdf": lambda x: (
+            (x / ss) ** (aa - 1) * (1 + x / ss) ** (-aa - bb) / (ss * mp.beta(aa, bb))
+        ),
+        "ppf": lambda u: (
+            ss * _beta_quantile(aa, bb, u) / (1 - _beta_quantile(aa, bb, u))
+        ),
     }
 
 

@@ -135,7 +135,10 @@ src = ["heavytails", "scripts", "tests"]
 # every file. Reformatting it, or applying a fix, rewrites bytes and breaks the
 # checksums that are its whole point -- so it is not linted and not formatted.
 # The working copies these were archived from are linted where they live.
-extend-exclude = ["research/sparse_contamination/replication_package"]
+extend-exclude = [
+    "research/sparse_contamination/replication_package",
+    "*.md",
+]
 
 [tool.ruff.lint]
 select = [
