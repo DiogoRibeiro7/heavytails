@@ -3,14 +3,18 @@ version: 2
 # Reviewers are assigned from .github/CODEOWNERS; the `reviewers` key here is
 # deprecated and is intentionally omitted.
 updates:
-  # Python dependencies. Updates are grouped so a normal week produces a couple
-  # of reviewable pull requests rather than a dozen single-package ones.
+  # Python dependencies. Related development and documentation packages remain
+  # grouped, while major version upgrades are handled deliberately.
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
     labels:
       - "dependencies"
       - "python"
@@ -43,19 +47,18 @@ updates:
           - "numpy"
           - "scipy"
 
-  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
     labels:
       - "dependencies"
       - "github-actions"
     commit-message:
       prefix: "ci"
       include: "scope"
-    groups:
-      actions:
-        patterns:
-          - "*"
