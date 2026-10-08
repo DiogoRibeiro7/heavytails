@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/project-avatar.png" alt="heavytails project logo" width="160" height="160">
+</p>
+
 # heavytails
 
 **A library of heavy-tailed probability distributions, vectorised over NumPy**

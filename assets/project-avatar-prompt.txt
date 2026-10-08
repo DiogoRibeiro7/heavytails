@@ -1,0 +1,3 @@
+Tool: built-in image generation
+
+Use case: logo-brand. Create a square project emblem for the GitHub repository heavytails. Subject: An ivory probability-density sculpture with a broad warm-gold tail extending far from the peak, representing heavy-tailed distributions. Family style: polished editorial illustration with bold softly sculpted forms, ivory and warm gold on a plain midnight-navy background, matching a family of research-project avatars. One balanced centered emblem with generous margins and few elements; clearly recognizable at 192 pixels. No words, letters, numbers, watermark, frame, or decorative clutter.
