@@ -1,0 +1,7 @@
+Tool: built-in image generation
+
+Use case: logo-brand.
+Asset type: square project logo for heavytails.
+Project purpose: heavytails is a Python library implementing heavy-tailed probability distributions, built from first principles with NumPy-backed vectorized evaluation. The library provides comprehensive support for continuous and discrete heavy-tailed distributions, tail index estimation methods, and diagnostic utilities
+Design direction: A memorable animal mark: a small russet fox curls into a compact resting shape while its extraordinarily long bushy tail sweeps down and far to the right like a heavy-tailed density. Two-color linocut with forest-green and burnt-sienna ink on pale parchment. Strong silhouette, expressive cut marks, warm literary character; no chart axes, no 3D rendering, no words.
+Composition: one finished square image, visually distinctive and readable at 160 pixels, with enough margin for README display. Produce the actual artwork, not a mockup sheet or brand presentation. No watermark. Do not use a navy-and-gold metallic badge aesthetic.
