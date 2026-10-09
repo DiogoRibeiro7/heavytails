@@ -1,0 +1,22 @@
+test_that("Pareto d/p/q/r works at support and tails", {
+  expect_equal(dpareto_ht(c(0, 1, 2), 2), c(0, 2, 0.25))
+  expect_equal(dpareto_ht(Inf, 2), 0)
+  expect_equal(ppareto_ht(c(0, 1, Inf), 2), c(0, 0, 1))
+  expect_equal(ppareto_ht(1e15, 2, lower.tail = FALSE), 1e-30,
+               tolerance = 1e-40)
+  expect_equal(qpareto_ht(c(0, 0.75, 1), 2), c(1, 2, Inf))
+  expect_equal(ppareto_ht(qpareto_ht(0.9, 3), 3), 0.9)
+  expect_true(is.na(dpareto_ht(NA_real_, 2)))
+  expect_true(is.na(ppareto_ht(NA_real_, 2)))
+  expect_true(is.na(qpareto_ht(NA_real_, 2)))
+  set.seed(77)
+  v <- rpareto_ht(20, 2)
+  set.seed(77)
+  expect_identical(v, qpareto_ht(runif(20), 2))
+})
+test_that("bad arguments yield informative errors", {
+  expect_error(dpareto_ht("bad", 2), "numeric")
+  expect_error(dpareto_ht(1, 0), "shape")
+  expect_error(qpareto_ht(1.2, 2), "probability")
+  expect_error(rpareto_ht(1.5, 2), "integer")
+})
