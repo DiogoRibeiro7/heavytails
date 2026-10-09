@@ -1,0 +1,24 @@
+Package: heavytailsR
+Title: Distributions and Tail Risk Methods for Heavy-Tailed Data
+Version: 0.1.0
+Authors@R: person("Diogo", "Ribeiro",
+    email = "dfr@esmad.ipp.pt",
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0009-0001-2022-7072"))
+Description: Provides native R implementations of probability functions and
+    statistical methods for heavy-tailed data. Includes the Pareto type I
+    distribution, Hill estimation of the extreme-value index, and analytic
+    value-at-risk and expected-shortfall calculations. Uses numerically stable
+    expressions for upper-tail probabilities and documents the assumptions of
+    each estimator. The Hill estimator follows Hill (1975)
+    <doi:10.1214/aos/1176343247>.
+License: MIT + file LICENSE
+URL: https://github.com/DiogoRibeiro7/heavytails
+BugReports: https://github.com/DiogoRibeiro7/heavytails/issues
+Depends: R (>= 4.1.0)
+Imports: stats
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

@@ -1,0 +1,8 @@
+# Exports for the native R implementation.
+export(dpareto_ht)
+export(ppareto_ht)
+export(qpareto_ht)
+export(rpareto_ht)
+export(hill_index)
+export(pareto_var)
+export(pareto_es)
