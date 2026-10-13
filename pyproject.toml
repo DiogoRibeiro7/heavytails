@@ -69,11 +69,11 @@ pytest = "^9.0.1"
 pytest-xdist = "^3.8.0"
 pytest-cov = "^7.0.0"
 pytest-benchmark = "^5.3.0"
-pytest-mock = "^3.15.1"
-hypothesis = "^6.168.1"
+pytest-mock = "^3.16.0"
+hypothesis = "^6.168.5"
 
 # Linting and formatting
-ruff = "^0.16.8"
+ruff = "^0.17.0"
 mypy = "^1.19.0"
 pre-commit = "^4.5.0"
 
@@ -83,7 +83,7 @@ pip-audit = "^2.9.0"
 
 # Type stubs
 types-PyYAML = "^6.0.12.20260906"
-types-requests = "^2.33.0.20260906"
+types-requests = "^2.33.0.20261006"
 
 # Development utilities
 ipython = "^8.37.0"
