@@ -65,15 +65,15 @@ include = [
 
 [tool.poetry.group.dev.dependencies]
 # Testing
-pytest = "^9.0.1"
+pytest = "^9.2.0"
 pytest-xdist = "^3.8.0"
 pytest-cov = "^7.0.0"
-pytest-benchmark = "^5.3.0"
-pytest-mock = "^3.15.1"
-hypothesis = "^6.168.1"
+pytest-benchmark = "^5.3.1"
+pytest-mock = "^3.17.0"
+hypothesis = "^6.168.5"
 
 # Linting and formatting
-ruff = "^0.16.8"
+ruff = "^0.17.4"
 mypy = "^1.19.0"
 pre-commit = "^4.5.0"
 
@@ -82,8 +82,8 @@ bandit = "^1.9.2"
 pip-audit = "^2.9.0"
 
 # Type stubs
-types-PyYAML = "^6.0.12.20260906"
-types-requests = "^2.33.0.20260906"
+types-PyYAML = "^6.0.12.20261103"
+types-requests = "^2.33.0.20261030"
 
 # Development utilities
 ipython = "^8.37.0"
